@@ -1,0 +1,32 @@
+syntax="proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+option go_package = "moredoc/api/v1;v1";
+
+message PingRequest{
+    string name = 1;
+}
+
+message PongReply{
+    string                      name        = 1;
+    google.protobuf.Timestamp   created_at  = 2 [(gogoproto.stdtime) = true];
+}
+
+service HealthAPI{
+    rpc Health (google.protobuf.Empty) returns (google.protobuf.Empty){
+        option (google.api.http) = {
+            get: '/health',
+        };
+    }
+
+    rpc Ping (PingRequest) returns (PongReply){
+        option (google.api.http) = {
+            get: '/api/v1/ping',
+        };
+    }
+}

@@ -1,0 +1,10 @@
+# 程序运行级别：debug、info、warn、error
+level="debug"
+port="8080"
+[database]
+    driver="mysql"
+    dsn="root:root@tcp(localhost:3306)/moredoc?charset=utf8mb4&loc=Local&parseTime=true"
+    showSQL=true
+    prefix="mnt_"
+    maxOpen=10
+    maxIdle=10
