@@ -126,7 +126,16 @@ func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
 
 func (m *DBModel) SyncDB() (err error) {
 	tableModels := []interface{}{
-		// &User{},
+		&Attachment{},
+		&Banner{},
+		&Category{},
+		&Config{},
+		&Document{},
+		&DocumentCategory{},
+		&DocumentScore{},
+		&Download{},
+		&Friendlink{},
+		&User{},
 	}
 	if err = m.db.AutoMigrate(tableModels...); err != nil {
 		m.logger.Error("SyncDB", zap.Error(err))

@@ -1,5 +1,6 @@
 go.sum
-app.toml
+*.toml
+!app.example.toml
 *.exe
 *.exe~
 # 忽略生成的proto go文件

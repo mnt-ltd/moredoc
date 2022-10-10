@@ -34,6 +34,7 @@ var versionCmd = &cobra.Command{
 	Long:  `show current version information.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("")
+		fmt.Println("AppName: ", "moredoc")
 		fmt.Println("Version: ", Version)
 		fmt.Println("BuildAt: ", BuildAt)
 		fmt.Println("GitHash: ", GitHash)

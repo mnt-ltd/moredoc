@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
+	"moredoc/service"
 
 	"github.com/spf13/cobra"
 )
@@ -27,7 +27,7 @@ var syncdbCmd = &cobra.Command{
 	Short: "sync database scheme",
 	Long:  `sync database scheme.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("syncdb called")
+		service.SyncDB(cfg, logger)
 	},
 }
 
