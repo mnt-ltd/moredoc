@@ -10,7 +10,7 @@ import (
 )
 
 type Banner struct {
-	Id        int64     `form:"id" json:"id,omitempty" gorm:"column:id;type:bigint(20);size:20;default:0;primarykey;autoIncrement;comment:;"`
+	Id        int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Title     string    `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;default:;comment:横幅名称;"`
 	Path      string    `form:"path" json:"path,omitempty" gorm:"column:path;type:varchar(255);size:255;default:;comment:横幅地址;"`
 	Sort      int       `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
@@ -20,6 +20,19 @@ type Banner struct {
 	UpdatedAt time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;default:;comment:更新时间;"`
 	Url       string    `form:"url" json:"url,omitempty" gorm:"column:url;type:varchar(255);size:255;default:;comment:横幅跳转地址;"`
 }
+
+// 这里是proto文件中的结构体，可以根据需要删除或者调整
+//message Banner {
+// int64 id = 1;
+// string title = 2;
+// string path = 3;
+// int32 sort = 4;
+// int32 status = 5;
+// int32 category = 6;
+// google.protobuf.Timestamp created_at = 7 [ (gogoproto.stdtime) = true ];
+// google.protobuf.Timestamp updated_at = 8 [ (gogoproto.stdtime) = true ];
+// string url = 9;
+//}
 
 func (Banner) TableName() string {
 	return tablePrefix + "banner"

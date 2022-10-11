@@ -11,7 +11,7 @@ import (
 )
 
 type User struct {
-	Id            int64     `form:"id" json:"id,omitempty" gorm:"column:id;type:bigint(20) unsigned;default:0;primarykey;comment:用户 id;"`
+	Id            int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:用户 id;"`
 	Username      string    `form:"username" json:"username,omitempty" gorm:"column:username;type:varchar(64);size:64;default:;index:username,unique;comment:用户名;"`
 	Password      string    `form:"password" json:"password,omitempty" gorm:"column:password;type:varchar(128);size:128;default:;comment:密码;"`
 	Nickname      string    `form:"nickname" json:"nickname,omitempty" gorm:"column:nickname;type:varchar(64);size:64;default:;comment:用户昵称;"`
@@ -34,6 +34,32 @@ type User struct {
 	CreatedAt     time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;default:;comment:创建时间;"`
 	UpdatedAt     time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;default:;comment:更新时间;"`
 }
+
+// 这里是proto文件中的结构体，可以根据需要删除或者调整
+//message User {
+// int64 id = 1;
+// string username = 2;
+// string password = 3;
+// string nickname = 4;
+// string mobile = 5;
+// string email = 6;
+// string address = 7;
+// string signature = 8;
+// string last_login_ip = 9;
+// string register_ip = 10;
+// int32 doc_count = 11;
+// int32 follow_count = 12;
+// int32 fans_count = 13;
+// int32 favorite_count = 14;
+// int32 comment_count = 15;
+// int32 status = 16;
+// string avatar = 17;
+// string identity = 18;
+// string realname = 19;
+// google.protobuf.Timestamp login_at = 20 [ (gogoproto.stdtime) = true ];
+// google.protobuf.Timestamp created_at = 21 [ (gogoproto.stdtime) = true ];
+// google.protobuf.Timestamp updated_at = 22 [ (gogoproto.stdtime) = true ];
+//}
 
 func (User) TableName() string {
 	return tablePrefix + "user"

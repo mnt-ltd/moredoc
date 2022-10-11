@@ -3,7 +3,7 @@
 
 openapi: 3.0.3
 info:
-    title: HealthAPI API
+    title: ""
     version: 0.0.1
 paths:
     /api/v1/ping:
@@ -23,6 +23,167 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/PongReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user:
+        get:
+            tags:
+                - UserAPI
+            description: 查询用户信息。如果传递了Id参数，则表示查询用户的公开信息，否则查询当前用户的私有信息
+            operationId: UserAPI_GetUser
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - UserAPI
+            description: 删除用户。需要验证用户权限
+            operationId: UserAPI_DeleteUser
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/list:
+        get:
+            tags:
+                - UserAPI
+            description: |-
+                查询用户列表。对于非管理员，返回相应用户的公开信息；
+                 对于管理员，返回相应用户的绝大部分信息
+            operationId: UserAPI_ListUser
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: size
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: ids
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListUserReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/login:
+        post:
+            tags:
+                - UserAPI
+            description: 用户登录
+            operationId: UserAPI_Login
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/LoginRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/LoginReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/password:
+        put:
+            tags:
+                - UserAPI
+            description: |-
+                更新用户密码。如果不传用户ID，则表示更新当前用户的密码；
+                 如果穿了用户ID，则表示更新指定用户的密码，这时需要验证当前用户的权限
+            operationId: UserAPI_UpdateUserPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/User'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/register:
+        post:
+            tags:
+                - UserAPI
+            description: 用户注册
+            operationId: UserAPI_Register
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/RegisterRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
                 default:
                     description: Default error response
                     content:
@@ -54,6 +215,30 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        ListUserReply:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    format: int64
+                user:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+        LoginReply:
+            type: object
+            properties:
+                token:
+                    type: string
+        LoginRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
+                captcha:
+                    type: string
         PongReply:
             type: object
             properties:
@@ -62,6 +247,13 @@ components:
                 createdAt:
                     type: string
                     format: date-time
+        RegisterRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                password:
+                    type: string
         Status:
             type: object
             properties:
@@ -78,5 +270,71 @@ components:
                         $ref: '#/components/schemas/GoogleProtobufAny'
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
+        UpdateUserRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                name:
+                    type: string
+        User:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                username:
+                    type: string
+                password:
+                    type: string
+                nickname:
+                    type: string
+                mobile:
+                    type: string
+                email:
+                    type: string
+                address:
+                    type: string
+                signature:
+                    type: string
+                lastLoginIp:
+                    type: string
+                registerIp:
+                    type: string
+                docCount:
+                    type: integer
+                    format: int32
+                followCount:
+                    type: integer
+                    format: int32
+                fansCount:
+                    type: integer
+                    format: int32
+                favoriteCount:
+                    type: integer
+                    format: int32
+                commentCount:
+                    type: integer
+                    format: int32
+                status:
+                    type: integer
+                    format: int32
+                avatar:
+                    type: string
+                identity:
+                    type: string
+                realname:
+                    type: string
+                loginAt:
+                    type: string
+                    format: date-time
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
 tags:
     - name: HealthAPI
+    - name: UserAPI

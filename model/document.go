@@ -10,7 +10,7 @@ import (
 )
 
 type Document struct {
-	Id            int64     `form:"id" json:"id,omitempty" gorm:"column:id;type:bigint(20);size:20;default:0;primarykey;autoIncrement;comment:;"`
+	Id            int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Title         string    `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;default:;comment:文档名称;"`
 	Keywords      string    `form:"keywords" json:"keywords,omitempty" gorm:"column:keywords;type:varchar(255);size:255;default:;comment:文档关键字;"`
 	Description   string    `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(512);size:512;default:;comment:文档描述;"`
@@ -30,10 +30,37 @@ type Document struct {
 	Price         int       `form:"price" json:"price,omitempty" gorm:"column:price;type:int(11);size:11;default:0;comment:价格，0表示免费;"`
 	Size          int64     `form:"size" json:"size,omitempty" gorm:"column:size;type:bigint(20);size:20;default:0;comment:文件大小;"`
 	Status        int       `form:"status" json:"status,omitempty" gorm:"column:status;type:smallint(6);size:6;default:0;index:status;comment:文档状态：0 待转换，1 转换中，2 转换完成，3 转换失败，4 禁用;"`
-	CreatedAt     time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
-	UpdatedAt     time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
-	DeletedAt     gorm.DeletedAt
+	CreatedAt     time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;default:;comment:创建时间;"`
+	UpdatedAt     time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;default:;comment:更新时间;"`
+	DeletedAt     time.Time `form:"deleted_at" json:"deleted_at,omitempty" gorm:"column:deleted_at;type:datetime;default:;comment:;"`
 }
+
+// 这里是proto文件中的结构体，可以根据需要删除或者调整
+//message Document {
+// int64 id = 1;
+// string title = 2;
+// string keywords = 3;
+// string description = 4;
+// int64 user_id = 5;
+// string cover = 6;
+// int32 width = 7;
+// int32 height = 8;
+// int32 preview = 9;
+// int32 pages = 10;
+// string uuid = 11;
+// int32 download_count = 12;
+// int32 view_count = 13;
+// int32 favorite_count = 14;
+// int32 comment_count = 15;
+// int32 score = 16;
+// int32 score_count = 17;
+// int32 price = 18;
+// int64 size = 19;
+// int32 status = 20;
+// google.protobuf.Timestamp created_at = 21 [ (gogoproto.stdtime) = true ];
+// google.protobuf.Timestamp updated_at = 22 [ (gogoproto.stdtime) = true ];
+// google.protobuf.Timestamp deleted_at = 23 [ (gogoproto.stdtime) = true ];
+//}
 
 func (Document) TableName() string {
 	return tablePrefix + "document"

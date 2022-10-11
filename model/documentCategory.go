@@ -10,12 +10,21 @@ import (
 )
 
 type DocumentCategory struct {
-	Id         int64     `form:"id" json:"id,omitempty" gorm:"column:id;type:bigint(20);size:20;default:0;primarykey;autoIncrement;comment:;"`
+	Id         int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	DocumentId int64     `form:"document_id" json:"document_id,omitempty" gorm:"column:document_id;type:bigint(20);size:20;default:0;comment:文档ID;"`
 	CategoryId int64     `form:"category_id" json:"category_id,omitempty" gorm:"column:category_id;type:bigint(20);size:20;default:0;index:category_id;comment:分类ID;"`
-	CreatedAt  time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
-	UpdatedAt  time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	CreatedAt  time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;default:;comment:创建时间;"`
+	UpdatedAt  time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;default:;comment:更新时间;"`
 }
+
+// 这里是proto文件中的结构体，可以根据需要删除或者调整
+//message DocumentCategory {
+// int64 id = 1;
+// int64 document_id = 2;
+// int64 category_id = 3;
+// google.protobuf.Timestamp created_at = 4 [ (gogoproto.stdtime) = true ];
+// google.protobuf.Timestamp updated_at = 5 [ (gogoproto.stdtime) = true ];
+//}
 
 func (DocumentCategory) TableName() string {
 	return tablePrefix + "document_category"

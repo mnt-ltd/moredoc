@@ -10,7 +10,7 @@ import (
 )
 
 type Attachment struct {
-	Id         int64     `form:"id" json:"id,omitempty" gorm:"column:id;type:bigint(20) unsigned;default:0;primarykey;autoIncrement;comment:附件 id;"`
+	Id         int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:附件 id;"`
 	Hash       string    `form:"hash" json:"hash,omitempty" gorm:"column:hash;type:char(32);size:32;default:;index:hash;comment:文件MD5;"`
 	UserId     int64     `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20) unsigned;default:0;index:user_id;comment:用户 id;"`
 	TypeId     int64     `form:"type_id" json:"type_id,omitempty" gorm:"column:type_id;type:bigint(20) unsigned;default:0;comment:类型数据ID，对应与用户头像时，则为用户id，对应为文档时，则为文档ID;"`
@@ -26,6 +26,25 @@ type Attachment struct {
 	CreatedAt  time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;default:;comment:创建时间;"`
 	UpdatedAt  time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;default:;comment:更新时间;"`
 }
+
+// 这里是proto文件中的结构体，可以根据需要删除或者调整
+//message Attachment {
+// int64 id = 1;
+// string hash = 2;
+// int64 user_id = 3;
+// int64 type_id = 4;
+// int32 type = 5;
+// int32 is_approved = 6;
+// string path = 7;
+// string name = 8;
+// int64 size = 9;
+// int64 width = 10;
+// int64 height = 11;
+// string ext = 12;
+// string ip = 13;
+// google.protobuf.Timestamp created_at = 14 [ (gogoproto.stdtime) = true ];
+// google.protobuf.Timestamp updated_at = 15 [ (gogoproto.stdtime) = true ];
+//}
 
 func (Attachment) TableName() string {
 	return tablePrefix + "attachment"

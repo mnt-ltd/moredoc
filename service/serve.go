@@ -60,15 +60,21 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 	// =========================================================================
 
 	endpoint := fmt.Sprintf("localhost:%v", cfg.Port)
+
 	healthAPIService := biz.NewHealthAPIService(dbModel, logger)
-
-	// 注册grpc服务，可以理解为类似给Web服务注册路由
 	v1.RegisterHealthAPIServer(grpcServer, healthAPIService)
-
-	// 注册 restful api 服务
 	err = v1.RegisterHealthAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
 	if err != nil {
 		logger.Fatal("RegisterHealthAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
+	// 用户API接口服务
+	userAPIService := biz.NewUserAPIService(dbModel, logger)
+	v1.RegisterUserAPIServer(grpcServer, userAPIService)
+	err = v1.RegisterUserAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Fatal("RegisterUserAPIHandlerFromEndpoint", zap.Error(err))
 		return
 	}
 

@@ -22,7 +22,10 @@ require (
 	gorm.io/gorm v1.23.2
 )
 
-require google.golang.org/genproto v0.0.0-20220228195345-15d65a4533f7 // indirect
+require (
+	google.golang.org/genproto v0.0.0-20220228195345-15d65a4533f7 // indirect
+	gopkg.in/go-playground/validator.v9 v9.29.1 // indirect
+)
 
 require (
 	github.com/alexandrevicenzi/unchained v1.3.0
@@ -31,6 +34,7 @@ require (
 	github.com/gin-contrib/static v0.0.1
 	github.com/go-playground/locales v0.14.0 // indirect
 	github.com/go-playground/universal-translator v0.18.0 // indirect
+	github.com/go-playground/validator v9.31.0+incompatible
 	github.com/go-playground/validator/v10 v10.10.1 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

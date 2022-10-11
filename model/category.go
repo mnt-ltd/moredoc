@@ -10,7 +10,7 @@ import (
 )
 
 type Category struct {
-	Id        int       `form:"id" json:"id,omitempty" gorm:"column:id;type:int(11);size:11;default:0;primarykey;comment:;"`
+	Id        int       `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	ParentId  int       `form:"parent_id" json:"parent_id,omitempty" gorm:"column:parent_id;type:int(11);size:11;default:0;index:parent_id_title,unique;index:parent_id;comment:上级ID;"`
 	Title     string    `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;default:;index:parent_id_title,unique;comment:分类名称;"`
 	Cover     string    `form:"cover" json:"cover,omitempty" gorm:"column:cover;type:varchar(255);size:255;default:;comment:分类封面;"`
@@ -21,6 +21,20 @@ type Category struct {
 	CreatedAt time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;default:;comment:创建时间;"`
 	UpdatedAt time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;default:;comment:更新时间;"`
 }
+
+// 这里是proto文件中的结构体，可以根据需要删除或者调整
+//message Category {
+// int32 id = 1;
+// int32 parent_id = 2;
+// string title = 3;
+// string cover = 4;
+// int32 doc_count = 5;
+// int32 sort = 6;
+// string alias = 7;
+// int32 status = 8;
+// google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
+// google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
+//}
 
 func (Category) TableName() string {
 	return tablePrefix + "category"

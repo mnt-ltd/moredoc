@@ -10,7 +10,7 @@ import (
 )
 
 type Config struct {
-	Id          int       `form:"id" json:"id,omitempty" gorm:"column:id;type:int(11);size:11;default:0;primarykey;comment:;"`
+	Id          int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Label       string    `form:"label" json:"label,omitempty" gorm:"column:label;type:varchar(64);size:64;default:;comment:标签名称;"`
 	Name        string    `form:"name" json:"name,omitempty" gorm:"column:name;type:varchar(64);size:64;default:;index:name_category,unique;comment:表单字段名称;"`
 	Value       string    `form:"value" json:"value,omitempty" gorm:"column:value;type:text;default:;comment:值;"`
@@ -22,6 +22,21 @@ type Config struct {
 	CreatedAt   time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;default:;comment:创建时间;"`
 	UpdatedAt   time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;default:;comment:更新时间;"`
 }
+
+// 这里是proto文件中的结构体，可以根据需要删除或者调整
+//message Config {
+// int64 id = 1;
+// string label = 2;
+// string name = 3;
+// string value = 4;
+// int32 placeholder = 5;
+// int32 input_type = 6;
+// string category = 7;
+// int32 sort = 8;
+// string options = 9;
+// google.protobuf.Timestamp created_at = 10 [ (gogoproto.stdtime) = true ];
+// google.protobuf.Timestamp updated_at = 11 [ (gogoproto.stdtime) = true ];
+//}
 
 func (Config) TableName() string {
 	return tablePrefix + "config"
