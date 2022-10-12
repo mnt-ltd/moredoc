@@ -2,11 +2,30 @@ package model
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
+	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+)
+
+var json = jsoniter.ConfigCompatibleWithStandardLibrary
+
+const (
+	// ConfigCategorySystem 系统配置：系统名称、logo、版权信息、是否闭站等
+	ConfigCategorySystem = "system"
+	// ConfigCategoryUser 用户配置：是否启用注册、是否需要审核等
+	ConfigCategoryUser = "user"
+	// ConfigCategoryEmail 邮箱配置：smtp服务器、端口、用户名、密码、发件人
+	ConfigCategoryEmail = "email"
+	// ConfigCategoryCaptcha 验证码配置：是否启用验证码、验证码有效期、验证码长度、验证码类型等
+	ConfigCategoryCaptcha = "captcha"
+	// ConfigCategoryJWT JWT配置：JWT有效期、JWT加密密钥等
+	ConfigCategoryJWT = "jwt"
+	// ConfigCategorySecurity 安全配置项
+	ConfigCategorySecurity = "security"
 )
 
 type Config struct {
@@ -200,5 +219,168 @@ func (m *DBModel) DeleteConfig(ids []interface{}) (err error) {
 	if err != nil {
 		m.logger.Error("DeleteConfig", zap.Error(err))
 	}
+	return
+}
+
+type ConfigJWT struct {
+	Duration int    `json:"duration"` // JWT有效期
+	Secret   string `json:"secret"`   // JWT加密密钥
+}
+
+// GetConfigJWT 获取JWT配置
+func (m *DBModel) GetConfigOfJWT() (config ConfigJWT) {
+	var configs []Config
+	err := m.db.Where("category = ?", ConfigCategoryJWT).Find(&configs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetConfigJWT", zap.Error(err))
+	}
+
+	var data = make(map[string]interface{})
+
+	for _, cfg := range configs {
+		switch cfg.Name {
+		case "secret":
+			value := cfg.Value
+			if value == "" {
+				value = "moredoc"
+			}
+			data[cfg.Name] = value
+		case "duration":
+			value, _ := strconv.Atoi(cfg.Value)
+			if value <= 0 {
+				value = 3600 * 24 * 7
+			}
+			data[cfg.Name] = value
+		}
+	}
+
+	bytes, _ := json.Marshal(data)
+	json.Unmarshal(bytes, &config)
+
+	return
+}
+
+type ConfigCaptcha struct {
+	Length int    `json:"length"` // 验证码长度
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
+	Type   string `json:"type"` // 验证码类型
+}
+
+// GetConfigOfCaptcha 获取验证码配置
+func (m *DBModel) GetConfigOfCaptcha() (config ConfigCaptcha) {
+	var configs []Config
+	err := m.db.Where("category = ?", ConfigCategoryCaptcha).Find(&configs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetConfigOfCaptcha", zap.Error(err))
+	}
+
+	for _, cfg := range configs {
+		switch cfg.Name {
+		case "length":
+			config.Length, _ = strconv.Atoi(cfg.Value)
+			if config.Length <= 0 {
+				config.Length = 6
+			}
+		case "width":
+			config.Width, _ = strconv.Atoi(cfg.Value)
+			if config.Width <= 0 {
+				config.Width = 240
+			}
+		case "height":
+			config.Height, _ = strconv.Atoi(cfg.Value)
+			if config.Height <= 0 {
+				config.Height = 60
+			}
+		case "type":
+			// 验证码类型
+			config.Type = cfg.Value
+		}
+	}
+	return
+}
+
+type ConfigSystem struct {
+	Domain      string `json:"domain"`      // 站点域名，不带 HTTPS:// 和 HTTP://
+	Title       string `json:"title"`       // 系统名称
+	Keywords    string `json:"keywords"`    // 系统关键字
+	Description string `json:"description"` // 系统描述
+	Logo        string `json:"logo"`        // logo
+	Favicon     string `json:"favicon"`     // logo
+	Theme       string `json:"theme"`       // 网站主题
+	Copyright   string `json:"copyright"`   // 版权信息
+	ICP         string `json:"icp"`         // 网站备案
+	Analytics   string `json:"analytics"`   // 统计代码
+}
+
+// GetConfigOfSystem 获取系统配置
+func (m *DBModel) GetConfigOfSystem() (config ConfigSystem) {
+	var confgis []Config
+	err := m.db.Where("category = ?", ConfigCategorySystem).Find(&confgis).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetConfigOfSystem", zap.Error(err))
+	}
+
+	var data = make(map[string]interface{})
+
+	for _, cfg := range confgis {
+		switch cfg.Name {
+		// 字符串类型的配置项
+		case "title", "description", "keywords", "logo", "favicon", "icp", "domain", "analytics", "theme", "copyright":
+			data[cfg.Name] = cfg.Value
+		}
+	}
+
+	bytes, _ := json.Marshal(data)
+	json.Unmarshal(bytes, &config)
+
+	return
+}
+
+var (
+	ConfigSecurityIsClose                   = "is_close"                     // 是否关闭注册
+	ConfigSecurityEnableRegister            = "enable_register"              // 是否允许注册
+	ConfigSecurityEnableCaptchaLogin        = "enable_captcha_login"         // 是否开启登录验证码
+	ConfigSecurityEnableCaptchaRegister     = "enable_captcha_register"      // 是否开启注册验证码
+	ConfigSecurityEnableCaptchaComment      = "enable_captcha_comment"       // 是否开启注册验证码
+	ConfigSecurityEnableCaptchaFindPassword = "enable_captcha_find_password" // 是否开启注册验证码
+	ConfigSecurityEnableCaptchaUpload       = "enable_captcha_upload"        // 是否开启注册验证码
+)
+
+type ConfigSecurity struct {
+	IsClose                   bool `json:"is_close"`                     // 是否闭站
+	EnableRegister            bool `json:"enable_register"`              // 是否启用注册
+	EnableCaptchaLogin        bool `json:"enable_captcha_login"`         // 是否启用登录验证码
+	EnableCaptchaRegister     bool `json:"enable_captcha_register"`      // 是否启用注册验证码
+	EnableCaptchaComment      bool `json:"enable_captcha_comment"`       // 是否启用评论验证码
+	EnableCaptchaFindPassword bool `json:"enable_captcha_find_password"` // 找回密码是否需要验证码
+	EnableCaptchaUpload       bool `json:"enable_captcha_upload"`        // 上传文档是否需要验证码
+}
+
+// GetConfigOfSecurity 获取安全配置
+func (m *DBModel) GetConfigOfSecurity(name ...string) (config ConfigSecurity) {
+	var configs []Config
+	db := m.db.Where("category = ?", ConfigCategorySecurity)
+	if len(name) > 0 {
+		db = db.Where("name in (?)", name)
+	}
+	err := db.Find(&configs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetConfigOfSecurity", zap.Error(err))
+	}
+
+	var data = make(map[string]interface{})
+
+	for _, cfg := range configs {
+		switch cfg.Name {
+		case "is_close", "enable_register", "enable_captcha_login", "enable_captcha_register", "enable_captcha_comment", "enable_captcha_find_password", "enable_captcha_upload":
+			value, _ := strconv.ParseBool(cfg.Value)
+			data[cfg.Name] = value
+		}
+	}
+
+	bytes, _ := json.Marshal(data)
+	json.Unmarshal(bytes, &config)
+
 	return
 }

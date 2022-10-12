@@ -38,9 +38,15 @@ message User {
 }
 
 message RegisterAndLoginRequest {
-  string username = 1 [(gogoproto.moretags) = "validate:\"min=4,max=32,alphanum\""];
-  string password = 2 [(gogoproto.moretags) = "validate:\"min=6\""];
+  string username = 1
+      [ (gogoproto.moretags) = "validate:\"min=4,max=32,alphanum\"" ];
+  string password = 2 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
   string captcha = 3;
+  string captcha_id = 4;
+}
+
+message GetUserCaptchaRequest {
+  string type = 1; // 验证码类型：register、login、comment、find_password、upload
 }
 
 message LoginReply { string token = 1; }
@@ -65,6 +71,13 @@ message ListUserRequest {
 message ListUserReply {
   int64 total = 1;
   repeated User user = 2;
+}
+
+message GetUserCaptchaReply {
+  bool enable = 1;
+  string id = 2;
+  string captcha = 3;
+  string type = 4;
 }
 
 // 修改用户密码
@@ -119,6 +132,13 @@ service UserAPI {
   rpc ListUser(ListUserRequest) returns (ListUserReply) {
     option (google.api.http) = {
       get : '/api/v1/user/list',
+    };
+  }
+
+  // GetUserCaptcha 获取用户验证码
+  rpc GetUserCaptcha(GetUserCaptchaRequest) returns (GetUserCaptchaReply) {
+    option (google.api.http) = {
+      get : '/api/v1/user/captcha',
     };
   }
 

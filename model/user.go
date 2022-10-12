@@ -6,6 +6,8 @@ import (
 	"time"
 
 	"github.com/alexandrevicenzi/unchained"
+	"github.com/gofrs/uuid"
+	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -234,4 +236,46 @@ func (m *DBModel) DeleteUser(ids []interface{}) (err error) {
 		m.logger.Error("DeleteUser", zap.Error(err))
 	}
 	return
+}
+
+type UserClaims struct {
+	UserId int64
+	UUID   string
+	jwt.StandardClaims
+}
+
+// CreateUserJWTToken 生成用户JWT Token
+func (m *DBModel) CreateUserJWTToken(userId int64) (string, error) {
+	jwtCfg := m.GetConfigOfJWT()
+	expireTime := time.Now().Add(time.Duration(jwtCfg.Duration) * time.Second).Unix()
+	claims := UserClaims{
+		UserId: userId,
+		UUID:   uuid.Must(uuid.NewV4()).String(),
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expireTime,
+			Issuer:    "moredoc",
+			IssuedAt:  time.Now().Unix(),
+		},
+	}
+	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, claims).SignedString([]byte(jwtCfg.Secret))
+	return token, err
+}
+
+// CheckUserJWTToken 验证用户JWT token
+func (m *DBModel) CheckUserJWTToken(token string) (*UserClaims, error) {
+	jwtCfg := m.GetConfigOfJWT()
+	tokenClaims, err := jwt.ParseWithClaims(token, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+		return []byte(jwtCfg.Secret), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if tokenClaims != nil {
+		if claims, ok := tokenClaims.Claims.(*UserClaims); ok && tokenClaims.Valid {
+			return claims, nil
+		}
+	}
+	return nil, err
 }
