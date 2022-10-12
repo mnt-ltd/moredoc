@@ -30,16 +30,16 @@ const (
 
 type Config struct {
 	Id          int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
-	Label       string    `form:"label" json:"label,omitempty" gorm:"column:label;type:varchar(64);size:64;default:;comment:标签名称;"`
-	Name        string    `form:"name" json:"name,omitempty" gorm:"column:name;type:varchar(64);size:64;default:;index:name_category,unique;comment:表单字段名称;"`
-	Value       string    `form:"value" json:"value,omitempty" gorm:"column:value;type:text;default:;comment:值;"`
-	Placeholder int       `form:"placeholder" json:"placeholder,omitempty" gorm:"column:placeholder;type:int(11);size:11;default:0;comment:提示信息;"`
-	InputType   int       `form:"input_type" json:"input_type,omitempty" gorm:"column:input_type;type:int(11);size:11;default:0;comment:输入类型;"`
-	Category    string    `form:"category" json:"category,omitempty" gorm:"column:category;type:varchar(32);size:32;default:;index:name_category,unique;index:category;comment:所属类别;"`
+	Label       string    `form:"label" json:"label,omitempty" gorm:"column:label;type:varchar(64);size:64;comment:标签名称;"`
+	Name        string    `form:"name" json:"name,omitempty" gorm:"column:name;type:varchar(64);size:64;index:name_category,unique;comment:表单字段名称;"`
+	Value       string    `form:"value" json:"value,omitempty" gorm:"column:value;type:text;comment:值;"`
+	Placeholder string    `form:"placeholder" json:"placeholder,omitempty" gorm:"column:placeholder;type:varchar(255);size:255;comment:提示信息;"`
+	InputType   string    `form:"input_type" json:"input_type,omitempty" gorm:"column:input_type;type:varchar(32);size:32;default:text;comment:输入类型;"`
+	Category    string    `form:"category" json:"category,omitempty" gorm:"column:category;type:varchar(32);size:32;index:name_category,unique;index:category;comment:所属类别;"`
 	Sort        int       `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:同一category下的排序;"`
-	Options     string    `form:"options" json:"options,omitempty" gorm:"column:options;type:text;default:;comment:针对checkbox等的枚举值;"`
-	CreatedAt   time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;default:;comment:创建时间;"`
-	UpdatedAt   time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;default:;comment:更新时间;"`
+	Options     string    `form:"options" json:"options,omitempty" gorm:"column:options;type:text;comment:针对checkbox等的枚举值;"`
+	CreatedAt   time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	UpdatedAt   time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
 
 // 这里是proto文件中的结构体，可以根据需要删除或者调整
@@ -222,6 +222,11 @@ func (m *DBModel) DeleteConfig(ids []interface{}) (err error) {
 	return
 }
 
+const (
+	ConfigJWTDuration = "duration"
+	ConfigJWTSecret   = "secret"
+)
+
 type ConfigJWT struct {
 	Duration int    `json:"duration"` // JWT有效期
 	Secret   string `json:"secret"`   // JWT加密密钥
@@ -259,6 +264,13 @@ func (m *DBModel) GetConfigOfJWT() (config ConfigJWT) {
 
 	return
 }
+
+const (
+	ConfigCaptchaLength = "length"
+	ConfigCaptchaWidth  = "width"
+	ConfigCaptchaHeight = "height"
+	ConfigCaptchaType   = "type"
+)
 
 type ConfigCaptcha struct {
 	Length int    `json:"length"` // 验证码长度
@@ -300,6 +312,19 @@ func (m *DBModel) GetConfigOfCaptcha() (config ConfigCaptcha) {
 	return
 }
 
+const (
+	ConfigSystemDomain      = "domain"
+	ConfigSystemTitle       = "title"
+	ConfigSystemDescription = "description"
+	ConfigSystemKeywords    = "keywords"
+	ConfigSystemLogo        = "logo"
+	ConfigSystemFavicon     = "favicon"
+	ConfigSystemIcp         = "icp"
+	ConfigSystemAnalytics   = "analytics"
+	ConfigSystemTheme       = "theme"
+	ConfigSystemCopyright   = "copyright"
+)
+
 type ConfigSystem struct {
 	Domain      string `json:"domain"`      // 站点域名，不带 HTTPS:// 和 HTTP://
 	Title       string `json:"title"`       // 系统名称
@@ -337,7 +362,7 @@ func (m *DBModel) GetConfigOfSystem() (config ConfigSystem) {
 	return
 }
 
-var (
+const (
 	ConfigSecurityIsClose                   = "is_close"                     // 是否关闭注册
 	ConfigSecurityEnableRegister            = "enable_register"              // 是否允许注册
 	ConfigSecurityEnableCaptchaLogin        = "enable_captcha_login"         // 是否开启登录验证码

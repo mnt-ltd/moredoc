@@ -11,13 +11,13 @@ import (
 
 type Friendlink struct {
 	Id        int       `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
-	Title     string    `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;default:;comment:链接名称;"`
-	Link      string    `form:"link" json:"link,omitempty" gorm:"column:link;type:varchar(255);size:255;default:;comment:链接地址;"`
-	Note      string    `form:"note" json:"note,omitempty" gorm:"column:note;type:text;default:;comment:备注;"`
+	Title     string    `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;comment:链接名称;"`
+	Link      string    `form:"link" json:"link,omitempty" gorm:"column:link;type:varchar(255);size:255;comment:链接地址;"`
+	Note      string    `form:"note" json:"note,omitempty" gorm:"column:note;type:text;comment:备注;"`
 	Sort      int       `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
 	Status    int8      `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;comment:状态：0 正常，1 禁用;"`
-	CreatedAt time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;default:;comment:创建时间;"`
-	UpdatedAt time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;default:;comment:更新时间;"`
+	CreatedAt time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	UpdatedAt time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
 
 // 这里是proto文件中的结构体，可以根据需要删除或者调整

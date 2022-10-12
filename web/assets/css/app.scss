@@ -1,0 +1,64 @@
+$bg: #ecf5ff;
+body{
+    margin: 0;padding: 0;
+    background-color: #fff;
+}
+
+.btn-block{
+    width: 100%;
+}
+
+.layout-admin{
+    height: 100vh;
+    .el-aside{
+        height: 100vh;
+        border-right: 1px solid #e6e6e6;
+        .el-menu{
+            border-right: 0;
+        }
+    }
+    .create-project{
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid $bg;
+        &:hover{
+            background-color: $bg;
+        }
+    }
+    .el-header{
+        border-bottom: 1px solid #e6e6e6;
+        line-height: 60px;
+        .fold{
+            padding: 0 15px 0 0;
+            font-size: 20px;
+            color: #999;
+            cursor: pointer;
+            &:hover{
+                color: #555
+            }
+        }
+    }
+    .el-footer{
+        border-top: 1px solid #e6e6e6;
+        text-align: center;
+        line-height: 60px;
+        height: 60px;
+        overflow: hidden;
+        color: #999;
+        a{
+            color: #409eff;
+        }
+    }
+}
+
+.page-login{
+    .el-card{
+        width: 400px;
+        max-width: 100%;
+        margin: 20vh auto;
+    }
+}
+
+.page-admin-projects{
+    
+}

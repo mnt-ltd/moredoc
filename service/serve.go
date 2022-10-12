@@ -61,14 +61,6 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 
 	endpoint := fmt.Sprintf("localhost:%v", cfg.Port)
 
-	healthAPIService := biz.NewHealthAPIService(dbModel, logger)
-	v1.RegisterHealthAPIServer(grpcServer, healthAPIService)
-	err = v1.RegisterHealthAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
-	if err != nil {
-		logger.Fatal("RegisterHealthAPIHandlerFromEndpoint", zap.Error(err))
-		return
-	}
-
 	// 用户API接口服务
 	userAPIService := biz.NewUserAPIService(dbModel, logger)
 	v1.RegisterUserAPIServer(grpcServer, userAPIService)
