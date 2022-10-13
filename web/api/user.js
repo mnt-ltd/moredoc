@@ -32,6 +32,14 @@ export const updateUserPassword = (data) => {
   })
 }
 
+export const updateUser = (data) => {
+  return service({
+    url: '/api/v1/user/password',
+    method: 'put',
+    data,
+  })
+}
+
 export const deleteUser = (params) => {
   return service({
     url: '/api/v1/user',

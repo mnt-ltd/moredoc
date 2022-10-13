@@ -1,5 +1,5 @@
 import { Message } from 'element-ui'
-import { login, getUser, setUserProfile } from '~/api/user'
+import { login, getUser, updateUser } from '~/api/user'
 export const user = {
   namespaced: true,
   state: {
@@ -36,8 +36,8 @@ export const user = {
       }
       return res
     },
-    async setUserProfile({ commit }, profile) {
-      const res = await setUserProfile(profile)
+    async updateUser({ commit }, profile) {
+      const res = await updateUser(profile)
       if (res.status === 200) {
         commit('setUser', res.data.data)
         Message({
@@ -55,19 +55,15 @@ export const user = {
     async Login({ commit }, loginInfo) {
       const res = await login(loginInfo)
       if (res.status === 200) {
-        commit('setUser', res.data.data.user)
-        commit('setToken', res.data.data.token)
-        Message({
-          type: 'success',
-          message: '登录成功',
-        })
-        location.reload()
+        commit('setUser', res.data.user)
+        commit('setToken', res.data.token)
       } else {
         Message({
           type: 'error',
           message: res.data.message || '登录失败',
         })
       }
+      return res
     },
     Logout({ commit }) {
       commit('logout')

@@ -15,26 +15,25 @@ option java_package = "api.v1";
 message User {
   int64 id = 1;
   string username = 2;
-  string password = 3;
-  string nickname = 4;
-  string mobile = 5;
-  string email = 6;
-  string address = 7;
-  string signature = 8;
-  string last_login_ip = 9;
-  string register_ip = 10;
-  int32 doc_count = 11;
-  int32 follow_count = 12;
-  int32 fans_count = 13;
-  int32 favorite_count = 14;
-  int32 comment_count = 15;
-  int32 status = 16;
-  string avatar = 17;
-  string identity = 18;
-  string realname = 19;
-  google.protobuf.Timestamp login_at = 20 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp created_at = 21 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 22 [ (gogoproto.stdtime) = true ];
+  string nickname = 3;
+  string mobile = 4;
+  string email = 5;
+  string address = 6;
+  string signature = 7;
+  string last_login_ip = 8;
+  string register_ip = 9;
+  int32 doc_count = 10;
+  int32 follow_count = 11;
+  int32 fans_count = 12;
+  int32 favorite_count = 13;
+  int32 comment_count = 14;
+  int32 status = 15;
+  string avatar = 16;
+  string identity = 17;
+  string realname = 18;
+  google.protobuf.Timestamp login_at = 19 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp created_at = 20 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 21 [ (gogoproto.stdtime) = true ];
 }
 
 message RegisterAndLoginRequest {
@@ -46,17 +45,19 @@ message RegisterAndLoginRequest {
 }
 
 message GetUserCaptchaRequest {
-  string type = 1; // 验证码类型：register、login、comment、find_password、upload
+  string type =
+      1; // 验证码类型：register、login、comment、find_password、upload
 }
 
-message LoginReply { string token = 1; }
+message LoginReply {
+  string token = 1;
+  User user = 2;
+}
 
 message UpdateUserRequest {
   int64 id = 1;
   string name = 2;
 }
-
-message UpdateUserReply { User user = 1; }
 
 message DeleteUserRequest { repeated int64 id = 1; }
 
@@ -114,6 +115,15 @@ service UserAPI {
   // 更新用户密码。如果不传用户ID，则表示更新当前用户的密码；
   // 如果穿了用户ID，则表示更新指定用户的密码，这时需要验证当前用户的权限
   rpc UpdateUserPassword(UpdateUserRequest) returns (User) {
+    option (google.api.http) = {
+      put : '/api/v1/user/password',
+      body : '*',
+    };
+  }
+
+  // 更新用户密码。如果不传用户ID，则表示更新当前用户的密码；
+  // 如果穿了用户ID，则表示更新指定用户的密码，这时需要验证当前用户的权限
+  rpc UpdateUser(User) returns (User) {
     option (google.api.http) = {
       put : '/api/v1/user/password',
       body : '*',

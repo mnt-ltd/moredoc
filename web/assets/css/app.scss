@@ -4,6 +4,8 @@ body{
     background-color: #fff;
 }
 
+.pointer{cursor: pointer;}
+
 .btn-block{
     width: 100%;
 }
@@ -53,7 +55,7 @@ body{
 
 .page-login{
     .el-card{
-        width: 400px;
+        width: 450px;
         max-width: 100%;
         margin: 20vh auto;
     }

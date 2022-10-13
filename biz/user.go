@@ -2,9 +2,11 @@ package biz
 
 import (
 	"context"
+	"time"
 
 	pb "moredoc/api/v1"
 	"moredoc/model"
+	"moredoc/util"
 	"moredoc/util/validate"
 
 	"moredoc/util/captcha"
@@ -12,6 +14,7 @@ import (
 	"github.com/alexandrevicenzi/unchained"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
@@ -61,7 +64,10 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 		return nil, status.Errorf(codes.AlreadyExists, "用户名已存在")
 	}
 
-	user := &model.User{Username: req.Username, Password: req.Password}
+	user := &model.User{Username: req.Username, Password: req.Password, RegisterIp: ip}
+	if p, ok := peer.FromContext(ctx); ok {
+		user.RegisterIp = p.Addr.String()
+	}
 	if err = s.dbModel.CreateUser(user); err != nil {
 		s.logger.Error("CreateUser", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, err.Error())
@@ -73,6 +79,7 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 // Login 用户登录
 // TODO: 1. 判断是否启用了验证码，如果启用了验证码，则需要进行验证码验证
 func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequest) (*pb.LoginReply, error) {
+
 	errValidate := validate.ValidateStruct(req, s.getValidFieldMap())
 	if errValidate != nil {
 		return nil, status.Errorf(codes.InvalidArgument, errValidate.Error())
@@ -84,7 +91,7 @@ func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequ
 		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
 	}
 
-	user, err := s.dbModel.GetUserByUsername(req.Username, "id", "password")
+	user, err := s.dbModel.GetUserByUsername(req.Username)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
@@ -97,10 +104,25 @@ func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequ
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return &pb.LoginReply{Token: token}, nil
+	pbUser := &pb.User{}
+	util.CopyStruct(&user, pbUser)
+
+	ip := ""
+	if p, ok := peer.FromContext(ctx); ok {
+		ip = p.Addr.String()
+	}
+	if e := s.dbModel.UpdateUser(&model.User{Id: user.Id, LoginAt: time.Now(), LastLoginIp: ip}, "login_at", "last_login_ip"); e != nil {
+		s.logger.Error("UpdateUser", zap.Error(e))
+	}
+
+	return &pb.LoginReply{Token: token, User: pbUser}, nil
 }
 
 func (s *UserAPIService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.User, error) {
+	return &pb.User{}, nil
+}
+
+func (s *UserAPIService) UpdateUser(ctx context.Context, req *pb.User) (*pb.User, error) {
 	return &pb.User{}, nil
 }
 

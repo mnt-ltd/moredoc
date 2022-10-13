@@ -46,14 +46,18 @@ func GenerateCaptcha(captchaType string) (id, b64s string, err error) {
 			Width:      width,
 			NoiseCount: 0,
 		}
-	case "chinese":
-		driver = &base64Captcha.DriverChinese{
-			Height: height,
-			Width:  width,
-			Source: sourceChinese,
-			Length: 4, // 4个字符
-			Fonts:  []string{"wqy-microhei.ttc"},
-		}
+	// case "chinese":
+	// 	driver = base64Captcha.NewDriverChinese(
+	// 		height,
+	// 		width,
+	// 		0,
+	// 		0,
+	// 		4,
+	// 		sourceChinese,
+	// 		nil,
+	// 		nil,
+	// 		[]string{"wqy-microhei.ttc"},
+	// 	).ConvertFonts()
 	default:
 		driver = &base64Captcha.DriverDigit{
 			Height:   height,

@@ -21,8 +21,8 @@ type User struct {
 	Email         string    `form:"email" json:"email,omitempty" gorm:"column:email;type:varchar(64);size:64;index:email;comment:联系邮箱;"`
 	Address       string    `form:"address" json:"address,omitempty" gorm:"column:address;type:varchar(255);size:255;comment:联系地址;"`
 	Signature     string    `form:"signature" json:"signature,omitempty" gorm:"column:signature;type:varchar(255);size:255;comment:签名;"`
-	LastLoginIp   string    `form:"last_login_ip" json:"last_login_ip,omitempty" gorm:"column:last_login_ip;type:varchar(16);size:16;comment:最后登录 ip 地址;"`
-	RegisterIp    string    `form:"register_ip" json:"register_ip,omitempty" gorm:"column:register_ip;type:varchar(16);size:16;comment:注册ip;"`
+	LastLoginIp   string    `form:"last_login_ip" json:"last_login_ip,omitempty" gorm:"column:last_login_ip;type:varchar(32);size:32;comment:最后登录 ip 地址;"`
+	RegisterIp    string    `form:"register_ip" json:"register_ip,omitempty" gorm:"column:register_ip;type:varchar(32);size:32;comment:注册ip;"`
 	DocCount      int       `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(10) unsigned;default:0;comment:上传的文档数;"`
 	FollowCount   int       `form:"follow_count" json:"follow_count,omitempty" gorm:"column:follow_count;type:int(10) unsigned;default:0;comment:关注数;"`
 	FansCount     int       `form:"fans_count" json:"fans_count,omitempty" gorm:"column:fans_count;type:int(10) unsigned;default:0;comment:粉丝数;"`
