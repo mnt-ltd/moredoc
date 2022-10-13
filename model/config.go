@@ -2,10 +2,12 @@ package model
 
 import (
 	"fmt"
+	"moredoc/util/captcha"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/gofrs/uuid"
 	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -407,5 +409,61 @@ func (m *DBModel) GetConfigOfSecurity(name ...string) (config ConfigSecurity) {
 	bytes, _ := json.Marshal(data)
 	json.Unmarshal(bytes, &config)
 
+	return
+}
+
+func (m *DBModel) initConfig() (err error) {
+	// 初始化配置项
+	cfgs := []Config{
+		// 系统配置项
+		{Category: ConfigCategorySystem, Name: ConfigSystemTitle, Label: "网站名称", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的名称", InputType: "text", Sort: 1, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemDescription, Label: "网站描述", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的描述", InputType: "text", Sort: 2, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemKeywords, Label: "网站关键字", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的关键字", InputType: "text", Sort: 3, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemLogo, Label: "网站Logo", Value: "", Placeholder: "请输入您网站的Logo", InputType: "text", Sort: 4, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemFavicon, Label: "网站Favicon", Value: "", Placeholder: "请输入您网站的Favicon", InputType: "text", Sort: 5, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemIcp, Label: "网站备案号", Value: "", Placeholder: "请输入您网站的备案号", InputType: "text", Sort: 6, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "", Placeholder: "请输入您网站的域名", InputType: "textarea", Sort: 7, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemAnalytics, Label: "网站统计代码", Value: "", Placeholder: "请输入您网站的统计代码", InputType: "text", Sort: 8, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemTheme, Label: "网站主题", Value: "default", Placeholder: "请输入您网站的主题", InputType: "text", Sort: 9, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemCopyright, Label: "网站版权信息", Value: "", Placeholder: "请输入您网站的版权信息", InputType: "text", Sort: 10, Options: ""},
+
+		// JWT 配置项
+		{Category: ConfigCategoryJWT, Name: ConfigJWTDuration, Label: "Token有效期", Value: "365", Placeholder: "用户Token签名有效期，单位为天，默认365天", InputType: "number", Sort: 11, Options: ""},
+		{Category: ConfigCategoryJWT, Name: ConfigJWTSecret, Label: "Token密钥", Value: uuid.Must(uuid.NewV4()).String(), Placeholder: "用户Token签名密钥，修改之后，之前所有的token签名都将失效，请慎重修改", InputType: "text", Sort: 12, Options: ""},
+
+		// 验证码配置项
+		{Category: ConfigCategoryCaptcha, Name: ConfigCaptchaHeight, Label: "验证码高度", Value: "60", Placeholder: "请输入验证码高度，默认为60", InputType: "number", Sort: 13, Options: ""},
+		{Category: ConfigCategoryCaptcha, Name: ConfigCaptchaWidth, Label: "验证码宽度", Value: "240", Placeholder: "请输入验证码宽度，默认为240", InputType: "number", Sort: 14, Options: ""},
+		{Category: ConfigCategoryCaptcha, Name: ConfigCaptchaLength, Label: "验证码长度", Value: "5", Placeholder: "请输入验证码长度，默认为6", InputType: "number", Sort: 15, Options: ""},
+		{Category: ConfigCategoryCaptcha, Name: ConfigCaptchaType, Label: "验证码类型", Value: "digit", Placeholder: "请选择验证码类型，默认为数字", InputType: "select", Sort: 16, Options: captcha.CaptchaTypeOptions},
+
+		// 安全配置项
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityIsClose, Label: "是否关闭网站", Value: "false", Placeholder: "请选择是否关闭网站", InputType: "swith", Sort: 17, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableRegister, Label: "是否允许注册", Value: "true", Placeholder: "请选择是否允许用户注册", InputType: "swith", Sort: 18, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaLogin, Label: "是否开启登录验证码", Value: "true", Placeholder: "请选择是否开启登录验证码", InputType: "swith", Sort: 19, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaRegister, Label: "是否开启注册验证码", Value: "true", Placeholder: "请选择是否开启注册验证码", InputType: "swith", Sort: 20, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaComment, Label: "是否开启评论验证码", Value: "true", Placeholder: "请选择是否开启评论验证码", InputType: "swith", Sort: 21, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaFindPassword, Label: "是否开启找回密码验证码", Value: "true", Placeholder: "请选择是否开启找回密码验证码", InputType: "swith", Sort: 22, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaUpload, Label: "是否开启文档上传验证码", Value: "true", Placeholder: "请选择是否开启文档上传验证码", InputType: "swith", Sort: 23, Options: ""},
+	}
+
+	for _, cfg := range cfgs {
+		existConfig, _ := m.GetConfigByNameCategory(cfg.Name, cfg.Category, "id")
+		if existConfig.Id > 0 {
+			// 更新除了值之外的所有字段
+			cfg.Id = existConfig.Id
+			err = m.db.Omit("value").Updates(&cfg).Error
+			if err != nil {
+				m.logger.Error("initConfig", zap.Error(err))
+				return
+			}
+			continue
+		}
+		err = m.CreateConfig(&cfg)
+		if err != nil {
+			m.logger.Error("initConfig", zap.Error(err))
+			return
+		}
+	}
 	return
 }

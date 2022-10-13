@@ -308,3 +308,21 @@ func (m *DBModel) CheckUserJWTToken(token string) (*UserClaims, error) {
 	}
 	return nil, err
 }
+
+func (m *DBModel) initUser() (err error) {
+	// 如果不存在任意用户，则初始化一个用户作为管理员
+	var existUser User
+	m.db.Select("id").First(&existUser)
+	if existUser.Id > 0 {
+		return
+	}
+
+	// 初始化一个用户
+	user := &User{Username: "admin", Password: "123456"}
+	groupId := 1 // ID==1的用户组为管理员组
+	err = m.CreateUser(user, int64(groupId))
+	if err != nil {
+		m.logger.Error("initUser", zap.Error(err))
+	}
+	return
+}

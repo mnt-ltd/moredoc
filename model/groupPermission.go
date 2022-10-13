@@ -190,3 +190,39 @@ func (m *DBModel) DeleteGroupPermission(ids []interface{}) (err error) {
 	}
 	return
 }
+
+//  CheckPermissionByUserId 根据用户ID，检查用户是否有权限
+func (m *DBModel) CheckPermissionByUserId(permissionIdentifier string, userId int64) (yes bool) {
+	var (
+		userGroups []UserGroup
+		groupId    []int64
+	)
+
+	m.db.Where("user_id = ?", userId).Find(&userGroups)
+	for _, ug := range userGroups {
+		groupId = append(groupId, ug.GroupId)
+	}
+
+	return m.CheckPermissionByGroupId(permissionIdentifier, groupId)
+}
+
+//  CheckPermissionByGroupId 根据用户所属用户组ID，检查用户是否有权限
+func (m *DBModel) CheckPermissionByGroupId(permissionIdentifier string, groupId []int64) (yes bool) {
+	if len(groupId) == 0 {
+		return
+	}
+
+	permission, _ := m.GetPermissionByIdentifier(permissionIdentifier, "id")
+	if permission.Id == 0 {
+		return
+	}
+
+	var groupPermission GroupPermission
+	err := m.db.Where("group_id in (?) and permission_id = ?", groupId, permission.Id).First(&groupPermission).Error
+	if err != nil {
+		m.logger.Error("CheckPermissionByGroupId", zap.Error(err))
+	}
+
+	// 如果有权限，返回true
+	return groupPermission.Id > 0
+}
