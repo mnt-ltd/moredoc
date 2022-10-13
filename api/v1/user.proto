@@ -36,16 +36,14 @@ message User {
 }
 
 message RegisterAndLoginRequest {
-  string username = 1
-      [ (gogoproto.moretags) = "validate:\"min=4,max=32,alphanum\"" ];
+  string username = 1 [ (gogoproto.moretags) = "validate:\"min=4,max=32\"" ];
   string password = 2 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
   string captcha = 3;
   string captcha_id = 4;
 }
 
 message GetUserCaptchaRequest {
-  string type =
-      1; // 验证码类型：register、login、comment、find_password、upload
+  string type = 1; // 验证码类型：register、login、comment、find_password、upload
 }
 
 message LoginReply {

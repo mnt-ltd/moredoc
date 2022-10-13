@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"moredoc/model"
-	"net/http"
 	"strings"
 	"time"
 
@@ -11,9 +10,15 @@ import (
 	grpc_auth "github.com/grpc-ecosystem/go-grpc-middleware/auth"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
+
+/*
+
+当前中间件的作用，主要是将用户的token信息解析存放到ctx中，方便后续的业务逻辑使用。
+
+这里无论用户登录与否，都会执行该中间件，如果用户登录，则会将用户信息存放到ctx中，否则，ctx中不会有用户信息。
+
+*/
 
 type AuthService struct {
 	dbModel *model.DBModel
@@ -34,9 +39,9 @@ const (
 	CtxKeyUserClaims ContextKey = "user"
 )
 
-const (
-	messageInvalidToken = "您的登录令牌已过期，请重新登录"
-)
+// const (
+// 	messageInvalidToken = "您的登录令牌已过期，请重新登录"
+// )
 
 type ServiceAuthFuncOverride interface {
 	AuthFuncOverride(ctx context.Context, fullMethodName string) (context.Context, error)
@@ -56,18 +61,16 @@ func (s *AuthService) AuthUnaryServerInterceptor() grpc.UnaryServerInterceptor {
 // 1. 从权限表中查询API，如果存在该API，则表示该API需要权限才能访问，如果不存在，则跳过
 // 2. 如果用户携带有token，则根据token判断是否有效，如果有效，则获取用户信息放到ctx，否则跳过
 func (s *AuthService) AuthGRPC(ctx context.Context, info *grpc.UnaryServerInfo) (context.Context, error) {
-
 	token, err := grpc_auth.AuthFromMD(ctx, "bearer")
 	if err != nil {
-		// 可忽略错误
-		return ctx, err
+		return ctx, nil
 	}
 
 	claims, err := s.dbModel.CheckUserJWTToken(token)
-
 	// token存在，但是不正确或者已过期，这时需要返回错误，前端清除存储的错误登录信息
 	if err != nil || claims == nil || claims.ExpiresAt < time.Now().Unix() || s.dbModel.IsInvalidToken(claims.UUID) {
-		return ctx, status.Error(codes.Unauthenticated, messageInvalidToken)
+		// return ctx, status.Error(codes.Unauthenticated, messageInvalidToken)
+		return ctx, nil
 	}
 
 	newCtx := context.WithValue(ctx, CtxKeyUserClaims, claims)
@@ -88,8 +91,9 @@ func (s *AuthService) AuthGin() gin.HandlerFunc {
 		token := bearer[1]
 		claims, err := s.dbModel.CheckUserJWTToken(token)
 		if err != nil || claims == nil || claims.ExpiresAt < time.Now().Unix() || s.dbModel.IsInvalidToken(claims.UUID) {
-			ctx.JSON(http.StatusUnauthorized, status.Error(codes.Unauthenticated, messageInvalidToken))
-			ctx.Abort()
+			// ctx.JSON(http.StatusUnauthorized, status.Error(codes.Unauthenticated, messageInvalidToken))
+			// ctx.Abort()
+			ctx.Next()
 			return
 		}
 
