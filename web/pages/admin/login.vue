@@ -12,7 +12,6 @@
 <script>
 export default {
   // 这样也行，多个中间件的时候就这样写
-  name: 'IndexPage',
   middleware: ['auth'],
   head() {
     return {

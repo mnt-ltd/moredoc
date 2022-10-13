@@ -31,59 +31,67 @@
       >
         <el-menu
           :router="true"
-          :default-openeds="[
-            '/admin/settings',
-            '/admin/me',
-            '/admin/templates',
-          ]"
+          :default-openeds="['/admin/documemnt', '/admin/user']"
           :collapse="isCollapse"
           class="layout-admin-menu"
         >
           <el-menu-item index="/admin/dashboard">
-            <i class="el-icon-s-platform"></i>
-            <span slot="title">面板</span></el-menu-item
-          >
-          <el-submenu index="/admin/me">
-            <template slot="title"
-              ><i class="el-icon-user-solid"></i>
-              <span slot="title">我的</span></template
-            >
-            <el-menu-item index="/admin/projects">
-              <i class="el-icon-data-analysis"></i>
-              我的项目</el-menu-item
-            >
-            <!-- <el-menu-item index="/admin/shares">我的分享</el-menu-item> -->
-            <el-menu-item index="/admin/mytemplates"
-              ><i class="el-icon-tickets"></i> 我的模板</el-menu-item
-            >
-            <el-menu-item index="/admin/mycharts">
-              <i class="el-icon-s-grid"></i> 我的模块</el-menu-item
-            >
+            <i class="el-icon-monitor"></i>
+            <span slot="title">面板</span>
+          </el-menu-item>
+
+          <el-submenu index="/admin/documemnt">
+            <template slot="title">
+              <i class="el-icon-document-copy"></i>
+              <span slot="title">文档管理</span>
+            </template>
+            <el-menu-item index="/admin/document/category">
+              <i class="el-icon-s-grid"></i>
+              <span>分类管理</span>
+            </el-menu-item>
+            <el-menu-item index="/admin/document/list">
+              <i class="el-icon-tickets"></i>
+              <span>文档列表</span>
+            </el-menu-item>
+            <el-menu-item index="/admin/document/recycle">
+              <i class="el-icon-delete"></i>
+              <span>回收站</span>
+            </el-menu-item>
           </el-submenu>
-          <el-submenu index="/admin/templates">
-            <template slot="title"
-              ><i class="el-icon-s-shop"></i>
-              <span slot="title">应用中心</span></template
-            >
-            <el-menu-item index="/admin/templates"
-              ><i class="el-icon-tickets"></i> 模板市场</el-menu-item
-            >
-            <el-menu-item index="/admin/charts"
-              ><i class="el-icon-s-grid"></i> 图表模块</el-menu-item
-            >
+          <el-submenu index="/admin/user">
+            <template slot="title">
+              <i class="el-icon-user"></i>
+              <span slot="title">用户管理</span>
+            </template>
+            <el-menu-item index="/admin/user/list">
+              <i class="el-icon-user"></i>
+              <span>用户管理</span>
+            </el-menu-item>
+            <el-menu-item index="/admin/user/group">
+              <i class="el-icon-magic-stick"></i>
+              <span>角色管理</span>
+            </el-menu-item>
+            <el-menu-item index="/admin/user/permission">
+              <i class="el-icon-circle-check"></i>
+              <span>权限管理</span>
+            </el-menu-item>
           </el-submenu>
-          <el-submenu index="/admin/settings">
-            <template slot="title"
-              ><i class="el-icon-s-tools"></i>
-              <span slot="title">系统管理</span></template
-            >
-            <el-menu-item index="/admin/settings"
-              ><i class="el-icon-setting"></i> 系统设置</el-menu-item
-            >
-            <el-menu-item index="/admin/users"
-              ><i class="el-icon-user"></i> 用户管理</el-menu-item
-            >
-          </el-submenu>
+          <el-menu-item index="/admin/banner">
+            <i class="el-icon-picture-outline"></i>
+            <span slot="title">横幅管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/friendlink">
+            <i class="el-icon-link"></i>
+            <span slot="title">友链管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/attachment">
+            <i class="el-icon-paperclip"></i>
+            <span slot="title">附件管理</span>
+          </el-menu-item>
+          <el-menu-item index="/admin/config">
+            <i class="el-icon-setting"></i>
+            <span slot="title">系统设置</span>
+          </el-menu-item>
         </el-menu>
       </transition>
     </el-aside>
@@ -122,7 +130,9 @@
       <el-footer>
         <span>© 2019-2022</span>
         <span>Powered by</span>
-        <a href="https://mnt.ltd" target="_blank" title="MOREDOC">MOREDOC · 魔刀文库</a>
+        <a href="https://mnt.ltd" target="_blank" title="MOREDOC"
+          >MOREDOC · 魔刀文库</a
+        >
       </el-footer>
     </el-container>
     <el-dialog title="个人资料" :visible.sync="formProfileVisible" width="30%">
