@@ -16,7 +16,6 @@ type User struct {
 	Id            int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:用户 id;"`
 	Username      string    `form:"username" json:"username,omitempty" gorm:"column:username;type:varchar(64);size:64;index:username,unique;comment:用户名;"`
 	Password      string    `form:"password" json:"password,omitempty" gorm:"column:password;type:varchar(128);size:128;comment:密码;"`
-	Nickname      string    `form:"nickname" json:"nickname,omitempty" gorm:"column:nickname;type:varchar(64);size:64;comment:用户昵称;"`
 	Mobile        string    `form:"mobile" json:"mobile,omitempty" gorm:"column:mobile;type:varchar(20);size:20;index:mobile;comment:手机号;"`
 	Email         string    `form:"email" json:"email,omitempty" gorm:"column:email;type:varchar(64);size:64;index:email;comment:联系邮箱;"`
 	Address       string    `form:"address" json:"address,omitempty" gorm:"column:address;type:varchar(255);size:255;comment:联系地址;"`

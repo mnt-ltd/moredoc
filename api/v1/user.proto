@@ -18,22 +18,21 @@ message User {
   google.protobuf.Timestamp updated_at = 21 [ (gogoproto.stdtime) = true ];
   int64 id = 1;
   string username = 2;
-  string nickname = 3;
-  string mobile = 4;
-  string email = 5;
-  string address = 6;
-  string signature = 7;
-  string last_login_ip = 8;
-  string register_ip = 9;
-  int32 doc_count = 10;
-  int32 follow_count = 11;
-  int32 fans_count = 12;
-  int32 favorite_count = 13;
-  int32 comment_count = 14;
-  int32 status = 15;
-  string avatar = 16;
-  string identity = 17;
-  string realname = 18;
+  string mobile = 3;
+  string email = 4;
+  string address = 5;
+  string signature = 6;
+  string last_login_ip = 7;
+  string register_ip = 8;
+  int32 doc_count = 9;
+  int32 follow_count = 10;
+  int32 fans_count = 11;
+  int32 favorite_count = 12;
+  int32 comment_count = 13;
+  int32 status = 14;
+  string avatar = 15;
+  string identity = 16;
+  string realname = 17;
 }
 
 message RegisterAndLoginRequest {

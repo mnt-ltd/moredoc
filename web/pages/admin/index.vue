@@ -1,10 +1,12 @@
 <template>
-  <div>{{ $route }}</div>
+  <div>{{ $route.name }}</div>
 </template>
 
 <script>
 export default {
   layout: 'admin',
-  created() {},
+  created() {
+    this.$router.push({ name: 'admin-dashboard' })
+  },
 }
 </script>

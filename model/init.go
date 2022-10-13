@@ -5,6 +5,7 @@ import (
 	"errors"
 	"moredoc/conf"
 	"strings"
+	"sync"
 
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
@@ -33,6 +34,8 @@ type DBModel struct {
 	logger         *zap.Logger
 	tableFields    map[string][]string
 	tableFieldsMap map[string]map[string]struct{}
+	validToken     sync.Map // map[tokenUUID]struct{} 有效的token uuid
+	invalidToken   sync.Map // map[tokenUUID]struct{} 存在，未过期但无效token，比如读者退出登录后的token
 }
 
 func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
