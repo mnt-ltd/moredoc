@@ -69,14 +69,43 @@ func (User) TableName() string {
 
 // CreateUser 创建User
 // TODO: 创建成功之后，注意相关表统计字段数值的增减
-func (m *DBModel) CreateUser(user *User) (err error) {
+func (m *DBModel) CreateUser(user *User, groupId int64) (err error) {
 	user.Password, _ = unchained.MakePassword(user.Password, unchained.GetRandomString(4), "md5")
 
-	err = m.db.Create(user).Error
+	sess := m.db.Begin()
+	defer func() {
+		if err != nil {
+			sess.Rollback()
+		} else {
+			sess.Commit()
+		}
+	}()
+
+	// 1. 添加用户
+	err = sess.Create(user).Error
 	if err != nil {
 		m.logger.Error("CreateUser", zap.Error(err))
 		return
 	}
+
+	// 2. 添加用户组
+	group := &UserGroup{
+		UserId:  user.Id,
+		GroupId: groupId,
+	}
+	err = sess.Create(group).Error
+	if err != nil {
+		m.logger.Error("CreateUser", zap.Error(err))
+		return
+	}
+
+	// 3. 添加用户统计
+	err = sess.Model(&Group{}).Where("id = ?", groupId).Update("user_count", gorm.Expr("user_count + ?", 1)).Error
+	if err != nil {
+		m.logger.Error("CreateUser", zap.Error(err))
+		return
+	}
+
 	return
 }
 

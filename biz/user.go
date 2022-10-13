@@ -64,11 +64,17 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 		return nil, status.Errorf(codes.AlreadyExists, "用户名已存在")
 	}
 
-	user := &model.User{Username: req.Username, Password: req.Password, RegisterIp: ip}
+	user := &model.User{Username: req.Username, Password: req.Password}
 	if p, ok := peer.FromContext(ctx); ok {
 		user.RegisterIp = p.Addr.String()
 	}
-	if err = s.dbModel.CreateUser(user); err != nil {
+
+	group, _ := s.dbModel.GetDefaultUserGroup()
+	if group.Id <= 0 {
+		return nil, status.Errorf(codes.Internal, "请联系管理员设置系统默认用户组")
+	}
+
+	if err = s.dbModel.CreateUser(user, group.Id); err != nil {
 		s.logger.Error("CreateUser", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}

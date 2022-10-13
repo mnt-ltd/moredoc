@@ -138,6 +138,10 @@ func (m *DBModel) SyncDB() (err error) {
 		&Download{},
 		&Friendlink{},
 		&User{},
+		&Group{},
+		&UserGroup{},
+		&Permission{},
+		&GroupPermission{},
 	}
 	if err = m.db.AutoMigrate(tableModels...); err != nil {
 		m.logger.Fatal("SyncDB", zap.Error(err))
@@ -209,7 +213,8 @@ func (m *DBModel) initUser() (err error) {
 
 	// 初始化一个用户
 	user := &User{Username: "admin", Password: "123456"}
-	err = m.CreateUser(user)
+	groupId := 1 // ID==1的用户组为管理员组
+	err = m.CreateUser(user, int64(groupId))
 	if err != nil {
 		m.logger.Error("initUser", zap.Error(err))
 	}

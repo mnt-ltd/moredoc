@@ -13,6 +13,9 @@ option java_multiple_files = true;
 option java_package = "api.v1";
 
 message User {
+  google.protobuf.Timestamp login_at = 19 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp created_at = 20 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 21 [ (gogoproto.stdtime) = true ];
   int64 id = 1;
   string username = 2;
   string nickname = 3;
@@ -31,9 +34,6 @@ message User {
   string avatar = 16;
   string identity = 17;
   string realname = 18;
-  google.protobuf.Timestamp login_at = 19 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp created_at = 20 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 21 [ (gogoproto.stdtime) = true ];
 }
 
 message RegisterAndLoginRequest {
