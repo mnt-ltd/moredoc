@@ -1,5 +1,5 @@
 import { Message } from 'element-ui'
-import { login, getUser, updateUser } from '~/api/user'
+import { login, getUser, updateUser, logout } from '~/api/user'
 export const user = {
   namespaced: true,
   state: {
@@ -65,8 +65,10 @@ export const user = {
       }
       return res
     },
-    logout({ commit }) {
+    async logout({ commit }) {
+      const res = await logout()
       commit('logout')
+      return res
     },
   },
   getters: {

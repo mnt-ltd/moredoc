@@ -134,6 +134,18 @@ func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequ
 	return &pb.LoginReply{Token: token, User: pbUser}, nil
 }
 
+func (s *UserAPIService) Logout(ctx context.Context, req *emptypb.Empty) (res *emptypb.Empty, err error) {
+	res = &emptypb.Empty{}
+	userClaims, ok := ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
+	if !ok {
+		return
+	}
+
+	// 标记退出的用户token
+	s.dbModel.Logout(userClaims.UserId, userClaims.UUID, userClaims.ExpiresAt)
+	return
+}
+
 func (s *UserAPIService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.User, error) {
 	return &pb.User{}, nil
 }

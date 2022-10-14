@@ -101,6 +101,13 @@ service UserAPI {
     };
   }
 
+  // 退出登录
+  rpc Logout(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/user/logout',
+    };
+  }
+
   // 查询用户信息。如果传递了Id参数，则表示查询用户的公开信息，否则查询当前用户的私有信息
   rpc GetUser(GetUserRequest) returns (User) {
     option (google.api.http) = {

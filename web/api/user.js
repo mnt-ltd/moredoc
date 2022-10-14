@@ -16,6 +16,14 @@ export const login = (data) => {
   })
 }
 
+export const logout = (params) => {
+  return service({
+    url: '/api/v1/user/logout',
+    method: 'delete',
+    params,
+  })
+}
+
 export const getUser = (params) => {
   return service({
     url: '/api/v1/user',

@@ -193,7 +193,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('user', ['Logout']),
+    ...mapActions('user', ['logout']),
     async createProject() {},
     showCreateProjectDialog() {
       this.createProjectVisible = true
@@ -220,8 +220,8 @@ export default {
           this.formPasswordVisible = true
           break
         case 'logout':
-          this.Logout()
-          this.$router.replace({ path: '/admin/login' })
+          this.logout()
+          this.$router.replace({ path: '/' })
           this.$message.success('退出成功')
           break
       }
