@@ -10,7 +10,7 @@ import (
 func SyncDB(cfg *conf.Config, logger *zap.Logger) {
 	lg := logger.Named("syncdb")
 	lg.Info("start syncdb")
-	dbModel, err := model.NewDBModel(cfg, logger)
+	dbModel, err := model.NewDBModel(&cfg.Database, logger)
 	if err != nil {
 		lg.Fatal("NewDBModel", zap.Error(err))
 		return

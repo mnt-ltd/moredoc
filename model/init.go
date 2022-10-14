@@ -36,21 +36,19 @@ type DBModel struct {
 	tableFieldsMap map[string]map[string]struct{}
 	validToken     sync.Map // map[tokenUUID]struct{} 有效的token uuid
 	invalidToken   sync.Map // map[tokenUUID]struct{} 存在，未过期但无效token，比如读者退出登录后的token
-	jwt            conf.JWT
 }
 
-func NewDBModel(cfg *conf.Config, lg *zap.Logger) (m *DBModel, err error) {
+func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
 	if lg == nil {
 		err = errors.New("logger cant be nil")
 		return
 	}
 
-	tablePrefix = cfg.Database.Prefix
+	tablePrefix = cfg.Prefix
 
 	m = &DBModel{
 		logger:         lg.Named("model"),
-		tablePrefix:    cfg.Database.Prefix,
-		jwt:            cfg.JWT,
+		tablePrefix:    cfg.Prefix,
 		tableFields:    make(map[string][]string),
 		tableFieldsMap: make(map[string]map[string]struct{}),
 	}
@@ -61,21 +59,21 @@ func NewDBModel(cfg *conf.Config, lg *zap.Logger) (m *DBModel, err error) {
 	)
 
 	sqlLogLevel := logger.Info
-	if !cfg.Database.ShowSQL {
+	if !cfg.ShowSQL {
 		sqlLogLevel = logger.Silent
 	}
 
 	db, err = gorm.Open(mysql.New(mysql.Config{
-		DSN:                       cfg.Database.DSN, // DSN data source name
-		DefaultStringSize:         255,              // string 类型字段的默认长度
-		DisableDatetimePrecision:  true,             // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
-		DontSupportRenameIndex:    true,             // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
-		DontSupportRenameColumn:   true,             // 用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
-		SkipInitializeWithVersion: false,            // 根据当前 MySQL 版本自动配置
+		DSN:                       cfg.DSN, // DSN data source name
+		DefaultStringSize:         255,     // string 类型字段的默认长度
+		DisableDatetimePrecision:  true,    // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
+		DontSupportRenameIndex:    true,    // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
+		DontSupportRenameColumn:   true,    // 用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
+		SkipInitializeWithVersion: false,   // 根据当前 MySQL 版本自动配置
 	}), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			TablePrefix:   cfg.Database.Prefix, // 表名前缀，`User`表为`t_users`
-			SingularTable: true,                // 使用单数表名，启用该选项后，`User` 表将是`user`
+			TablePrefix:   cfg.Prefix, // 表名前缀，`User`表为`t_users`
+			SingularTable: true,       // 使用单数表名，启用该选项后，`User` 表将是`user`
 		},
 		Logger: logger.Default.LogMode(sqlLogLevel),
 	})
@@ -90,12 +88,12 @@ func NewDBModel(cfg *conf.Config, lg *zap.Logger) (m *DBModel, err error) {
 		return
 	}
 
-	if cfg.Database.MaxIdle > 0 {
-		sqlDB.SetMaxIdleConns(cfg.Database.MaxIdle)
+	if cfg.MaxIdle > 0 {
+		sqlDB.SetMaxIdleConns(cfg.MaxIdle)
 	}
 
-	if cfg.Database.MaxOpen > 0 {
-		sqlDB.SetMaxIdleConns(cfg.Database.MaxOpen)
+	if cfg.MaxOpen > 0 {
+		sqlDB.SetMaxIdleConns(cfg.MaxOpen)
 	}
 
 	m.db = db

@@ -53,7 +53,7 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 		),
 	)
 
-	dbModel, err := model.NewDBModel(cfg, logger)
+	dbModel, err := model.NewDBModel(&cfg.Database, logger)
 	if err != nil {
 		logger.Fatal("NewDBModel", zap.Error(err))
 		return
