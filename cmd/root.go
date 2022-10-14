@@ -105,9 +105,7 @@ func initConfig() {
 
 	initLogger(cfg.Level)
 
-	if cfg.Database.Prefix == "" {
-		cfg.Database.Prefix = "nd_"
-	}
+	cfg.Database.Prefix = "mnt_"
 
 	logger.Info("config", zap.Any("config", cfg))
 }

@@ -5,6 +5,7 @@ import (
 	"time"
 
 	pb "moredoc/api/v1"
+	"moredoc/middleware/auth"
 	"moredoc/model"
 	"moredoc/util"
 	"moredoc/util/validate"
@@ -23,10 +24,11 @@ type UserAPIService struct {
 	pb.UnimplementedUserAPIServer
 	dbModel *model.DBModel
 	logger  *zap.Logger
+	auth    *auth.Auth
 }
 
-func NewUserAPIService(dbModel *model.DBModel, logger *zap.Logger) (service *UserAPIService) {
-	return &UserAPIService{dbModel: dbModel, logger: logger.Named("UserAPIService")}
+func NewUserAPIService(dbModel *model.DBModel, logger *zap.Logger, auth *auth.Auth) (service *UserAPIService) {
+	return &UserAPIService{dbModel: dbModel, logger: logger.Named("UserAPIService"), auth: auth}
 }
 
 func (s *UserAPIService) getValidFieldMap() map[string]string {
@@ -34,7 +36,6 @@ func (s *UserAPIService) getValidFieldMap() map[string]string {
 }
 
 // Register 用户注册
-// TODO: 1. 如果系统启用了注册，判断是否需要管理员审核
 func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginRequest) (*emptypb.Empty, error) {
 	err := validate.ValidateStruct(req, s.getValidFieldMap())
 	if err != nil {
@@ -51,7 +52,7 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 		return nil, status.Errorf(codes.InvalidArgument, "系统未开放注册")
 	}
 
-	if !cfg.IsClose {
+	if cfg.IsClose {
 		return nil, status.Errorf(codes.InvalidArgument, "网站已关闭，占时不允许注册")
 	}
 
@@ -83,7 +84,6 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 }
 
 // Login 用户登录
-// TODO: 1. 判断是否启用了验证码，如果启用了验证码，则需要进行验证码验证
 func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequest) (*pb.LoginReply, error) {
 
 	errValidate := validate.ValidateStruct(req, s.getValidFieldMap())
@@ -105,7 +105,7 @@ func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequ
 		return nil, status.Errorf(codes.InvalidArgument, "用户名或密码错误")
 	}
 
-	token, err := s.dbModel.CreateUserJWTToken(user.Id)
+	token, err := s.auth.CreateJWTToken(user.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}

@@ -5,6 +5,8 @@ port="8080"
     driver="mysql"
     dsn="root:root@tcp(localhost:3306)/moredoc?charset=utf8mb4&loc=Local&parseTime=true"
     showSQL=true
-    prefix="mnt_"
     maxOpen=10
     maxIdle=10
+[jwt]
+    secret="moredoc"
+    expireDays=365

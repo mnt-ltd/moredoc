@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gofrs/uuid"
 	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -225,49 +224,6 @@ func (m *DBModel) DeleteConfig(ids []interface{}) (err error) {
 }
 
 const (
-	ConfigJWTDuration = "duration"
-	ConfigJWTSecret   = "secret"
-)
-
-type ConfigJWT struct {
-	Duration int    `json:"duration"` // JWT有效期
-	Secret   string `json:"secret"`   // JWT加密密钥
-}
-
-// GetConfigJWT 获取JWT配置
-func (m *DBModel) GetConfigOfJWT() (config ConfigJWT) {
-	var configs []Config
-	err := m.db.Where("category = ?", ConfigCategoryJWT).Find(&configs).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		m.logger.Error("GetConfigJWT", zap.Error(err))
-	}
-
-	var data = make(map[string]interface{})
-
-	for _, cfg := range configs {
-		switch cfg.Name {
-		case "secret":
-			value := cfg.Value
-			if value == "" {
-				value = "moredoc"
-			}
-			data[cfg.Name] = value
-		case "duration":
-			value, _ := strconv.Atoi(cfg.Value)
-			if value <= 0 {
-				value = 3600 * 24 * 7
-			}
-			data[cfg.Name] = value
-		}
-	}
-
-	bytes, _ := json.Marshal(data)
-	json.Unmarshal(bytes, &config)
-
-	return
-}
-
-const (
 	ConfigCaptchaLength = "length"
 	ConfigCaptchaWidth  = "width"
 	ConfigCaptchaHeight = "height"
@@ -426,10 +382,6 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySystem, Name: ConfigSystemAnalytics, Label: "网站统计代码", Value: "", Placeholder: "请输入您网站的统计代码", InputType: "text", Sort: 8, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemTheme, Label: "网站主题", Value: "default", Placeholder: "请输入您网站的主题", InputType: "text", Sort: 9, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemCopyright, Label: "网站版权信息", Value: "", Placeholder: "请输入您网站的版权信息", InputType: "text", Sort: 10, Options: ""},
-
-		// JWT 配置项
-		{Category: ConfigCategoryJWT, Name: ConfigJWTDuration, Label: "Token有效期", Value: "365", Placeholder: "用户Token签名有效期，单位为天，默认365天", InputType: "number", Sort: 11, Options: ""},
-		{Category: ConfigCategoryJWT, Name: ConfigJWTSecret, Label: "Token密钥", Value: uuid.Must(uuid.NewV4()).String(), Placeholder: "用户Token签名密钥，修改之后，之前所有的token签名都将失效，请慎重修改", InputType: "text", Sort: 12, Options: ""},
 
 		// 验证码配置项
 		{Category: ConfigCategoryCaptcha, Name: ConfigCaptchaHeight, Label: "验证码高度", Value: "60", Placeholder: "请输入验证码高度，默认为60", InputType: "number", Sort: 13, Options: ""},

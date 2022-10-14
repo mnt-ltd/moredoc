@@ -9,6 +9,7 @@ import (
 	v1 "moredoc/api/v1"
 	"moredoc/biz"
 	"moredoc/conf"
+	"moredoc/middleware/auth"
 	"moredoc/middleware/jsonpb"
 	"moredoc/model"
 
@@ -28,6 +29,7 @@ import (
 
 // Run start server
 func Run(cfg *conf.Config, logger *zap.Logger) {
+
 	size := 100 * 1024 * 1024 // 100MB
 	dialOpts := []grpc.DialOption{
 		grpc.WithInsecure(),
@@ -35,9 +37,11 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 		grpc.WithDefaultCallOptions(grpc.UseCompressor("gzip")),
 	}
 
+	auth := auth.NewAuth(&cfg.JWT)
+
 	grpcServer := grpc.NewServer(
 		grpc.UnaryInterceptor(grpc_middleware.ChainUnaryServer(
-			// jwtil.UnaryServerInterceptor(jwtil.TokenAuthInterceptor),
+			auth.AuthUnaryServerInterceptor(),
 			grpc_recovery.UnaryServerInterceptor(),
 		)),
 	)
@@ -49,20 +53,20 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 		),
 	)
 
-	dbModel, err := model.NewDBModel(&cfg.Database, logger)
+	dbModel, err := model.NewDBModel(cfg, logger)
 	if err != nil {
 		logger.Fatal("NewDBModel", zap.Error(err))
 		return
 	}
 
+	endpoint := fmt.Sprintf("localhost:%v", cfg.Port)
+
 	// =========================================================================
 	// 【start】 在这里，注册您的API服务模块
 	// =========================================================================
 
-	endpoint := fmt.Sprintf("localhost:%v", cfg.Port)
-
 	// 用户API接口服务
-	userAPIService := biz.NewUserAPIService(dbModel, logger)
+	userAPIService := biz.NewUserAPIService(dbModel, logger, auth)
 	v1.RegisterUserAPIServer(grpcServer, userAPIService)
 	err = v1.RegisterUserAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
 	if err != nil {
