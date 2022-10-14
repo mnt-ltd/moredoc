@@ -58,7 +58,11 @@ message GetUserRequest { int64 id = 1; }
 message ListUserRequest {
   int64 page = 1;
   int64 size = 2;
-  repeated int64 ids = 3;
+  string wd = 3;
+  string sort = 4;
+  repeated int64 id = 5;
+  repeated int64 group_id = 6;
+  repeated int32 status = 7;
 }
 
 message ListUserReply {

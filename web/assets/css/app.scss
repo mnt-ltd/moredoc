@@ -51,6 +51,22 @@ body{
             color: #409eff;
         }
     }
+    .el-table th{
+        height: 45px;
+        line-height: 45px;
+        padding: 5px 0;
+        &.el-table__cell {
+            background-color: #f7fbff;
+            color: #000;
+            font-weight: normal;
+            &.el-table-column--selection>.cell{
+                padding-left: 14px;
+            }
+        }
+        &.el-table__cell.is-leaf{
+            border-bottom: 0;
+        }
+    }
 }
 
 .page-login{
@@ -59,8 +75,4 @@ body{
         max-width: 100%;
         margin: 20vh auto;
     }
-}
-
-.page-admin-projects{
-    
 }

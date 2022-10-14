@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	pb "moredoc/api/v1"
@@ -15,9 +16,9 @@ import (
 	"github.com/alexandrevicenzi/unchained"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/peer"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"gorm.io/gorm"
 )
 
 const (
@@ -75,8 +76,8 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 	}
 
 	user := &model.User{Username: req.Username, Password: req.Password}
-	if p, ok := peer.FromContext(ctx); ok {
-		user.RegisterIp = p.Addr.String()
+	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
+		user.RegisterIp = ips[0]
 	}
 
 	group, _ := s.dbModel.GetDefaultUserGroup()
@@ -123,8 +124,8 @@ func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequ
 	util.CopyStruct(&user, pbUser)
 
 	ip := ""
-	if p, ok := peer.FromContext(ctx); ok {
-		ip = p.Addr.String()
+	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
+		ip = ips[0]
 	}
 	if e := s.dbModel.UpdateUser(&model.User{Id: user.Id, LoginAt: time.Now(), LastLoginIp: ip}, "login_at", "last_login_ip"); e != nil {
 		s.logger.Error("UpdateUser", zap.Error(e))
@@ -239,8 +240,68 @@ func (s *UserAPIService) DeleteUser(ctx context.Context, req *pb.DeleteUserReque
 	return &emptypb.Empty{}, nil
 }
 
+// ListUser 查询用户列表
+// 1. 非管理员，只能查询公开信息
+// 2. 管理员，可以查询全部信息
 func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) (*pb.ListUserReply, error) {
-	return &pb.ListUserReply{}, nil
+	var (
+		userId        int64
+		limitFileds   = model.UserPublicFields
+		fullMethod, _ = ctx.Value(auth.CtxKeyFullMethod).(string)
+	)
+
+	userClaims, ok := ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
+	if ok && !s.dbModel.IsInvalidToken(userClaims.UUID) {
+		userId = userClaims.UserId
+	}
+
+	opt := model.OptionGetUserList{
+		Page:      int(req.Page),
+		Size:      int(req.Size_),
+		WithCount: true,
+	}
+
+	if len(req.Id) > 0 {
+		var ids []interface{}
+		for _, id := range req.Id {
+			ids = append(ids, id)
+		}
+		opt.WithCount = false
+		opt.Ids = ids
+	}
+
+	if len(req.GroupId) > 0 {
+		var groupIds []interface{}
+		for _, groupId := range req.GroupId {
+			groupIds = append(groupIds, groupId)
+		}
+		opt.QueryIn = map[string][]interface{}{"group_id": groupIds}
+	}
+
+	if req.Sort != "" {
+		opt.Sort = strings.Split(req.Sort, ",")
+	}
+
+	if s.dbModel.CheckPermissionByUserId(userId, "", fullMethod) {
+		limitFileds = []string{} // 管理员，可以查询全部信息
+		if req.Wd != "" {
+			opt.QueryLike = map[string][]interface{}{
+				"username": {"%" + strings.TrimSpace(req.Wd) + "%"},
+			}
+		}
+	}
+
+	opt.SelectFields = limitFileds
+	var pbUser []*pb.User
+	userList, total, err := s.dbModel.GetUserList(opt)
+	if err == gorm.ErrRecordNotFound {
+		err = nil
+		return &pb.ListUserReply{}, nil
+	}
+
+	util.CopyStruct(&userList, &pbUser)
+	s.logger.Debug("ListUser", zap.Any("userList", userList), zap.Any("pbUser", pbUser), zap.Int64("total", total))
+	return &pb.ListUserReply{Total: total, User: pbUser}, nil
 }
 
 //  GetUserCaptcha 获取用户验证码

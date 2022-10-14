@@ -18,6 +18,13 @@ const (
 	UserStatusIgnored  // 忽略
 )
 
+// 用户的公开信息字段
+var UserPublicFields = []string{
+	"id", "username", "signature", "status", "avatar", "realname",
+	"doc_count", "follow_count", "fans_count", "favorite_count", "comment_count",
+	"created_at", "updated_at", "login_at",
+}
+
 type User struct {
 	Id            int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:用户 id;"`
 	Username      string    `form:"username" json:"username,omitempty" gorm:"column:username;type:varchar(64);size:64;index:username,unique;comment:用户名;"`
@@ -234,8 +241,8 @@ func (m *DBModel) GetUserList(opt OptionGetUserList) (userList []User, total int
 		db = db.Select(opt.SelectFields)
 	}
 
+	var sorts []string
 	if len(opt.Sort) > 0 {
-		var sorts []string
 		for _, sort := range opt.Sort {
 			slice := strings.Split(sort, " ")
 			if len(m.FilterValidFields(User{}.TableName(), slice[0])) == 0 {
@@ -248,11 +255,13 @@ func (m *DBModel) GetUserList(opt OptionGetUserList) (userList []User, total int
 				sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
 			}
 		}
-		if len(sorts) > 0 {
-			db = db.Order(strings.Join(sorts, ","))
-		}
+	} else {
+		sorts = append(sorts, "id desc")
 	}
 
+	if len(sorts) > 0 {
+		db = db.Order(strings.Join(sorts, ","))
+	}
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 
 	err = db.Find(&userList).Error

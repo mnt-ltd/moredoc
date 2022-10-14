@@ -131,13 +131,13 @@
       <el-main>
         <nuxt />
       </el-main>
-      <el-footer>
+      <!-- <el-footer>
         <span>© 2019-2022</span>
         <span>Powered by</span>
         <a href="https://mnt.ltd" target="_blank" title="MOREDOC"
           >MOREDOC · 魔刀文库</a
         >
-      </el-footer>
+      </el-footer> -->
     </el-container>
     <el-dialog title="个人资料" :visible.sync="formProfileVisible" width="30%">
       <FormProfile @success="profileSuccess" />

@@ -86,7 +86,7 @@ func (m *DBModel) GetPermissionByMethodPath(method, path string, createIfNotExis
 	if method != "" {
 		db = db.Where("method = ?", method)
 	} else {
-		db = db.Where("(method IS NULL or method = '')")
+		db = db.Where("method IS NULL or method = ''")
 	}
 
 	err = db.First(&permission).Error
@@ -128,9 +128,10 @@ func (m *DBModel) CheckPermissionByUserId(userId int64, method, path string) (ye
 	)
 
 	// NOTE: ID为1的用户，拥有所有权限，可以理解为类似linux的root用户
-	if userId == 1 {
-		return true
-	}
+	// TODO: 后续应该直接打开这里的注释
+	// if userId == 1 {
+	// 	return true
+	// }
 
 	if userId > 0 {
 		m.db.Where("user_id = ?", userId).Find(&userGroups)
@@ -139,14 +140,15 @@ func (m *DBModel) CheckPermissionByUserId(userId int64, method, path string) (ye
 		}
 	}
 
-	return m.CheckPermissionByGroupId(groupId, method, path)
+	yes = m.CheckPermissionByGroupId(groupId, method, path)
+	return yes || userId == 1
 }
 
 //  CheckPermissionByGroupId 根据用户所属用户组ID，检查用户是否有权限
 func (m *DBModel) CheckPermissionByGroupId(groupId []int64, method, path string) (yes bool) {
-	fields := []string{"id", "type", "method", "path"}
+	fields := []string{"id", "method", "path"}
 	permission, err := m.GetPermissionByMethodPath(method, path, true, fields...)
-	if err != nil {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("CheckPermissionByGroupId", zap.Error(err))
 	}
 
