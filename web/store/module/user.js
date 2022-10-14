@@ -19,6 +19,9 @@ export const user = {
     setUser(state, user) {
       state.user = user
     },
+    mergeUser(state, user) {
+      state.user = Object.assign(state.user, user)
+    },
     setToken(state, token) {
       state.token = token
     },
@@ -33,18 +36,14 @@ export const user = {
     async getUser({ commit }) {
       const res = await getUser()
       if (res.status === 200) {
-        commit('setUser', res.data.data.user)
+        commit('setUser', res.data.user)
       }
       return res
     },
     async updateUser({ commit }, profile) {
       const res = await updateUser(profile)
       if (res.status === 200) {
-        commit('setUser', res.data.data)
-        Message({
-          type: 'success',
-          message: '修改成功',
-        })
+        commit('mergeUser', profile)
       } else {
         Message({
           type: 'error',

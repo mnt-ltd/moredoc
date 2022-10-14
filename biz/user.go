@@ -24,6 +24,9 @@ const (
 	ErrorMessageUsernameOrPasswordError = "用户名或密码不正确"
 	ErrorMessageInvalidToken            = "您未登录或您的登录已过期，请重新登录"
 	ErrorMessagePermissionDenied        = "您没有权限访问该资源"
+	ErrorMessageUserNotExists           = "用户不存在"
+	ErrorMessageInvalidOldPassword      = "原密码不正确"
+	ErrorMessageUnsupportedCaptchaType  = "不支持的验证码类型"
 )
 
 type UserAPIService struct {
@@ -184,7 +187,51 @@ func (s *UserAPIService) UpdateUser(ctx context.Context, req *pb.User) (*emptypb
 	return &emptypb.Empty{}, nil
 }
 
-func (s *UserAPIService) UpdateUserPassword(ctx context.Context, req *pb.User) (*emptypb.Empty, error) {
+// UpdateUserPassword 更改用户密码
+// 1. 用户更改自身密码：需要验证旧密码
+// 2. 管理员更改用户密码：不需要验证旧密码
+func (s *UserAPIService) UpdateUserPassword(ctx context.Context, req *pb.UpdateUserPasswordRequest) (*emptypb.Empty, error) {
+	userClaims, ok := ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
+	if !ok || s.dbModel.IsInvalidToken(userClaims.UUID) {
+		return nil, status.Errorf(codes.Unauthenticated, ErrorMessageInvalidToken)
+	}
+
+	err := validate.ValidateStruct(req, map[string]string{"NewPassword": "新密码"})
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
+	// 更改自己的密码
+	if req.Id <= 0 || req.Id == userClaims.UserId {
+		existUser, _ := s.dbModel.GetUser(userClaims.UserId, "id", "password")
+		if existUser.Id == 0 {
+			return nil, status.Errorf(codes.Unauthenticated, ErrorMessageUserNotExists)
+		}
+
+		if ok, err := unchained.CheckPassword(req.OldPassword, existUser.Password); !ok || err != nil {
+			return nil, status.Errorf(codes.InvalidArgument, ErrorMessageInvalidOldPassword)
+		}
+
+		err = s.dbModel.UpdateUserPassword(userClaims.UserId, req.NewPassword)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, err.Error())
+		}
+
+		return &emptypb.Empty{}, nil
+	}
+
+	// 管理员更改用户密码
+	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
+	yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, "", fullMethod)
+	if !yes {
+		return nil, status.Errorf(codes.PermissionDenied, ErrorMessagePermissionDenied)
+	}
+
+	err = s.dbModel.UpdateUserPassword(req.Id, req.NewPassword)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -216,7 +263,7 @@ func (s *UserAPIService) GetUserCaptcha(ctx context.Context, req *pb.GetUserCapt
 	case "comment":
 		res.Enable = cfgSecurity.EnableCaptchaComment
 	default:
-		return nil, status.Errorf(codes.InvalidArgument, "不支持的验证码类型")
+		return nil, status.Errorf(codes.InvalidArgument, ErrorMessageUnsupportedCaptchaType)
 	}
 
 	if res.Enable {

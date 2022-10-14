@@ -77,7 +77,7 @@ message GetUserCaptchaReply {
 message UpdateUserPasswordRequest {
   int64 id = 1;
   string old_password = 2;
-  string new_password = 3;
+  string new_password = 3  [ (gogoproto.moretags) = "validate:\"min=6\"" ];
 }
 
 service UserAPI {
@@ -106,7 +106,7 @@ service UserAPI {
 
   // 更新用户密码。如果不传用户ID，则表示更新当前用户的密码；
   // 如果穿了用户ID，则表示更新指定用户的密码，这时需要验证当前用户的权限
-  rpc UpdateUserPassword(User) returns (google.protobuf.Empty) {
+  rpc UpdateUserPassword(UpdateUserPasswordRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/user/password',
       body : '*',

@@ -9,17 +9,21 @@
         ></el-input>
       </el-form-item>
       <el-form-item label="真实姓名" prop="realname">
-        <el-input v-model="profile.realname"></el-input>
+        <el-input v-model="profile.realname" clearable></el-input>
+      </el-form-item>
+      <el-form-item label="身份证号">
+        <el-input v-model="profile.identity" clearable></el-input>
       </el-form-item>
       <el-form-item label="电子邮箱">
-        <el-input v-model="profile.email"></el-input>
+        <el-input v-model="profile.email" clearable></el-input>
       </el-form-item>
       <el-form-item label="联系电话">
-        <el-input v-model="profile.mobile"></el-input>
+        <el-input v-model="profile.mobile" clearable></el-input>
       </el-form-item>
       <el-form-item label="联系地址">
         <el-input
           v-model="profile.address"
+          clearable
           type="textarea"
           :rows="3"
         ></el-input>
@@ -28,6 +32,7 @@
         <el-input
           v-model="profile.signature"
           type="textarea"
+          clearable
           :rows="3"
         ></el-input>
       </el-form-item>

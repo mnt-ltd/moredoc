@@ -54,7 +54,7 @@
 </template>
 <script>
 import { mapGetters } from 'vuex'
-import { setUserPassword } from '~/api/user'
+import { updateUserPassword } from '~/api/user'
 export default {
   name: 'FormProfile',
   data() {
@@ -84,7 +84,11 @@ export default {
             this.$message.error('新密码和确认密码不一致')
             return
           }
-          const res = await setUserPassword(this.profile)
+          const res = await updateUserPassword({
+            id: this.user.id,
+            old_password: this.profile.old_password,
+            new_password: this.profile.new_password,
+          })
           if (res.status === 200) {
             this.$message.success('密码修改成功')
             this.$refs.formPassword.resetFields()
