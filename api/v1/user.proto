@@ -51,11 +51,6 @@ message LoginReply {
   User user = 2;
 }
 
-message UpdateUserRequest {
-  int64 id = 1;
-  string name = 2;
-}
-
 message DeleteUserRequest { repeated int64 id = 1; }
 
 message GetUserRequest { int64 id = 1; }
@@ -111,7 +106,7 @@ service UserAPI {
 
   // 更新用户密码。如果不传用户ID，则表示更新当前用户的密码；
   // 如果穿了用户ID，则表示更新指定用户的密码，这时需要验证当前用户的权限
-  rpc UpdateUserPassword(UpdateUserRequest) returns (User) {
+  rpc UpdateUserPassword(User) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/user/password',
       body : '*',
@@ -120,9 +115,9 @@ service UserAPI {
 
   // 更新用户密码。如果不传用户ID，则表示更新当前用户的密码；
   // 如果穿了用户ID，则表示更新指定用户的密码，这时需要验证当前用户的权限
-  rpc UpdateUser(User) returns (User) {
+  rpc UpdateUser(User) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put : '/api/v1/user/password',
+      put : '/api/v1/user',
       body : '*',
     };
   }

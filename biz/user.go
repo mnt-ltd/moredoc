@@ -20,6 +20,12 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 )
 
+const (
+	ErrorMessageUsernameOrPasswordError = "用户名或密码不正确"
+	ErrorMessageInvalidToken            = "您未登录或您的登录已过期，请重新登录"
+	ErrorMessagePermissionDenied        = "您没有权限访问该资源"
+)
+
 type UserAPIService struct {
 	pb.UnimplementedUserAPIServer
 	dbModel *model.DBModel
@@ -128,12 +134,58 @@ func (s *UserAPIService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*
 	return &pb.User{}, nil
 }
 
-func (s *UserAPIService) UpdateUser(ctx context.Context, req *pb.User) (*pb.User, error) {
-	return &pb.User{}, nil
+// UpdateUser 更改用户信息
+// 1. 用户更改自身信息
+// 2. 管理员更改用户信息
+func (s *UserAPIService) UpdateUser(ctx context.Context, req *pb.User) (*emptypb.Empty, error) {
+	userClaims, ok := ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
+	if !ok || s.dbModel.IsInvalidToken(userClaims.UUID) {
+		return nil, status.Errorf(codes.Unauthenticated, ErrorMessageInvalidToken)
+	}
+
+	// 允许更改的字段
+	fields := []string{"mobile", "email", "address", "signature", "avatar", "realname", "identity"}
+	user := &model.User{
+		Mobile: req.Mobile, Email: req.Email, Address: req.Address,
+		Signature: req.Signature, Avatar: req.Avatar,
+		Realname: req.Realname, Identity: req.Identity,
+		Status: int8(req.Status), Id: req.Id,
+	}
+
+	// 更改用户自己的资料
+	if req.Id <= 0 || req.Id == userClaims.UserId {
+		user.Id = userClaims.UserId
+		exist, _ := s.dbModel.GetUser(user.Id, "status")
+		if exist.Status != model.UserStatusNormal {
+			// 非正常的用户状态，禁止修改个人信息，以避免用户修改成非法信息等
+			return nil, status.Errorf(codes.InvalidArgument, "您的用户状态异常，禁止修改个人信息")
+		}
+
+		if err := s.dbModel.UpdateUser(user, fields...); err != nil {
+			return nil, status.Errorf(codes.Internal, err.Error())
+		}
+		return &emptypb.Empty{}, nil
+	}
+
+	// 管理员更改用户资料，验证是否有权限
+	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
+	yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, "", fullMethod)
+	if !yes {
+		return nil, status.Errorf(codes.PermissionDenied, ErrorMessagePermissionDenied)
+	}
+
+	// 对于管理员，允许该更用户状态
+	fields = append(fields, "status")
+	err := s.dbModel.UpdateUser(user, fields...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
 }
 
-func (s *UserAPIService) UpdateUserPassword(ctx context.Context, req *pb.UpdateUserRequest) (*pb.User, error) {
-	return &pb.User{}, nil
+func (s *UserAPIService) UpdateUserPassword(ctx context.Context, req *pb.User) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
 }
 
 func (s *UserAPIService) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*emptypb.Empty, error) {

@@ -10,6 +10,14 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	UserStatusNormal   = iota
+	UserStatusDisabled // 禁用
+	UserStatusPending  // 审核中
+	UserStatusRejected // 拒绝
+	UserStatusIgnored  // 忽略
+)
+
 type User struct {
 	Id            int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:用户 id;"`
 	Username      string    `form:"username" json:"username,omitempty" gorm:"column:username;type:varchar(64);size:64;index:username,unique;comment:用户名;"`

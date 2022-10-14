@@ -4,7 +4,7 @@
       <div slot="header" class="clearfix">
         <span>管理员登录</span>
       </div>
-      <form-login></form-login>
+      <form-login :redirect="'/admin'"></form-login>
     </el-card>
   </div>
 </template>

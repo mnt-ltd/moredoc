@@ -4,13 +4,14 @@ export const user = {
   namespaced: true,
   state: {
     user: {
+      id: 0,
       username: '',
       realname: '',
       email: '',
       mobile: '',
       avatar: '',
-      status: false,
-      limit: 0,
+      address: '',
+      signature: '',
     },
     token: '',
   },
@@ -29,7 +30,7 @@ export const user = {
   },
   actions: {
     // 获取用户信息
-    async GetUser({ commit }) {
+    async getUser({ commit }) {
       const res = await getUser()
       if (res.status === 200) {
         commit('setUser', res.data.data.user)
@@ -52,7 +53,7 @@ export const user = {
       }
       return res
     },
-    async Login({ commit }, loginInfo) {
+    async login({ commit }, loginInfo) {
       const res = await login(loginInfo)
       if (res.status === 200) {
         commit('setUser', res.data.user)
@@ -65,7 +66,7 @@ export const user = {
       }
       return res
     },
-    Logout({ commit }) {
+    logout({ commit }) {
       commit('logout')
     },
   },

@@ -56,6 +56,12 @@ import { mapActions } from 'vuex'
 import { getUserCaptcha } from '~/api/user'
 export default {
   name: 'FormLogin',
+  props: {
+    redirect: {
+      type: String,
+      default: '',
+    },
+  },
   data() {
     return {
       user: {
@@ -73,9 +79,19 @@ export default {
     this.loadCaptcha()
   },
   methods: {
-    ...mapActions('user', ['Login']),
+    ...mapActions('user', ['login']),
     async execLogin() {
-      await this.Login(this.user)
+      const res = await this.login(this.user)
+      if (res.status === 200) {
+        this.$message.success('登录成功')
+        setTimeout(() => {
+          if (this.redirect) {
+            this.$router.push(this.redirect)
+          } else {
+            this.$router.push({ name: 'index' })
+          }
+        }, 2000)
+      }
     },
     async loadCaptcha() {
       const res = await getUserCaptcha({ type: 'login', t: Date.now() })

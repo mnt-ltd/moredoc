@@ -34,7 +34,7 @@ export const updateUserPassword = (data) => {
 
 export const updateUser = (data) => {
   return service({
-    url: '/api/v1/user/password',
+    url: '/api/v1/user',
     method: 'put',
     data,
   })
@@ -63,5 +63,3 @@ export const getUserCaptcha = (params) => {
     params,
   })
 }
-
-

@@ -84,6 +84,10 @@
             <i class="el-icon-link"></i>
             <span slot="title">友链管理</span>
           </el-menu-item>
+          <el-menu-item index="/admin/comment">
+            <i class="el-icon-chat-dot-square"></i>
+            <span slot="title">评论管理</span>
+          </el-menu-item>
           <el-menu-item index="/admin/attachment">
             <i class="el-icon-paperclip"></i>
             <span slot="title">附件管理</span>
@@ -114,8 +118,8 @@
         <span>我的项目</span>
         <el-dropdown style="float: right" trigger="click" @command="command">
           <el-button>
-            <i class="el-icon-user" style="margin-right: 15px"> </i>
-            <span>{{ user.realname }}</span>
+            <i class="el-icon-user"></i>
+            <span>{{ user.username }}</span>
           </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="profile"> 个人资料 </el-dropdown-item>
