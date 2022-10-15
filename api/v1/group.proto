@@ -16,14 +16,13 @@ message Group {
   int64 id = 1;
   string title = 2;
   string color = 3;
-  string icon = 4;
-  int32 is_default = 5;
-  int32 is_display = 6;
-  string description = 7;
-  int32 user_count = 8;
-  int32 sort = 9;
-  google.protobuf.Timestamp created_at = 10 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 11 [ (gogoproto.stdtime) = true ];
+  int32 is_default = 4;
+  int32 is_display = 5;
+  string description = 6;
+  int32 user_count = 7;
+  int32 sort = 8;
+  google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
 }
 
 message DeleteGroupRequest { repeated int64 id = 1; }

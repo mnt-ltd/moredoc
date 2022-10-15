@@ -42,7 +42,30 @@ func (s *GroupAPIService) CreateGroup(ctx context.Context, req *pb.Group) (*pb.G
 		return nil, status.Errorf(codes.PermissionDenied, ErrorMessagePermissionDenied)
 	}
 
-	return &pb.Group{}, nil
+	existGroup, err := s.dbModel.GetGroupByTitle(req.Title)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+	if existGroup.Id > 0 {
+		return nil, status.Errorf(codes.AlreadyExists, "分组名称已存在")
+	}
+
+	group := &model.Group{
+		Title:       req.Title,
+		Color:       req.Color,
+		IsDefault:   int8(req.IsDefault),
+		IsDisplay:   int8(req.IsDisplay),
+		Sort:        int(req.Sort),
+		Description: req.Description,
+	}
+	err = s.dbModel.CreateGroup(group)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	pbGroup := &pb.Group{}
+	util.CopyStruct(group, pbGroup)
+	return pbGroup, nil
 }
 func (s *GroupAPIService) UpdateGroup(ctx context.Context, req *pb.Group) (*pb.Group, error) {
 	return &pb.Group{}, nil

@@ -15,7 +15,7 @@
         :table-data="groups"
         :fields="tableListFields"
         :show-actions="true"
-        :show-view="true"
+        :show-view="false"
         :show-edit="true"
         :show-delete="true"
         :show-select="true"
@@ -139,7 +139,7 @@ export default {
         { prop: 'title', label: '名称', width: 150, fixed: 'left' },
         { prop: 'sort', label: '排序', width: 80, type: 'number' },
         { prop: 'user_count', label: '用户数', width: 80, type: 'number' },
-        { prop: 'color', label: '颜色', width: 120 },
+        { prop: 'color', label: '颜色', width: 120, type: 'color' },
         { prop: 'is_default', label: '是否默认', width: 80, type: 'bool' },
         { prop: 'is_display', label: '是否展示', width: 80, type: 'bool' },
         { prop: 'description', label: '描述', width: 250 },

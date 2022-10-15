@@ -39,6 +39,11 @@
           <span v-else-if="item.type === 'datetime'">
             {{ formatDatetime(scope.row[item.prop]) || '0000-00-00 00:00:00' }}
           </span>
+          <span v-else-if="item.type === 'color'">
+            <span :style="{ color: scope.row[item.prop] }">{{
+              scope.row[item.prop] || '-'
+            }}</span>
+          </span>
           <!-- 字符串。更多，则需要继续扩展 -->
           <span v-else>{{ scope.row[item.prop] || '-' }}</span>
         </template>
