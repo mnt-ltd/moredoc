@@ -1,76 +1,25 @@
 <template>
   <div>
     <el-card shadow="never" class="search-card">
-      <el-form :inline="true" :model="search">
-        <el-form-item label="关键字">
-          <el-input
-            v-model="search.wd"
-            placeholder="请输入关键字"
-            clearable
-            @keydown.native.enter="onSearch"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="用户组">
-          <el-select
-            v-model="search.group_id"
-            placeholder="请选择用户组"
-            multiple
-            clearable
-            filterable
-          >
-            <el-option
-              v-for="item in groups"
-              :key="'group_' + item.id"
-              :label="item.title"
-              :value="item.id"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select
-            v-model="search.status"
-            placeholder="请选择用户状态"
-            multiple
-            clearable
-            filterable
-          >
-            <el-option
-              v-for="item in userStatusOptions"
-              :key="'status_' + item.value"
-              :label="item.label"
-              :value="item.value"
-            ></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            type="primary"
-            icon="el-icon-search"
-            :loading="loading"
-            @click="onSearch"
-            >查询</el-button
-          >
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            :disabled="selectedIds.length == 0"
-            @click="batchDelete"
-            >批量删除</el-button
-          >
-        </el-form-item>
-      </el-form>
+      <FormSearch
+        :fields="searchFormFields"
+        :loading="loading"
+        :show-create="true"
+        :show-delete="true"
+        :disabled-delete="selectedRow.length === 0"
+        @onCreate="onCreate"
+      />
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <TableList
         :table-data="groups"
-        :fields="fields"
+        :fields="tableListFields"
         :show-actions="true"
         :show-view="true"
         :show-edit="true"
         :show-delete="true"
         :show-select="true"
+        @selectRow="selectRow"
       />
     </el-card>
     <el-card shadow="never" class="mgt-20px">
@@ -88,17 +37,29 @@
         </el-pagination>
       </div>
     </el-card>
+
+    <el-dialog
+      :title="group.id ? '编辑分组' : '新增分组'"
+      :init-group="group"
+      :visible.sync="formGroupVisible"
+    >
+      <FormGroup />
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { listGroup } from '~/api/group'
 import TableList from '~/components/TableList.vue'
+import FormSearch from '~/components/FormSearch.vue'
+import FormGroup from '~/components/FormGroup.vue'
 export default {
-  components: { TableList },
+  components: { TableList, FormSearch, FormGroup },
   layout: 'admin',
   data() {
     return {
+      loading: false,
+      formGroupVisible: false,
       search: {
         wd: '',
         page: 1,
@@ -108,29 +69,15 @@ export default {
       },
       groups: [],
       total: 0,
-      fields: [
-        { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
-        {
-          prop: 'icon',
-          label: '图标',
-          width: 80,
-          type: 'avatar',
-          fixed: 'left',
-        },
-        { prop: 'title', label: '名称', width: 150, fixed: 'left' },
-        { prop: 'sort', label: '排序', width: 80, type: 'number' },
-        { prop: 'user_count', label: '用户数', width: 80, type: 'number' },
-        { prop: 'color', label: '颜色', width: 120 },
-        { prop: 'is_default', label: '是否默认', width: 80, type: 'bool' },
-        { prop: 'is_display', label: '是否展示', width: 80, type: 'bool' },
-        { prop: 'description', label: '描述', width: 250 },
-        { prop: 'created_at', label: '注册时间', width: 160, type: 'datetime' },
-        { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
-      ],
-      selectedIds: [],
+      searchFormFields: [],
+      tableListFields: [],
+      selectedRow: [],
+      group: {},
     }
   },
   async created() {
+    this.initSearchForm()
+    this.initTableListFields()
     await this.listGroup()
   },
   methods: {
@@ -157,8 +104,48 @@ export default {
       this.search.page = 1
       this.listGroup()
     },
+    onCreate() {
+      this.formGroupVisible = true
+    },
+    setGroup() {
+      this.formGroupVisible = false
+    },
     batchDelete() {
       console.log('batchDelete')
+    },
+    selectRow(rows) {
+      this.selectedRow = rows
+    },
+    initSearchForm() {
+      this.searchFormFields = [
+        {
+          type: 'text',
+          label: '关键字',
+          name: 'wd',
+          placeholder: '请输入关键字',
+        },
+      ]
+    },
+    initTableListFields() {
+      this.tableListFields = [
+        { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
+        {
+          prop: 'icon',
+          label: '图标',
+          width: 80,
+          type: 'avatar',
+          fixed: 'left',
+        },
+        { prop: 'title', label: '名称', width: 150, fixed: 'left' },
+        { prop: 'sort', label: '排序', width: 80, type: 'number' },
+        { prop: 'user_count', label: '用户数', width: 80, type: 'number' },
+        { prop: 'color', label: '颜色', width: 120 },
+        { prop: 'is_default', label: '是否默认', width: 80, type: 'bool' },
+        { prop: 'is_display', label: '是否展示', width: 80, type: 'bool' },
+        { prop: 'description', label: '描述', width: 250 },
+        { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
+        { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
+      ]
     },
   },
 }
