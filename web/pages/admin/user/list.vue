@@ -1,60 +1,19 @@
 <template>
   <div>
-    <!-- <el-table :data="users" style="width: 100%">
-      <el-table-column type="selection" width="55"> </el-table-column>
-      <el-table-column prop="id" label="ID" width="80"> </el-table-column>
-      <el-table-column prop="avatar" label="头像" width="75">
-        <template slot-scope="scope">
-          <el-avatar :size="45" :src="scope.row.avatar">
-            <img src="/static/images/blank.png" />
-          </el-avatar>
-        </template>
-      </el-table-column>
-      <el-table-column prop="username" label="用户名" width="120">
-      </el-table-column>
-      <el-table-column prop="realname" label="姓名" width="120">
-        <template slot-scope="scope">
-          {{ scope.row.realname || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="email" label="邮箱" width="120">
-        <template slot-scope="scope">
-          {{ scope.row.email || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="mobile" label="电话" width="120">
-        <template slot-scope="scope">
-          {{ scope.row.mobile || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="address" label="地址" width="150">
-        <template slot-scope="scope">
-          {{ scope.row.address || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column prop="signature" label="签名" width="150">
-        <template slot-scope="scope">
-          {{ scope.row.signature || '-' }}
-        </template>
-      </el-table-column>
-      <el-table-column fixed="right" label="操作" min-width="100">
-        <template slot-scope="scope">
-          <el-button
-            type="text"
-            size="small"
-            icon="el-icon-view"
-            @click="handleClick(scope.row)"
-            >查看</el-button
-          >
-          <el-button type="text" size="small" icon="el-icon-edit"
-            >编辑</el-button
-          >
-          <el-button type="text" size="small" icon="el-icon-delete"
-            >删除</el-button
-          >
-        </template>
-      </el-table-column>
-    </el-table> -->
+    <!-- <el-form :inline="true" :model="search" class="demo-form-inline">
+      <el-form-item label="审批人">
+        <el-input v-model="formInline.user" placeholder="审批人"></el-input>
+      </el-form-item>
+      <el-form-item label="活动区域">
+        <el-select v-model="formInline.region" placeholder="活动区域">
+          <el-option label="区域一" value="shanghai"></el-option>
+          <el-option label="区域二" value="beijing"></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item>
+        <el-button type="primary" @click="onSubmit">查询</el-button>
+      </el-form-item>
+    </el-form> -->
     <TableList
       :table-data="users"
       :fields="fields"
@@ -64,6 +23,20 @@
       :show-delete="true"
       :show-select="true"
     />
+    <div class="text-right">
+      <el-pagination
+        class="mgt-20px"
+        background
+        :current-page="search.page"
+        :page-sizes="[10, 20, 50, 100, 200]"
+        :page-size="search.size"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="total"
+        @size-change="handleSizeChange"
+        @current-change="handlePageChange"
+      >
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -75,8 +48,15 @@ export default {
   layout: 'admin',
   data() {
     return {
+      search: {
+        wd: '',
+        status: [],
+        group_id: [],
+        page: 1,
+        size: 10,
+      },
       users: [],
-      total: 0,
+      total: 100,
       fields: [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
         {
@@ -114,12 +94,20 @@ export default {
   },
   methods: {
     async listUser() {
-      const res = await listUser()
+      const res = await listUser(this.search)
       if (res.status === 200) {
         this.users = res.data.user
         this.total = res.data.total
       }
       console.log(res)
+    },
+    handleSizeChange(val) {
+      this.search.size = val
+      this.listUser()
+    },
+    handlePageChange(val) {
+      this.search.page = val
+      this.listUser()
     },
   },
 }

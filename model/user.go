@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"moredoc/util"
 	"strings"
 	"time"
 
@@ -262,6 +263,10 @@ func (m *DBModel) GetUserList(opt OptionGetUserList) (userList []User, total int
 	if len(sorts) > 0 {
 		db = db.Order(strings.Join(sorts, ","))
 	}
+
+	opt.Page = util.LimitMin(opt.Page, 1)
+	opt.Size = util.LimitRange(opt.Size, 10, 200)
+
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 
 	err = db.Find(&userList).Error

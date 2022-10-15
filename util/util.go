@@ -39,3 +39,30 @@ func GetGRPCRemoteIP(ctx context.Context) (ips []string, err error) {
 	}
 	return
 }
+
+// LimitMin 数字最小值限制
+func LimitMin(number int, minValue int) int {
+	if number >= minValue {
+		return number
+	}
+	return minValue
+}
+
+// LimitMax 数字最大值限制
+func LimitMax(number int, maxValue int) int {
+	if number >= maxValue {
+		return maxValue
+	}
+	return number
+}
+
+// LimitRange 数字范围限制
+func LimitRange(number int, min, max int) int {
+	if number >= max {
+		return max
+	}
+	if number <= min {
+		return min
+	}
+	return number
+}
