@@ -256,6 +256,8 @@ func (s *UserAPIService) DeleteUser(ctx context.Context, req *pb.DeleteUserReque
 // 1. 非管理员，只能查询公开信息
 // 2. 管理员，可以查询全部信息
 func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) (*pb.ListUserReply, error) {
+	s.logger.Debug("ListUser", zap.Any("req", req), zap.Any("status", req.Status))
+
 	var (
 		userId        int64
 		limitFileds   = model.UserPublicFields

@@ -1,42 +1,87 @@
 <template>
   <div>
-    <!-- <el-form :inline="true" :model="search" class="demo-form-inline">
-      <el-form-item label="审批人">
-        <el-input v-model="formInline.user" placeholder="审批人"></el-input>
-      </el-form-item>
-      <el-form-item label="活动区域">
-        <el-select v-model="formInline.region" placeholder="活动区域">
-          <el-option label="区域一" value="shanghai"></el-option>
-          <el-option label="区域二" value="beijing"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">查询</el-button>
-      </el-form-item>
-    </el-form> -->
-    <TableList
-      :table-data="users"
-      :fields="fields"
-      :show-actions="true"
-      :show-view="true"
-      :show-edit="true"
-      :show-delete="true"
-      :show-select="true"
-    />
-    <div class="text-right">
-      <el-pagination
-        class="mgt-20px"
-        background
-        :current-page="search.page"
-        :page-sizes="[10, 20, 50, 100, 200]"
-        :page-size="search.size"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handlePageChange"
-      >
-      </el-pagination>
-    </div>
+    <el-card shadow="never" class="search-card">
+      <el-form :inline="true" :model="search">
+        <el-form-item label="关键字">
+          <el-input
+            v-model="search.wd"
+            placeholder="请输入关键字"
+            clearable
+            @keydown.native.enter="onSearch"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="用户组">
+          <el-select
+            v-model="search.group_id"
+            placeholder="请选择用户组"
+            multiple
+            clearable
+            filterable
+          >
+            <el-option label="区域一" value="1"></el-option>
+            <el-option label="区域二" value="2"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="状态">
+          <el-select
+            v-model="search.status"
+            placeholder="请选择用户状态"
+            multiple
+            clearable
+            filterable
+          >
+            <el-option label="区域一" value="1"></el-option>
+            <el-option label="区域二" value="2"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            type="primary"
+            icon="el-icon-search"
+            :loading="loading"
+            @click="onSearch"
+            >查询</el-button
+          >
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            type="danger"
+            icon="el-icon-delete"
+            :disabled="selectedIds.length == 0"
+            @click="batchDelete"
+            >批量删除</el-button
+          >
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <el-card class="mgt-20px" shadow="never">
+      <TableList
+        :table-data="users"
+        :fields="fields"
+        :show-actions="true"
+        :show-view="true"
+        :show-edit="true"
+        :show-delete="true"
+        :show-select="true"
+      />
+    </el-card>
+
+    <el-card shadow="never" class="mgt-20px">
+      <div class="text-right">
+        <el-pagination
+          background
+          :current-page="search.page"
+          :page-sizes="[10, 20, 50, 100, 200]"
+          :page-size="search.size"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange"
+        >
+        </el-pagination>
+      </div>
+    </el-card>
   </div>
 </template>
 
@@ -48,11 +93,12 @@ export default {
   layout: 'admin',
   data() {
     return {
+      loading: false,
       search: {
         wd: '',
+        page: 1,
         status: [],
         group_id: [],
-        page: 1,
         size: 10,
       },
       users: [],
@@ -87,6 +133,7 @@ export default {
           width: 160,
         },
       ],
+      selectedIds: [],
     }
   },
   created() {
@@ -94,11 +141,13 @@ export default {
   },
   methods: {
     async listUser() {
+      this.loading = true
       const res = await listUser(this.search)
       if (res.status === 200) {
         this.users = res.data.user
         this.total = res.data.total
       }
+      this.loading = false
       console.log(res)
     },
     handleSizeChange(val) {
@@ -108,6 +157,13 @@ export default {
     handlePageChange(val) {
       this.search.page = val
       this.listUser()
+    },
+    onSearch() {
+      this.search.page = 1
+      this.listUser()
+    },
+    batchDelete() {
+      console.log('batchDelete')
     },
   },
 }

@@ -15,6 +15,9 @@ body{
 
 .layout-admin{
     height: 100vh;
+    .el-main{
+        background-color: #f0f2f5;
+    }
     .el-aside{
         height: 100vh;
         border-right: 1px solid #e6e6e6;
@@ -68,6 +71,11 @@ body{
         }
         &.el-table__cell.is-leaf{
             border-bottom: 0;
+        }
+    }
+    .search-card{
+        .el-card__body{
+            padding-bottom: 0;
         }
     }
 }
