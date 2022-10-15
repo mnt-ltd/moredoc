@@ -23,21 +23,6 @@ type Group struct {
 	UpdatedAt   time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
 
-// 这里是proto文件中的结构体，可以根据需要删除或者调整
-//message Group {
-// int64 id = 1;
-// string title = 2;
-// string color = 3;
-// string icon = 4;
-// int32 is_default = 5;
-// int32 is_display = 6;
-// string description = 7;
-// int32 user_count = 8;
-// int32 sort = 9;
-//   = 0;
-//   = 0;
-//}
-
 func (Group) TableName() string {
 	return tablePrefix + "group"
 }
@@ -96,7 +81,6 @@ type OptionGetGroupList struct {
 	QueryRange   map[string][2]interface{} // map[field][]{min,max}
 	QueryIn      map[string][]interface{}  // map[field][]{value1,value2,...}
 	QueryLike    map[string][]interface{}  // map[field][]{value1,value2,...}
-	Sort         []string
 }
 
 // GetGroupList 获取Group列表
@@ -149,26 +133,7 @@ func (m *DBModel) GetGroupList(opt OptionGetGroupList) (groupList []Group, total
 		db = db.Select(opt.SelectFields)
 	}
 
-	if len(opt.Sort) > 0 {
-		var sorts []string
-		for _, sort := range opt.Sort {
-			slice := strings.Split(sort, " ")
-			if len(m.FilterValidFields(Group{}.TableName(), slice[0])) == 0 {
-				continue
-			}
-
-			if len(slice) == 2 {
-				sorts = append(sorts, fmt.Sprintf("%s %s", slice[0], slice[1]))
-			} else {
-				sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
-			}
-		}
-		if len(sorts) > 0 {
-			db = db.Order(strings.Join(sorts, ","))
-		}
-	}
-
-	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
+	db = db.Order("sort desc, id asc").Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 
 	err = db.Find(&groupList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
@@ -180,6 +145,7 @@ func (m *DBModel) GetGroupList(opt OptionGetGroupList) (groupList []Group, total
 // DeleteGroup 删除数据
 // TODO: 删除数据之后，存在 group_id 的关联表，需要删除对应数据，同时相关表的统计数值，也要随着减少
 func (m *DBModel) DeleteGroup(ids []interface{}) (err error) {
+	// 组下存在用户的，不能删除。提示用户重新授权或者重命名即可
 	err = m.db.Where("id in (?)", ids).Delete(&Group{}).Error
 	if err != nil {
 		m.logger.Error("DeleteGroup", zap.Error(err))

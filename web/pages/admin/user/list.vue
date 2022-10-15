@@ -1,64 +1,20 @@
 <template>
   <div>
     <el-card shadow="never" class="search-card">
-      <el-form :inline="true" :model="search">
-        <el-form-item label="关键字">
-          <el-input
-            v-model="search.wd"
-            placeholder="请输入关键字"
-            clearable
-            @keydown.native.enter="onSearch"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="用户组">
-          <el-select
-            v-model="search.group_id"
-            placeholder="请选择用户组"
-            multiple
-            clearable
-            filterable
-          >
-            <el-option label="区域一" value="1"></el-option>
-            <el-option label="区域二" value="2"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item label="状态">
-          <el-select
-            v-model="search.status"
-            placeholder="请选择用户状态"
-            multiple
-            clearable
-            filterable
-          >
-            <el-option label="区域一" value="1"></el-option>
-            <el-option label="区域二" value="2"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            type="primary"
-            icon="el-icon-search"
-            :loading="loading"
-            @click="onSearch"
-            >查询</el-button
-          >
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            type="danger"
-            icon="el-icon-delete"
-            :disabled="selectedIds.length == 0"
-            @click="batchDelete"
-            >批量删除</el-button
-          >
-        </el-form-item>
-      </el-form>
+      <FormSearch
+        :fields="searchFormFields"
+        :disabled-delete="selectedIds.length == 0"
+        :loading="loading"
+        @onSearch="onSearch"
+        @onCreate="onCreate"
+        @onDelete="batchDelete"
+      />
     </el-card>
 
     <el-card class="mgt-20px" shadow="never">
       <TableList
         :table-data="users"
-        :fields="fields"
+        :fields="listFields"
         :show-actions="true"
         :show-view="true"
         :show-edit="true"
@@ -87,12 +43,16 @@
 
 <script>
 import { listUser } from '~/api/user'
+import { listGroup } from '~/api/group'
+import { userStatusOptions } from '~/utils/enum'
 import TableList from '~/components/TableList.vue'
+import FormSearch from '~/components/FormSearch.vue'
 export default {
-  components: { TableList },
+  components: { TableList, FormSearch },
   layout: 'admin',
   data() {
     return {
+      userStatusOptions,
       loading: false,
       search: {
         wd: '',
@@ -101,9 +61,92 @@ export default {
         group_id: [],
         size: 10,
       },
+      groups: [],
       users: [],
       total: 100,
-      fields: [
+      searchFormFields: [],
+      listFields: [],
+      selectedIds: [],
+    }
+  },
+  async created() {
+    this.initTableListFields()
+    await this.listGroup()
+    await this.initSearchForm()
+    await this.listUser()
+  },
+  methods: {
+    async listUser() {
+      this.loading = true
+      const res = await listUser(this.search)
+      if (res.status === 200) {
+        this.users = res.data.user
+        this.total = res.data.total
+      } else {
+        this.$message.error(res.data.message)
+      }
+      this.loading = false
+    },
+    async listGroup() {
+      const res = await listGroup({ field: ['id', 'title'] })
+      if (res.status === 200) {
+        this.groups = res.data.group
+      } else {
+        this.$message.error(res.data.message)
+      }
+    },
+    handleSizeChange(val) {
+      this.search.size = val
+      this.listUser()
+    },
+    handlePageChange(val) {
+      this.search.page = val
+      this.listUser()
+    },
+    onSearch(search) {
+      this.search = { ...this.search, ...search }
+      this.search.page = 1
+      this.listUser()
+    },
+    onCreate() {
+      console.log('onCreate')
+    },
+    batchDelete() {
+      console.log('batchDelete')
+    },
+    initSearchForm() {
+      this.searchFormFields = [
+        {
+          type: 'text',
+          label: '关键字',
+          name: 'wd',
+          placeholder: '请输入关键字',
+        },
+        {
+          type: 'select',
+          label: '用户组',
+          name: 'group_id',
+          placeholder: '请选择用户组',
+          multiple: true,
+          options: this.groups.map((item) => {
+            return {
+              label: item.title,
+              value: item.id,
+            }
+          }),
+        },
+        {
+          type: 'select',
+          label: '状态',
+          name: 'status',
+          placeholder: '请选择用户状态',
+          multiple: true,
+          options: this.userStatusOptions,
+        },
+      ]
+    },
+    initTableListFields() {
+      this.listFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
         {
           prop: 'avatar',
@@ -132,38 +175,7 @@ export default {
           label: '最后登录IP',
           width: 160,
         },
-      ],
-      selectedIds: [],
-    }
-  },
-  created() {
-    this.listUser()
-  },
-  methods: {
-    async listUser() {
-      this.loading = true
-      const res = await listUser(this.search)
-      if (res.status === 200) {
-        this.users = res.data.user
-        this.total = res.data.total
-      }
-      this.loading = false
-      console.log(res)
-    },
-    handleSizeChange(val) {
-      this.search.size = val
-      this.listUser()
-    },
-    handlePageChange(val) {
-      this.search.page = val
-      this.listUser()
-    },
-    onSearch() {
-      this.search.page = 1
-      this.listUser()
-    },
-    batchDelete() {
-      console.log('batchDelete')
+      ]
     },
   },
 }

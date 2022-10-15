@@ -210,6 +210,10 @@ func (m *DBModel) GetUserList(opt OptionGetUserList) (userList []User, total int
 	}
 
 	for field, values := range opt.QueryIn {
+		if field == "group_id" {
+			db = db.Joins(fmt.Sprintf("left JOIN %s ug ON ug.user_id = %s.id", UserGroup{}.TableName(), User{}.TableName())).Where("ug.group_id in (?)", values)
+			continue
+		}
 		fields := m.FilterValidFields(User{}.TableName(), field)
 		if len(fields) == 0 {
 			continue
@@ -217,12 +221,24 @@ func (m *DBModel) GetUserList(opt OptionGetUserList) (userList []User, total int
 		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
 	}
 
-	for field, values := range opt.QueryLike {
-		fields := m.FilterValidFields(User{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
+	// Like 查询比较特殊，统一用or来拼接查询的字段
+	if len(opt.QueryLike) > 0 {
+		var likeQuery []string
+		var likeValues []interface{}
+		for field, values := range opt.QueryLike {
+			fields := m.FilterValidFields(User{}.TableName(), field)
+			if len(fields) == 0 {
+				continue
+			}
+			for _, value := range values {
+				valueStr := fmt.Sprintf("%v", value)
+				likeQuery = append(likeQuery, fmt.Sprintf("%s like ?", field))
+				likeValues = append(likeValues, "%"+valueStr+"%")
+			}
 		}
-		db = db.Where(strings.TrimSuffix(fmt.Sprintf(strings.Join(make([]string, len(values)+1), "%s like ? or"), field), "or"), values...)
+		if len(likeQuery) > 0 {
+			db = db.Where(strings.Join(likeQuery, " or "), likeValues...)
+		}
 	}
 
 	if len(opt.Ids) > 0 {

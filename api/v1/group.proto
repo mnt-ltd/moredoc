@@ -35,9 +35,18 @@ message GetGroupRequest {
 }
 
 // 查询用户组列表。不需要分页，直接返回全部用户组，只是可以指定查询哪些字段
-message ListGroupRequest { repeated string field = 1; }
+message ListGroupRequest {
+  string wd = 1;
+  int64 page = 2;
+  int64 size = 3;
+  string sort = 4;
+  repeated string field = 5;
+}
 
-message ListGroupReply { repeated Group group = 1; }
+message ListGroupReply {
+  repeated Group group = 1;
+  int64 total = 2;
+}
 
 service GroupAPI {
   // 创建用户组

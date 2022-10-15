@@ -57,12 +57,18 @@ func (s *GroupAPIService) GetGroup(ctx context.Context, req *pb.GetGroupRequest)
 // ListGroup 列出用户组。所有用户都可以查询
 func (s *GroupAPIService) ListGroup(ctx context.Context, req *pb.ListGroupRequest) (*pb.ListGroupReply, error) {
 	s.logger.Debug("ListGroup", zap.Any("req", req))
-	groups, _, err := s.dbModel.GetGroupList(model.OptionGetGroupList{Page: 1, Size: 100000, SelectFields: req.Field, WithCount: false})
+	opt := model.OptionGetGroupList{
+		Page:         int(req.Page),
+		Size:         int(req.Size_),
+		SelectFields: req.Field,
+		WithCount:    true,
+	}
+	groups, total, err := s.dbModel.GetGroupList(opt)
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	var pbGroups []*pb.Group
 	util.CopyStruct(&groups, &pbGroups)
-	return &pb.ListGroupReply{Group: pbGroups}, nil
+	return &pb.ListGroupReply{Group: pbGroups, Total: total}, nil
 }

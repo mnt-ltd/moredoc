@@ -33,6 +33,7 @@ message User {
   string avatar = 15;
   string identity = 16;
   string realname = 17;
+  repeated int64 group_id = 18;
 }
 
 message RegisterAndLoginRequest {

@@ -292,6 +292,14 @@ func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) 
 		opt.QueryIn = map[string][]interface{}{"group_id": groupIds}
 	}
 
+	if len(req.Status) > 0 {
+		var statuses []interface{}
+		for _, status := range req.Status {
+			statuses = append(statuses, status)
+		}
+		opt.QueryIn = map[string][]interface{}{"status": statuses}
+	}
+
 	if req.Sort != "" {
 		opt.Sort = strings.Split(req.Sort, ",")
 	}
@@ -299,8 +307,9 @@ func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) 
 	if s.dbModel.CheckPermissionByUserId(userId, fullMethod) {
 		limitFileds = []string{} // 管理员，可以查询全部信息
 		if req.Wd != "" {
+			value := []interface{}{"%" + strings.TrimSpace(req.Wd) + "%"}
 			opt.QueryLike = map[string][]interface{}{
-				"username": {"%" + strings.TrimSpace(req.Wd) + "%"},
+				"username": value, "realname": value, "email": value, "mobile": value,
 			}
 		}
 	}
