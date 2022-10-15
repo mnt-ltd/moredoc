@@ -119,7 +119,7 @@ export default {
         },
         { prop: 'title', label: '名称', width: 150, fixed: 'left' },
         { prop: 'sort', label: '排序', width: 80, type: 'number' },
-        { prop: 'user_count', label: '用户数', width: 80 },
+        { prop: 'user_count', label: '用户数', width: 80, type: 'number' },
         { prop: 'color', label: '颜色', width: 120 },
         { prop: 'is_default', label: '是否默认', width: 80, type: 'bool' },
         { prop: 'is_display', label: '是否展示', width: 80, type: 'bool' },

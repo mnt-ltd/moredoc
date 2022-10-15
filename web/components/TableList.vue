@@ -29,6 +29,13 @@
           <span v-else-if="item.type === 'number'">{{
             scope.row[item.prop] || '0'
           }}</span>
+          <el-tag
+            v-else-if="item.type === 'bool'"
+            :type="scope.row[item.prop] ? 'success' : 'danger'"
+            effect="dark"
+          >
+            {{ scope.row[item.prop] ? '是' : '否' }}</el-tag
+          >
           <span v-else-if="item.type === 'datetime'">
             {{ formatDatetime(scope.row[item.prop]) || '0000-00-00 00:00:00' }}
           </span>

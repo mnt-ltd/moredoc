@@ -1,5 +1,5 @@
 <template>
-  <div v-if="fields.length > 0" class="com-form-search">
+  <div class="com-form-search">
     <el-form :inline="true" :model="search">
       <el-form-item
         v-for="field in fields"
