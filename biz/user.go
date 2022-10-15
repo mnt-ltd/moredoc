@@ -185,7 +185,7 @@ func (s *UserAPIService) UpdateUser(ctx context.Context, req *pb.User) (*emptypb
 
 	// 管理员更改用户资料，验证是否有权限
 	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
-	yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, "", fullMethod)
+	yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod)
 	if !yes {
 		return nil, status.Errorf(codes.PermissionDenied, ErrorMessagePermissionDenied)
 	}
@@ -235,7 +235,7 @@ func (s *UserAPIService) UpdateUserPassword(ctx context.Context, req *pb.UpdateU
 
 	// 管理员更改用户密码
 	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
-	yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, "", fullMethod)
+	yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod)
 	if !yes {
 		return nil, status.Errorf(codes.PermissionDenied, ErrorMessagePermissionDenied)
 	}
@@ -296,7 +296,7 @@ func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) 
 		opt.Sort = strings.Split(req.Sort, ",")
 	}
 
-	if s.dbModel.CheckPermissionByUserId(userId, "", fullMethod) {
+	if s.dbModel.CheckPermissionByUserId(userId, fullMethod) {
 		limitFileds = []string{} // 管理员，可以查询全部信息
 		if req.Wd != "" {
 			opt.QueryLike = map[string][]interface{}{

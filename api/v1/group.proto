@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Group {
+  int64 id = 1;
+  string title = 2;
+  string color = 3;
+  string icon = 4;
+  int32 is_default = 5;
+  int32 is_display = 6;
+  string description = 7;
+  int32 user_count = 8;
+  int32 sort = 9;
+  google.protobuf.Timestamp created_at = 10 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 11 [ (gogoproto.stdtime) = true ];
+}
+
+message DeleteGroupRequest { repeated int64 id = 1; }
+
+// 根据组名或者ID获取用户组
+message GetGroupRequest {
+  int64 id = 1;
+  string title = 2;
+}
+
+// 查询用户组列表。不需要分页，直接返回全部用户组，只是可以指定查询哪些字段
+message ListGroupRequest { repeated string field = 1; }
+
+message ListGroupReply { repeated Group group = 1; }
+
+service GroupAPI {
+  // 创建用户组
+  rpc CreateGroup(Group) returns (Group) {
+    option (google.api.http) = {
+      post : '/api/v1/group',
+      body : '*',
+    };
+  }
+
+  //   更新用户组
+  rpc UpdateGroup(Group) returns (Group) {
+    option (google.api.http) = {
+      put : '/api/v1/group',
+      body : '*',
+    };
+  }
+
+  //   删除用户组
+  rpc DeleteGroup(DeleteGroupRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/group',
+    };
+  }
+
+  //   获取用户组列表
+  rpc GetGroup(GetGroupRequest) returns (Group) {
+    option (google.api.http) = {
+      get : '/api/v1/group',
+    };
+  }
+
+  rpc ListGroup(ListGroupRequest) returns (ListGroupReply) {
+    option (google.api.http) = {
+      get : '/api/v1/group/list',
+    };
+  }
+}

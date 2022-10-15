@@ -1,17 +1,15 @@
 package service
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strings"
 
-	v1 "moredoc/api/v1"
-	"moredoc/biz"
 	"moredoc/conf"
 	"moredoc/middleware/auth"
 	"moredoc/middleware/jsonpb"
 	"moredoc/model"
+	"moredoc/service/serve"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/gzip"
@@ -59,29 +57,9 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 		return
 	}
 
-	endpoint := fmt.Sprintf("localhost:%v", cfg.Port)
-
-	// =========================================================================
-	// 【start】 在这里，注册您的API服务模块
-	// =========================================================================
-
-	// 用户API接口服务
-	userAPIService := biz.NewUserAPIService(dbModel, logger, auth)
-	v1.RegisterUserAPIServer(grpcServer, userAPIService)
-	err = v1.RegisterUserAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
-	if err != nil {
-		logger.Fatal("RegisterUserAPIHandlerFromEndpoint", zap.Error(err))
-		return
-	}
-
-	// =========================================================================
-	// 【end】 在这里，注册您的API服务模块
-	// =========================================================================
-
 	if cfg.Level != "debug" {
 		gin.SetMode(gin.ReleaseMode)
 	}
-
 	app := gin.New()
 	app.Use(
 		gzip.Gzip(gzip.DefaultCompression), // gzip
@@ -89,8 +67,14 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 		cors.Default(),                     // allows all origins
 	)
 
-	// Web router
-	mountWebRouter(app)
+	endpoint := fmt.Sprintf("localhost:%v", cfg.Port)
+	err = serve.RegisterGRPCService(dbModel, logger, endpoint, auth, grpcServer, gwmux, dialOpts...)
+	if err != nil {
+		logger.Fatal("registerAPIService", zap.Error(err))
+		return
+	}
+
+	serve.RegisterGinRouter(app)
 
 	// 根目录访问静态文件，要放在 grpc 服务的前面
 	// 可以在 dist 目录下创建一个 index.html 文件并添加内容，然后访问 http://ip:port
@@ -127,11 +111,4 @@ func wrapH(h http.Handler) gin.HandlerFunc {
 		c.Status(http.StatusOK) // reset 404
 		h.ServeHTTP(c.Writer, c.Request)
 	}
-}
-
-// mountWebRouter mount web router
-func mountWebRouter(app *gin.Engine) {
-	app.GET("/helloworld", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, "hello world")
-	})
 }

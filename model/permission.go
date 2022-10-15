@@ -121,10 +121,11 @@ func (m *DBModel) DeletePermission(ids []interface{}) (err error) {
 }
 
 //  CheckPermissionByUserId 根据用户ID，检查用户是否有权限
-func (m *DBModel) CheckPermissionByUserId(userId int64, method, path string) (yes bool) {
+func (m *DBModel) CheckPermissionByUserId(userId int64, path string, httpMethod ...string) (yes bool) {
 	var (
 		userGroups []UserGroup
 		groupId    []int64
+		method     string
 	)
 
 	// NOTE: ID为1的用户，拥有所有权限，可以理解为类似linux的root用户
@@ -132,6 +133,10 @@ func (m *DBModel) CheckPermissionByUserId(userId int64, method, path string) (ye
 	// if userId == 1 {
 	// 	return true
 	// }
+
+	if len(httpMethod) > 0 {
+		method = httpMethod[0]
+	}
 
 	if userId > 0 {
 		m.db.Where("user_id = ?", userId).Find(&userGroups)
