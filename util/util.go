@@ -66,3 +66,15 @@ func LimitRange(number int, min, max int) int {
 	}
 	return number
 }
+
+type Any interface {
+	~int | ~int64 | ~int32
+}
+
+// Slice2Interface 切片转interface切片
+func Slice2Interface[T Any](slice []T) (values []interface{}) {
+	for _, item := range slice {
+		values = append(values, item)
+	}
+	return
+}

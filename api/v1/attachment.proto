@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Attachment {
+  int64 id = 1;
+  string hash = 2;
+  int64 user_id = 3;
+  int64 type_id = 4;
+  int32 type = 5;
+  int32 is_approved = 6;
+  string path = 7;
+  string name = 8;
+  int64 size = 9;
+  int64 width = 10;
+  int64 height = 11;
+  string ext = 12;
+  string ip = 13;
+  string username = 16; // 用户名称
+  string type_name = 17; // 附件类型名称
+  google.protobuf.Timestamp created_at = 14 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 15 [ (gogoproto.stdtime) = true ];
+}
+
+message DeleteAttachmentRequest { repeated int64 id = 1; }
+
+message GetAttachmentRequest { int64 id = 1; }
+
+message ListAttachmentRequest {
+  int64 page = 1;
+  int64 size = 2;
+  string wd = 3;     // 搜索关键字
+  repeated int64 is_approved = 4;
+  repeated int64 user_id = 5; // 用户ID
+  repeated int64 type = 6;    // 类型
+  string ext = 7;            // 扩展名
+}
+
+message ListAttachmentReply {
+  int64 total = 1;
+  repeated Attachment attachment = 2;
+}
+
+  // 附件服务。只有管理员才有权限操作
+service AttachmentAPI {
+  rpc UpdateAttachment(Attachment) returns (Attachment) {
+    option (google.api.http) = {
+      put : '/api/v1/attachment',
+      body : '*',
+    };
+  }
+
+  rpc DeleteAttachment(DeleteAttachmentRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/attachment',
+    };
+  }
+
+  rpc GetAttachment(GetAttachmentRequest) returns (Attachment) {
+    option (google.api.http) = {
+      get : '/api/v1/attachment',
+    };
+  }
+
+  rpc ListAttachment(ListAttachmentRequest) returns (ListAttachmentReply) {
+    option (google.api.http) = {
+      get : '/api/v1/attachment/list',
+    };
+  }
+}

@@ -193,7 +193,7 @@ type OptionGetUserList struct {
 }
 
 // GetUserList 获取User列表
-func (m *DBModel) GetUserList(opt OptionGetUserList) (userList []User, total int64, err error) {
+func (m *DBModel) GetUserList(opt *OptionGetUserList) (userList []User, total int64, err error) {
 	db := m.db.Model(&User{})
 
 	for field, rangeValue := range opt.QueryRange {
@@ -252,7 +252,7 @@ func (m *DBModel) GetUserList(opt OptionGetUserList) (userList []User, total int
 	}
 
 	opt.Page = util.LimitMin(opt.Page, 1)
-	opt.Size = util.LimitRange(opt.Size, 10, 200)
+	opt.Size = util.LimitRange(opt.Size, 10, 1000)
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 

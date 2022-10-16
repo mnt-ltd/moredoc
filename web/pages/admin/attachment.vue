@@ -1,10 +1,232 @@
 <template>
-  <div>{{ $route.name }}</div>
+  <div>
+    <el-card shadow="never" class="search-card">
+      <FormSearch
+        :fields="searchFormFields"
+        :loading="loading"
+        :show-create="false"
+        :show-delete="true"
+        :disabled-delete="selectedRow.length === 0"
+        @onSearch="onSearch"
+        @onDelete="batchDelete"
+      />
+    </el-card>
+    <el-card shadow="never" class="mgt-20px">
+      <TableList
+        :table-data="listData"
+        :fields="tableListFields"
+        :show-actions="true"
+        :show-view="false"
+        :show-edit="true"
+        :show-delete="true"
+        :show-select="true"
+        @selectRow="selectRow"
+        @editRow="editRow"
+        @deleteRow="deleteRow"
+      />
+    </el-card>
+    <el-card shadow="never" class="mgt-20px">
+      <div class="text-right">
+        <el-pagination
+          background
+          :current-page="search.page"
+          :page-sizes="[10, 20, 50, 100, 200]"
+          :page-size="search.size"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange"
+        >
+        </el-pagination>
+      </div>
+    </el-card>
+
+    <el-dialog
+      :title="friendlink.id ? '编辑附件' : '新增附件'"
+      :visible.sync="formVisible"
+    >
+      <FormFriendlink
+        ref="friendlinkForm"
+        :init-friendlink="friendlink"
+        @success="formFriendlinkSuccess"
+      />
+    </el-dialog>
+  </div>
 </template>
 
 <script>
+import { listAttachment, deleteAttachment } from '~/api/attachment'
+import TableList from '~/components/TableList.vue'
+import FormSearch from '~/components/FormSearch.vue'
+import FormFriendlink from '~/components/FormFriendlink.vue'
+import { attachmentTypeOptions } from '~/utils/enum'
 export default {
+  components: { TableList, FormSearch, FormFriendlink },
   layout: 'admin',
-  created() {},
+  data() {
+    return {
+      loading: false,
+      formVisible: false,
+      search: {
+        wd: '',
+        page: 1,
+        status: [],
+        size: 10,
+      },
+      listData: [],
+      total: 0,
+      searchFormFields: [],
+      tableListFields: [],
+      selectedRow: [],
+      friendlink: { id: 0 },
+      attachmentTypeOptions,
+    }
+  },
+  async created() {
+    this.initSearchForm()
+    this.initTableListFields()
+    await this.listAttachment()
+  },
+  methods: {
+    async listAttachment() {
+      this.loading = true
+      const res = await listAttachment(this.search)
+      if (res.status === 200) {
+        this.listData = res.data.attachment
+        this.total = res.data.total
+      } else {
+        this.$message.error(res.data.message)
+      }
+      this.loading = false
+    },
+    handleSizeChange(val) {
+      this.search.size = val
+      this.listAttachment()
+    },
+    handlePageChange(val) {
+      this.search.page = val
+      this.listAttachment()
+    },
+    onSearch(search) {
+      this.search = { ...this.search, page: 1, ...search }
+      this.listAttachment()
+    },
+    onCreate() {
+      this.friendlink = { id: 0 }
+      this.formVisible = true
+      this.$nextTick(() => {
+        this.$refs.friendlinkForm.reset()
+      })
+    },
+    editRow(row) {
+      this.formVisible = true
+      this.$nextTick(() => {
+        this.$refs.friendlinkForm.clearValidate()
+        this.friendlink = row
+      })
+    },
+    formFriendlinkSuccess() {
+      this.formVisible = false
+      this.listAttachment()
+    },
+    batchDelete() {
+      this.$confirm(
+        `您确定要删除选中的【${this.selectedRow.length}个】附件吗？删除之后不可恢复！`,
+        '温馨提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+        .then(async () => {
+          const ids = this.selectedRow.map((item) => item.id)
+          const res = await deleteAttachment({ id: ids })
+          if (res.status === 200) {
+            this.$message.success('删除成功')
+            this.listAttachment()
+          } else {
+            this.$message.error(res.data.message)
+          }
+        })
+        .catch(() => {})
+    },
+    deleteRow(row) {
+      this.$confirm(
+        `您确定要删除附件【${row.name}】吗？删除之后不可恢复！`,
+        '温馨提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+        .then(async () => {
+          const res = await deleteAttachment({ id: row.id })
+          if (res.status === 200) {
+            this.$message.success('删除成功')
+            this.listAttachment()
+          } else {
+            this.$message.error(res.data.message)
+          }
+        })
+        .catch(() => {})
+    },
+    selectRow(rows) {
+      this.selectedRow = rows
+    },
+    initSearchForm() {
+      this.searchFormFields = [
+        {
+          type: 'text',
+          label: '关键字',
+          name: 'wd',
+          placeholder: '请输入关键字',
+        },
+        {
+          type: 'select',
+          label: '附件类型',
+          name: 'type',
+          placeholder: '请选择附件类型',
+          multiple: true,
+          options: this.attachmentTypeOptions,
+        },
+        {
+          type: 'select',
+          label: '是否合法',
+          name: 'is_approved',
+          placeholder: '请选择是否合法',
+          multiple: true,
+          options: [
+            { label: '是', value: 1 },
+            { label: '否', value: 0 },
+          ],
+        },
+      ]
+    },
+    initTableListFields() {
+      this.tableListFields = [
+        { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
+        { prop: 'type_name', label: '类型', width: 80, fixed: 'left' },
+        { prop: 'name', label: '名称', minWidth: 150, fixed: 'left' },
+        {
+          prop: 'is_approved',
+          label: '是否合法',
+          width: 80,
+          type: 'bool',
+        },
+        { prop: 'hash', label: 'HASH', width: 150 },
+        { prop: 'username', label: '上传者', width: 120 },
+        { prop: 'size', label: '大小', width: 80, type: 'number' },
+        { prop: 'width', label: '宽', width: 80 },
+        { prop: 'height', label: '高', width: 80 },
+        { prop: 'ext', label: '扩展', width: 80 },
+        { prop: 'ip', label: 'IP', width: 120 },
+        { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
+        { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
+      ]
+    },
+  },
 }
 </script>
+<style></style>

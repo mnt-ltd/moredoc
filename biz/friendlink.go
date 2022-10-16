@@ -134,11 +134,7 @@ func (s *FriendlinkAPIService) ListFriendlink(ctx context.Context, req *pb.ListF
 		}
 		// 管理员可查询指定状态的友链
 		if len(req.Status) > 0 {
-			var statues []interface{}
-			for _, status := range req.Status {
-				statues = append(statues, status)
-			}
-			opt.QueryIn = map[string][]interface{}{"status": statues}
+			opt.QueryIn = map[string][]interface{}{"status": util.Slice2Interface(req.Status)}
 		}
 	} else {
 		// 非管理员可查询的字段

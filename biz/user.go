@@ -270,7 +270,7 @@ func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) 
 		userId = userClaims.UserId
 	}
 
-	opt := model.OptionGetUserList{
+	opt := &model.OptionGetUserList{
 		Page:      int(req.Page),
 		Size:      int(req.Size_),
 		WithCount: true,
@@ -286,19 +286,11 @@ func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) 
 	}
 
 	if len(req.GroupId) > 0 {
-		var groupIds []interface{}
-		for _, groupId := range req.GroupId {
-			groupIds = append(groupIds, groupId)
-		}
-		opt.QueryIn = map[string][]interface{}{"group_id": groupIds}
+		opt.QueryIn = map[string][]interface{}{"group_id": util.Slice2Interface(req.GroupId)}
 	}
 
 	if len(req.Status) > 0 {
-		var statuses []interface{}
-		for _, status := range req.Status {
-			statuses = append(statuses, status)
-		}
-		opt.QueryIn = map[string][]interface{}{"status": statuses}
+		opt.QueryIn = map[string][]interface{}{"status": util.Slice2Interface(req.Status)}
 	}
 
 	if req.Sort != "" {

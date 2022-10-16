@@ -41,5 +41,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 附件API接口服务
+	attachmentAPIService := biz.NewAttachmentAPIService(dbModel, logger)
+	v1.RegisterAttachmentAPIServer(grpcServer, attachmentAPIService)
+	err = v1.RegisterAttachmentAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterAttachmentAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }
