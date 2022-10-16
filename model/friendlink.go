@@ -106,7 +106,7 @@ func (m *DBModel) GetFriendlinkList(opt *OptionGetFriendlinkList) (friendlinkLis
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 
-	err = db.Order("sort desc").Find(&friendlinkList).Error
+	err = db.Order("status asc,sort desc").Find(&friendlinkList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetFriendlinkList", zap.Error(err))
 	}

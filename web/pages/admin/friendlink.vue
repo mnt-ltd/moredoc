@@ -201,9 +201,12 @@ export default {
         {
           prop: 'status',
           label: '状态',
-          width: 60,
+          width: 80,
           type: 'enum',
-          enum: { 1: '禁用', 0: '启用' },
+          enum: {
+            1: { label: '禁用', type: 'danger' },
+            0: { label: '启用', type: 'success' },
+          },
           fixed: 'left',
         },
         { prop: 'title', label: '名称', minWidth: 150, fixed: 'left' },

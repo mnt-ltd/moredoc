@@ -38,7 +38,12 @@
           >
           <!-- 枚举 -->
           <span v-else-if="item.type === 'enum'">
-            {{ item.enum[scope.row[item.prop] || 0] }}
+            <el-tag
+              :type="item.enum[scope.row[item.prop] || 0].type"
+              :effect="item.enum[scope.row[item.prop] || 0].effect || 'dark'"
+            >
+              {{ item.enum[scope.row[item.prop] || 0].label }}
+            </el-tag>
           </span>
           <span v-else-if="item.type === 'datetime'">
             {{ formatDatetime(scope.row[item.prop]) || '0000-00-00 00:00:00' }}
