@@ -7,12 +7,13 @@
         :show-create="true"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        @onSearch="onSearch"
         @onCreate="onCreate"
       />
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <TableList
-        :table-data="groups"
+        :table-data="friendlinks"
         :fields="tableListFields"
         :show-actions="true"
         :show-view="false"
@@ -63,10 +64,9 @@ export default {
         wd: '',
         page: 1,
         status: [],
-        group_id: [],
         size: 10,
       },
-      groups: [],
+      friendlinks: [],
       total: 0,
       searchFormFields: [],
       tableListFields: [],
@@ -84,7 +84,7 @@ export default {
       this.loading = true
       const res = await listFriendlink(this.search)
       if (res.status === 200) {
-        this.groups = res.data.group
+        this.friendlinks = res.data.friendlink
         this.total = res.data.total
       } else {
         this.$message.error(res.data.message)
@@ -99,8 +99,8 @@ export default {
       this.search.page = val
       this.listFriendlink()
     },
-    onSearch() {
-      this.search.page = 1
+    onSearch(search) {
+      this.search = { ...this.search, page: 1, ...search }
       this.listFriendlink()
     },
     onCreate() {
@@ -123,24 +123,31 @@ export default {
           name: 'wd',
           placeholder: '请输入关键字',
         },
+        {
+          type: 'select',
+          label: '状态',
+          name: 'status',
+          placeholder: '请选择状态',
+          multiple: true,
+          options: [
+            { label: '启用', value: 0 },
+            { label: '禁用', value: 1 },
+          ],
+        },
       ]
     },
     initTableListFields() {
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
-        {
-          prop: 'icon',
-          label: '图标',
-          width: 80,
-          type: 'avatar',
-          fixed: 'left',
-        },
         { prop: 'title', label: '名称', width: 150, fixed: 'left' },
+        {
+          prop: 'status',
+          label: '状态',
+          width: 80,
+          type: 'enum',
+          enum: { 1: '禁用', 0: '启用' },
+        },
         { prop: 'sort', label: '排序', width: 80, type: 'number' },
-        { prop: 'user_count', label: '用户数', width: 80, type: 'number' },
-        { prop: 'color', label: '颜色', width: 120, type: 'color' },
-        { prop: 'is_default', label: '是否默认', width: 80, type: 'bool' },
-        { prop: 'is_display', label: '是否展示', width: 80, type: 'bool' },
         { prop: 'description', label: '描述', width: 250 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },

@@ -2,7 +2,6 @@ package model
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -95,13 +94,7 @@ func (m *DBModel) GetFriendlinkList(opt *OptionGetFriendlinkList) (friendlinkLis
 		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
 	}
 
-	for field, values := range opt.QueryLike {
-		fields := m.FilterValidFields(Friendlink{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(strings.TrimSuffix(fmt.Sprintf(strings.Join(make([]string, len(values)+1), "%s like ? or"), field), "or"), values...)
-	}
+	db = m.generateQueryLike(db, Friendlink{}.TableName(), opt.QueryLike)
 
 	if opt.WithCount {
 		err = db.Count(&total).Error

@@ -221,25 +221,7 @@ func (m *DBModel) GetUserList(opt OptionGetUserList) (userList []User, total int
 		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
 	}
 
-	// Like 查询比较特殊，统一用or来拼接查询的字段
-	if len(opt.QueryLike) > 0 {
-		var likeQuery []string
-		var likeValues []interface{}
-		for field, values := range opt.QueryLike {
-			fields := m.FilterValidFields(User{}.TableName(), field)
-			if len(fields) == 0 {
-				continue
-			}
-			for _, value := range values {
-				valueStr := fmt.Sprintf("%v", value)
-				likeQuery = append(likeQuery, fmt.Sprintf("%s like ?", field))
-				likeValues = append(likeValues, "%"+valueStr+"%")
-			}
-		}
-		if len(likeQuery) > 0 {
-			db = db.Where(strings.Join(likeQuery, " or "), likeValues...)
-		}
-	}
+	db = m.generateQueryLike(db, User{}.TableName(), opt.QueryLike)
 
 	if len(opt.Ids) > 0 {
 		db = db.Where("id in (?)", opt.Ids)

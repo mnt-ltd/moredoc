@@ -3,6 +3,7 @@ package model
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"moredoc/conf"
 	"strings"
 	"sync"
@@ -237,4 +238,27 @@ func (m *DBModel) initGroupAndPermission() (err error) {
 	}
 
 	return
+}
+
+// generateQueryLike 生成like查询。Like 查询比较特殊，统一用or来拼接查询的字段
+func (m *DBModel) generateQueryLike(db *gorm.DB, tableName string, queryLike map[string][]interface{}) *gorm.DB {
+	if len(queryLike) > 0 {
+		var likeQuery []string
+		var likeValues []interface{}
+		for field, values := range queryLike {
+			fields := m.FilterValidFields(tableName, field)
+			if len(fields) == 0 {
+				continue
+			}
+			for _, value := range values {
+				valueStr := fmt.Sprintf("%v", value)
+				likeQuery = append(likeQuery, fmt.Sprintf("%s like ?", field))
+				likeValues = append(likeValues, "%"+valueStr+"%")
+			}
+		}
+		if len(likeQuery) > 0 {
+			db = db.Where(strings.Join(likeQuery, " or "), likeValues...)
+		}
+	}
+	return db
 }
