@@ -182,11 +182,11 @@ func (m *DBModel) FilterValidFields(tableName string, fields ...string) (validFi
 	return
 }
 
-// FilterValidFields 过滤掉不存在的字段
+// GetTableFields 查询指定表的所有字段
 func (m *DBModel) GetTableFields(tableName string) (fields []string) {
 	fieldsMap, ok := m.tableFieldsMap[tableName]
 	if ok {
-		for field, _ := range fieldsMap {
+		for field := range fieldsMap {
 			fields = append(fields, field)
 		}
 	}
@@ -270,6 +270,56 @@ func (m *DBModel) generateQueryLike(db *gorm.DB, tableName string, queryLike map
 		if len(likeQuery) > 0 {
 			db = db.Where(strings.Join(likeQuery, " or "), likeValues...)
 		}
+	}
+	return db
+}
+
+func (m *DBModel) generateQueryRange(db *gorm.DB, tableName string, queryRange map[string][2]interface{}) *gorm.DB {
+	for field, rangeValue := range queryRange {
+		fields := m.FilterValidFields(tableName, field)
+		if len(fields) == 0 {
+			continue
+		}
+		if rangeValue[0] != nil {
+			db = db.Where(fmt.Sprintf("%s >= ?", field), rangeValue[0])
+		}
+		if rangeValue[1] != nil {
+			db = db.Where(fmt.Sprintf("%s <= ?", field), rangeValue[1])
+		}
+	}
+	return db
+}
+
+func (m *DBModel) generateQueryIn(db *gorm.DB, tableName string, queryIn map[string][]interface{}) *gorm.DB {
+	for field, values := range queryIn {
+		fields := m.FilterValidFields(tableName, field)
+		if len(fields) == 0 {
+			continue
+		}
+		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
+	}
+	return db
+}
+
+func (m *DBModel) generateQuerySort(db *gorm.DB, tableName string, querySort []string) *gorm.DB {
+	var sorts []string
+	for _, sort := range querySort {
+		slice := strings.Split(sort, " ")
+		if len(m.FilterValidFields(tableName, slice[0])) == 0 {
+			continue
+		}
+
+		if len(slice) == 2 {
+			item := strings.ToLower(slice[1])
+			if item == "asc" || item == "desc" {
+				sorts = append(sorts, fmt.Sprintf("%s %s", slice[0], item))
+			}
+		} else {
+			sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
+		}
+	}
+	if len(sorts) > 0 {
+		db = db.Order(strings.Join(sorts, ","))
 	}
 	return db
 }

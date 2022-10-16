@@ -1,7 +1,6 @@
 package model
 
 import (
-	"fmt"
 	"time"
 
 	"go.uber.org/zap"
@@ -87,16 +86,10 @@ type OptionGetFriendlinkList struct {
 // GetFriendlinkList 获取Friendlink列表
 func (m *DBModel) GetFriendlinkList(opt *OptionGetFriendlinkList) (friendlinkList []Friendlink, total int64, err error) {
 	db := m.db.Model(&Friendlink{})
+	tableName := Friendlink{}.TableName()
 
-	for field, values := range opt.QueryIn {
-		fields := m.FilterValidFields(Friendlink{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
-	}
-
-	db = m.generateQueryLike(db, Friendlink{}.TableName(), opt.QueryLike)
+	db = m.generateQueryIn(db, tableName, opt.QueryIn)
+	db = m.generateQueryLike(db, tableName, opt.QueryLike)
 
 	if opt.WithCount {
 		err = db.Count(&total).Error

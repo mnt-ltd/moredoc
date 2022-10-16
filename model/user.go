@@ -242,18 +242,7 @@ func (m *DBModel) GetUserList(opt OptionGetUserList) (userList []User, total int
 
 	var sorts []string
 	if len(opt.Sort) > 0 {
-		for _, sort := range opt.Sort {
-			slice := strings.Split(sort, " ")
-			if len(m.FilterValidFields(User{}.TableName(), slice[0])) == 0 {
-				continue
-			}
-
-			if len(slice) == 2 {
-				sorts = append(sorts, fmt.Sprintf("%s %s", slice[0], slice[1]))
-			} else {
-				sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
-			}
-		}
+		db = m.generateQuerySort(db, User{}.TableName(), opt.Sort)
 	} else {
 		sorts = append(sorts, "id desc")
 	}
