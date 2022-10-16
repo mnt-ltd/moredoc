@@ -31,5 +31,15 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		logger.Error("RegisterGroupAPIHandlerFromEndpoint", zap.Error(err))
 		return
 	}
+
+	// 友链API接口服务
+	friendlinkAPIService := biz.NewFriendlinkAPIService(dbModel, logger)
+	v1.RegisterFriendlinkAPIServer(grpcServer, friendlinkAPIService)
+	err = v1.RegisterFriendlinkAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterFriendlinkAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }

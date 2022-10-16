@@ -1,16 +1,152 @@
 <template>
   <div>
-    <div>{{ $route.name }}</div>
+    <el-card shadow="never" class="search-card">
+      <FormSearch
+        :fields="searchFormFields"
+        :loading="loading"
+        :show-create="true"
+        :show-delete="true"
+        :disabled-delete="selectedRow.length === 0"
+        @onCreate="onCreate"
+      />
+    </el-card>
+    <el-card shadow="never" class="mgt-20px">
+      <TableList
+        :table-data="groups"
+        :fields="tableListFields"
+        :show-actions="true"
+        :show-view="false"
+        :show-edit="true"
+        :show-delete="true"
+        :show-select="true"
+        @selectRow="selectRow"
+      />
+    </el-card>
+    <el-card shadow="never" class="mgt-20px">
+      <div class="text-right">
+        <el-pagination
+          background
+          :current-page="search.page"
+          :page-sizes="[10, 20, 50, 100, 200]"
+          :page-size="search.size"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @size-change="handleSizeChange"
+          @current-change="handlePageChange"
+        >
+        </el-pagination>
+      </div>
+    </el-card>
+
+    <!-- <el-dialog
+      :title="group.id ? '编辑分组' : '新增分组'"
+      :init-group="group"
+      :visible.sync="formGroupVisible"
+    >
+      <FormGroup />
+    </el-dialog> -->
   </div>
 </template>
 
 <script>
+import { listFriendlink } from '~/api/friendlink'
+import TableList from '~/components/TableList.vue'
+import FormSearch from '~/components/FormSearch.vue'
 export default {
+  components: { TableList, FormSearch },
   layout: 'admin',
-  head() {
+  data() {
     return {
-      title: `面板 - MOREDOC · 魔刀文库`,
+      loading: false,
+      formGroupVisible: false,
+      search: {
+        wd: '',
+        page: 1,
+        status: [],
+        group_id: [],
+        size: 10,
+      },
+      groups: [],
+      total: 0,
+      searchFormFields: [],
+      tableListFields: [],
+      selectedRow: [],
+      group: {},
     }
+  },
+  async created() {
+    this.initSearchForm()
+    this.initTableListFields()
+    await this.listFriendlink()
+  },
+  methods: {
+    async listFriendlink() {
+      this.loading = true
+      const res = await listFriendlink(this.search)
+      if (res.status === 200) {
+        this.groups = res.data.group
+        this.total = res.data.total
+      } else {
+        this.$message.error(res.data.message)
+      }
+      this.loading = false
+    },
+    handleSizeChange(val) {
+      this.search.size = val
+      this.listFriendlink()
+    },
+    handlePageChange(val) {
+      this.search.page = val
+      this.listFriendlink()
+    },
+    onSearch() {
+      this.search.page = 1
+      this.listFriendlink()
+    },
+    onCreate() {
+      this.formGroupVisible = true
+    },
+    setGroup() {
+      this.formGroupVisible = false
+    },
+    batchDelete() {
+      console.log('batchDelete')
+    },
+    selectRow(rows) {
+      this.selectedRow = rows
+    },
+    initSearchForm() {
+      this.searchFormFields = [
+        {
+          type: 'text',
+          label: '关键字',
+          name: 'wd',
+          placeholder: '请输入关键字',
+        },
+      ]
+    },
+    initTableListFields() {
+      this.tableListFields = [
+        { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
+        {
+          prop: 'icon',
+          label: '图标',
+          width: 80,
+          type: 'avatar',
+          fixed: 'left',
+        },
+        { prop: 'title', label: '名称', width: 150, fixed: 'left' },
+        { prop: 'sort', label: '排序', width: 80, type: 'number' },
+        { prop: 'user_count', label: '用户数', width: 80, type: 'number' },
+        { prop: 'color', label: '颜色', width: 120, type: 'color' },
+        { prop: 'is_default', label: '是否默认', width: 80, type: 'bool' },
+        { prop: 'is_display', label: '是否展示', width: 80, type: 'bool' },
+        { prop: 'description', label: '描述', width: 250 },
+        { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
+        { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
+      ]
+    },
   },
 }
 </script>
+<style></style>

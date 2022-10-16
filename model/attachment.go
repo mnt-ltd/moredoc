@@ -10,21 +10,21 @@ import (
 )
 
 type Attachment struct {
-	Id         int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:附件 id;"`
-	Hash       string    `form:"hash" json:"hash,omitempty" gorm:"column:hash;type:char(32);size:32;index:hash;comment:文件MD5;"`
-	UserId     int64     `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20) unsigned;default:0;index:user_id;comment:用户 id;"`
-	TypeId     int64     `form:"type_id" json:"type_id,omitempty" gorm:"column:type_id;type:bigint(20) unsigned;default:0;comment:类型数据ID，对应与用户头像时，则为用户id，对应为文档时，则为文档ID;"`
-	Type       int       `form:"type" json:"type,omitempty" gorm:"column:type;type:smallint(5) unsigned;default:0;comment:附件类型(0 头像，1 文档，2 文章附件 ...);"`
-	IsApproved int8      `form:"is_approved" json:"is_approved,omitempty" gorm:"column:is_approved;type:tinyint(3) unsigned;default:1;comment:是否合法;"`
-	Path       string    `form:"path" json:"path,omitempty" gorm:"column:path;type:varchar(255);size:255;comment:文件存储路径;"`
-	Name       string    `form:"name" json:"name,omitempty" gorm:"column:name;type:varchar(255);size:255;comment:文件原名称;"`
-	Size       int64     `form:"size" json:"size,omitempty" gorm:"column:size;type:bigint(20) unsigned;default:0;comment:文件大小;"`
-	Width      int64     `form:"width" json:"width,omitempty" gorm:"column:width;type:bigint(20) unsigned;default:0;comment:宽度;"`
-	Height     int64     `form:"height" json:"height,omitempty" gorm:"column:height;type:bigint(20) unsigned;default:0;comment:高度;"`
-	Ext        string    `form:"ext" json:"ext,omitempty" gorm:"column:ext;type:varchar(32);size:32;comment:文件类型，如 .pdf 。统一处理成小写;"`
-	Ip         string    `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(16);size:16;comment:上传文档的用户IP地址;"`
-	CreatedAt  time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
-	UpdatedAt  time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	Id         int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:附件 id;"`
+	Hash       string     `form:"hash" json:"hash,omitempty" gorm:"column:hash;type:char(32);size:32;index:hash;comment:文件MD5;"`
+	UserId     int64      `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20) unsigned;default:0;index:user_id;comment:用户 id;"`
+	TypeId     int64      `form:"type_id" json:"type_id,omitempty" gorm:"column:type_id;type:bigint(20) unsigned;default:0;comment:类型数据ID，对应与用户头像时，则为用户id，对应为文档时，则为文档ID;"`
+	Type       int        `form:"type" json:"type,omitempty" gorm:"column:type;type:smallint(5) unsigned;default:0;comment:附件类型(0 头像，1 文档，2 文章附件 ...);"`
+	IsApproved int8       `form:"is_approved" json:"is_approved,omitempty" gorm:"column:is_approved;type:tinyint(3) unsigned;default:1;comment:是否合法;"`
+	Path       string     `form:"path" json:"path,omitempty" gorm:"column:path;type:varchar(255);size:255;comment:文件存储路径;"`
+	Name       string     `form:"name" json:"name,omitempty" gorm:"column:name;type:varchar(255);size:255;comment:文件原名称;"`
+	Size       int64      `form:"size" json:"size,omitempty" gorm:"column:size;type:bigint(20) unsigned;default:0;comment:文件大小;"`
+	Width      int64      `form:"width" json:"width,omitempty" gorm:"column:width;type:bigint(20) unsigned;default:0;comment:宽度;"`
+	Height     int64      `form:"height" json:"height,omitempty" gorm:"column:height;type:bigint(20) unsigned;default:0;comment:高度;"`
+	Ext        string     `form:"ext" json:"ext,omitempty" gorm:"column:ext;type:varchar(32);size:32;comment:文件类型，如 .pdf 。统一处理成小写;"`
+	Ip         string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(16);size:16;comment:上传文档的用户IP地址;"`
+	CreatedAt  *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	UpdatedAt  *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
 
 // 这里是proto文件中的结构体，可以根据需要删除或者调整

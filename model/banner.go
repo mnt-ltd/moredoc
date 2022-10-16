@@ -10,15 +10,15 @@ import (
 )
 
 type Banner struct {
-	Id        int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
-	Title     string    `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;comment:横幅名称;"`
-	Path      string    `form:"path" json:"path,omitempty" gorm:"column:path;type:varchar(255);size:255;comment:横幅地址;"`
-	Sort      int       `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
-	Status    int8      `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;comment:0 正常，1禁用;"`
-	Category  int8      `form:"category" json:"category,omitempty" gorm:"column:category;type:tinyint(4);size:4;default:0;comment:0 PC横幅，1 H5横幅，2 小程序横幅，3 APP横幅;"`
-	CreatedAt time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
-	UpdatedAt time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
-	Url       string    `form:"url" json:"url,omitempty" gorm:"column:url;type:varchar(255);size:255;comment:横幅跳转地址;"`
+	Id        int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
+	Title     string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;comment:横幅名称;"`
+	Path      string     `form:"path" json:"path,omitempty" gorm:"column:path;type:varchar(255);size:255;comment:横幅地址;"`
+	Sort      int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
+	Status    int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;comment:0 正常，1禁用;"`
+	Category  int8       `form:"category" json:"category,omitempty" gorm:"column:category;type:tinyint(4);size:4;default:0;comment:0 PC横幅，1 H5横幅，2 小程序横幅，3 APP横幅;"`
+	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	Url       string     `form:"url" json:"url,omitempty" gorm:"column:url;type:varchar(255);size:255;comment:横幅跳转地址;"`
 }
 
 // 这里是proto文件中的结构体，可以根据需要删除或者调整

@@ -10,16 +10,16 @@ import (
 )
 
 type Category struct {
-	Id        int       `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
-	ParentId  int       `form:"parent_id" json:"parent_id,omitempty" gorm:"column:parent_id;type:int(11);size:11;default:0;index:parent_id_title,unique;index:parent_id;comment:上级ID;"`
-	Title     string    `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;index:parent_id_title,unique;comment:分类名称;"`
-	Cover     string    `form:"cover" json:"cover,omitempty" gorm:"column:cover;type:varchar(255);size:255;comment:分类封面;"`
-	DocCount  int       `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(11);size:11;default:0;comment:文档统计;"`
-	Sort      int       `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
-	Alias     string    `form:"alias" json:"alias,omitempty" gorm:"column:alias;type:varchar(64);size:64;comment:别名，限英文和数字等组成;"`
-	Status    int8      `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(1);size:1;default:0;comment:状态：0 正常，1 禁用;"`
-	CreatedAt time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
-	UpdatedAt time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	Id        int        `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
+	ParentId  int        `form:"parent_id" json:"parent_id,omitempty" gorm:"column:parent_id;type:int(11);size:11;default:0;index:parent_id_title,unique;index:parent_id;comment:上级ID;"`
+	Title     string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;index:parent_id_title,unique;comment:分类名称;"`
+	Cover     string     `form:"cover" json:"cover,omitempty" gorm:"column:cover;type:varchar(255);size:255;comment:分类封面;"`
+	DocCount  int        `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(11);size:11;default:0;comment:文档统计;"`
+	Sort      int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
+	Alias     string     `form:"alias" json:"alias,omitempty" gorm:"column:alias;type:varchar(64);size:64;comment:别名，限英文和数字等组成;"`
+	Status    int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(1);size:1;default:0;comment:状态：0 正常，1 禁用;"`
+	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
 
 // 这里是proto文件中的结构体，可以根据需要删除或者调整

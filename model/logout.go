@@ -9,9 +9,9 @@ import (
 type Logout struct {
 	Id        int64 `gorm:"primaryKey;autoIncrement"`
 	UserId    int64
-	UUID      string `gorm:"column:uuid;type:varchar(36);size:36;not null;uniqueIndex;comment:jwt的uuid"`
-	ExpiredAt int64  `gorm:"column:expired_at;type:bigint;not null;comment:过期时间，超过这个时间之后，可以从当前数据表中删除;index"`
-	CreatedAt time.Time
+	UUID      string     `gorm:"column:uuid;type:varchar(36);size:36;not null;uniqueIndex;comment:jwt的uuid"`
+	ExpiredAt int64      `gorm:"column:expired_at;type:bigint;not null;comment:过期时间，超过这个时间之后，可以从当前数据表中删除;index"`
+	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 }
 
 func (Logout) TableName() string {

@@ -127,7 +127,8 @@ func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequ
 	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
 		ip = ips[0]
 	}
-	if e := s.dbModel.UpdateUser(&model.User{Id: user.Id, LoginAt: time.Now(), LastLoginIp: ip}, "login_at", "last_login_ip"); e != nil {
+	loginAt := time.Now()
+	if e := s.dbModel.UpdateUser(&model.User{Id: user.Id, LoginAt: &loginAt, LastLoginIp: ip}, "login_at", "last_login_ip"); e != nil {
 		s.logger.Error("UpdateUser", zap.Error(e))
 	}
 
