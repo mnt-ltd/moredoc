@@ -9,6 +9,7 @@
         :disabled-delete="selectedRow.length === 0"
         @onSearch="onSearch"
         @onCreate="onCreate"
+        @onDelete="batchDelete"
       />
     </el-card>
     <el-card shadow="never" class="mgt-20px">
@@ -22,6 +23,7 @@
         :show-select="true"
         @selectRow="selectRow"
         @editRow="editRow"
+        @deleteRow="deleteRow"
       />
     </el-card>
     <el-card shadow="never" class="mgt-20px">
@@ -54,7 +56,7 @@
 </template>
 
 <script>
-import { listFriendlink } from '~/api/friendlink'
+import { listFriendlink, deleteFriendlink } from '~/api/friendlink'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormFriendlink from '~/components/FormFriendlink.vue'
@@ -127,7 +129,47 @@ export default {
       this.listFriendlink()
     },
     batchDelete() {
-      console.log('batchDelete')
+      this.$confirm(
+        `您确定要删除选中的【${this.selectedRow.length}条】友链吗？删除之后不可恢复！`,
+        '温馨提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+        .then(async () => {
+          const ids = this.selectedRow.map((item) => item.id)
+          const res = await deleteFriendlink({ id: ids })
+          if (res.status === 200) {
+            this.$message.success('删除成功')
+            this.listFriendlink()
+          } else {
+            this.$message.error(res.data.message)
+          }
+        })
+        .catch(() => {})
+    },
+    deleteRow(row) {
+      this.$confirm(
+        `您确定要删除友链【${row.title}】吗？删除之后不可恢复！`,
+        '温馨提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+        .then(async () => {
+          const res = await deleteFriendlink({ id: row.id })
+          if (res.status === 200) {
+            this.$message.success('删除成功')
+            this.listFriendlink()
+          } else {
+            this.$message.error(res.data.message)
+          }
+        })
+        .catch(() => {})
     },
     selectRow(rows) {
       this.selectedRow = rows
@@ -156,14 +198,16 @@ export default {
     initTableListFields() {
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
-        { prop: 'title', label: '名称', width: 150, fixed: 'left' },
         {
           prop: 'status',
           label: '状态',
-          width: 80,
+          width: 60,
           type: 'enum',
           enum: { 1: '禁用', 0: '启用' },
+          fixed: 'left',
         },
+        { prop: 'title', label: '名称', minWidth: 150, fixed: 'left' },
+        { prop: 'link', label: '链接', minWidth: 250 },
         { prop: 'sort', label: '排序', width: 80, type: 'number' },
         { prop: 'description', label: '描述', minWidth: 250 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },

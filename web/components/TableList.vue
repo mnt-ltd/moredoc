@@ -136,7 +136,7 @@ export default {
       this.$emit('editRow', row)
     },
     deleteRow(row) {
-      this.$emit('deleteRoW', row)
+      this.$emit('deleteRow', row)
     },
     selectRow(rows) {
       this.$emit('selectRow', rows)
