@@ -182,6 +182,17 @@ func (m *DBModel) FilterValidFields(tableName string, fields ...string) (validFi
 	return
 }
 
+// FilterValidFields 过滤掉不存在的字段
+func (m *DBModel) GetTableFields(tableName string) (fields []string) {
+	fieldsMap, ok := m.tableFieldsMap[tableName]
+	if ok {
+		for field, _ := range fieldsMap {
+			fields = append(fields, field)
+		}
+	}
+	return
+}
+
 func (m *DBModel) showTableColumn(tableName string) (columns []TableColumn, err error) {
 	err = m.db.Raw("SHOW FULL COLUMNS FROM " + tableName).Find(&columns).Error
 	if err != nil {

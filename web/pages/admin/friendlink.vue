@@ -21,6 +21,7 @@
         :show-delete="true"
         :show-select="true"
         @selectRow="selectRow"
+        @editRow="editRow"
       />
     </el-card>
     <el-card shadow="never" class="mgt-20px">
@@ -39,13 +40,16 @@
       </div>
     </el-card>
 
-    <!-- <el-dialog
-      :title="group.id ? '编辑分组' : '新增分组'"
-      :init-group="group"
-      :visible.sync="formGroupVisible"
+    <el-dialog
+      :title="friendlink.id ? '编辑友链' : '新增友链'"
+      :visible.sync="formFriendlinkVisible"
     >
-      <FormGroup />
-    </el-dialog> -->
+      <FormFriendlink
+        ref="friendlinkForm"
+        :init-friendlink="friendlink"
+        @success="formFriendlinkSuccess"
+      />
+    </el-dialog>
   </div>
 </template>
 
@@ -53,13 +57,14 @@
 import { listFriendlink } from '~/api/friendlink'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
+import FormFriendlink from '~/components/FormFriendlink.vue'
 export default {
-  components: { TableList, FormSearch },
+  components: { TableList, FormSearch, FormFriendlink },
   layout: 'admin',
   data() {
     return {
       loading: false,
-      formGroupVisible: false,
+      formFriendlinkVisible: false,
       search: {
         wd: '',
         page: 1,
@@ -71,7 +76,7 @@ export default {
       searchFormFields: [],
       tableListFields: [],
       selectedRow: [],
-      group: {},
+      friendlink: { id: 0 },
     }
   },
   async created() {
@@ -104,10 +109,22 @@ export default {
       this.listFriendlink()
     },
     onCreate() {
-      this.formGroupVisible = true
+      this.friendlink = { id: 0 }
+      this.formFriendlinkVisible = true
+      this.$nextTick(() => {
+        this.$refs.friendlinkForm.reset()
+      })
     },
-    setGroup() {
-      this.formGroupVisible = false
+    editRow(row) {
+      this.formFriendlinkVisible = true
+      this.$nextTick(() => {
+        this.$refs.friendlinkForm.clearValidate()
+        this.friendlink = row
+      })
+    },
+    formFriendlinkSuccess() {
+      this.formFriendlinkVisible = false
+      this.listFriendlink()
     },
     batchDelete() {
       console.log('batchDelete')
@@ -148,7 +165,7 @@ export default {
           enum: { 1: '禁用', 0: '启用' },
         },
         { prop: 'sort', label: '排序', width: 80, type: 'number' },
-        { prop: 'description', label: '描述', width: 250 },
+        { prop: 'description', label: '描述', minWidth: 250 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
       ]

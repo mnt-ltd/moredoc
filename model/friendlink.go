@@ -51,6 +51,8 @@ func (m *DBModel) UpdateFriendlink(friendlink *Friendlink, updateFields ...strin
 	updateFields = m.FilterValidFields(Friendlink{}.TableName(), updateFields...)
 	if len(updateFields) > 0 { // 更新指定字段
 		db = db.Select(updateFields)
+	} else { // 更新全部字段，包括零值字段
+		db = db.Select(m.GetTableFields(friendlink.TableName()))
 	}
 
 	err = db.Where("id = ?", friendlink.Id).Updates(friendlink).Error

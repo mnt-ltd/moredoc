@@ -72,7 +72,7 @@
             type="text"
             size="small"
             icon="el-icon-edit"
-            @click="editRow(row)"
+            @click="editRow(scope.row)"
             >编辑</el-button
           >
           <el-button
@@ -138,8 +138,8 @@ export default {
     deleteRow(row) {
       this.$emit('deleteRoW', row)
     },
-    selectRow(val) {
-      this.$emit('selectRow', val)
+    selectRow(rows) {
+      this.$emit('selectRow', rows)
     },
   },
 }
