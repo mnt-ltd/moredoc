@@ -1,7 +1,10 @@
 <template>
   <el-container class="layout-admin">
-    <el-aside :class="isCollapse ? 'layout-aside-collapsed' : ''">
-      <div class="create-project">
+    <el-aside
+      :class="isCollapse ? 'layout-aside-collapsed' : ''"
+      :width="'240px'"
+    >
+      <div class="quickstart-upload">
         <el-tooltip
           v-if="isCollapse"
           class="item"
@@ -32,6 +35,7 @@
         <el-menu
           :router="true"
           :default-openeds="['/admin/documemnt', '/admin/user']"
+          :default-active="$route.path"
           :collapse="isCollapse"
           class="layout-admin-menu"
         >
@@ -233,10 +237,10 @@ export default {
 .layout-aside-collapsed {
   width: 60px !important;
   overflow: hidden;
-  .create-project {
+  .quickstart-upload {
     padding: 0;
     .el-button {
-      height: 60px;
+      height: 59px;
       line-height: 30px;
       padding: 0 5px;
       border-radius: 0;

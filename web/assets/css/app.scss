@@ -25,8 +25,9 @@ body{
             border-right: 0;
         }
     }
-    .create-project{
-        padding: 15px;
+    .quickstart-upload{
+        padding: 9px;
+        padding-top: 10px;
         text-align: center;
         border-bottom: 1px solid $bg;
         &:hover{
@@ -78,6 +79,7 @@ body{
             padding-bottom: 0;
         }
     }
+    .el-menu-item.is-active{background-color: #ecf5ff;}
 }
 
 .page-login{
