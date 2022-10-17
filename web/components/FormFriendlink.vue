@@ -96,21 +96,13 @@ export default {
   data() {
     return {
       loading: false,
-      friendlink: {
-        id: 0,
-        sort: 0,
-        status: 0,
-        title: '',
-        description: '',
-      },
+      friendlink: {},
     }
   },
   watch: {
     initFriendlink: {
       handler(val) {
-        const friendlink = { ...this.friendlink, ...val }
-        friendlink.status = !!friendlink.status
-        this.friendlink = friendlink
+        this.friendlink = val
       },
       immediate: true,
     },
@@ -126,7 +118,6 @@ export default {
         }
         this.loading = true
         const friendlink = { ...this.friendlink }
-        friendlink.status = friendlink.status ? 1 : 0
         if (this.friendlink.id > 0) {
           const res = await updateFriendlink(friendlink)
           if (res.status === 200) {

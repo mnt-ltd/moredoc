@@ -231,9 +231,9 @@ func (m *DBModel) initDatabase() (err error) {
 // 初始化用户组
 func (m *DBModel) initGroupAndPermission() (err error) {
 	groups := []Group{
-		{Id: 1, Title: "超级管理员", IsDisplay: 1, Description: "系统超级管理员", UserCount: 0, Sort: 0},
-		{Id: 2, Title: "普通用户", IsDisplay: 1, Description: "普通用户", UserCount: 0, Sort: 0, IsDefault: 1},
-		{Id: 3, Title: "游客", IsDisplay: 1, Description: "游客", UserCount: 0, Sort: 0},
+		{Id: 1, Title: "超级管理员", IsDisplay: true, Description: "系统超级管理员", UserCount: 0, Sort: 0},
+		{Id: 2, Title: "普通用户", IsDisplay: true, Description: "普通用户", UserCount: 0, Sort: 0, IsDefault: true},
+		{Id: 3, Title: "游客", IsDisplay: true, Description: "游客", UserCount: 0, Sort: 0},
 	}
 
 	// 如果没有任何用户组，则初始化

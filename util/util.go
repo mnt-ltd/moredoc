@@ -71,7 +71,7 @@ func LimitRange(number int, min, max int) int {
 }
 
 type Any interface {
-	~int | ~int64 | ~int32
+	~int | ~int64 | ~int32 | ~bool | ~string | ~float32 | ~float64 | ~uint | ~uint64 | ~uint32
 }
 
 // Slice2Interface 切片转interface切片

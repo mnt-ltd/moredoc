@@ -59,12 +59,12 @@ func (s *AttachmentAPIService) UpdateAttachment(ctx context.Context, req *pb.Att
 		return nil, err
 	}
 
-	updateFields := []string{"name", "is_approved", "description"}
+	updateFields := []string{"name", "enable", "description"}
 	err = s.dbModel.UpdateAttachment(&model.Attachment{
 		Id:          req.Id,
 		Name:        req.Name,
 		Description: req.Description,
-		IsApproved:  int8(req.IsApproved),
+		Enable:      req.Enable,
 	}, updateFields...)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -122,8 +122,8 @@ func (s *AttachmentAPIService) ListAttachment(ctx context.Context, req *pb.ListA
 		opt.QueryIn["user_id"] = util.Slice2Interface(req.UserId)
 	}
 
-	if len(req.IsApproved) > 0 {
-		opt.QueryIn["is_approved"] = util.Slice2Interface(req.IsApproved)
+	if len(req.Enable) > 0 {
+		opt.QueryIn["enable"] = util.Slice2Interface(req.Enable)
 	}
 
 	if len(req.Type) > 0 {
@@ -167,7 +167,7 @@ func (s *AttachmentAPIService) ListAttachment(ctx context.Context, req *pb.ListA
 			}
 		}
 	}
-
+	s.logger.Debug("ListAttachment", zap.Any("pbAttachments", pbAttachments), zap.Int64("total", total), zap.Any("attachments", attachments))
 	return &pb.ListAttachmentReply{Total: total, Attachment: pbAttachments}, nil
 }
 
@@ -273,13 +273,13 @@ func (s *AttachmentAPIService) saveFile(ctx *gin.Context, fileHeader *multipart.
 	}
 
 	attachment = &model.Attachment{
-		Size:       fileHeader.Size,
-		Name:       fileHeader.Filename,
-		Ip:         ctx.ClientIP(),
-		Ext:        ext,
-		IsApproved: 1, // 默认都是合法的
-		Hash:       md5hash,
-		Path:       "/" + savePath,
+		Size:   fileHeader.Size,
+		Name:   fileHeader.Filename,
+		Ip:     ctx.ClientIP(),
+		Ext:    ext,
+		Enable: true, // 默认都是合法的
+		Hash:   md5hash,
+		Path:   "/" + savePath,
 	}
 
 	// 对于图片，直接获取图片的宽高

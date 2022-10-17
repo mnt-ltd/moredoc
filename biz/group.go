@@ -52,8 +52,8 @@ func (s *GroupAPIService) CreateGroup(ctx context.Context, req *pb.Group) (*pb.G
 	group := &model.Group{
 		Title:       req.Title,
 		Color:       req.Color,
-		IsDefault:   int8(req.IsDefault),
-		IsDisplay:   int8(req.IsDisplay),
+		IsDefault:   req.IsDefault,
+		IsDisplay:   req.IsDisplay,
 		Sort:        int(req.Sort),
 		Description: req.Description,
 	}

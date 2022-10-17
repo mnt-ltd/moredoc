@@ -36,10 +36,10 @@ type User struct {
 	Signature     string     `form:"signature" json:"signature,omitempty" gorm:"column:signature;type:varchar(255);size:255;comment:签名;"`
 	LastLoginIp   string     `form:"last_login_ip" json:"last_login_ip,omitempty" gorm:"column:last_login_ip;type:varchar(32);size:32;comment:最后登录 ip 地址;"`
 	RegisterIp    string     `form:"register_ip" json:"register_ip,omitempty" gorm:"column:register_ip;type:varchar(32);size:32;comment:注册ip;"`
-	DocCount      int        `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(10) unsigned;default:0;comment:上传的文档数;"`
-	FollowCount   int        `form:"follow_count" json:"follow_count,omitempty" gorm:"column:follow_count;type:int(10) unsigned;default:0;comment:关注数;"`
-	FansCount     int        `form:"fans_count" json:"fans_count,omitempty" gorm:"column:fans_count;type:int(10) unsigned;default:0;comment:粉丝数;"`
-	FavoriteCount int        `form:"favorite_count" json:"favorite_count,omitempty" gorm:"column:favorite_count;type:int(10) unsigned;default:0;comment:收藏数;"`
+	DocCount      int        `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(10);default:0;comment:上传的文档数;"`
+	FollowCount   int        `form:"follow_count" json:"follow_count,omitempty" gorm:"column:follow_count;type:int(10);default:0;comment:关注数;"`
+	FansCount     int        `form:"fans_count" json:"fans_count,omitempty" gorm:"column:fans_count;type:int(10);default:0;comment:粉丝数;"`
+	FavoriteCount int        `form:"favorite_count" json:"favorite_count,omitempty" gorm:"column:favorite_count;type:int(10);default:0;comment:收藏数;"`
 	CommentCount  int        `form:"comment_count" json:"comment_count,omitempty" gorm:"column:comment_count;type:int(11);size:11;default:0;comment:评论数;"`
 	Status        int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;index:status;comment:用户状态：0正常 1禁用 2审核中 3审核拒绝 4审核忽略;"`
 	Avatar        string     `form:"avatar" json:"avatar,omitempty" gorm:"column:avatar;type:varchar(255);size:255;comment:头像;"`

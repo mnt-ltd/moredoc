@@ -17,7 +17,7 @@ type Category struct {
 	DocCount  int        `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(11);size:11;default:0;comment:文档统计;"`
 	Sort      int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
 	Alias     string     `form:"alias" json:"alias,omitempty" gorm:"column:alias;type:varchar(64);size:64;comment:别名，限英文和数字等组成;"`
-	Status    int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(1);size:1;default:0;comment:状态：0 正常，1 禁用;"`
+	Enable    bool       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(1);size:1;default:0;"`
 	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
@@ -31,7 +31,7 @@ type Category struct {
 // int32 doc_count = 5;
 // int32 sort = 6;
 // string alias = 7;
-// int32 status = 8;
+// int32 enable = 8;
 // google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
 // google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
 //}

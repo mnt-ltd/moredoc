@@ -77,14 +77,14 @@
           </el-form-item>
         </el-col>
         <el-col :span="8">
-          <el-form-item label="是否启用" prop="status">
+          <el-form-item label="是否启用" prop="enable">
             <el-switch
-              v-model="banner.status"
+              v-model="banner.enable"
               style="display: block; margin-top: 8px"
-              active-color="#ff4949"
-              inactive-color="#13ce66"
-              active-text="否"
-              inactive-text="是"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              active-text="是"
+              inactive-text="否"
             >
             </el-switch>
           </el-form-item>
@@ -123,40 +123,29 @@ export default {
     initBanner: {
       type: Object,
       default: () => {
-        return {
-          id: 0,
-          title: '',
-          description: '',
-        }
+        return {}
       },
     },
   },
   data() {
     return {
       loading: false,
-      banner: {
-        id: 0,
-        title: '',
-        description: '',
-        path: '',
-        type: 0,
-        status: 0,
-      },
+      banner: {},
       bannerTypeOptions,
     }
   },
   watch: {
     initBanner: {
       handler(val) {
-        const banner = { ...this.banner, ...val }
-        this.banner = banner
+        this.banner = { ...val }
+        if (!this.banner.type) this.banner.type = 0
       },
       immediate: true,
     },
   },
   created() {
-    const banner = { ...this.banner, ...this.initBanner }
-    this.banner = banner
+    this.banner = { ...this.initBanner }
+    if (!this.banner.type) this.banner.type = 0
   },
   methods: {
     onSubmit() {
@@ -166,7 +155,6 @@ export default {
         }
         this.loading = true
         const banner = { ...this.banner }
-        banner.status = banner.status ? 1 : 0
         if (this.banner.id > 0) {
           const res = await updateBanner(banner)
           if (res.status === 200) {
@@ -193,7 +181,16 @@ export default {
       this.$refs.formBanner.clearValidate()
     },
     resetFields() {
-      this.$refs.formBanner.resetFields()
+      this.banner = {
+        id: 0,
+        title: '',
+        sort: 0,
+        description: '',
+        path: '',
+        type: 0,
+        enable: true,
+        url: '',
+      }
     },
     reset() {
       this.resetFields()
@@ -201,7 +198,6 @@ export default {
     },
     success(res) {
       this.banner.path = res.data.path
-      console.log(res)
     },
   },
 }

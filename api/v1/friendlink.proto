@@ -18,7 +18,7 @@ message Friendlink {
     string link = 3;
     string description = 4;
     int32 sort = 5;
-    int32 status = 6;
+    bool enable = 6;
     google.protobuf.Timestamp created_at = 7 [ (gogoproto.stdtime) = true ];
     google.protobuf.Timestamp updated_at = 8 [ (gogoproto.stdtime) = true ];
 }
@@ -35,7 +35,7 @@ message ListFriendlinkRequest {
     int32 page = 1;
     int32 size = 2;
     string wd = 3;
-    repeated int32 status = 4;
+    repeated bool enable = 4;
 }
 
 message ListFriendlinkReply {

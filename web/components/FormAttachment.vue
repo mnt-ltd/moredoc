@@ -21,7 +21,7 @@
       </el-form-item>
       <el-form-item label="是否合法">
         <el-switch
-          v-model="attachment.is_approved"
+          v-model="attachment.enable"
           style="display: block"
           active-color="#13ce66"
           inactive-color="#ff4949"
@@ -34,7 +34,7 @@
         <el-input
           v-model="attachment.description"
           type="textarea"
-          rows="3"
+          rows="5"
           placeholder="请输入附件相关描述或备注"
         ></el-input>
       </el-form-item>
@@ -59,12 +59,7 @@ export default {
     initAttachment: {
       type: Object,
       default: () => {
-        return {
-          id: 0,
-          name: '',
-          is_approved: 1,
-          description: '',
-        }
+        return {}
       },
     },
   },
@@ -75,24 +70,19 @@ export default {
         id: 0,
         name: '',
         description: '',
-        is_approved: 1,
       },
     }
   },
   watch: {
     initAttachment: {
       handler(val) {
-        const attachment = { ...this.attachment, ...val }
-        attachment.is_approved = attachment.is_approved === 1
-        this.attachment = attachment
+        this.attachment = val
       },
       immediate: true,
     },
   },
   created() {
-    const attachment = { ...this.attachment, ...this.initAttachment }
-    attachment.is_approved = attachment.is_approved === 1
-    this.attachment = attachment
+    this.attachment = this.initAttachment
   },
   methods: {
     onSubmit() {
@@ -102,7 +92,6 @@ export default {
         }
         this.loading = true
         const attachment = { ...this.attachment }
-        attachment.is_approved = attachment.is_approved ? 1 : 0
         if (this.attachment.id > 0) {
           const res = await updateAttachment(attachment)
           if (res.status === 200) {

@@ -63,7 +63,6 @@ export default {
       search: {
         wd: '',
         page: 1,
-        status: [],
         size: 10,
       },
       listData: [],
@@ -105,6 +104,7 @@ export default {
       this.listAttachment()
     },
     editRow(row) {
+      console.log('editRow', row)
       this.formVisible = true
       this.attachment = row
     },
@@ -177,12 +177,12 @@ export default {
         {
           type: 'select',
           label: '是否合法',
-          name: 'is_approved',
+          name: 'enable',
           placeholder: '请选择是否合法',
           multiple: true,
           options: [
-            { label: '是', value: 1 },
-            { label: '否', value: 0 },
+            { label: '是', value: true },
+            { label: '否', value: false },
           ],
         },
       ]
@@ -193,7 +193,7 @@ export default {
         { prop: 'type_name', label: '类型', width: 80, fixed: 'left' },
         { prop: 'name', label: '名称', minWidth: 150, fixed: 'left' },
         {
-          prop: 'is_approved',
+          prop: 'enable',
           label: '是否合法',
           width: 80,
           type: 'bool',

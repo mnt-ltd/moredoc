@@ -17,7 +17,7 @@ message Banner {
   string title = 2;
   string path = 3;
   int32 sort = 4;
-  int32 status = 5;
+  bool enable = 5;
   int32 type = 6;
   string url = 7;
   string description = 8;
@@ -33,7 +33,7 @@ message ListBannerRequest {
   int64 page = 1;
   int64 size = 2;
   repeated int32 type = 3;
-  repeated int32 status = 4;
+  repeated bool enable = 4;
   string wd = 5;
 }
 

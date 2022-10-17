@@ -123,13 +123,13 @@ func (s *FriendlinkAPIService) ListFriendlink(ctx context.Context, req *pb.ListF
 			}
 		}
 		// 管理员可查询指定状态的友链
-		if len(req.Status) > 0 {
-			opt.QueryIn = map[string][]interface{}{"status": util.Slice2Interface(req.Status)}
+		if len(req.Enable) > 0 {
+			opt.QueryIn = map[string][]interface{}{"enable": util.Slice2Interface(req.Enable)}
 		}
 	} else {
 		// 非管理员可查询的字段
 		opt.SelectFields = s.dbModel.GetFriendlinkPublicFields()
-		opt.QueryIn = map[string][]interface{}{"status": {model.FriendlinkStatusNormal}}
+		opt.QueryIn = map[string][]interface{}{"enable": {true}}
 	}
 
 	friendlink, total, err := s.dbModel.GetFriendlinkList(opt)

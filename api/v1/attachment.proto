@@ -18,7 +18,7 @@ message Attachment {
   int64 user_id = 3;
   int64 type_id = 4;
   int32 type = 5;
-  int32 is_approved = 6;
+  bool enable = 6;
   string path = 7;
   string name = 8;
   int64 size = 9;
@@ -41,7 +41,7 @@ message ListAttachmentRequest {
   int64 page = 1;
   int64 size = 2;
   string wd = 3;     // 搜索关键字
-  repeated int64 is_approved = 4;
+  repeated bool enable = 4;
   repeated int64 user_id = 5; // 用户ID
   repeated int64 type = 6;    // 类型
   string ext = 7;            // 扩展名

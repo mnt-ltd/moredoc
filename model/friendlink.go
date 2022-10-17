@@ -7,18 +7,13 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	FriendlinkStatusNormal = iota
-	FriendlinkStatusDisabled
-)
-
 type Friendlink struct {
 	Id          int        `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Title       string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;comment:链接名称;"`
 	Link        string     `form:"link" json:"link,omitempty" gorm:"column:link;type:varchar(255);size:255;comment:链接地址;"`
 	Description string     `form:"description" json:"description,omitempty" gorm:"column:description;type:text;comment:描述，备注;"`
 	Sort        int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
-	Status      int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;comment:状态：0 正常，1 禁用;"`
+	Enable      int8       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(4);size:4;default:0;"`
 	CreatedAt   *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt   *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
@@ -106,7 +101,7 @@ func (m *DBModel) GetFriendlinkList(opt *OptionGetFriendlinkList) (friendlinkLis
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 
-	err = db.Order("status asc,sort desc").Find(&friendlinkList).Error
+	err = db.Order("enable desc,sort desc").Find(&friendlinkList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetFriendlinkList", zap.Error(err))
 	}

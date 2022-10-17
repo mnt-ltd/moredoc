@@ -47,7 +47,11 @@
       :title="banner.id > 0 ? '编辑横幅' : '新增横幅'"
       :visible.sync="formVisible"
     >
-      <FormBanner :init-banner="banner" @success="formSuccess" />
+      <FormBanner
+        ref="formBanner"
+        :init-banner="banner"
+        @success="formSuccess"
+      />
     </el-dialog>
   </div>
 </template>
@@ -68,7 +72,6 @@ export default {
       search: {
         wd: '',
         page: 1,
-        status: [],
         size: 10,
       },
       listData: [],
@@ -112,9 +115,13 @@ export default {
     onCreate() {
       this.banner = {}
       this.formVisible = true
+      this.$nextTick(() => {
+        this.$refs.formBanner.reset()
+      })
     },
     editRow(row) {
       this.formVisible = true
+      console.log('editRow', row)
       this.banner = row
     },
     formSuccess() {
@@ -186,12 +193,12 @@ export default {
         {
           type: 'select',
           label: '状态',
-          name: 'status',
+          name: 'enable',
           placeholder: '是否启用',
           multiple: true,
           options: [
-            { label: '启用', value: 0 },
-            { label: '禁用', value: 1 },
+            { label: '启用', value: 1 },
+            { label: '禁用', value: 0 },
           ],
         },
       ]
@@ -201,10 +208,6 @@ export default {
       this.bannerTypeOptions.forEach((item) => {
         typeMap[item.value] = item
       })
-      const statusMap = {
-        0: { label: '启用', value: 0, type: 'success' },
-        1: { label: '禁用', value: 1, type: 'danger' },
-      }
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number' },
         { prop: 'path', label: '横幅', width: 360, type: 'banner' },
@@ -216,11 +219,10 @@ export default {
           enum: typeMap,
         },
         {
-          prop: 'status',
-          label: '状态',
+          prop: 'enable',
+          label: '是否启用',
           width: 80,
-          type: 'enum',
-          enum: statusMap,
+          type: 'bool',
         },
         { prop: 'title', label: '名称', minWidth: 150 },
         { prop: 'url', label: '链接', minWidth: 150, type: 'link' },

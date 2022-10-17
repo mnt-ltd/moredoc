@@ -113,11 +113,11 @@ func (s *BannerAPIService) ListBanner(ctx context.Context, req *pb.ListBannerReq
 
 	_, errPermission := s.checkPermission(ctx)
 	if errPermission != nil {
-		opt.QueryIn["status"] = []interface{}{model.BannerStatusNormal} // 非权限用户，只能查询正常状态的横幅
+		opt.QueryIn["enable"] = []interface{}{true} // 非权限用户，只能查询正常状态的横幅
 	} else {
 		opt.SelectFields = []string{} // 不限字段
-		if len(req.Status) > 0 {
-			opt.QueryIn["status"] = util.Slice2Interface(req.Status)
+		if len(req.Enable) > 0 {
+			opt.QueryIn["enable"] = util.Slice2Interface(req.Enable)
 		}
 
 		if req.Wd != "" {
@@ -132,5 +132,8 @@ func (s *BannerAPIService) ListBanner(ctx context.Context, req *pb.ListBannerReq
 
 	var pbBanner []*pb.Banner
 	util.CopyStruct(banners, &pbBanner)
+
+	s.logger.Debug("ListBanner", zap.Any("banners", banners), zap.Any("pbBanner", pbBanner))
+
 	return &pb.ListBannerReply{Total: total, Banner: pbBanner}, nil
 }
