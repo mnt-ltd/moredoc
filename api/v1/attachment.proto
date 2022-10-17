@@ -28,6 +28,7 @@ message Attachment {
   string ip = 13;
   string username = 16; // 用户名称
   string type_name = 17; // 附件类型名称
+  string description = 18; // 附件描述、备注
   google.protobuf.Timestamp created_at = 14 [ (gogoproto.stdtime) = true ];
   google.protobuf.Timestamp updated_at = 15 [ (gogoproto.stdtime) = true ];
 }

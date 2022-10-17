@@ -36,6 +36,9 @@
           >
             {{ scope.row[item.prop] ? '是' : '否' }}</el-tag
           >
+          <span v-else-if="item.type === 'bytes'">
+            {{ formatBytes(scope.row[item.prop]) }}
+          </span>
           <!-- 枚举 -->
           <span v-else-if="item.type === 'enum'">
             <el-tag
@@ -94,7 +97,7 @@
   </div>
 </template>
 <script>
-import { formatDatetime } from '~/utils/utils'
+import { formatDatetime, formatBytes } from '~/utils/utils'
 export default {
   name: 'ComTableList',
   props: {
@@ -134,6 +137,7 @@ export default {
   },
   methods: {
     formatDatetime,
+    formatBytes,
     viewRow(row) {
       this.$emit('viewRow', row)
     },

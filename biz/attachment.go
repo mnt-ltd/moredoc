@@ -40,8 +40,25 @@ func (s *AttachmentAPIService) checkPermission(ctx context.Context) (userClaims 
 	return
 }
 
+// UpdateAttachment 更新附件。只允许更新附件名称、是否合法以及描述字段
 func (s *AttachmentAPIService) UpdateAttachment(ctx context.Context, req *pb.Attachment) (*pb.Attachment, error) {
-	return &pb.Attachment{}, nil
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	updateFields := []string{"name", "is_approved", "description"}
+	err = s.dbModel.UpdateAttachment(&model.Attachment{
+		Id:          req.Id,
+		Name:        req.Name,
+		Description: req.Description,
+		IsApproved:  int8(req.IsApproved),
+	}, updateFields...)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return req, nil
 }
 
 func (s *AttachmentAPIService) DeleteAttachment(ctx context.Context, req *pb.DeleteAttachmentRequest) (*emptypb.Empty, error) {
@@ -58,8 +75,22 @@ func (s *AttachmentAPIService) DeleteAttachment(ctx context.Context, req *pb.Del
 	return &emptypb.Empty{}, nil
 }
 
+// GetAttachment 查询单个附件信息
 func (s *AttachmentAPIService) GetAttachment(ctx context.Context, req *pb.GetAttachmentRequest) (*pb.Attachment, error) {
-	return &pb.Attachment{}, nil
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	attachment, err := s.dbModel.GetAttachment(req.Id)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	pbAttachment := &pb.Attachment{}
+	util.CopyStruct(&attachment, pbAttachment)
+
+	return pbAttachment, nil
 }
 
 func (s *AttachmentAPIService) ListAttachment(ctx context.Context, req *pb.ListAttachmentRequest) (*pb.ListAttachmentReply, error) {
@@ -90,7 +121,7 @@ func (s *AttachmentAPIService) ListAttachment(ctx context.Context, req *pb.ListA
 	req.Wd = strings.TrimSpace(req.Wd)
 	if req.Wd != "" {
 		wd := "%" + req.Wd + "%"
-		opt.QueryLike = map[string][]interface{}{"name": {wd}}
+		opt.QueryLike = map[string][]interface{}{"name": {wd}, "description": {wd}}
 	}
 
 	attachments, total, err := s.dbModel.GetAttachmentList(opt)

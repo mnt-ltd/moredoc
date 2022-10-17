@@ -30,7 +30,7 @@
         <el-pagination
           background
           :current-page="search.page"
-          :page-sizes="[10, 20, 50, 100, 200]"
+          :page-sizes="[10, 20, 50, 100]"
           :page-size="search.size"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -41,15 +41,8 @@
       </div>
     </el-card>
 
-    <el-dialog
-      :title="friendlink.id ? '编辑附件' : '新增附件'"
-      :visible.sync="formVisible"
-    >
-      <FormFriendlink
-        ref="friendlinkForm"
-        :init-friendlink="friendlink"
-        @success="formFriendlinkSuccess"
-      />
+    <el-dialog title="编辑附件" :visible.sync="formVisible">
+      <FormAttachment :init-attachment="attachment" @success="formSuccess" />
     </el-dialog>
   </div>
 </template>
@@ -58,10 +51,10 @@
 import { listAttachment, deleteAttachment } from '~/api/attachment'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
-import FormFriendlink from '~/components/FormFriendlink.vue'
+import FormAttachment from '~/components/FormAttachment.vue'
 import { attachmentTypeOptions } from '~/utils/enum'
 export default {
-  components: { TableList, FormSearch, FormFriendlink },
+  components: { TableList, FormSearch, FormAttachment },
   layout: 'admin',
   data() {
     return {
@@ -78,7 +71,7 @@ export default {
       searchFormFields: [],
       tableListFields: [],
       selectedRow: [],
-      friendlink: { id: 0 },
+      attachment: {},
       attachmentTypeOptions,
     }
   },
@@ -111,21 +104,11 @@ export default {
       this.search = { ...this.search, page: 1, ...search }
       this.listAttachment()
     },
-    onCreate() {
-      this.friendlink = { id: 0 }
-      this.formVisible = true
-      this.$nextTick(() => {
-        this.$refs.friendlinkForm.reset()
-      })
-    },
     editRow(row) {
       this.formVisible = true
-      this.$nextTick(() => {
-        this.$refs.friendlinkForm.clearValidate()
-        this.friendlink = row
-      })
+      this.attachment = row
     },
-    formFriendlinkSuccess() {
+    formSuccess() {
       this.formVisible = false
       this.listAttachment()
     },
@@ -215,13 +198,15 @@ export default {
           width: 80,
           type: 'bool',
         },
+        { prop: 'path', label: '存储路径', minWidth: 150 },
         { prop: 'hash', label: 'HASH', width: 150 },
         { prop: 'username', label: '上传者', width: 120 },
-        { prop: 'size', label: '大小', width: 80, type: 'number' },
+        { prop: 'size', label: '大小', width: 80, type: 'bytes' },
         { prop: 'width', label: '宽', width: 80 },
         { prop: 'height', label: '高', width: 80 },
         { prop: 'ext', label: '扩展', width: 80 },
         { prop: 'ip', label: 'IP', width: 120 },
+        { prop: 'description', label: '备注', width: 200 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
       ]
