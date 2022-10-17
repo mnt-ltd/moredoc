@@ -11,3 +11,5 @@ go.sum
 ginrpc*
 dist
 output
+cache
+uploads

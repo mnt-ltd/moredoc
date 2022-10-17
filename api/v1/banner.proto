@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Banner {
+  int64 id = 1;
+  string title = 2;
+  string path = 3;
+  int32 sort = 4;
+  int32 status = 5;
+  int32 type = 6;
+  string url = 7;
+  string description = 8;
+  google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
+}
+
+message DeleteBannerRequest {repeated int64 id = 1; }
+
+message GetBannerRequest { int64 id = 1; }
+
+message ListBannerRequest {
+  int64 page = 1;
+  int64 size = 2;
+  repeated int32 type = 3;
+  repeated int32 status = 4;
+  string wd = 5;
+}
+
+message ListBannerReply {
+  int64 total = 1;
+  repeated Banner banner = 2;
+}
+
+service BannerAPI {
+  rpc CreateBanner(Banner) returns (Banner) {
+    option (google.api.http) = {
+      post : '/api/v1/banner',
+      body : '*',
+    };
+  }
+
+  rpc UpdateBanner(Banner) returns (Banner) {
+    option (google.api.http) = {
+      put : '/api/v1/banner',
+      body : '*',
+    };
+  }
+
+  rpc DeleteBanner(DeleteBannerRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/banner',
+    };
+  }
+
+  rpc GetBanner(GetBannerRequest) returns (Banner) {
+    option (google.api.http) = {
+      get : '/api/v1/banner',
+    };
+  }
+
+  rpc ListBanner(ListBannerRequest) returns (ListBannerReply) {
+    option (google.api.http) = {
+      get : '/api/v1/banner/list',
+    };
+  }
+}

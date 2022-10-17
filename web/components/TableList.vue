@@ -56,6 +56,14 @@
               scope.row[item.prop] || '-'
             }}</span>
           </span>
+          <span v-else-if="['link', 'url'].includes(item.type)">
+            <a :href="scope.row[item.prop]" target="_blank">
+              <i class="el-icon-link"></i> {{ scope.row[item.prop] }}</a
+            >
+          </span>
+          <span v-else-if="item.type === 'banner'">
+            <UploadImage :disabled="true" :image="scope.row[item.prop]" />
+          </span>
           <!-- 字符串。更多，则需要继续扩展 -->
           <span v-else>{{ scope.row[item.prop] || '-' }}</span>
         </template>
@@ -97,9 +105,11 @@
   </div>
 </template>
 <script>
+import UploadImage from './UploadImage.vue'
 import { formatDatetime, formatBytes } from '~/utils/utils'
 export default {
   name: 'ComTableList',
+  components: { UploadImage },
   props: {
     tableData: {
       type: Array,

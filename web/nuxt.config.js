@@ -53,7 +53,7 @@ export default {
       changeOrigin: true,
     },
     '/uploads': {
-      target: 'http://127.0.0.1:8080', // 目标服务器
+      target: 'http://127.0.0.1:8880', // 目标服务器
       changeOrigin: true,
     },
   },

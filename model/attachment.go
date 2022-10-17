@@ -7,6 +7,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: 附件管理，需要有一个定时任务，定时根据type和type_id清理无效的附件数据，同时删除无效的文件
+
 const (
 	AttachmentTypeAvatar        = iota // 用户头像
 	AttachmentTypeDocument             // 文档
@@ -134,7 +136,11 @@ func (m *DBModel) GetAttachmentList(opt *OptionGetAttachmentList) (attachmentLis
 	}
 
 	// TODO: 没有排序参数的话，可以自行指定排序字段
-	db = m.generateQuerySort(db, tableName, opt.Sort)
+	if len(opt.Sort) > 0 {
+		db = m.generateQuerySort(db, tableName, opt.Sort)
+	} else {
+		db = db.Order("id desc")
+	}
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 

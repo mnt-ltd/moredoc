@@ -193,15 +193,6 @@ func (s *AttachmentAPIService) UploadCategoryCover(ctx *gin.Context) {
 
 func (s *AttachmentAPIService) uploadImage(ctx *gin.Context, attachmentType int) {
 	name := "file"
-	switch attachmentType {
-	case model.AttachmentTypeBanner:
-		name = "banner"
-	case model.AttachmentTypeAvatar:
-		name = "avatar"
-	case model.AttachmentTypeCategoryCover:
-		name = "cover"
-	}
-
 	userCliams, statusCodes, err := s.checkGinPermission(ctx)
 	if err != nil {
 		ctx.JSON(statusCodes, ginResponse{Code: statusCodes, Message: err.Error(), Error: err.Error()})
@@ -227,7 +218,7 @@ func (s *AttachmentAPIService) uploadImage(ctx *gin.Context, attachmentType int)
 		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: err.Error(), Error: err.Error()})
 		return
 	}
-	attachment.Type = model.AttachmentTypeAvatar
+	attachment.Type = attachmentType
 	attachment.UserId = userCliams.UserId
 
 	if attachmentType == model.AttachmentTypeAvatar {
@@ -251,14 +242,12 @@ func (s *AttachmentAPIService) uploadImage(ctx *gin.Context, attachmentType int)
 // saveFile 保存文件。文件以md5值命名以及存储
 // 同时，返回附件信息
 func (s *AttachmentAPIService) saveFile(ctx *gin.Context, fileHeader *multipart.FileHeader) (attachment *model.Attachment, err error) {
-	cacheDir := fmt.Sprintf("cache/%s", time.Now().Format("2006/01/02"))
+	cacheDir := fmt.Sprintf("cache/uploads/%s", time.Now().Format("2006/01/02"))
 	os.MkdirAll(cacheDir, os.ModePerm)
 	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
 	cachePath := fmt.Sprintf("%s/%s%s", cacheDir, uuid.Must(uuid.NewV4()).String(), ext)
 	defer func() {
-		if err != nil {
-			os.Remove(cachePath)
-		}
+		os.Remove(cachePath)
 	}()
 
 	// 保存到临时文件
@@ -277,7 +266,7 @@ func (s *AttachmentAPIService) saveFile(ctx *gin.Context, fileHeader *multipart.
 
 	savePath := fmt.Sprintf("uploads/%s/%s%s", strings.Join(strings.Split(md5hash, "")[0:5], "/"), md5hash, ext)
 	os.MkdirAll(filepath.Dir(savePath), os.ModePerm)
-	err = os.Rename(cachePath, savePath)
+	err = util.CopyFile(cachePath, savePath)
 	if err != nil {
 		s.logger.Error("Rename", zap.Error(err), zap.String("cachePath", cachePath), zap.String("savePath", savePath))
 		return

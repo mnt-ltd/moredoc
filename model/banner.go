@@ -1,38 +1,29 @@
 package model
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-type Banner struct {
-	Id        int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
-	Title     string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;comment:横幅名称;"`
-	Path      string     `form:"path" json:"path,omitempty" gorm:"column:path;type:varchar(255);size:255;comment:横幅地址;"`
-	Sort      int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
-	Status    int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;comment:0 正常，1禁用;"`
-	Category  int8       `form:"category" json:"category,omitempty" gorm:"column:category;type:tinyint(4);size:4;default:0;comment:0 PC横幅，1 H5横幅，2 小程序横幅，3 APP横幅;"`
-	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
-	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
-	Url       string     `form:"url" json:"url,omitempty" gorm:"column:url;type:varchar(255);size:255;comment:横幅跳转地址;"`
-}
+const (
+	BannerStatusNormal = iota
+	BannerStatusDisabled
+)
 
-// 这里是proto文件中的结构体，可以根据需要删除或者调整
-//message Banner {
-// int64 id = 1;
-// string title = 2;
-// string path = 3;
-// int32 sort = 4;
-// int32 status = 5;
-// int32 category = 6;
-// google.protobuf.Timestamp created_at = 7 [ (gogoproto.stdtime) = true ];
-// google.protobuf.Timestamp updated_at = 8 [ (gogoproto.stdtime) = true ];
-// string url = 9;
-//}
+type Banner struct {
+	Id          int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
+	Title       string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;comment:横幅名称;"`
+	Description string     `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(255);size:255;comment:横幅描述、备注;"`
+	Path        string     `form:"path" json:"path,omitempty" gorm:"column:path;type:varchar(255);size:255;comment:横幅地址;"`
+	Sort        int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
+	Status      int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;comment:0 正常，1禁用;"`
+	Type        int8       `form:"type" json:"type,omitempty" gorm:"column:type;type:tinyint(4);size:4;default:0;comment:0 网站横幅，1 小程序横幅，2 APP横幅;"`
+	CreatedAt   *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	UpdatedAt   *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	Url         string     `form:"url" json:"url,omitempty" gorm:"column:url;type:varchar(255);size:255;comment:横幅跳转地址;"`
+}
 
 func (Banner) TableName() string {
 	return tablePrefix + "banner"
@@ -91,37 +82,12 @@ type OptionGetBannerList struct {
 }
 
 // GetBannerList 获取Banner列表
-func (m *DBModel) GetBannerList(opt OptionGetBannerList) (bannerList []Banner, total int64, err error) {
+func (m *DBModel) GetBannerList(opt *OptionGetBannerList) (bannerList []Banner, total int64, err error) {
 	db := m.db.Model(&Banner{})
+	tableName := Banner{}.TableName()
 
-	for field, rangeValue := range opt.QueryRange {
-		fields := m.FilterValidFields(Banner{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		if rangeValue[0] != nil {
-			db = db.Where(fmt.Sprintf("%s >= ?", field), rangeValue[0])
-		}
-		if rangeValue[1] != nil {
-			db = db.Where(fmt.Sprintf("%s <= ?", field), rangeValue[1])
-		}
-	}
-
-	for field, values := range opt.QueryIn {
-		fields := m.FilterValidFields(Banner{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
-	}
-
-	for field, values := range opt.QueryLike {
-		fields := m.FilterValidFields(Banner{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(strings.TrimSuffix(fmt.Sprintf(strings.Join(make([]string, len(values)+1), "%s like ? or"), field), "or"), values...)
-	}
+	db = m.generateQueryIn(db, tableName, opt.QueryIn)
+	db = m.generateQueryLike(db, tableName, opt.QueryLike)
 
 	if len(opt.Ids) > 0 {
 		db = db.Where("id in (?)", opt.Ids)
@@ -135,33 +101,14 @@ func (m *DBModel) GetBannerList(opt OptionGetBannerList) (bannerList []Banner, t
 		}
 	}
 
-	opt.SelectFields = m.FilterValidFields(Banner{}.TableName(), opt.SelectFields...)
+	opt.SelectFields = m.FilterValidFields(tableName, opt.SelectFields...)
 	if len(opt.SelectFields) > 0 {
 		db = db.Select(opt.SelectFields)
 	}
 
-	if len(opt.Sort) > 0 {
-		var sorts []string
-		for _, sort := range opt.Sort {
-			slice := strings.Split(sort, " ")
-			if len(m.FilterValidFields(Banner{}.TableName(), slice[0])) == 0 {
-				continue
-			}
-
-			if len(slice) == 2 {
-				sorts = append(sorts, fmt.Sprintf("%s %s", slice[0], slice[1]))
-			} else {
-				sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
-			}
-		}
-		if len(sorts) > 0 {
-			db = db.Order(strings.Join(sorts, ","))
-		}
-	}
-
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 
-	err = db.Find(&bannerList).Error
+	err = db.Order("status asc, sort desc").Find(&bannerList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetBannerList", zap.Error(err))
 	}
@@ -169,8 +116,7 @@ func (m *DBModel) GetBannerList(opt OptionGetBannerList) (bannerList []Banner, t
 }
 
 // DeleteBanner 删除数据
-// TODO: 删除数据之后，存在 banner_id 的关联表，需要删除对应数据，同时相关表的统计数值，也要随着减少
-func (m *DBModel) DeleteBanner(ids []interface{}) (err error) {
+func (m *DBModel) DeleteBanner(ids []int64) (err error) {
 	err = m.db.Where("id in (?)", ids).Delete(&Banner{}).Error
 	if err != nil {
 		m.logger.Error("DeleteBanner", zap.Error(err))

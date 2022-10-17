@@ -50,5 +50,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 横幅API接口服务
+	bannerAPIService := biz.NewBannerAPIService(dbModel, logger)
+	v1.RegisterBannerAPIServer(grpcServer, bannerAPIService)
+	err = v1.RegisterBannerAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterBannerAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }

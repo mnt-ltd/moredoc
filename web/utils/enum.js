@@ -14,3 +14,10 @@ export const attachmentTypeOptions = [
   { label: '横幅', value: 4 },
   { label: '分类封面', value: 5 },
 ]
+
+// 0 网站横幅，1 小程序横幅，2 APP横幅
+export const bannerTypeOptions = [
+  { label: '网站横幅', value: 0, type: 'primary' },
+  { label: '小程序横幅', value: 1, type: 'success' },
+  { label: 'APP横幅', value: 2, type: 'warning' },
+]
