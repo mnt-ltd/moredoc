@@ -48,7 +48,11 @@
 </template>
 
 <script>
-import { listAttachment, deleteAttachment } from '~/api/attachment'
+import {
+  listAttachment,
+  deleteAttachment,
+  getAttachment,
+} from '~/api/attachment'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormAttachment from '~/components/FormAttachment.vue'
@@ -103,10 +107,14 @@ export default {
       this.search = { ...this.search, page: 1, ...search }
       this.listAttachment()
     },
-    editRow(row) {
-      console.log('editRow', row)
-      this.formVisible = true
-      this.attachment = row
+    async editRow(row) {
+      const res = await getAttachment({ id: row.id })
+      if (res.status === 200) {
+        this.attachment = res.data
+        this.formVisible = true
+      } else {
+        this.$message.error(res.data.message)
+      }
     },
     formSuccess() {
       this.formVisible = false

@@ -13,7 +13,7 @@ type Friendlink struct {
 	Link        string     `form:"link" json:"link,omitempty" gorm:"column:link;type:varchar(255);size:255;comment:链接地址;"`
 	Description string     `form:"description" json:"description,omitempty" gorm:"column:description;type:text;comment:描述，备注;"`
 	Sort        int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
-	Enable      int8       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(4);size:4;default:0;"`
+	Enable      bool       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(4);size:4;default:0;"`
 	CreatedAt   *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt   *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }

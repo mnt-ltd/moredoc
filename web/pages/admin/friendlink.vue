@@ -56,7 +56,11 @@
 </template>
 
 <script>
-import { listFriendlink, deleteFriendlink } from '~/api/friendlink'
+import {
+  listFriendlink,
+  deleteFriendlink,
+  getFriendlink,
+} from '~/api/friendlink'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormFriendlink from '~/components/FormFriendlink.vue'
@@ -117,12 +121,14 @@ export default {
         this.$refs.friendlinkForm.reset()
       })
     },
-    editRow(row) {
-      this.formFriendlinkVisible = true
-      this.$nextTick(() => {
-        this.$refs.friendlinkForm.clearValidate()
-        this.friendlink = row
-      })
+    async editRow(row) {
+      const res = await getFriendlink({ id: row.id })
+      if (res.status === 200) {
+        this.friendlink = res.data
+        this.formFriendlinkVisible = true
+      } else {
+        this.$message.error(res.data.message)
+      }
     },
     formFriendlinkSuccess() {
       this.formFriendlinkVisible = false
@@ -199,14 +205,10 @@ export default {
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
         {
-          prop: 'status',
+          prop: 'enable',
           label: '状态',
           width: 80,
-          type: 'enum',
-          enum: {
-            1: { label: '禁用', type: 'danger' },
-            0: { label: '启用', type: 'success' },
-          },
+          type: 'bool',
           fixed: 'left',
         },
         { prop: 'title', label: '名称', minWidth: 150, fixed: 'left' },

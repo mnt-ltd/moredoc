@@ -117,13 +117,7 @@ export default {
         this.$refs.friendlinkForm.reset()
       })
     },
-    editRow(row) {
-      this.formFriendlinkVisible = true
-      this.$nextTick(() => {
-        this.$refs.friendlinkForm.clearValidate()
-        this.friendlink = row
-      })
-    },
+    editRow(row) {},
     formFriendlinkSuccess() {
       this.formFriendlinkVisible = false
       this.listFriendlink()

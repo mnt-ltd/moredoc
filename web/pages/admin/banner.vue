@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import { listBanner, deleteBanner } from '~/api/banner'
+import { listBanner, deleteBanner, getBanner } from '~/api/banner'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormBanner from '~/components/FormBanner.vue'
@@ -119,10 +119,14 @@ export default {
         this.$refs.formBanner.reset()
       })
     },
-    editRow(row) {
-      this.formVisible = true
-      console.log('editRow', row)
-      this.banner = row
+    async editRow(row) {
+      const res = await getBanner({ id: row.id })
+      if (res.status === 200) {
+        this.banner = res.data
+        this.formVisible = true
+      } else {
+        this.$message.error(res.data.message)
+      }
     },
     formSuccess() {
       this.formVisible = false

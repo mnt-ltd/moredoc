@@ -49,12 +49,12 @@
         <el-col :span="12">
           <el-form-item label="是否启用">
             <el-switch
-              v-model="friendlink.status"
+              v-model="friendlink.enable"
               style="display: block"
-              active-color="#ff4949"
-              inactive-color="#13ce66"
-              active-text="否"
-              inactive-text="是"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              active-text="是"
+              inactive-text="否"
             >
             </el-switch> </el-form-item
         ></el-col>

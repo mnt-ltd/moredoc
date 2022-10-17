@@ -82,12 +82,11 @@ func (s *BannerAPIService) DeleteBanner(ctx context.Context, req *pb.DeleteBanne
 }
 
 func (s *BannerAPIService) GetBanner(ctx context.Context, req *pb.GetBannerRequest) (*pb.Banner, error) {
-	fields := []string{"id", "title", "path", "url"}
-	if _, errPermission := s.checkPermission(ctx); errPermission == nil {
-		fields = []string{}
+	if _, errPermission := s.checkPermission(ctx); errPermission != nil {
+		return nil, errPermission
 	}
 
-	banner, err := s.dbModel.GetBanner(req.Id, fields...)
+	banner, err := s.dbModel.GetBanner(req.Id)
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}

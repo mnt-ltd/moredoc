@@ -89,19 +89,21 @@ func (s *FriendlinkAPIService) DeleteFriendlink(ctx context.Context, req *pb.Del
 
 // GetFriendlink 查询友情链接
 func (s *FriendlinkAPIService) GetFriendlink(ctx context.Context, req *pb.GetFriendlinkRequest) (*pb.Friendlink, error) {
-	var fields []string
 	_, err := s.checkPermission(ctx)
 	if err != nil {
-		fields = s.dbModel.GetFriendlinkPublicFields() // 非管理员可查询的字段
+		return nil, err
 	}
 
-	friendlink, err := s.dbModel.GetFriendlink(req.Id, fields...)
+	friendlink, err := s.dbModel.GetFriendlink(req.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	pbFriendlink := &pb.Friendlink{}
 	util.CopyStruct(friendlink, pbFriendlink)
+
+	s.logger.Debug("GetFriendlink", zap.Any("pbFriendlink", pbFriendlink), zap.Any("friendlink", friendlink))
+
 	return pbFriendlink, nil
 }
 
