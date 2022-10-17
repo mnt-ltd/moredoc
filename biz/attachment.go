@@ -2,18 +2,34 @@ package biz
 
 import (
 	"context"
+	"fmt"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
+	"time"
 
 	pb "moredoc/api/v1"
 	"moredoc/middleware/auth"
 	"moredoc/model"
 	"moredoc/util"
+	"moredoc/util/filetil"
 
+	"github.com/gin-gonic/gin"
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
 )
+
+type ginResponse struct {
+	Error   string      `json:"error,omitempty"`
+	Message string      `json:"message,omitempty"`
+	Code    int         `json:"code,omitempty"`
+	Data    interface{} `json:"data,omitempty"`
+}
 
 type AttachmentAPIService struct {
 	pb.UnimplementedAttachmentAPIServer
@@ -27,17 +43,13 @@ func NewAttachmentAPIService(dbModel *model.DBModel, logger *zap.Logger) (servic
 
 // checkPermission 检查用户权限
 func (s *AttachmentAPIService) checkPermission(ctx context.Context) (userClaims *auth.UserClaims, err error) {
-	var ok bool
-	userClaims, ok = ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
-	if !ok {
-		return nil, status.Errorf(codes.Unauthenticated, ErrorMessageInvalidToken)
-	}
+	return checkGRPCPermission(s.dbModel, ctx)
+}
 
-	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
-	if yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod); !yes {
-		return nil, status.Errorf(codes.PermissionDenied, ErrorMessagePermissionDenied)
-	}
-	return
+// checkPermission 检查用户权限
+// 文件等的上传，也要验证用户是否有权限，无论是否是管理员
+func (s *AttachmentAPIService) checkGinPermission(ctx *gin.Context) (userClaims *auth.UserClaims, statusCode int, err error) {
+	return checkGinPermission(s.dbModel, ctx)
 }
 
 // UpdateAttachment 更新附件。只允许更新附件名称、是否合法以及描述字段
@@ -159,22 +171,132 @@ func (s *AttachmentAPIService) ListAttachment(ctx context.Context, req *pb.ListA
 	return &pb.ListAttachmentReply{Total: total, Attachment: pbAttachments}, nil
 }
 
-// 上传头像
-func (s *AttachmentAPIService) UploadAvatar() {
-
-}
-
-// 上传横幅
-func (s *AttachmentAPIService) UploadBanner() {
-
-}
-
 // 上传文档
-func (s *AttachmentAPIService) UploadDocument() {
+func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
 
+}
+
+// UploadAvatar 上传头像
+func (s *AttachmentAPIService) UploadAvatar(ctx *gin.Context) {
+	s.uploadImage(ctx, model.AttachmentTypeAvatar)
+}
+
+// UploadBanner 上传横幅，创建横幅的时候，要根据附件id，更新附件的type_id字段
+func (s *AttachmentAPIService) UploadBanner(ctx *gin.Context) {
+	s.uploadImage(ctx, model.AttachmentTypeBanner)
 }
 
 // 上传文档分类封面
-func (s *AttachmentAPIService) UploadCategoryCover() {
+func (s *AttachmentAPIService) UploadCategoryCover(ctx *gin.Context) {
+	s.uploadImage(ctx, model.AttachmentTypeCategoryCover)
+}
 
+func (s *AttachmentAPIService) uploadImage(ctx *gin.Context, attachmentType int) {
+	name := "file"
+	switch attachmentType {
+	case model.AttachmentTypeBanner:
+		name = "banner"
+	case model.AttachmentTypeAvatar:
+		name = "avatar"
+	case model.AttachmentTypeCategoryCover:
+		name = "cover"
+	}
+
+	userCliams, statusCodes, err := s.checkGinPermission(ctx)
+	if err != nil {
+		ctx.JSON(statusCodes, ginResponse{Code: statusCodes, Message: err.Error(), Error: err.Error()})
+		return
+	}
+
+	// 验证文件是否是图片
+	fileHeader, err := ctx.FormFile(name)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: err.Error(), Error: err.Error()})
+		return
+	}
+
+	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+	if !filetil.IsImage(ext) {
+		message := "请上传图片格式文件，支持.jpg、.jpeg和.png格式图片"
+		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: message, Error: message})
+		return
+	}
+
+	attachment, err := s.saveFile(ctx, fileHeader)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: err.Error(), Error: err.Error()})
+		return
+	}
+	attachment.Type = model.AttachmentTypeAvatar
+	attachment.UserId = userCliams.UserId
+
+	if attachmentType == model.AttachmentTypeAvatar {
+		attachment.TypeId = userCliams.UserId
+		// 更新用户头像信息
+		err = s.dbModel.UpdateUser(&model.User{Id: userCliams.UserId, Avatar: attachment.Path}, "avatar")
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
+		}
+	}
+
+	// 保存附件信息
+	err = s.dbModel.CreateAttachment(attachment)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, ginResponse{Code: http.StatusOK, Message: "上传成功", Data: attachment})
+}
+
+// saveFile 保存文件。文件以md5值命名以及存储
+// 同时，返回附件信息
+func (s *AttachmentAPIService) saveFile(ctx *gin.Context, fileHeader *multipart.FileHeader) (attachment *model.Attachment, err error) {
+	cacheDir := fmt.Sprintf("cache/%s", time.Now().Format("2006/01/02"))
+	os.MkdirAll(cacheDir, os.ModePerm)
+	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+	cachePath := fmt.Sprintf("%s/%s%s", cacheDir, uuid.Must(uuid.NewV4()).String(), ext)
+	defer func() {
+		if err != nil {
+			os.Remove(cachePath)
+		}
+	}()
+
+	// 保存到临时文件
+	err = ctx.SaveUploadedFile(fileHeader, cachePath)
+	if err != nil {
+		s.logger.Error("SaveUploadedFile", zap.Error(err), zap.String("filename", fileHeader.Filename), zap.String("cachePath", cachePath))
+		return
+	}
+
+	// 获取文件md5值
+	md5hash, errHash := filetil.GetFileMD5(cachePath)
+	if errHash != nil {
+		err = errHash
+		return
+	}
+
+	savePath := fmt.Sprintf("uploads/%s/%s%s", strings.Join(strings.Split(md5hash, "")[0:5], "/"), md5hash, ext)
+	os.MkdirAll(filepath.Dir(savePath), os.ModePerm)
+	err = os.Rename(cachePath, savePath)
+	if err != nil {
+		s.logger.Error("Rename", zap.Error(err), zap.String("cachePath", cachePath), zap.String("savePath", savePath))
+		return
+	}
+
+	attachment = &model.Attachment{
+		Size:       fileHeader.Size,
+		Name:       fileHeader.Filename,
+		Ip:         ctx.ClientIP(),
+		Ext:        ext,
+		IsApproved: 1, // 默认都是合法的
+		Hash:       md5hash,
+		Path:       "/" + savePath,
+	}
+
+	// 对于图片，直接获取图片的宽高
+	if filetil.IsImage(ext) {
+		attachment.Width, attachment.Height, _ = filetil.GetImageSize(cachePath)
+	}
+
+	return
 }

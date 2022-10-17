@@ -25,6 +25,10 @@ func NewGroupAPIService(dbModel *model.DBModel, logger *zap.Logger) (service *Gr
 	return &GroupAPIService{dbModel: dbModel, logger: logger.Named("GroupAPIService")}
 }
 
+func (s *GroupAPIService) checkPermission(ctx context.Context) (userClaims *auth.UserClaims, err error) {
+	return checkGRPCPermission(s.dbModel, ctx)
+}
+
 // CreateGroup 创建用户组
 // 0. 检查用户权限
 // 1. 检查用户组是否存在
@@ -32,14 +36,9 @@ func NewGroupAPIService(dbModel *model.DBModel, logger *zap.Logger) (service *Gr
 func (s *GroupAPIService) CreateGroup(ctx context.Context, req *pb.Group) (*pb.Group, error) {
 	s.logger.Debug("CreateGroup", zap.Any("req", req))
 
-	userClaims, ok := ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
-	if !ok {
-		return nil, status.Errorf(codes.Unauthenticated, ErrorMessageInvalidToken)
-	}
-
-	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
-	if yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod); !yes {
-		return nil, status.Errorf(codes.PermissionDenied, ErrorMessagePermissionDenied)
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	existGroup, err := s.dbModel.GetGroupByTitle(req.Title)

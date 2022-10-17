@@ -26,17 +26,7 @@ func NewFriendlinkAPIService(dbModel *model.DBModel, logger *zap.Logger) (servic
 
 // checkPermission 检查用户权限
 func (s *FriendlinkAPIService) checkPermission(ctx context.Context) (userClaims *auth.UserClaims, err error) {
-	var ok bool
-	userClaims, ok = ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
-	if !ok {
-		return nil, status.Errorf(codes.Unauthenticated, ErrorMessageInvalidToken)
-	}
-
-	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
-	if yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod); !yes {
-		return nil, status.Errorf(codes.PermissionDenied, ErrorMessagePermissionDenied)
-	}
-	return
+	return checkGRPCPermission(s.dbModel, ctx)
 }
 
 // CreateFriendlink 创建友情链接，需要鉴权

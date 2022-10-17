@@ -74,7 +74,7 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 		return
 	}
 
-	serve.RegisterGinRouter(app)
+	serve.RegisterGinRouter(app, dbModel, logger, auth)
 
 	// 根目录访问静态文件，要放在 grpc 服务的前面
 	// 可以在 dist 目录下创建一个 index.html 文件并添加内容，然后访问 http://ip:port

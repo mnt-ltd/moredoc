@@ -35,8 +35,8 @@ type Attachment struct {
 	Path        string    `form:"path" json:"path,omitempty" gorm:"column:path;type:varchar(255);size:255;comment:文件存储路径;"`
 	Name        string    `form:"name" json:"name,omitempty" gorm:"column:name;type:varchar(255);size:255;comment:文件原名称;"`
 	Size        int64     `form:"size" json:"size,omitempty" gorm:"column:size;type:bigint(20) unsigned;default:0;comment:文件大小;"`
-	Width       int64     `form:"width" json:"width,omitempty" gorm:"column:width;type:bigint(20) unsigned;default:0;comment:宽度;"`
-	Height      int64     `form:"height" json:"height,omitempty" gorm:"column:height;type:bigint(20) unsigned;default:0;comment:高度;"`
+	Width       int       `form:"width" json:"width,omitempty" gorm:"column:width;type:int(11) unsigned;default:0;comment:宽度;"`
+	Height      int       `form:"height" json:"height,omitempty" gorm:"column:height;type:int(11) unsigned;default:0;comment:高度;"`
 	Ext         string    `form:"ext" json:"ext,omitempty" gorm:"column:ext;type:varchar(32);size:32;comment:文件类型，如 .pdf 。统一处理成小写;"`
 	Ip          string    `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(16);size:16;comment:上传文档的用户IP地址;"`
 	Description string    `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(255);size:255;comment:描述、备注;"`
@@ -49,7 +49,6 @@ func (Attachment) TableName() string {
 }
 
 // CreateAttachment 创建Attachment
-// TODO: 创建成功之后，注意相关表统计字段数值的增减
 func (m *DBModel) CreateAttachment(attachment *Attachment) (err error) {
 	err = m.db.Create(attachment).Error
 	if err != nil {
