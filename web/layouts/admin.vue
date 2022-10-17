@@ -88,10 +88,10 @@
             <i class="el-icon-link"></i>
             <span slot="title">友链管理</span>
           </el-menu-item>
-          <el-menu-item index="/admin/comment">
+          <!-- <el-menu-item index="/admin/comment">
             <i class="el-icon-chat-dot-square"></i>
             <span slot="title">评论管理</span>
-          </el-menu-item>
+          </el-menu-item> -->
           <el-menu-item index="/admin/attachment">
             <i class="el-icon-paperclip"></i>
             <span slot="title">附件管理</span>

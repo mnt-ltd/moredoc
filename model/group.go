@@ -1,6 +1,7 @@
 package model
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -159,10 +160,16 @@ func (m *DBModel) GetGroupList(opt OptionGetGroupList) (groupList []Group, total
 }
 
 // DeleteGroup 删除数据
-// TODO: 删除数据之后，存在 group_id 的关联表，需要删除对应数据，同时相关表的统计数值，也要随着减少
-func (m *DBModel) DeleteGroup(ids []interface{}) (err error) {
-	// 组下存在用户的，不能删除。提示用户重新授权或者重命名即可
-	err = m.db.Where("id in (?)", ids).Delete(&Group{}).Error
+// 组下存在用户的，不能删除
+func (m *DBModel) DeleteGroup(ids []int64) (err error) {
+	var total int64
+	m.db.Model(&Group{}).Where("id in (?) and user_count > ?", ids, 0).Count(&total)
+	if total > 0 {
+		err = errors.New("分组下存在用户，不能删除")
+		return
+	}
+
+	err = m.db.Where("id in (?) and user_count = ?", ids, 0).Delete(&Group{}).Error
 	if err != nil {
 		m.logger.Error("DeleteGroup", zap.Error(err))
 	}

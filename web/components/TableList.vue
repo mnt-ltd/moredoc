@@ -5,7 +5,12 @@
       style="width: 100%"
       @selection-change="selectRow"
     >
-      <el-table-column v-if="showSelect" type="selection" width="55">
+      <el-table-column
+        v-if="showSelect"
+        type="selection"
+        width="55"
+        :selectable="selectable"
+      >
       </el-table-column>
       <el-table-column
         v-for="item in fields"
@@ -96,6 +101,7 @@
             type="text"
             size="small"
             icon="el-icon-delete"
+            :disabled="scope.row.disable_delete"
             @click="deleteRow(scope.row)"
             >删除</el-button
           >
@@ -159,6 +165,10 @@ export default {
     },
     selectRow(rows) {
       this.$emit('selectRow', rows)
+    },
+    selectable(row) {
+      // 取反，禁止删除的行，不可选中
+      return !row.disable_delete
     },
   },
 }

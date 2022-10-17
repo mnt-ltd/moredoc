@@ -70,6 +70,16 @@ func (s *GroupAPIService) UpdateGroup(ctx context.Context, req *pb.Group) (*pb.G
 	return &pb.Group{}, nil
 }
 func (s *GroupAPIService) DeleteGroup(ctx context.Context, req *pb.DeleteGroupRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.dbModel.DeleteGroup(req.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
 	return &emptypb.Empty{}, nil
 }
 func (s *GroupAPIService) GetGroup(ctx context.Context, req *pb.GetGroupRequest) (*pb.Group, error) {

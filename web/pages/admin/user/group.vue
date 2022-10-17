@@ -8,6 +8,7 @@
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
         @onCreate="onCreate"
+        @onDelete="batchDelete"
       />
     </el-card>
     <el-card shadow="never" class="mgt-20px">
@@ -20,6 +21,7 @@
         :show-delete="true"
         :show-select="true"
         @selectRow="selectRow"
+        @deleteRow="deleteRow"
       />
     </el-card>
     <el-card shadow="never" class="mgt-20px">
@@ -49,7 +51,7 @@
 </template>
 
 <script>
-import { listGroup } from '~/api/group'
+import { listGroup, deleteGroup } from '~/api/group'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormGroup from '~/components/FormGroup.vue'
@@ -85,7 +87,11 @@ export default {
       this.loading = true
       const res = await listGroup(this.search)
       if (res.status === 200) {
-        this.groups = res.data.group
+        const groups = res.data.group
+        for (let i = 0; i < groups.length; i++) {
+          groups[i].disable_delete = groups[i].user_count > 0
+        }
+        this.groups = groups
         this.total = res.data.total
       } else {
         this.$message.error(res.data.message)
@@ -110,8 +116,44 @@ export default {
     setGroup() {
       this.formGroupVisible = false
     },
+    deleteRow(row) {
+      this.$confirm(
+        `您是否要删除【${row.title}】分组？删除之后不可恢复！`,
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      ).then(async () => {
+        const res = await deleteGroup({ id: row.id })
+        if (res.status === 200) {
+          this.$message.success('删除成功')
+          this.listGroup()
+        } else {
+          this.$message.error(res.data.message)
+        }
+      })
+    },
     batchDelete() {
-      console.log('batchDelete')
+      this.$confirm(
+        `您是否要删除选择的【${this.selectedRow.length}个】分组?删除之后不可恢复！`,
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      ).then(async () => {
+        const ids = this.selectedRow.map((item) => item.id)
+        const res = await deleteGroup({ id: ids })
+        if (res.status === 200) {
+          this.$message.success('删除成功')
+          this.listGroup()
+        } else {
+          this.$message.error(res.data.message)
+        }
+      })
     },
     selectRow(rows) {
       this.selectedRow = rows
