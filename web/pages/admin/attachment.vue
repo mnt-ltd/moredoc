@@ -41,7 +41,7 @@
       </div>
     </el-card>
 
-    <el-dialog title="编辑附件" :visible.sync="formVisible">
+    <el-dialog title="编辑附件" width="640px" :visible.sync="formVisible">
       <FormAttachment :init-attachment="attachment" @success="formSuccess" />
     </el-dialog>
   </div>
@@ -206,15 +206,15 @@ export default {
           width: 80,
           type: 'bool',
         },
-        { prop: 'hash', label: 'HASH', width: 280 },
         { prop: 'username', label: '上传者', width: 120 },
+        { prop: 'ip', label: 'IP', width: 120 },
         { prop: 'size', label: '大小', width: 90, type: 'bytes' },
         { prop: 'width', label: '宽', width: 90 },
         { prop: 'height', label: '高', width: 90 },
         { prop: 'ext', label: '扩展', width: 90 },
-        { prop: 'ip', label: 'IP', width: 120 },
-        { prop: 'description', label: '备注', width: 200 },
+        { prop: 'hash', label: 'HASH', width: 280 },
         { prop: 'path', label: '存储路径', minWidth: 300 },
+        { prop: 'description', label: '备注', width: 200 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
       ]

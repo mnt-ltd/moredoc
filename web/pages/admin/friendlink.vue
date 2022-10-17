@@ -45,6 +45,7 @@
     <el-dialog
       :title="friendlink.id ? '编辑友链' : '新增友链'"
       :visible.sync="formFriendlinkVisible"
+      width="640px"
     >
       <FormFriendlink
         ref="friendlinkForm"
@@ -191,12 +192,12 @@ export default {
         {
           type: 'select',
           label: '状态',
-          name: 'status',
+          name: 'enable',
           placeholder: '请选择状态',
           multiple: true,
           options: [
-            { label: '启用', value: 0 },
-            { label: '禁用', value: 1 },
+            { label: '启用', value: 1 },
+            { label: '禁用', value: 0 },
           ],
         },
       ]
