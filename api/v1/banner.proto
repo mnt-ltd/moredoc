@@ -50,7 +50,7 @@ service BannerAPI {
     };
   }
 
-  rpc UpdateBanner(Banner) returns (Banner) {
+  rpc UpdateBanner(Banner) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/banner',
       body : '*',

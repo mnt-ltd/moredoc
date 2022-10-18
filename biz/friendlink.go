@@ -50,7 +50,7 @@ func (s *FriendlinkAPIService) CreateFriendlink(ctx context.Context, req *pb.Fri
 }
 
 // UpdateFriendlink 更新友情链接，需要鉴权
-func (s *FriendlinkAPIService) UpdateFriendlink(ctx context.Context, req *pb.Friendlink) (*pb.Friendlink, error) {
+func (s *FriendlinkAPIService) UpdateFriendlink(ctx context.Context, req *pb.Friendlink) (*emptypb.Empty, error) {
 	_, err := s.checkPermission(ctx)
 	if err != nil {
 		return nil, err
@@ -67,9 +67,7 @@ func (s *FriendlinkAPIService) UpdateFriendlink(ctx context.Context, req *pb.Fri
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	pbFriendlink := &pb.Friendlink{}
-	util.CopyStruct(friendlink, pbFriendlink)
-	return pbFriendlink, nil
+	return &emptypb.Empty{}, nil
 }
 
 // DeleteFriendlink 删除友情链接，需要鉴权
@@ -89,10 +87,10 @@ func (s *FriendlinkAPIService) DeleteFriendlink(ctx context.Context, req *pb.Del
 
 // GetFriendlink 查询友情链接
 func (s *FriendlinkAPIService) GetFriendlink(ctx context.Context, req *pb.GetFriendlinkRequest) (*pb.Friendlink, error) {
-	_, err := s.checkPermission(ctx)
-	if err != nil {
-		return nil, err
-	}
+	// _, err := s.checkPermission(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	friendlink, err := s.dbModel.GetFriendlink(req.Id)
 	if err != nil {

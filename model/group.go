@@ -2,8 +2,6 @@ package model
 
 import (
 	"errors"
-	"fmt"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -14,7 +12,6 @@ type Group struct {
 	Id          int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:用户组 id;"`
 	Title       string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;index:title,unique;comment:用户组名称;"`
 	Color       string     `form:"color" json:"color,omitempty" gorm:"column:color;type:varchar(20);size:20;comment:颜色;"`
-	Icon        string     `form:"icon" json:"icon,omitempty" gorm:"column:icon;type:varchar(255);size:255;comment:icon;"`
 	IsDefault   bool       `form:"is_default" json:"is_default,omitempty" gorm:"column:is_default;type:tinyint(3);default:0;index:is_default;comment:是否默认;"`
 	IsDisplay   bool       `form:"is_display" json:"is_display,omitempty" gorm:"column:is_display;type:tinyint(3);default:0;comment:是否显示在用户名后;"`
 	Description string     `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(255);size:255;comment:用户组描述;"`
@@ -57,14 +54,39 @@ func (m *DBModel) CreateGroup(group *Group) (err error) {
 
 // UpdateGroup 更新Group，如果需要更新指定字段，则请指定updateFields参数
 func (m *DBModel) UpdateGroup(group *Group, updateFields ...string) (err error) {
-	db := m.db.Model(group)
+	sess := m.db.Begin()
+	defer func() {
+		if err != nil {
+			sess.Rollback()
+		} else {
+			sess.Commit()
+		}
+	}()
+
+	if group.IsDefault {
+		err = sess.Model(&Group{}).Where("is_default > ? and id != ?", 0, group.Id).Updates(map[string]interface{}{"is_default": false}).Error
+		if err != nil {
+			m.logger.Error("UpdateGroup", zap.Error(err))
+			return
+		}
+	} else {
+		var count int64
+		sess.Model(&Group{}).Where("is_default > ? and id != ?", 0, group.Id).Count(&count)
+		if count == 0 {
+			err = errors.New("至少要有一个默认用户组")
+			return
+		}
+	}
 
 	updateFields = m.FilterValidFields(Group{}.TableName(), updateFields...)
 	if len(updateFields) > 0 { // 更新指定字段
-		db = db.Select(updateFields)
+		sess = sess.Select(updateFields)
+	} else {
+		// 不更新用户统计数据
+		sess = sess.Omit("id", "user_count")
 	}
 
-	err = db.Where("id = ?", group.Id).Updates(group).Error
+	err = sess.Where("id = ?", group.Id).Updates(group).Error
 	if err != nil {
 		m.logger.Error("UpdateGroup", zap.Error(err))
 	}
@@ -92,46 +114,20 @@ func (m *DBModel) GetGroupByTitle(title string) (group Group, err error) {
 type OptionGetGroupList struct {
 	Page         int
 	Size         int
-	WithCount    bool                      // 是否返回总数
-	Ids          []interface{}             // id列表
-	SelectFields []string                  // 查询字段
-	QueryRange   map[string][2]interface{} // map[field][]{min,max}
-	QueryIn      map[string][]interface{}  // map[field][]{value1,value2,...}
-	QueryLike    map[string][]interface{}  // map[field][]{value1,value2,...}
+	WithCount    bool                     // 是否返回总数
+	Ids          []interface{}            // id列表
+	SelectFields []string                 // 查询字段
+	QueryIn      map[string][]interface{} // map[field][]{value1,value2,...}
+	QueryLike    map[string][]interface{} // map[field][]{value1,value2,...}
 }
 
 // GetGroupList 获取Group列表
-func (m *DBModel) GetGroupList(opt OptionGetGroupList) (groupList []Group, total int64, err error) {
+func (m *DBModel) GetGroupList(opt *OptionGetGroupList) (groupList []Group, total int64, err error) {
 	db := m.db.Model(&Group{})
+	tableName := Group{}.TableName()
 
-	for field, rangeValue := range opt.QueryRange {
-		fields := m.FilterValidFields(Group{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		if rangeValue[0] != nil {
-			db = db.Where(fmt.Sprintf("%s >= ?", field), rangeValue[0])
-		}
-		if rangeValue[1] != nil {
-			db = db.Where(fmt.Sprintf("%s <= ?", field), rangeValue[1])
-		}
-	}
-
-	for field, values := range opt.QueryIn {
-		fields := m.FilterValidFields(Group{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
-	}
-
-	for field, values := range opt.QueryLike {
-		fields := m.FilterValidFields(Group{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(strings.TrimSuffix(fmt.Sprintf(strings.Join(make([]string, len(values)+1), "%s like ? or"), field), "or"), values...)
-	}
+	db = m.generateQueryIn(db, tableName, opt.QueryIn)
+	db = m.generateQueryLike(db, tableName, opt.QueryLike)
 
 	if len(opt.Ids) > 0 {
 		db = db.Where("id in (?)", opt.Ids)
@@ -161,11 +157,12 @@ func (m *DBModel) GetGroupList(opt OptionGetGroupList) (groupList []Group, total
 
 // DeleteGroup 删除数据
 // 组下存在用户的，不能删除
+// 默认组不能删除
 func (m *DBModel) DeleteGroup(ids []int64) (err error) {
 	var total int64
-	m.db.Model(&Group{}).Where("id in (?) and user_count > ?", ids, 0).Count(&total)
+	m.db.Model(&Group{}).Where("id in (?) and (user_count > ? or is_default = ?)", ids, 0, true).Count(&total)
 	if total > 0 {
-		err = errors.New("分组下存在用户，不能删除")
+		err = errors.New("默认分组以及分组下存在用户的组不能删除")
 		return
 	}
 

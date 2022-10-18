@@ -53,7 +53,7 @@ func (s *AttachmentAPIService) checkGinPermission(ctx *gin.Context) (userClaims 
 }
 
 // UpdateAttachment 更新附件。只允许更新附件名称、是否合法以及描述字段
-func (s *AttachmentAPIService) UpdateAttachment(ctx context.Context, req *pb.Attachment) (*pb.Attachment, error) {
+func (s *AttachmentAPIService) UpdateAttachment(ctx context.Context, req *pb.Attachment) (*emptypb.Empty, error) {
 	_, err := s.checkPermission(ctx)
 	if err != nil {
 		return nil, err
@@ -70,7 +70,7 @@ func (s *AttachmentAPIService) UpdateAttachment(ctx context.Context, req *pb.Att
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return req, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *AttachmentAPIService) DeleteAttachment(ctx context.Context, req *pb.DeleteAttachmentRequest) (*emptypb.Empty, error) {

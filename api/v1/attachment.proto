@@ -54,7 +54,7 @@ message ListAttachmentReply {
 
   // 附件服务。只有管理员才有权限操作
 service AttachmentAPI {
-  rpc UpdateAttachment(Attachment) returns (Attachment) {
+  rpc UpdateAttachment(Attachment) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/attachment',
       body : '*',

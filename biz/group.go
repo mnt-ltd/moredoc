@@ -66,9 +66,22 @@ func (s *GroupAPIService) CreateGroup(ctx context.Context, req *pb.Group) (*pb.G
 	util.CopyStruct(group, pbGroup)
 	return pbGroup, nil
 }
-func (s *GroupAPIService) UpdateGroup(ctx context.Context, req *pb.Group) (*pb.Group, error) {
-	return &pb.Group{}, nil
+func (s *GroupAPIService) UpdateGroup(ctx context.Context, req *pb.Group) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	var group model.Group
+	util.CopyStruct(req, &group)
+	err = s.dbModel.UpdateGroup(&group)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
 }
+
 func (s *GroupAPIService) DeleteGroup(ctx context.Context, req *pb.DeleteGroupRequest) (*emptypb.Empty, error) {
 	_, err := s.checkPermission(ctx)
 	if err != nil {
@@ -82,19 +95,39 @@ func (s *GroupAPIService) DeleteGroup(ctx context.Context, req *pb.DeleteGroupRe
 
 	return &emptypb.Empty{}, nil
 }
+
 func (s *GroupAPIService) GetGroup(ctx context.Context, req *pb.GetGroupRequest) (*pb.Group, error) {
-	return &pb.Group{}, nil
+	s.logger.Debug("GetGroup", zap.Any("req", req))
+	group, err := s.dbModel.GetGroup(req.Id)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	pbGroup := &pb.Group{}
+	util.CopyStruct(group, pbGroup)
+
+	return pbGroup, nil
 }
 
 // ListGroup 列出用户组。所有用户都可以查询
 func (s *GroupAPIService) ListGroup(ctx context.Context, req *pb.ListGroupRequest) (*pb.ListGroupReply, error) {
 	s.logger.Debug("ListGroup", zap.Any("req", req))
-	opt := model.OptionGetGroupList{
+	opt := &model.OptionGetGroupList{
 		Page:         int(req.Page),
 		Size:         int(req.Size_),
 		SelectFields: req.Field,
 		WithCount:    true,
 	}
+
+	if req.Wd != "" {
+		_, err := s.checkPermission(ctx)
+		if err == nil {
+			opt.QueryLike = map[string][]interface{}{
+				"title": {req.Wd},
+			}
+		}
+	}
+
 	groups, total, err := s.dbModel.GetGroupList(opt)
 	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, status.Errorf(codes.Internal, err.Error())

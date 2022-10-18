@@ -31,7 +31,7 @@
         <el-pagination
           background
           :current-page="search.page"
-          :page-sizes="[10, 20, 50, 100, 200]"
+          :page-sizes="[10, 20, 50, 100]"
           :page-size="search.size"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"

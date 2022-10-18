@@ -51,7 +51,7 @@ service FriendlinkAPI{
         };
     }
 
-    rpc UpdateFriendlink (Friendlink) returns (Friendlink){
+    rpc UpdateFriendlink (Friendlink) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             put: '/api/v1/friendlink',
             body: '*',

@@ -48,7 +48,7 @@ func (s *BannerAPIService) CreateBanner(ctx context.Context, req *pb.Banner) (*p
 }
 
 // UpdateBanner 更新横幅
-func (s *BannerAPIService) UpdateBanner(ctx context.Context, req *pb.Banner) (*pb.Banner, error) {
+func (s *BannerAPIService) UpdateBanner(ctx context.Context, req *pb.Banner) (*emptypb.Empty, error) {
 	_, err := s.checkPermission(ctx)
 	if err != nil {
 		return nil, err
@@ -61,10 +61,7 @@ func (s *BannerAPIService) UpdateBanner(ctx context.Context, req *pb.Banner) (*p
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	pbBanner := &pb.Banner{}
-	util.CopyStruct(&banner, pbBanner)
-
-	return pbBanner, nil
+	return &emptypb.Empty{}, nil
 }
 
 func (s *BannerAPIService) DeleteBanner(ctx context.Context, req *pb.DeleteBannerRequest) (*emptypb.Empty, error) {

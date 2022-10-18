@@ -9,6 +9,7 @@
         :disabled-delete="selectedRow.length === 0"
         @onCreate="onCreate"
         @onDelete="batchDelete"
+        @onSearch="onSearch"
       />
     </el-card>
     <el-card shadow="never" class="mgt-20px">
@@ -22,14 +23,15 @@
         :show-select="true"
         @selectRow="selectRow"
         @deleteRow="deleteRow"
+        @editRow="editRow"
       />
     </el-card>
-    <el-card shadow="never" class="mgt-20px">
+    <el-card v-if="total > 0" shadow="never" class="mgt-20px">
       <div class="text-right">
         <el-pagination
           background
           :current-page="search.page"
-          :page-sizes="[10, 20, 50, 100, 200]"
+          :page-sizes="[10, 20, 50, 100]"
           :page-size="search.size"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -42,16 +44,16 @@
 
     <el-dialog
       :title="group.id ? '编辑分组' : '新增分组'"
-      :init-group="group"
       :visible.sync="formGroupVisible"
+      width="640px"
     >
-      <FormGroup />
+      <FormGroup :init-group="group" @success="success" />
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { listGroup, deleteGroup } from '~/api/group'
+import { listGroup, deleteGroup, getGroup } from '~/api/group'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormGroup from '~/components/FormGroup.vue'
@@ -78,6 +80,7 @@ export default {
     }
   },
   async created() {
+    this.initGroup()
     this.initSearchForm()
     this.initTableListFields()
     await this.listGroup()
@@ -88,10 +91,13 @@ export default {
       const res = await listGroup(this.search)
       if (res.status === 200) {
         const groups = res.data.group
-        for (let i = 0; i < groups.length; i++) {
-          groups[i].disable_delete = groups[i].user_count > 0
-        }
-        this.groups = groups
+        try {
+          for (let i = 0; i < groups.length; i++) {
+            groups[i].disable_delete =
+              groups[i].user_count > 0 || groups[i].is_default
+          }
+        } catch (error) {}
+        this.groups = groups || []
         this.total = res.data.total
       } else {
         this.$message.error(res.data.message)
@@ -106,12 +112,27 @@ export default {
       this.search.page = val
       this.listGroup()
     },
-    onSearch() {
+    onSearch(search) {
+      this.search = search
       this.search.page = 1
       this.listGroup()
     },
     onCreate() {
+      this.initGroup()
       this.formGroupVisible = true
+    },
+    async editRow(row) {
+      const res = await getGroup({ id: row.id })
+      if (res.status === 200) {
+        this.group = res.data
+        this.formGroupVisible = true
+      } else {
+        this.$message.error(res.data.message)
+      }
+    },
+    success() {
+      this.formGroupVisible = false
+      this.listGroup()
     },
     setGroup() {
       this.formGroupVisible = false
@@ -158,6 +179,16 @@ export default {
     selectRow(rows) {
       this.selectedRow = rows
     },
+    initGroup() {
+      this.group = {
+        id: 0,
+        sort: 0,
+        color: '#000000',
+        title: '',
+        is_display: true,
+        is_default: false,
+      }
+    },
     initSearchForm() {
       this.searchFormFields = [
         {
@@ -171,13 +202,6 @@ export default {
     initTableListFields() {
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
-        {
-          prop: 'icon',
-          label: '图标',
-          width: 80,
-          type: 'avatar',
-          fixed: 'left',
-        },
         { prop: 'title', label: '名称', width: 150, fixed: 'left' },
         { prop: 'sort', label: '排序', width: 80, type: 'number' },
         { prop: 'user_count', label: '用户数', width: 80, type: 'number' },

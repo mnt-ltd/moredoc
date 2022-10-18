@@ -57,7 +57,7 @@ service GroupAPI {
   }
 
   //   更新用户组
-  rpc UpdateGroup(Group) returns (Group) {
+  rpc UpdateGroup(Group) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/group',
       body : '*',

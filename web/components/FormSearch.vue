@@ -1,6 +1,7 @@
 <template>
   <div class="com-form-search">
-    <el-form :inline="true" :model="search">
+    <!-- 注意：需要加 @submit.native.prevent，否则表单只有一项输入项的时候，按enter键会直接触发提交表单，导致页面刷新 -->
+    <el-form :inline="true" :model="search" @submit.native.prevent>
       <el-form-item
         v-for="field in fields"
         :key="field.name"

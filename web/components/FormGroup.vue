@@ -61,7 +61,7 @@
         <el-input
           v-model="group.description"
           type="textarea"
-          rows="3"
+          rows="5"
           placeholder="请输入分组描述"
         ></el-input>
       </el-form-item>
@@ -112,8 +112,20 @@ export default {
       },
     }
   },
+  watch: {
+    initGroup: {
+      handler(val) {
+        if (!val.sort) val.sort = 0
+        this.group = val
+        this.colors = val.color || '#000000FF'
+      },
+      immediate: true,
+    },
+  },
   created() {
-    this.group = { ...this.group, ...this.initGroup }
+    this.group = this.initGroup
+    if (!this.initGroup.sort) this.group.sort = 0
+    this.colors = this.initGroup.color || '#000000FF'
   },
   methods: {
     onSubmit() {
@@ -124,12 +136,11 @@ export default {
         }
         this.loading = true
         const group = { ...this.group }
-        group.is_default = group.is_default ? 1 : 0
-        group.is_display = group.is_display ? 1 : 0
         if (group.id > 0) {
           const res = await updateGroup(group)
           if (res.status === 200) {
             this.$message.success('修改成功')
+            this.$emit('success')
           } else {
             this.$message.error(res.data.message)
           }
@@ -137,6 +148,7 @@ export default {
           const res = await createGroup(group)
           if (res.status === 200) {
             this.$message.success('新增成功')
+            this.$emit('success')
           } else {
             this.$message.error(res.data.message)
           }
