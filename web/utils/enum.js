@@ -21,3 +21,31 @@ export const bannerTypeOptions = [
   { label: '小程序横幅', value: 1, type: 'success' },
   { label: 'APP横幅', value: 2, type: 'warning' },
 ]
+
+export const methodOptions = [
+  {
+    label: 'GET',
+    value: 'GET',
+    type: 'success',
+  },
+  {
+    label: 'POST',
+    value: 'POST',
+    type: 'primary',
+  },
+  {
+    label: 'PUT',
+    value: 'PUT',
+    type: 'warning',
+  },
+  {
+    label: 'DELETE',
+    value: 'DELETE',
+    type: 'danger',
+  },
+  {
+    label: 'GRPC',
+    value: 'GRPC',
+    type: 'primary',
+  },
+]

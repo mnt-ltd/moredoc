@@ -59,5 +59,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 权限API接口服务
+	permissionAPIService := biz.NewPermissionAPIService(dbModel, logger)
+	v1.RegisterPermissionAPIServer(grpcServer, permissionAPIService)
+	err = v1.RegisterPermissionAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterPermissionAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }

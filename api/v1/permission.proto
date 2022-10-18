@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Permission {
+  int64 id = 1;
+  string method = 2;
+  string path = 3;
+  string title = 4;
+  string description = 5;
+  google.protobuf.Timestamp created_at = 6 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 7 [ (gogoproto.stdtime) = true ];
+}
+
+message DeletePermissionRequest { repeated int64 id = 1; }
+
+message GetPermissionRequest { int64 id = 1; }
+
+message GetPermissionReply { Permission permission = 1; }
+
+message ListPermissionRequest {
+  int64 page = 1;
+  int64 size = 2;
+  string wd = 3;
+  repeated string method = 4;
+  string path = 5;
+}
+
+message ListPermissionReply {
+  int64 total = 1;
+  repeated Permission permission = 2;
+}
+
+// message PermissionTree {
+//   Permission permission = 1;
+//   repeated PermissionTree children = 2;
+// }
+
+service PermissionAPI {
+  rpc UpdatePermission(Permission) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/permission',
+      body : '*',
+    };
+  }
+
+  rpc GetPermission(GetPermissionRequest) returns (Permission) {
+    option (google.api.http) = {
+      get : '/api/v1/permission',
+    };
+  }
+
+  rpc ListPermission(ListPermissionRequest) returns (ListPermissionReply) {
+    option (google.api.http) = {
+      get : '/api/v1/permission/list',
+    };
+  }
+
+//   rpc ListPermissionTree(google.protobuf.Empty) returns (PermissionTree) {
+//     option (google.api.http) = {
+//       get : '/api/v1/permission/tree',
+//     };
+//   }
+}

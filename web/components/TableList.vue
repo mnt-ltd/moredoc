@@ -44,14 +44,16 @@
           <span v-else-if="item.type === 'bytes'">
             {{ formatBytes(scope.row[item.prop]) }}
           </span>
-          <!-- 枚举 -->
+          <!-- 枚举，键为数字 -->
           <span v-else-if="item.type === 'enum'">
             <el-tag
-              :type="item.enum[scope.row[item.prop] || 0].type"
+              v-if="item.enum[scope.row[item.prop] || 0]"
+              :type="item.enum[scope.row[item.prop] || 0].type || 'info'"
               :effect="item.enum[scope.row[item.prop] || 0].effect || 'dark'"
             >
               {{ item.enum[scope.row[item.prop] || 0].label }}
             </el-tag>
+            <span v-else>-</span>
           </span>
           <span v-else-if="item.type === 'datetime'">
             {{ formatDatetime(scope.row[item.prop]) || '0000-00-00 00:00:00' }}
