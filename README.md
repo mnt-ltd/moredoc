@@ -32,3 +32,8 @@ make init
 # 编译proto api
 make api
 ```
+
+## 开发说明
+
+- 除了文件上传相关的接口，其他接口一律使用proto进行定义。
+

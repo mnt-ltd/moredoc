@@ -290,3 +290,31 @@ func (m *DBModel) initUser() (err error) {
 	}
 	return
 }
+
+// GetUserPermissinsByUserId 根据用户ID获取用户权限
+func (m *DBModel) GetUserPermissinsByUserId(userId int64) (permissions []*Permission, err error) {
+	sql := `SELECT
+			p.*
+		FROM 
+			%s p
+		LEFT JOIN 
+			%s gp 
+		ON
+			p.id = gp.permission_id
+		LEFT JOIN 
+			%s ug
+		ON
+			ug.group_id=gp.group_id
+		WHERE
+			ug.user_id=?
+		group by p.id
+	`
+	sql = fmt.Sprintf(sql, Permission{}.TableName(), GroupPermission{}.TableName(), UserGroup{}.TableName())
+	err = m.db.Raw(sql, userId).Find(&permissions).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetUserPermissinsByUserId", zap.Error(err))
+		return
+	}
+	err = nil
+	return
+}

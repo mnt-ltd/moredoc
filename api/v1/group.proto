@@ -47,6 +47,15 @@ message ListGroupReply {
   int64 total = 2;
 }
 
+message GetGroupPermissionRequest { int64 id = 1; }
+
+message UpdateGroupPermissionRequest {
+  int64 group_id = 1;
+  repeated int64 permission_id = 2;
+}
+
+message GroupPermissions { repeated int64 permission_id = 1; }
+
 service GroupAPI {
   // 创建用户组
   rpc CreateGroup(Group) returns (Group) {
@@ -81,6 +90,22 @@ service GroupAPI {
   rpc ListGroup(ListGroupRequest) returns (ListGroupReply) {
     option (google.api.http) = {
       get : '/api/v1/group/list',
+    };
+  }
+
+  //  获取用户组权限列表
+  rpc GetGroupPermission(GetGroupPermissionRequest) returns (GroupPermissions) {
+    option (google.api.http) = {
+      get : '/api/v1/group/permission',
+    };
+  }
+
+  // 更新用户组权限，给用户组设置权限
+  rpc UpdateGroupPermission(UpdateGroupPermissionRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/group/permission',
+      body : '*',
     };
   }
 }

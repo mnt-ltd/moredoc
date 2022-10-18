@@ -137,3 +137,34 @@ func (s *GroupAPIService) ListGroup(ctx context.Context, req *pb.ListGroupReques
 	util.CopyStruct(&groups, &pbGroups)
 	return &pb.ListGroupReply{Group: pbGroups, Total: total}, nil
 }
+
+// GetGroupPermission 获取用户组权限
+func (s *GroupAPIService) GetGroupPermission(ctx context.Context, req *pb.GetGroupPermissionRequest) (*pb.GroupPermissions, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	groupPermissions, _ := s.dbModel.GetGroupPermissinsByGroupId(req.Id)
+	pbGroupPermissions := &pb.GroupPermissions{}
+	for _, item := range groupPermissions {
+		pbGroupPermissions.PermissionId = append(pbGroupPermissions.PermissionId, item.PermissionId)
+	}
+	return pbGroupPermissions, nil
+}
+
+// UpdateGroupPermission 更新用户组权限
+func (s *GroupAPIService) UpdateGroupPermission(ctx context.Context, req *pb.UpdateGroupPermissionRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.dbModel.UpdateGroupPermissions(req.GroupId, req.PermissionId)
+	if err != nil {
+		s.logger.Error("UpdateGroupPermissions", zap.Error(err))
+		return nil, err
+	}
+
+	return &emptypb.Empty{}, nil
+}

@@ -40,4 +40,18 @@ export const listGroup = (params) => {
   })
 }
 
+export const getGroupPermission = (params) => {
+  return service({
+    url: '/api/v1/group/permission',
+    method: 'get',
+    params,
+  })
+}
 
+export const updateGroupPermission = (data) => {
+  return service({
+    url: '/api/v1/group/permission',
+    method: 'put',
+    data,
+  })
+}

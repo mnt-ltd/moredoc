@@ -21,10 +21,21 @@
         :show-edit="true"
         :show-delete="true"
         :show-select="true"
+        :actions-min-width="200"
         @selectRow="selectRow"
         @deleteRow="deleteRow"
         @editRow="editRow"
-      />
+        @permission="setGroupPermission"
+      >
+        <template slot="actions" slot-scope="scope">
+          <el-button
+            type="text"
+            icon="el-icon-coordinate"
+            @click="setGroupPermission(scope.row)"
+            >授权</el-button
+          >
+        </template>
+      </TableList>
     </el-card>
     <el-card v-if="total > 0" shadow="never" class="mgt-20px">
       <div class="text-right">
@@ -49,6 +60,16 @@
     >
       <FormGroup :init-group="group" @success="success" />
     </el-dialog>
+    <el-dialog
+      :title="`【${group.title}】角色授权`"
+      :visible.sync="formGroupPermissionVisible"
+      width="640px"
+    >
+      <FormGroupPermission
+        :group-id="group.id"
+        @success="updateGroupPermissionSuccess"
+      />
+    </el-dialog>
   </div>
 </template>
 
@@ -57,13 +78,15 @@ import { listGroup, deleteGroup, getGroup } from '~/api/group'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormGroup from '~/components/FormGroup.vue'
+import FormGroupPermission from '~/components/FormGroupPermission.vue'
 export default {
-  components: { TableList, FormSearch, FormGroup },
+  components: { TableList, FormSearch, FormGroup, FormGroupPermission },
   layout: 'admin',
   data() {
     return {
       loading: false,
       formGroupVisible: false,
+      formGroupPermissionVisible: false,
       search: {
         wd: '',
         page: 1,
@@ -108,6 +131,13 @@ export default {
       this.search.size = val
       this.listGroup()
     },
+    updateGroupPermissionSuccess() {
+      // 权限设置成功，需要：
+      // 1. 隐藏设置功能
+      this.formGroupPermissionVisible = false
+      // 2. vuex重载用户权限
+      // 3. 刷新页面，以便使设置的权限生效
+    },
     handlePageChange(val) {
       this.search.page = val
       this.listGroup()
@@ -120,6 +150,10 @@ export default {
     onCreate() {
       this.initGroup()
       this.formGroupVisible = true
+    },
+    setGroupPermission(row) {
+      this.group = row
+      this.formGroupPermissionVisible = true
     },
     async editRow(row) {
       const res = await getGroup({ id: row.id })

@@ -71,3 +71,11 @@ export const getUserCaptcha = (params) => {
     params,
   })
 }
+
+export const getUserPermissions = (params) => {
+  return service({
+    url: '/api/v1/user/permission',
+    method: 'get',
+    params,
+  })
+}

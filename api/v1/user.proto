@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 // import "validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "api/v1/permission.proto";
 
 package api.v1;
 
@@ -85,6 +86,10 @@ message UpdateUserPasswordRequest {
   string new_password = 3  [ (gogoproto.moretags) = "validate:\"min=6\"" ];
 }
 
+message GetUserPermissionsReply{
+  repeated Permission permission = 1;
+}
+
 service UserAPI {
   // 用户注册
   rpc Register(RegisterAndLoginRequest) returns (google.protobuf.Empty) {
@@ -153,6 +158,13 @@ service UserAPI {
   rpc GetUserCaptcha(GetUserCaptchaRequest) returns (GetUserCaptchaReply) {
     option (google.api.http) = {
       get : '/api/v1/user/captcha',
+    };
+  }
+
+  // GetUserCaptcha 获取用户验证码
+  rpc GetUserPermissions(google.protobuf.Empty) returns (GetUserPermissionsReply) {
+    option (google.api.http) = {
+      get : '/api/v1/user/permission',
     };
   }
 

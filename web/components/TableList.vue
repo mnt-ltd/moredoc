@@ -82,6 +82,7 @@
         :min-width="actionsMinWidth"
       >
         <template slot-scope="scope">
+          <slot :row="scope.row" name="actions"></slot>
           <el-button
             v-if="showView"
             type="text"
