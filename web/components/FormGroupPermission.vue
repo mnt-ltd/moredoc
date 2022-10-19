@@ -1,14 +1,24 @@
 <template>
   <div class="com-form-group-permission">
     <el-form label-position="top" label-width="80px" :model="groupPermission">
-      <el-checkbox-group v-model="groupPermission.permission_id">
+      <el-form-item>
         <el-checkbox
-          v-for="item in permissions"
-          :key="'permission-' + item.id"
-          :label="item.id"
-          >{{ item.title || item.method + ':' + item.path }}</el-checkbox
+          v-model="isCheckedAll"
+          :indeterminate="isIndeterminate"
+          @change="checkedAll"
+          >全选</el-checkbox
         >
-      </el-checkbox-group>
+        <el-tree
+          ref="tree"
+          :data="permissionTrees"
+          show-checkbox
+          node-key="id"
+          default-expand-all
+          :default-checked-keys="groupPermission.permission_id"
+          @check-change="handleCheckChange"
+        >
+        </el-tree>
+      </el-form-item>
       <el-form-item>
         <el-button
           type="primary"
@@ -24,6 +34,7 @@
 </template>
 <script>
 import { listPermission } from '~/api/permission'
+import { permissionsToTree } from '~/utils/permission'
 import { getGroupPermission, updateGroupPermission } from '~/api/group'
 export default {
   name: 'FormGroupPermission',
@@ -41,6 +52,9 @@ export default {
         permission_id: [],
       },
       permissions: [],
+      permissionTrees: [],
+      isCheckedAll: false,
+      isIndeterminate: true,
     }
   },
   watch: {
@@ -59,11 +73,15 @@ export default {
   methods: {
     async onSubmit() {
       this.loading = true
-      const res = await updateGroupPermission(this.groupPermission)
+      const res = await updateGroupPermission({
+        group_id: this.groupPermission.group_id,
+        permission_id: this.$refs.tree.getCheckedKeys(),
+      })
       if (res.status === 200) {
         this.$message.success('设置成功')
         this.$emit('success')
       } else {
+        this.resetChecked()
         this.$message.error(res.data.message)
       }
       this.loading = false
@@ -76,9 +94,11 @@ export default {
           getGroupPermission({ id: this.groupPermission.group_id }),
         ])
         if (resPermissions.status !== 200) {
+          this.resetChecked()
           this.$message.error(resPermissions.data.message)
         }
         if (resGroupPermissions.status !== 200) {
+          this.resetChecked()
           this.$message.error(resGroupPermissions.data.message)
         }
 
@@ -86,29 +106,38 @@ export default {
           resPermissions.status === 200 &&
           resGroupPermissions.status === 200
         ) {
+          const trees = permissionsToTree(resPermissions.data.permission)
+          this.permissionTrees = trees
           this.permissions = resPermissions.data.permission || []
           this.groupPermission.permission_id =
             resGroupPermissions.data.permission_id || []
         }
       }
     },
-    clearValidate() {
-      this.$refs.formPermission.clearValidate()
+    // 全选
+    checkedAll(yes) {
+      this.$refs.tree.setCheckedKeys(
+        yes ? this.permissions.map((item) => item.id) : []
+      )
     },
-    resetFields() {
-      this.$refs.formPermission.resetFields()
+    handleCheckChange() {
+      const checkedKeys = this.$refs.tree.getCheckedKeys()
+      let keysLength = 0
+      this.permissionTrees.forEach((item) => {
+        keysLength++
+        if (item.children) {
+          keysLength += item.children.length
+        }
+      })
+      this.isCheckedAll = checkedKeys.length === keysLength
+
+      // 中间状态
+      this.isIndeterminate =
+        checkedKeys.length > 0 && checkedKeys.length < keysLength
     },
-    reset() {
-      this.resetFields()
-      this.clearValidate()
+    resetChecked() {
+      this.$refs.tree.setCheckedKeys(this.groupPermission.permission_id)
     },
   },
 }
 </script>
-<style lang="scss">
-.com-form-group-permission {
-  .el-checkbox {
-    margin-bottom: 20px;
-  }
-}
-</style>

@@ -60,16 +60,18 @@
     >
       <FormGroup :init-group="group" @success="success" />
     </el-dialog>
-    <el-dialog
+    <el-drawer
       :title="`【${group.title}】角色授权`"
       :visible.sync="formGroupPermissionVisible"
-      width="640px"
     >
-      <FormGroupPermission
-        :group-id="group.id"
-        @success="updateGroupPermissionSuccess"
-      />
-    </el-dialog>
+      <div style="padding: 0 20px">
+        <FormGroupPermission
+          ref="groupPermission"
+          :group-id="group.id"
+          @success="updateGroupPermissionSuccess"
+        />
+      </div>
+    </el-drawer>
   </div>
 </template>
 
@@ -152,8 +154,11 @@ export default {
       this.formGroupVisible = true
     },
     setGroupPermission(row) {
-      this.group = row
       this.formGroupPermissionVisible = true
+      this.$nextTick(() => {
+        this.$refs.groupPermission.resetChecked()
+        this.group = row
+      })
     },
     async editRow(row) {
       const res = await getGroup({ id: row.id })
