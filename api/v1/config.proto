@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Config {
+  int64 id = 1;
+  string label = 2;
+  string name = 3;
+  string value = 4;
+  string placeholder = 5;
+  string input_type = 6;
+  string category = 7;
+  int32 sort = 8;
+  string options = 9;
+  google.protobuf.Timestamp created_at = 10 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 11 [ (gogoproto.stdtime) = true ];
+}
+
+message ListConfigRequest { 
+  repeated string category = 1; 
+}
+
+message Configs { repeated Config config = 1; }
+
+service ConfigAPI {
+  // UpdateConfig 更新配置
+  rpc UpdateConfig(Configs) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/config',
+      body : '*',
+    };
+  }
+
+  // ListConfig 查询配置项
+  rpc ListConfig(ListConfigRequest) returns (Configs) {
+    option (google.api.http) = {
+      get : '/api/v1/config/list',
+    };
+  }
+}

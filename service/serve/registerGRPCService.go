@@ -68,5 +68,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// Config API接口服务
+	configAPIService := biz.NewConfigAPIService(dbModel, logger)
+	v1.RegisterConfigAPIServer(grpcServer, configAPIService)
+	err = v1.RegisterConfigAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterConfigAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }

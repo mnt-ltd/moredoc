@@ -13,9 +13,12 @@ import (
 )
 
 // CopyStruct 拷贝。注意：只能拷贝相同类型的结构体，且结构体中有json标签
-func CopyStruct(srcPtr, dstPtr interface{}) {
-	bytes, _ := jsoniter.Marshal(srcPtr)
-	jsoniter.Unmarshal(bytes, dstPtr)
+func CopyStruct(srcPtr, dstPtr interface{}) (err error) {
+	bytes, err := jsoniter.Marshal(srcPtr)
+	if err != nil {
+		return err
+	}
+	return jsoniter.Unmarshal(bytes, dstPtr)
 }
 
 // GetGRPCRemoteIP 获取用户IP

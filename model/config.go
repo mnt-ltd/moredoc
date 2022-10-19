@@ -1,10 +1,8 @@
 package model
 
 import (
-	"fmt"
 	"moredoc/util/captcha"
 	"strconv"
-	"strings"
 	"time"
 
 	jsoniter "github.com/json-iterator/go"
@@ -23,8 +21,6 @@ const (
 	ConfigCategoryEmail = "email"
 	// ConfigCategoryCaptcha 验证码配置：是否启用验证码、验证码有效期、验证码长度、验证码类型等
 	ConfigCategoryCaptcha = "captcha"
-	// ConfigCategoryJWT JWT配置：JWT有效期、JWT加密密钥等
-	ConfigCategoryJWT = "jwt"
 	// ConfigCategorySecurity 安全配置项
 	ConfigCategorySecurity = "security"
 )
@@ -37,26 +33,11 @@ type Config struct {
 	Placeholder string     `form:"placeholder" json:"placeholder,omitempty" gorm:"column:placeholder;type:varchar(255);size:255;comment:提示信息;"`
 	InputType   string     `form:"input_type" json:"input_type,omitempty" gorm:"column:input_type;type:varchar(32);size:32;default:text;comment:输入类型;"`
 	Category    string     `form:"category" json:"category,omitempty" gorm:"column:category;type:varchar(32);size:32;index:name_category,unique;index:category;comment:所属类别;"`
-	Sort        int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:同一category下的排序;"`
+	Sort        int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:同一category下的排序，这里按顺序排序，值越小越靠前;"`
 	Options     string     `form:"options" json:"options,omitempty" gorm:"column:options;type:text;comment:针对checkbox等的枚举值;"`
 	CreatedAt   *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt   *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
-
-// 这里是proto文件中的结构体，可以根据需要删除或者调整
-//message Config {
-// int64 id = 1;
-// string label = 2;
-// string name = 3;
-// string value = 4;
-// int32 placeholder = 5;
-// int32 input_type = 6;
-// string category = 7;
-// int32 sort = 8;
-// string options = 9;
-// google.protobuf.Timestamp created_at = 10 [ (gogoproto.stdtime) = true ];
-// google.protobuf.Timestamp updated_at = 11 [ (gogoproto.stdtime) = true ];
-//}
 
 func (Config) TableName() string {
 	return tablePrefix + "config"
@@ -85,6 +66,33 @@ func (m *DBModel) UpdateConfig(config *Config, updateFields ...string) (err erro
 	err = db.Where("id = ?", config.Id).Updates(config).Error
 	if err != nil {
 		m.logger.Error("UpdateConfig", zap.Error(err))
+	}
+	return
+}
+
+// UpdateConfigs 配置项批量更新
+// TODO: value值为6个*的，需要特殊处理
+func (m *DBModel) UpdateConfigs(configs []*Config, updateFields ...string) (err error) {
+	sess := m.db.Begin()
+	defer func() {
+		if err != nil {
+			sess.Rollback()
+		} else {
+			sess.Commit()
+		}
+	}()
+
+	tableName := Config{}.TableName()
+	updateFields = m.FilterValidFields(tableName, updateFields...)
+	if len(updateFields) == 0 {
+		updateFields = m.GetTableFields(tableName)
+	}
+
+	for _, config := range configs {
+		if err = sess.Select(updateFields).Save(config).Error; err != nil {
+			m.logger.Error("UpdateConfigs", zap.Error(err))
+			return
+		}
 	}
 	return
 }
@@ -124,89 +132,15 @@ func (m *DBModel) GetConfigByNameCategory(name string, category string, fields .
 }
 
 type OptionGetConfigList struct {
-	Page         int
-	Size         int
-	WithCount    bool                      // 是否返回总数
-	Ids          []interface{}             // id列表
-	SelectFields []string                  // 查询字段
-	QueryRange   map[string][2]interface{} // map[field][]{min,max}
-	QueryIn      map[string][]interface{}  // map[field][]{value1,value2,...}
-	QueryLike    map[string][]interface{}  // map[field][]{value1,value2,...}
-	Sort         []string
+	SelectFields []string                 // 查询字段
+	QueryIn      map[string][]interface{} // map[field][]{value1,value2,...}
 }
 
 // GetConfigList 获取Config列表
-func (m *DBModel) GetConfigList(opt OptionGetConfigList) (configList []Config, total int64, err error) {
+func (m *DBModel) GetConfigList(opt *OptionGetConfigList) (configList []Config, err error) {
 	db := m.db.Model(&Config{})
-
-	for field, rangeValue := range opt.QueryRange {
-		fields := m.FilterValidFields(Config{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		if rangeValue[0] != nil {
-			db = db.Where(fmt.Sprintf("%s >= ?", field), rangeValue[0])
-		}
-		if rangeValue[1] != nil {
-			db = db.Where(fmt.Sprintf("%s <= ?", field), rangeValue[1])
-		}
-	}
-
-	for field, values := range opt.QueryIn {
-		fields := m.FilterValidFields(Config{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
-	}
-
-	for field, values := range opt.QueryLike {
-		fields := m.FilterValidFields(Config{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(strings.TrimSuffix(fmt.Sprintf(strings.Join(make([]string, len(values)+1), "%s like ? or"), field), "or"), values...)
-	}
-
-	if len(opt.Ids) > 0 {
-		db = db.Where("id in (?)", opt.Ids)
-	}
-
-	if opt.WithCount {
-		err = db.Count(&total).Error
-		if err != nil {
-			m.logger.Error("GetConfigList", zap.Error(err))
-			return
-		}
-	}
-
-	opt.SelectFields = m.FilterValidFields(Config{}.TableName(), opt.SelectFields...)
-	if len(opt.SelectFields) > 0 {
-		db = db.Select(opt.SelectFields)
-	}
-
-	if len(opt.Sort) > 0 {
-		var sorts []string
-		for _, sort := range opt.Sort {
-			slice := strings.Split(sort, " ")
-			if len(m.FilterValidFields(Config{}.TableName(), slice[0])) == 0 {
-				continue
-			}
-
-			if len(slice) == 2 {
-				sorts = append(sorts, fmt.Sprintf("%s %s", slice[0], slice[1]))
-			} else {
-				sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
-			}
-		}
-		if len(sorts) > 0 {
-			db = db.Order(strings.Join(sorts, ","))
-		}
-	}
-
-	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
-
-	err = db.Find(&configList).Error
+	db = m.generateQueryIn(db, Config{}.TableName(), opt.QueryIn)
+	err = db.Order("sort asc").Find(&configList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetConfigList", zap.Error(err))
 	}
@@ -390,13 +324,13 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryCaptcha, Name: ConfigCaptchaType, Label: "验证码类型", Value: "digit", Placeholder: "请选择验证码类型，默认为数字", InputType: "select", Sort: 16, Options: captcha.CaptchaTypeOptions},
 
 		// 安全配置项
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityIsClose, Label: "是否关闭网站", Value: "false", Placeholder: "请选择是否关闭网站", InputType: "swith", Sort: 17, Options: ""},
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableRegister, Label: "是否允许注册", Value: "true", Placeholder: "请选择是否允许用户注册", InputType: "swith", Sort: 18, Options: ""},
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaLogin, Label: "是否开启登录验证码", Value: "true", Placeholder: "请选择是否开启登录验证码", InputType: "swith", Sort: 19, Options: ""},
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaRegister, Label: "是否开启注册验证码", Value: "true", Placeholder: "请选择是否开启注册验证码", InputType: "swith", Sort: 20, Options: ""},
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaComment, Label: "是否开启评论验证码", Value: "true", Placeholder: "请选择是否开启评论验证码", InputType: "swith", Sort: 21, Options: ""},
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaFindPassword, Label: "是否开启找回密码验证码", Value: "true", Placeholder: "请选择是否开启找回密码验证码", InputType: "swith", Sort: 22, Options: ""},
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaUpload, Label: "是否开启文档上传验证码", Value: "true", Placeholder: "请选择是否开启文档上传验证码", InputType: "swith", Sort: 23, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityIsClose, Label: "是否关闭网站", Value: "false", Placeholder: "请选择是否关闭网站", InputType: "switch", Sort: 17, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableRegister, Label: "是否允许注册", Value: "true", Placeholder: "请选择是否允许用户注册", InputType: "switch", Sort: 18, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaLogin, Label: "是否开启登录验证码", Value: "true", Placeholder: "请选择是否开启登录验证码", InputType: "switch", Sort: 19, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaRegister, Label: "是否开启注册验证码", Value: "true", Placeholder: "请选择是否开启注册验证码", InputType: "switch", Sort: 20, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaComment, Label: "是否开启评论验证码", Value: "true", Placeholder: "请选择是否开启评论验证码", InputType: "switch", Sort: 21, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaFindPassword, Label: "是否开启找回密码验证码", Value: "true", Placeholder: "请选择是否开启找回密码验证码", InputType: "switch", Sort: 22, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaUpload, Label: "是否开启文档上传验证码", Value: "true", Placeholder: "请选择是否开启文档上传验证码", InputType: "switch", Sort: 23, Options: ""},
 	}
 
 	for _, cfg := range cfgs {
