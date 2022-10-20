@@ -273,8 +273,18 @@ func (m *DBModel) GetUserList(opt *OptionGetUserList) (userList []User, total in
 
 // DeleteUser 删除数据
 // TODO: 删除数据之后，存在 user_id 的关联表，需要删除对应数据，同时相关表的统计数值，也要随着减少
-func (m *DBModel) DeleteUser(ids []interface{}) (err error) {
-	err = m.db.Where("id in (?)", ids).Delete(&User{}).Error
+// TODO: 删除关联表数据，以及关联表的关联表数据，同时相关文件也一并删除掉
+func (m *DBModel) DeleteUser(ids []int64) (err error) {
+	sess := m.db.Begin()
+	defer func() {
+		if err != nil {
+			sess.Rollback()
+		} else {
+			sess.Commit()
+		}
+	}()
+
+	err = sess.Where("id in (?)", ids).Delete(&User{}).Error
 	if err != nil {
 		m.logger.Error("DeleteUser", zap.Error(err))
 	}
@@ -379,7 +389,7 @@ func (m *DBModel) SetUserGroupAndPassword(userId int64, groupId []int64, passwor
 		}
 	}
 
-	if len(password) > 0 {
+	if len(password) > 0 && password[0] != "" {
 		err = m.UpdateUserPassword(userId, password[0], tx)
 		if err != nil {
 			m.logger.Error("UpdateUserPassword", zap.Error(err))

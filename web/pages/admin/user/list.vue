@@ -3,7 +3,7 @@
     <el-card shadow="never" class="search-card">
       <FormSearch
         :fields="searchFormFields"
-        :disabled-delete="selectedIds.length == 0"
+        :disabled-delete="selectedRows.length == 0"
         :loading="loading"
         @onSearch="onSearch"
         @onCreate="onCreate"
@@ -21,6 +21,10 @@
         :show-delete="true"
         :show-select="true"
         :actions-min-width="140"
+        @editRow="editRow"
+        @viewRow="viewRow"
+        @deleteRow="deleteRow"
+        @selectRow="selectRow"
       >
         <template slot="actions" slot-scope="scope">
           <el-button
@@ -66,7 +70,7 @@
 </template>
 
 <script>
-import { listUser } from '~/api/user'
+import { deleteUser, listUser } from '~/api/user'
 import { listGroup } from '~/api/group'
 import { userStatusOptions } from '~/utils/enum'
 import TableList from '~/components/TableList.vue'
@@ -93,7 +97,7 @@ export default {
       total: 100,
       searchFormFields: [],
       listFields: [],
-      selectedIds: [],
+      selectedRows: [],
     }
   },
   async created() {
@@ -148,12 +152,61 @@ export default {
         this.user = { ...row }
       })
     },
+    editRow(row) {
+      // this.formUserVisible = true
+      // this.$nextTick(() => {
+      //   this.$refs.formUser.reset()
+      //   this.user = { ...row }
+      // })
+    },
+    viewRow(row) {
+      console.log(row)
+    },
+    deleteRow(row) {
+      this.$confirm(
+        `您确定要删除用户【${row.username}】吗？删除之后不可恢复，请慎重操作！`,
+        '告警',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      ).then(async () => {
+        const res = await deleteUser({ id: row.id })
+        if (res.status === 200) {
+          this.$message.success('删除成功')
+          this.listUser()
+        } else {
+          this.$message.error(res.data.message)
+        }
+      })
+    },
+    selectRow(rows) {
+      this.selectedRows = rows
+    },
     success() {
       this.formUserVisible = false
       this.listUser()
     },
     batchDelete() {
-      console.log('batchDelete')
+      this.$confirm(
+        `您确定要删除【${this.selectedRows.length}个】用户？删除之后不可恢复，请慎重操作！`,
+        '告警',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      ).then(async () => {
+        const ids = this.selectedRows.map((item) => item.id)
+        const res = await deleteUser({ id: ids })
+        if (res.status === 200) {
+          this.$message.success('删除成功')
+          this.listUser()
+        } else {
+          this.$message.error(res.data.message)
+        }
+      })
     },
     initSearchForm() {
       this.searchFormFields = [

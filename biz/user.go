@@ -272,6 +272,17 @@ func (s *UserAPIService) UpdateUserPassword(ctx context.Context, req *pb.UpdateU
 }
 
 func (s *UserAPIService) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.dbModel.DeleteUser(req.Id)
+	if err != nil {
+		s.logger.Error("DeleteUser", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
