@@ -30,6 +30,11 @@ const cumstomPermissionMap = {
     path: 'ListPermission',
     children: [],
   },
+  'api.v1.ConfigAPI': {
+    label: '系统设置',
+    path: 'ListConfig',
+    children: [],
+  },
   upload: {
     id: 0,
     label: '上传管理',
@@ -55,7 +60,7 @@ export const permissionsToTree = (permissions) => {
       }
       permissionMap[slice[1]].children.push({
         ...permission,
-        label: permission.title,
+        label: permission.title || permission.path,
       })
     } else {
       if (!permissionMap[slice[3]]) {
@@ -64,7 +69,10 @@ export const permissionsToTree = (permissions) => {
           label: slice[3],
         }
       }
-      permissionMap[slice[3]].children.push(permission)
+      permissionMap[slice[3]].children.push({
+        ...permission,
+        label: permission.title || permission.path,
+      })
     }
   })
   Object.keys(permissionMap).forEach((key) => {

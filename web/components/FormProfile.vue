@@ -67,9 +67,9 @@ export default {
     }
   },
   methods: {
-    ...mapActions('user', ['updateUser']),
+    ...mapActions('user', ['updateUserProfile']),
     async setProfile() {
-      const res = await this.updateUser(this.profile)
+      const res = await this.updateUserProfile(this.profile)
       if (res.status === 200) {
         this.$emit('success', res)
       }

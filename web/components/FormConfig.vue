@@ -58,7 +58,6 @@
       <el-form-item>
         <el-button
           type="primary"
-          class="btn-block"
           icon="el-icon-check"
           :loading="loading"
           @click="onSubmit"

@@ -19,7 +19,7 @@
         :show-edit="true"
         :show-delete="false"
         :show-select="false"
-        :actions-min-width="70"
+        :actions-min-width="80"
         @editRow="editRow"
       />
     </el-card>

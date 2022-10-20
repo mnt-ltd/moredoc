@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -73,47 +71,18 @@ func (m *DBModel) GetUserGroup(id interface{}, fields ...string) (userGroup User
 type OptionGetUserGroupList struct {
 	Page         int
 	Size         int
-	WithCount    bool                      // 是否返回总数
-	Ids          []interface{}             // id列表
-	SelectFields []string                  // 查询字段
-	QueryRange   map[string][2]interface{} // map[field][]{min,max}
-	QueryIn      map[string][]interface{}  // map[field][]{value1,value2,...}
-	QueryLike    map[string][]interface{}  // map[field][]{value1,value2,...}
+	WithCount    bool                     // 是否返回总数
+	Ids          []interface{}            // id列表
+	SelectFields []string                 // 查询字段
+	QueryIn      map[string][]interface{} // map[field][]{value1,value2,...}
 	Sort         []string
 }
 
 // GetUserGroupList 获取UserGroup列表
-func (m *DBModel) GetUserGroupList(opt OptionGetUserGroupList) (userGroupList []UserGroup, total int64, err error) {
+func (m *DBModel) GetUserGroupList(opt *OptionGetUserGroupList) (userGroupList []UserGroup, total int64, err error) {
 	db := m.db.Model(&UserGroup{})
-
-	for field, rangeValue := range opt.QueryRange {
-		fields := m.FilterValidFields(UserGroup{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		if rangeValue[0] != nil {
-			db = db.Where(fmt.Sprintf("%s >= ?", field), rangeValue[0])
-		}
-		if rangeValue[1] != nil {
-			db = db.Where(fmt.Sprintf("%s <= ?", field), rangeValue[1])
-		}
-	}
-
-	for field, values := range opt.QueryIn {
-		fields := m.FilterValidFields(UserGroup{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
-	}
-
-	for field, values := range opt.QueryLike {
-		fields := m.FilterValidFields(UserGroup{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(strings.TrimSuffix(fmt.Sprintf(strings.Join(make([]string, len(values)+1), "%s like ? or"), field), "or"), values...)
-	}
+	tableName := UserGroup{}.TableName()
+	db = m.generateQueryIn(db, tableName, opt.QueryIn)
 
 	if len(opt.Ids) > 0 {
 		db = db.Where("id in (?)", opt.Ids)
@@ -131,27 +100,6 @@ func (m *DBModel) GetUserGroupList(opt OptionGetUserGroupList) (userGroupList []
 	if len(opt.SelectFields) > 0 {
 		db = db.Select(opt.SelectFields)
 	}
-
-	if len(opt.Sort) > 0 {
-		var sorts []string
-		for _, sort := range opt.Sort {
-			slice := strings.Split(sort, " ")
-			if len(m.FilterValidFields(UserGroup{}.TableName(), slice[0])) == 0 {
-				continue
-			}
-
-			if len(slice) == 2 {
-				sorts = append(sorts, fmt.Sprintf("%s %s", slice[0], slice[1]))
-			} else {
-				sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
-			}
-		}
-		if len(sorts) > 0 {
-			db = db.Order(strings.Join(sorts, ","))
-		}
-	}
-
-	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 
 	err = db.Find(&userGroupList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {

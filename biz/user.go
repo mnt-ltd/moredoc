@@ -45,6 +45,10 @@ func (s *UserAPIService) getValidFieldMap() map[string]string {
 	return map[string]string{"Username": "用户名", "Password": "密码"}
 }
 
+func (s *UserAPIService) checkPermission(ctx context.Context) (*auth.UserClaims, error) {
+	return checkGRPCPermission(s.dbModel, ctx)
+}
+
 // Register 用户注册
 func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginRequest) (*emptypb.Empty, error) {
 	err := validate.ValidateStruct(req, s.getValidFieldMap())
@@ -151,10 +155,28 @@ func (s *UserAPIService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*
 	return &pb.User{}, nil
 }
 
-// UpdateUser 更改用户信息
+func (s *UserAPIService) SetUser(ctx context.Context, req *pb.SetUserRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(req.GroupId) == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "用户组不能为空")
+	}
+
+	err = s.dbModel.SetUserGroupAndPassword(req.Id, req.GroupId, req.Password)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+// UpdateUserProfile 更改用户信息
 // 1. 用户更改自身信息
 // 2. 管理员更改用户信息
-func (s *UserAPIService) UpdateUser(ctx context.Context, req *pb.User) (*emptypb.Empty, error) {
+func (s *UserAPIService) UpdateUserProfile(ctx context.Context, req *pb.User) (*emptypb.Empty, error) {
 	userClaims, ok := ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
 	if !ok || s.dbModel.IsInvalidToken(userClaims.UUID) {
 		return nil, status.Errorf(codes.Unauthenticated, ErrorMessageInvalidToken)
@@ -308,16 +330,36 @@ func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) 
 	}
 
 	opt.SelectFields = limitFileds
-	var pbUser []*pb.User
+	var pbUsers []*pb.User
 	userList, total, err := s.dbModel.GetUserList(opt)
 	if err == gorm.ErrRecordNotFound {
 		err = nil
 		return &pb.ListUserReply{}, nil
 	}
+	util.CopyStruct(&userList, &pbUsers)
 
-	util.CopyStruct(&userList, &pbUser)
-	s.logger.Debug("ListUser", zap.Any("userList", userList), zap.Any("pbUser", pbUser), zap.Int64("total", total))
-	return &pb.ListUserReply{Total: total, User: pbUser}, nil
+	// 查询用户ID
+	var (
+		userIds   []interface{}
+		userIndex = make(map[int64]int)
+	)
+
+	for index, pbUser := range pbUsers {
+		userIds = append(userIds, pbUser.Id)
+		userIndex[pbUser.Id] = index
+	}
+
+	userGroups, _, _ := s.dbModel.GetUserGroupList(&model.OptionGetUserGroupList{
+		QueryIn: map[string][]interface{}{"user_id": userIds},
+	})
+
+	for _, userGroup := range userGroups {
+		index := userIndex[userGroup.UserId]
+		pbUsers[index].GroupId = append(pbUsers[index].GroupId, userGroup.GroupId)
+	}
+
+	s.logger.Debug("ListUser", zap.Any("userList", userList), zap.Any("pbUser", pbUsers), zap.Int64("total", total))
+	return &pb.ListUserReply{Total: total, User: pbUsers}, nil
 }
 
 //  GetUserCaptcha 获取用户验证码
@@ -369,4 +411,37 @@ func (s *UserAPIService) GetUserPermissions(ctx context.Context, req *emptypb.Em
 	util.CopyStruct(&permissions, &pbPermissions)
 
 	return &pb.GetUserPermissionsReply{Permission: pbPermissions}, nil
+}
+
+// AddUser 新增用户
+func (s *UserAPIService) AddUser(ctx context.Context, req *pb.SetUserRequest) (*emptypb.Empty, error) {
+	s.logger.Debug("AddUser", zap.Any("req", req))
+
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = validate.ValidateStruct(req, s.getValidFieldMap())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
+	if len(req.GroupId) == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "用户组不能为空")
+	}
+
+	existUser, _ := s.dbModel.GetUserByUsername(req.Username, "id")
+	if existUser.Id > 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "用户名已存在")
+	}
+
+	// 新增用户
+	user := &model.User{Username: req.Username, Password: req.Password}
+	err = s.dbModel.CreateUser(user, req.GroupId...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
 }

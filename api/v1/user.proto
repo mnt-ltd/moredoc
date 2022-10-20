@@ -38,14 +38,15 @@ message User {
 }
 
 message RegisterAndLoginRequest {
-  string username = 1 [ (gogoproto.moretags) = "validate:\"min=4,max=32\"" ];
+  string username = 1 [ (gogoproto.moretags) = "validate:\"min=3,max=32\"" ];
   string password = 2 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
   string captcha = 3;
   string captcha_id = 4;
 }
 
 message GetUserCaptchaRequest {
-  string type = 1; // 验证码类型：register、login、comment、find_password、upload
+  string type =
+      1; // 验证码类型：register、login、comment、find_password、upload
 }
 
 message LoginReply {
@@ -83,11 +84,17 @@ message GetUserCaptchaReply {
 message UpdateUserPasswordRequest {
   int64 id = 1;
   string old_password = 2;
-  string new_password = 3  [ (gogoproto.moretags) = "validate:\"min=6\"" ];
+  string new_password = 3 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
 }
 
-message GetUserPermissionsReply{
-  repeated Permission permission = 1;
+message GetUserPermissionsReply { repeated Permission permission = 1; }
+
+message SetUserRequest {
+  int64 id = 1;
+  string username = 2 [ (gogoproto.moretags) = "validate:\"min=3,max=32\"" ];
+  string password = 3 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
+  ;
+  repeated int64 group_id = 4;
 }
 
 service UserAPI {
@@ -123,7 +130,8 @@ service UserAPI {
 
   // 更新用户密码。如果不传用户ID，则表示更新当前用户的密码；
   // 如果穿了用户ID，则表示更新指定用户的密码，这时需要验证当前用户的权限
-  rpc UpdateUserPassword(UpdateUserPasswordRequest) returns (google.protobuf.Empty) {
+  rpc UpdateUserPassword(UpdateUserPasswordRequest)
+      returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/user/password',
       body : '*',
@@ -132,9 +140,9 @@ service UserAPI {
 
   // 更新用户密码。如果不传用户ID，则表示更新当前用户的密码；
   // 如果穿了用户ID，则表示更新指定用户的密码，这时需要验证当前用户的权限
-  rpc UpdateUser(User) returns (google.protobuf.Empty) {
+  rpc UpdateUserProfile(User) returns (google.protobuf.Empty) {
     option (google.api.http) = {
-      put : '/api/v1/user',
+      put : '/api/v1/user/profile',
       body : '*',
     };
   }
@@ -143,6 +151,22 @@ service UserAPI {
   rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete : '/api/v1/user',
+    };
+  }
+
+  // 新增用户
+  rpc AddUser(SetUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : '/api/v1/user',
+      body : '*',
+    };
+  }
+
+  // 设置用户
+  rpc SetUser(SetUserRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/user',
+      body : '*',
     };
   }
 
@@ -162,7 +186,8 @@ service UserAPI {
   }
 
   // GetUserCaptcha 获取用户验证码
-  rpc GetUserPermissions(google.protobuf.Empty) returns (GetUserPermissionsReply) {
+  rpc GetUserPermissions(google.protobuf.Empty)
+      returns (GetUserPermissionsReply) {
     option (google.api.http) = {
       get : '/api/v1/user/permission',
     };

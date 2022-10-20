@@ -20,7 +20,18 @@
         :show-edit="true"
         :show-delete="true"
         :show-select="true"
-      />
+        :actions-min-width="140"
+      >
+        <template slot="actions" slot-scope="scope">
+          <el-button
+            type="text"
+            size="small"
+            icon="el-icon-setting"
+            @click="setUser(scope.row)"
+            >设置</el-button
+          >
+        </template>
+      </TableList>
     </el-card>
 
     <el-card shadow="never" class="mgt-20px">
@@ -38,6 +49,19 @@
         </el-pagination>
       </div>
     </el-card>
+
+    <el-dialog
+      :title="user.id ? '设置用户' : '新增用户'"
+      :visible.sync="formUserVisible"
+      width="640px"
+    >
+      <FormUser
+        ref="formUser"
+        :init-user="user"
+        :groups="groups"
+        @success="success"
+      />
+    </el-dialog>
   </div>
 </template>
 
@@ -47,8 +71,9 @@ import { listGroup } from '~/api/group'
 import { userStatusOptions } from '~/utils/enum'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
+import FormUser from '~/components/FormUser.vue'
 export default {
-  components: { TableList, FormSearch },
+  components: { TableList, FormSearch, FormUser },
   layout: 'admin',
   data() {
     return {
@@ -61,8 +86,10 @@ export default {
         group_id: [],
         size: 10,
       },
+      formUserVisible: false,
       groups: [],
       users: [],
+      user: { id: 0 },
       total: 100,
       searchFormFields: [],
       listFields: [],
@@ -109,7 +136,21 @@ export default {
       this.listUser()
     },
     onCreate() {
-      console.log('onCreate')
+      this.formUserVisible = true
+      this.$nextTick(() => {
+        this.$refs.formUser.reset()
+      })
+    },
+    setUser(row) {
+      this.formUserVisible = true
+      this.$nextTick(() => {
+        this.$refs.formUser.reset()
+        this.user = { ...row }
+      })
+    },
+    success() {
+      this.formUserVisible = false
+      this.listUser()
     },
     batchDelete() {
       console.log('batchDelete')

@@ -40,9 +40,9 @@ export const updateUserPassword = (data) => {
   })
 }
 
-export const updateUser = (data) => {
+export const updateUserProfile = (data) => {
   return service({
-    url: '/api/v1/user',
+    url: '/api/v1/user/profile',
     method: 'put',
     data,
   })
@@ -53,6 +53,22 @@ export const deleteUser = (params) => {
     url: '/api/v1/user',
     method: 'delete',
     params,
+  })
+}
+
+export const addUser = (data) => {
+  return service({
+    url: '/api/v1/user',
+    method: 'post',
+    data,
+  })
+}
+
+export const setUser = (data) => {
+  return service({
+    url: '/api/v1/user',
+    method: 'put',
+    data,
   })
 }
 

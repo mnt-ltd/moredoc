@@ -1,5 +1,5 @@
 import { Message } from 'element-ui'
-import { login, getUser, updateUser, logout } from '~/api/user'
+import { login, getUser, updateUserProfile, logout } from '~/api/user'
 export const user = {
   namespaced: true,
   state: {
@@ -40,8 +40,8 @@ export const user = {
       }
       return res
     },
-    async updateUser({ commit }, profile) {
-      const res = await updateUser(profile)
+    async updateUserProfile({ commit }, profile) {
+      const res = await updateUserProfile(profile)
       if (res.status === 200) {
         commit('mergeUser', profile)
       } else {

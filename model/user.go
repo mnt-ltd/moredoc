@@ -82,7 +82,7 @@ func (User) TableName() string {
 
 // CreateUser 创建User
 // TODO: 创建成功之后，注意相关表统计字段数值的增减
-func (m *DBModel) CreateUser(user *User, groupId int64) (err error) {
+func (m *DBModel) CreateUser(user *User, groupIds ...int64) (err error) {
 	user.Password, _ = unchained.MakePassword(user.Password, unchained.GetRandomString(4), "md5")
 
 	sess := m.db.Begin()
@@ -102,30 +102,38 @@ func (m *DBModel) CreateUser(user *User, groupId int64) (err error) {
 	}
 
 	// 2. 添加用户组
-	group := &UserGroup{
-		UserId:  user.Id,
-		GroupId: groupId,
-	}
-	err = sess.Create(group).Error
-	if err != nil {
-		m.logger.Error("CreateUser", zap.Error(err))
-		return
-	}
+	for _, groupId := range groupIds {
+		group := &UserGroup{
+			UserId:  user.Id,
+			GroupId: groupId,
+		}
+		err = sess.Create(group).Error
+		if err != nil {
+			m.logger.Error("CreateUser", zap.Error(err))
+			return
+		}
 
-	// 3. 添加用户统计
-	err = sess.Model(&Group{}).Where("id = ?", groupId).Update("user_count", gorm.Expr("user_count + ?", 1)).Error
-	if err != nil {
-		m.logger.Error("CreateUser", zap.Error(err))
-		return
+		// 3. 添加用户统计
+		err = sess.Model(&Group{}).Where("id = ?", groupId).Update("user_count", gorm.Expr("user_count + ?", 1)).Error
+		if err != nil {
+			m.logger.Error("CreateUser", zap.Error(err))
+			return
+		}
 	}
 
 	return
 }
 
 // UpdateUserPassword 更新User密码
-func (m *DBModel) UpdateUserPassword(id interface{}, newPassword string) (err error) {
+func (m *DBModel) UpdateUserPassword(id interface{}, newPassword string, tx ...*gorm.DB) (err error) {
 	newPassword, _ = unchained.MakePassword(newPassword, unchained.GetRandomString(4), "md5")
-	err = m.db.Model(&User{}).Where("id = ?", id).Update("password", newPassword).Error
+
+	user := &User{}
+	sess := m.db.Model(user)
+	if len(tx) > 0 {
+		sess = tx[0].Model(user)
+	}
+	err = sess.Where("id = ?", id).Update("password", newPassword).Error
 	if err != nil {
 		m.logger.Error("UpdateUserPassword", zap.Error(err))
 	}
@@ -283,8 +291,8 @@ func (m *DBModel) initUser() (err error) {
 
 	// 初始化一个用户
 	user := &User{Username: "admin", Password: "123456"}
-	groupId := 1 // ID==1的用户组为管理员组
-	err = m.CreateUser(user, int64(groupId))
+	var groupId int64 = 1 // ID==1的用户组为管理员组
+	err = m.CreateUser(user, groupId)
 	if err != nil {
 		m.logger.Error("initUser", zap.Error(err))
 	}
@@ -316,5 +324,68 @@ func (m *DBModel) GetUserPermissinsByUserId(userId int64) (permissions []*Permis
 		return
 	}
 	err = nil
+	return
+}
+
+// SetUserGroupAndPassword 设置用户组和密码
+func (m *DBModel) SetUserGroupAndPassword(userId int64, groupId []int64, password ...string) (err error) {
+	tx := m.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	var (
+		existUsersGroups []UserGroup
+		userGroups       []UserGroup
+	)
+
+	tx.Where("user_id = ?", userId).Find(&existUsersGroups)
+
+	// 删除旧的关联用户组
+	err = tx.Where("user_id = ?", userId).Delete(&UserGroup{}).Error
+	if err != nil {
+		m.logger.Error("SetUserGroupAndPassword", zap.Error(err))
+		return
+	}
+
+	// 设置用户组统计数据
+	for _, existUsersGroup := range existUsersGroups {
+		err = tx.Model(&Group{}).Where("id = ?", existUsersGroup.GroupId).Update("user_count", gorm.Expr("user_count - ?", 1)).Error
+		if err != nil {
+			m.logger.Error("SetUserGroupAndPassword", zap.Error(err))
+			return
+		}
+	}
+
+	// 设置用户组统计数据
+	for _, groupId := range groupId {
+		userGroups = append(userGroups, UserGroup{UserId: userId, GroupId: groupId})
+		err = tx.Model(&Group{}).Where("id = ?", groupId).Update("user_count", gorm.Expr("user_count + ?", 1)).Error
+		if err != nil {
+			m.logger.Error("SetUserGroupAndPassword", zap.Error(err))
+			return
+		}
+	}
+
+	if len(userGroups) > 0 {
+		err = tx.Create(&userGroups).Error
+		if err != nil {
+			m.logger.Error("SetUserGroupAndPassword", zap.Error(err))
+			return
+		}
+	}
+
+	if len(password) > 0 {
+		err = m.UpdateUserPassword(userId, password[0], tx)
+		if err != nil {
+			m.logger.Error("UpdateUserPassword", zap.Error(err))
+			return
+		}
+	}
+
 	return
 }

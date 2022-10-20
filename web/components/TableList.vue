@@ -80,6 +80,7 @@
         fixed="right"
         label="操作"
         :min-width="actionsMinWidth"
+        class="com-table-list-actions"
       >
         <template slot-scope="scope">
           <slot :row="scope.row" name="actions"></slot>
@@ -176,3 +177,11 @@ export default {
   },
 }
 </script>
+<style lang="scss">
+.com-table-list {
+  .el-button {
+    margin-left: 0;
+    margin-right: 10px;
+  }
+}
+</style>

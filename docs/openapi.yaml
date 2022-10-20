@@ -6,6 +6,713 @@ info:
     title: ""
     version: 0.0.1
 paths:
+    /api/v1/attachment:
+        get:
+            tags:
+                - AttachmentAPI
+            operationId: AttachmentAPI_GetAttachment
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Attachment'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - AttachmentAPI
+            operationId: AttachmentAPI_UpdateAttachment
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Attachment'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - AttachmentAPI
+            operationId: AttachmentAPI_DeleteAttachment
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/attachment/list:
+        get:
+            tags:
+                - AttachmentAPI
+            operationId: AttachmentAPI_ListAttachment
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: size
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: wd
+                  in: query
+                  schema:
+                    type: string
+                - name: enable
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: boolean
+                - name: userId
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
+                - name: type
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
+                - name: ext
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListAttachmentReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/banner:
+        get:
+            tags:
+                - BannerAPI
+            operationId: BannerAPI_GetBanner
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Banner'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - BannerAPI
+            operationId: BannerAPI_UpdateBanner
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Banner'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - BannerAPI
+            operationId: BannerAPI_CreateBanner
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Banner'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Banner'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - BannerAPI
+            operationId: BannerAPI_DeleteBanner
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/banner/list:
+        get:
+            tags:
+                - BannerAPI
+            operationId: BannerAPI_ListBanner
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: size
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: type
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
+                - name: enable
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: boolean
+                - name: wd
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListBannerReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/config:
+        put:
+            tags:
+                - ConfigAPI
+            description: UpdateConfig 更新配置
+            operationId: ConfigAPI_UpdateConfig
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Configs'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/config/list:
+        get:
+            tags:
+                - ConfigAPI
+            description: ListConfig 查询配置项
+            operationId: ConfigAPI_ListConfig
+            parameters:
+                - name: category
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Configs'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/friendlink:
+        get:
+            tags:
+                - FriendlinkAPI
+            operationId: FriendlinkAPI_GetFriendlink
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Friendlink'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - FriendlinkAPI
+            operationId: FriendlinkAPI_UpdateFriendlink
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Friendlink'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - FriendlinkAPI
+            operationId: FriendlinkAPI_CreateFriendlink
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Friendlink'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Friendlink'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - FriendlinkAPI
+            operationId: FriendlinkAPI_DeleteFriendlink
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/friendlink/list:
+        get:
+            tags:
+                - FriendlinkAPI
+            operationId: FriendlinkAPI_ListFriendlink
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: size
+                  in: query
+                  schema:
+                    type: integer
+                    format: int32
+                - name: wd
+                  in: query
+                  schema:
+                    type: string
+                - name: enable
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: boolean
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListFriendlinkReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group:
+        get:
+            tags:
+                - GroupAPI
+            description: 获取用户组列表
+            operationId: GroupAPI_GetGroup
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: title
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Group'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - GroupAPI
+            description: 更新用户组
+            operationId: GroupAPI_UpdateGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Group'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        post:
+            tags:
+                - GroupAPI
+            description: 创建用户组
+            operationId: GroupAPI_CreateGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Group'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Group'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        delete:
+            tags:
+                - GroupAPI
+            description: 删除用户组
+            operationId: GroupAPI_DeleteGroup
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/list:
+        get:
+            tags:
+                - GroupAPI
+            operationId: GroupAPI_ListGroup
+            parameters:
+                - name: wd
+                  in: query
+                  schema:
+                    type: string
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: size
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: sort
+                  in: query
+                  schema:
+                    type: string
+                - name: field
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListGroupReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/group/permission:
+        get:
+            tags:
+                - GroupAPI
+            description: 获取用户组权限列表
+            operationId: GroupAPI_GetGroupPermission
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GroupPermissions'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - GroupAPI
+            description: 更新用户组权限，给用户组设置权限
+            operationId: GroupAPI_UpdateGroupPermission
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/UpdateGroupPermissionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/permission:
+        get:
+            tags:
+                - PermissionAPI
+            operationId: PermissionAPI_GetPermission
+            parameters:
+                - name: id
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Permission'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - PermissionAPI
+            operationId: PermissionAPI_UpdatePermission
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/Permission'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/permission/list:
+        get:
+            tags:
+                - PermissionAPI
+            operationId: PermissionAPI_ListPermission
+            parameters:
+                - name: page
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: size
+                  in: query
+                  schema:
+                    type: integer
+                    format: int64
+                - name: wd
+                  in: query
+                  schema:
+                    type: string
+                - name: method
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                - name: path
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/ListPermissionReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/v1/ping:
         get:
             tags:
@@ -54,6 +761,29 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+        put:
+            tags:
+                - UserAPI
+            description: |-
+                更新用户密码。如果不传用户ID，则表示更新当前用户的密码；
+                 如果穿了用户ID，则表示更新指定用户的密码，这时需要验证当前用户的权限
+            operationId: UserAPI_UpdateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/User'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
         delete:
             tags:
                 - UserAPI
@@ -71,6 +801,30 @@ paths:
                 "200":
                     description: OK
                     content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/captcha:
+        get:
+            tags:
+                - UserAPI
+            description: GetUserCaptcha 获取用户验证码
+            operationId: UserAPI_GetUserCaptcha
+            parameters:
+                - name: type
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/GetUserCaptchaReply'
                 default:
                     description: Default error response
                     content:
@@ -96,13 +850,35 @@ paths:
                   schema:
                     type: integer
                     format: int64
-                - name: ids
+                - name: wd
+                  in: query
+                  schema:
+                    type: string
+                - name: sort
+                  in: query
+                  schema:
+                    type: string
+                - name: id
                   in: query
                   schema:
                     type: array
                     items:
                         type: integer
                         format: int64
+                - name: groupId
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
+                - name: status
+                  in: query
+                  schema:
+                    type: array
+                    items:
+                        type: integer
+                        format: int32
             responses:
                 "200":
                     description: OK
@@ -126,7 +902,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/LoginRequest'
+                            $ref: '#/components/schemas/RegisterAndLoginRequest'
                 required: true
             responses:
                 "200":
@@ -135,6 +911,22 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/LoginReply'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/logout:
+        delete:
+            tags:
+                - UserAPI
+            description: 退出登录
+            operationId: UserAPI_Logout
+            responses:
+                "200":
+                    description: OK
+                    content: {}
                 default:
                     description: Default error response
                     content:
@@ -153,15 +945,31 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/UpdateUserRequest'
+                            $ref: '#/components/schemas/UpdateUserPasswordRequest'
                 required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/user/permission:
+        get:
+            tags:
+                - UserAPI
+            description: GetUserCaptcha 获取用户验证码
+            operationId: UserAPI_GetUserPermissions
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/User'
+                                $ref: '#/components/schemas/GetUserPermissionsReply'
                 default:
                     description: Default error response
                     content:
@@ -178,7 +986,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/RegisterRequest'
+                            $ref: '#/components/schemas/RegisterAndLoginRequest'
                 required: true
             responses:
                 "200":
@@ -207,6 +1015,159 @@ paths:
                                 $ref: '#/components/schemas/Status'
 components:
     schemas:
+        Attachment:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                hash:
+                    type: string
+                userId:
+                    type: integer
+                    format: int64
+                typeId:
+                    type: integer
+                    format: int64
+                type:
+                    type: integer
+                    format: int32
+                enable:
+                    type: boolean
+                path:
+                    type: string
+                name:
+                    type: string
+                size:
+                    type: integer
+                    format: int64
+                width:
+                    type: integer
+                    format: int64
+                height:
+                    type: integer
+                    format: int64
+                ext:
+                    type: string
+                ip:
+                    type: string
+                username:
+                    type: string
+                typeName:
+                    type: string
+                description:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        Banner:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                title:
+                    type: string
+                path:
+                    type: string
+                sort:
+                    type: integer
+                    format: int32
+                enable:
+                    type: boolean
+                type:
+                    type: integer
+                    format: int32
+                url:
+                    type: string
+                description:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        Config:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                label:
+                    type: string
+                name:
+                    type: string
+                value:
+                    type: string
+                placeholder:
+                    type: string
+                inputType:
+                    type: string
+                category:
+                    type: string
+                sort:
+                    type: integer
+                    format: int32
+                options:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        Configs:
+            type: object
+            properties:
+                config:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Config'
+        Friendlink:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int32
+                title:
+                    type: string
+                link:
+                    type: string
+                description:
+                    type: string
+                sort:
+                    type: integer
+                    format: int32
+                enable:
+                    type: boolean
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        GetUserCaptchaReply:
+            type: object
+            properties:
+                enable:
+                    type: boolean
+                id:
+                    type: string
+                captcha:
+                    type: string
+                type:
+                    type: string
+        GetUserPermissionsReply:
+            type: object
+            properties:
+                permission:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Permission'
         GoogleProtobufAny:
             type: object
             properties:
@@ -215,6 +1176,92 @@ components:
                     description: The type of the serialized message.
             additionalProperties: true
             description: Contains an arbitrary serialized message along with a @type that describes the type of the serialized message.
+        Group:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                title:
+                    type: string
+                color:
+                    type: string
+                isDefault:
+                    type: boolean
+                isDisplay:
+                    type: boolean
+                description:
+                    type: string
+                userCount:
+                    type: integer
+                    format: int32
+                sort:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        GroupPermissions:
+            type: object
+            properties:
+                permissionId:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
+        ListAttachmentReply:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    format: int64
+                attachment:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Attachment'
+        ListBannerReply:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    format: int64
+                banner:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Banner'
+        ListFriendlinkReply:
+            type: object
+            properties:
+                friendlink:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Friendlink'
+                total:
+                    type: integer
+                    format: int64
+        ListGroupReply:
+            type: object
+            properties:
+                group:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Group'
+                total:
+                    type: integer
+                    format: int64
+        ListPermissionReply:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    format: int64
+                permission:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Permission'
         ListUserReply:
             type: object
             properties:
@@ -230,15 +1277,28 @@ components:
             properties:
                 token:
                     type: string
-        LoginRequest:
+                user:
+                    $ref: '#/components/schemas/User'
+        Permission:
             type: object
             properties:
-                username:
+                id:
+                    type: integer
+                    format: int64
+                method:
                     type: string
-                password:
+                path:
                     type: string
-                captcha:
+                title:
                     type: string
+                description:
+                    type: string
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
         PongReply:
             type: object
             properties:
@@ -247,12 +1307,16 @@ components:
                 createdAt:
                     type: string
                     format: date-time
-        RegisterRequest:
+        RegisterAndLoginRequest:
             type: object
             properties:
                 username:
                     type: string
                 password:
+                    type: string
+                captcha:
+                    type: string
+                captchaId:
                     type: string
         Status:
             type: object
@@ -270,25 +1334,44 @@ components:
                         $ref: '#/components/schemas/GoogleProtobufAny'
                     description: A list of messages that carry the error details.  There is a common set of message types for APIs to use.
             description: 'The `Status` type defines a logical error model that is suitable for different programming environments, including REST APIs and RPC APIs. It is used by [gRPC](https://github.com/grpc). Each `Status` message contains three pieces of data: error code, error message, and error details. You can find out more about this error model and how to work with it in the [API Design Guide](https://cloud.google.com/apis/design/errors).'
-        UpdateUserRequest:
+        UpdateGroupPermissionRequest:
+            type: object
+            properties:
+                groupId:
+                    type: integer
+                    format: int64
+                permissionId:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
+        UpdateUserPasswordRequest:
             type: object
             properties:
                 id:
                     type: integer
                     format: int64
-                name:
+                oldPassword:
                     type: string
+                newPassword:
+                    type: string
+            description: 修改用户密码
         User:
             type: object
             properties:
+                loginAt:
+                    type: string
+                    format: date-time
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
                 id:
                     type: integer
                     format: int64
                 username:
-                    type: string
-                password:
-                    type: string
-                nickname:
                     type: string
                 mobile:
                     type: string
@@ -326,15 +1409,18 @@ components:
                     type: string
                 realname:
                     type: string
-                loginAt:
-                    type: string
-                    format: date-time
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
+                groupId:
+                    type: array
+                    items:
+                        type: integer
+                        format: int64
 tags:
+    - name: AttachmentAPI
+      description: 附件服务。只有管理员才有权限操作
+    - name: BannerAPI
+    - name: ConfigAPI
+    - name: FriendlinkAPI
+    - name: GroupAPI
     - name: HealthAPI
+    - name: PermissionAPI
     - name: UserAPI

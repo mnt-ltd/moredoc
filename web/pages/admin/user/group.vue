@@ -31,6 +31,7 @@
           <el-button
             type="text"
             icon="el-icon-coordinate"
+            size="small"
             @click="setGroupPermission(scope.row)"
             >授权</el-button
           >

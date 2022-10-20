@@ -21,6 +21,7 @@
         :show-edit="true"
         :show-delete="true"
         :show-select="true"
+        :actions-min-width="80"
         @selectRow="selectRow"
         @editRow="editRow"
         @deleteRow="deleteRow"
