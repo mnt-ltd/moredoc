@@ -151,8 +151,27 @@ func (s *UserAPIService) Logout(ctx context.Context, req *emptypb.Empty) (res *e
 	return
 }
 
+// GetUser 根据ID获取用户信息
+// 对于非管理员，只能获取公开字段
 func (s *UserAPIService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.User, error) {
-	return &pb.User{}, nil
+	if req.Id <= 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "ID错误")
+	}
+
+	fields := s.dbModel.GetUserPublicFields()
+	_, err := s.checkPermission(ctx)
+	if err == nil {
+		fields = []string{}
+	}
+
+	user, err := s.dbModel.GetUser(req.Id, fields...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+	pbUser := &pb.User{}
+	util.CopyStruct(&user, pbUser)
+
+	return pbUser, nil
 }
 
 func (s *UserAPIService) SetUser(ctx context.Context, req *pb.SetUserRequest) (*emptypb.Empty, error) {

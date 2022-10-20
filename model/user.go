@@ -55,7 +55,6 @@ type User struct {
 // int64 id = 1;
 // string username = 2;
 // string password = 3;
-// string nickname = 4;
 // string mobile = 5;
 // string email = 6;
 // string address = 7;
@@ -78,6 +77,11 @@ type User struct {
 
 func (User) TableName() string {
 	return tablePrefix + "user"
+}
+
+// GetUserPublicFields 获取用户公开字段
+func (m *DBModel) GetUserPublicFields() []string {
+	return []string{"id", "username", "avatar", "signature", "doc_count", "follow_count", "fans_count", "favorite_count", "comment_count"}
 }
 
 // CreateUser 创建User

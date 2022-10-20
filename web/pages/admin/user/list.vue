@@ -66,11 +66,22 @@
         @success="success"
       />
     </el-dialog>
+    <el-dialog
+      title="编辑用户"
+      :visible.sync="formUserProfileVisible"
+      width="640px"
+    >
+      <FormUserProfile
+        ref="formUserProfile"
+        :init-user="user"
+        @success="successProfile"
+      />
+    </el-dialog>
   </div>
 </template>
 
 <script>
-import { deleteUser, listUser } from '~/api/user'
+import { deleteUser, getUser, listUser } from '~/api/user'
 import { listGroup } from '~/api/group'
 import { userStatusOptions } from '~/utils/enum'
 import TableList from '~/components/TableList.vue'
@@ -91,6 +102,7 @@ export default {
         size: 10,
       },
       formUserVisible: false,
+      formUserProfileVisible: false,
       groups: [],
       users: [],
       user: { id: 0 },
@@ -152,14 +164,20 @@ export default {
         this.user = { ...row }
       })
     },
-    editRow(row) {
-      // this.formUserVisible = true
-      // this.$nextTick(() => {
-      //   this.$refs.formUser.reset()
-      //   this.user = { ...row }
-      // })
+    async editRow(row) {
+      const res = await getUser({ id: row.id })
+      if (res.status !== 200) {
+        this.$message.error(res.data.message)
+        return
+      }
+      this.formUserProfileVisible = true
+      this.$nextTick(() => {
+        this.$refs.formUserProfile.reset()
+        this.user = { ...res.data }
+      })
     },
     viewRow(row) {
+      // TODO: 跳转用户页面
       console.log(row)
     },
     deleteRow(row) {
@@ -186,6 +204,10 @@ export default {
     },
     success() {
       this.formUserVisible = false
+      this.listUser()
+    },
+    successProfile() {
+      this.formUserProfileVisible = false
       this.listUser()
     },
     batchDelete() {
