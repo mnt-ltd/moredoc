@@ -78,6 +78,7 @@ export default {
         permission_id: this.$refs.tree.getCheckedKeys(),
       })
       if (res.status === 200) {
+        this.groupPermission.permission_id = this.$refs.tree.getCheckedKeys()
         this.$message.success('设置成功')
         this.$emit('success')
       } else {
