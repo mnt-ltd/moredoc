@@ -4,28 +4,9 @@
       :class="isCollapse ? 'layout-aside-collapsed' : ''"
       :width="'240px'"
     >
-      <div class="quickstart-upload">
-        <el-tooltip
-          v-if="isCollapse"
-          class="item"
-          effect="dark"
-          content="上传文档"
-          placement="right"
-        >
-          <el-button
-            type="success"
-            icon="el-icon-plus"
-            class="btn-block"
-            @click="showCreateProjectDialog"
-          ></el-button>
-        </el-tooltip>
-        <el-button
-          v-else
-          type="success"
-          icon="el-icon-plus"
-          @click="showCreateProjectDialog"
-          >上传文档</el-button
-        >
+      <div class="logo">
+        <img src="/static/images/default-logo-icon.png" alt="" />
+        <span>魔刀文库系统</span>
       </div>
       <transition
         :duration="{ enter: 800, leave: 800 }"
@@ -119,7 +100,6 @@
           type="text"
           @click="isCollapse = true"
         ></el-button>
-        <span>我的项目</span>
         <el-dropdown style="float: right" trigger="click" @command="command">
           <el-button>
             <i class="el-icon-user"></i>
@@ -149,13 +129,6 @@
     <el-dialog title="个人资料" :visible.sync="formPasswordVisible" width="30%">
       <FormPassword @success="passwordSuccess" />
     </el-dialog>
-    <el-dialog
-      title="创建项目"
-      :visible.sync="createProjectVisible"
-      width="30%"
-    >
-      <form-set-project @success="createProjectSuccess"></form-set-project>
-    </el-dialog>
   </el-container>
 </template>
 <script>
@@ -170,7 +143,6 @@ export default {
   middleware: ['auth'],
   data() {
     return {
-      createProjectVisible: false,
       formProfileVisible: false,
       formPasswordVisible: false,
       isCollapse: false,
@@ -198,17 +170,6 @@ export default {
   },
   methods: {
     ...mapActions('user', ['logout']),
-    async createProject() {},
-    showCreateProjectDialog() {
-      this.createProjectVisible = true
-    },
-    createProjectSuccess(e) {
-      this.createProjectVisible = false
-      this.$router.push({
-        path: '/admin/projects',
-        query: { _t: new Date().getTime() },
-      })
-    },
     profileSuccess() {
       this.formProfileVisible = false
     },
@@ -235,7 +196,7 @@ export default {
 </script>
 <style lang="scss">
 .layout-aside-collapsed {
-  width: 60px !important;
+  width: 64px !important;
   overflow: hidden;
   .quickstart-upload {
     padding: 0;

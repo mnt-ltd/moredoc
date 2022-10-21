@@ -14,11 +14,35 @@ body{
 .text-right{text-align: right;}
 
 .layout-admin{
+    .logo{
+        height: 60px;
+        border-bottom: 1px solid #e5e5e5;
+        box-sizing: border-box;
+        overflow: hidden;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        img{
+            width: 50px;
+            padding: 5px;
+            height: 50px;
+            margin: 0 2px;
+        }
+        span{
+            font-size: 26px;
+            width: 240px;
+            font-weight: bold;
+            text-align: left;
+            height: 60px;
+            line-height: 60px;
+        }
+    }
     height: 100vh;
     .el-main{
         background-color: #f0f2f5;
     }
     .el-aside{
+        transition: width 0.2s;
         height: 100vh;
         border-right: 1px solid #e6e6e6;
         .el-menu{
