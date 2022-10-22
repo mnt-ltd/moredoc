@@ -15,20 +15,18 @@ option java_package = "api.v1";
 message Category {
   int32 id = 1;
   int32 parent_id = 2;
-  string title = 3;
-  string cover = 4;
-  int32 doc_count = 5;
-  int32 sort = 6;
-  string alias = 7;
-  bool enable = 8;
-  google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
+  string title = 3 [(gogoproto.moretags) = "validate:\"required\""];
+  int32 doc_count = 4;
+  int32 sort = 5;
+  bool enable = 6;
+  google.protobuf.Timestamp created_at = 7 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 8 [ (gogoproto.stdtime) = true ];
 }
 
 message ListCategoryRequest {
   int64 page = 1;
   int64 size = 2;
-  int64 parent_id = 3;
+  repeated int64 parent_id = 3;
   string wd = 4;
   repeated bool enable = 5;
   repeated string field = 6;

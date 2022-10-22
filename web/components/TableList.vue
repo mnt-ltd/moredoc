@@ -3,6 +3,8 @@
     <el-table
       :data="tableData"
       style="width: 100%"
+      row-key="id"
+      :tree-props="treeProps"
       @selection-change="selectRow"
     >
       <el-table-column
@@ -129,6 +131,10 @@ export default {
     fields: {
       type: Array,
       default: () => [],
+    },
+    treeProps: {
+      type: Object,
+      default: () => ({}),
     },
     actionsMinWidth: {
       type: Number,

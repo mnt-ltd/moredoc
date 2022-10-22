@@ -4,7 +4,7 @@
       :class="isCollapse ? 'layout-aside-collapsed' : ''"
       :width="'240px'"
     >
-      <div class="logo">
+      <div class="logo" @click="gohome">
         <img src="/static/images/default-logo-icon.png" alt="" />
         <span>魔刀文库系统</span>
       </div>
@@ -190,11 +190,11 @@ export default {
       title: 'MOREDOC · 魔刀文库',
     }
   },
-  created() {
-    this.getUserPermissions()
-  },
   computed: {
     ...mapGetters('user', ['user', 'token', 'permissions', 'allowPages']),
+  },
+  created() {
+    this.getUserPermissions()
   },
   mounted() {
     const screenWidth = document.body.clientWidth
@@ -225,10 +225,18 @@ export default {
           break
       }
     },
+    gohome() {
+      this.$router.push('/')
+    },
   },
 }
 </script>
 <style lang="scss">
+.layout-admin {
+  .logo {
+    cursor: pointer;
+  }
+}
 .layout-aside-collapsed {
   width: 64px !important;
   overflow: hidden;

@@ -24,7 +24,6 @@ import (
 const (
 	ErrorMessageUsernameOrPasswordError = "用户名或密码不正确"
 	ErrorMessageInvalidToken            = "您未登录或您的登录已过期，请重新登录"
-	ErrorMessagePermissionDenied        = "您没有权限访问该资源"
 	ErrorMessageUserNotExists           = "用户不存在"
 	ErrorMessageInvalidOldPassword      = "原密码不正确"
 	ErrorMessageUnsupportedCaptchaType  = "不支持的验证码类型"
@@ -227,9 +226,12 @@ func (s *UserAPIService) UpdateUserProfile(ctx context.Context, req *pb.User) (*
 
 	// 管理员更改用户资料，验证是否有权限
 	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
-	yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod)
-	if !yes {
-		return nil, status.Errorf(codes.PermissionDenied, ErrorMessagePermissionDenied)
+	if permission, yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod); !yes {
+		item := permission.Title
+		if item == "" {
+			item = permission.Path
+		}
+		return nil, status.Errorf(codes.PermissionDenied, errorMessagePermissionDeniedFormat, item)
 	}
 
 	// 对于管理员，允许该更用户状态
@@ -277,9 +279,12 @@ func (s *UserAPIService) UpdateUserPassword(ctx context.Context, req *pb.UpdateU
 
 	// 管理员更改用户密码
 	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
-	yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod)
-	if !yes {
-		return nil, status.Errorf(codes.PermissionDenied, ErrorMessagePermissionDenied)
+	if permission, yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod); !yes {
+		item := permission.Title
+		if item == "" {
+			item = permission.Path
+		}
+		return nil, status.Errorf(codes.PermissionDenied, errorMessagePermissionDeniedFormat, item)
 	}
 
 	err = s.dbModel.UpdateUserPassword(req.Id, req.NewPassword)
@@ -349,7 +354,7 @@ func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) 
 		opt.Sort = strings.Split(req.Sort, ",")
 	}
 
-	if s.dbModel.CheckPermissionByUserId(userId, fullMethod) {
+	if _, yes := s.dbModel.CheckPermissionByUserId(userId, fullMethod); yes {
 		limitFileds = []string{} // 管理员，可以查询全部信息
 		if req.Wd != "" {
 			value := []interface{}{"%" + strings.TrimSpace(req.Wd) + "%"}

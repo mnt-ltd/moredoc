@@ -112,3 +112,21 @@ export function formatBytes(bytes, decimals = 2) {
 
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
 }
+
+// 分类转树形结构
+export function categoryToTrees(categories) {
+  const result = []
+  const map = {}
+  categories.forEach((item) => {
+    map[item.id] = item
+  })
+  categories.forEach((item) => {
+    const parent = map[item.parent_id]
+    if (parent) {
+      ;(parent.children || (parent.children = [])).push(item)
+    } else {
+      result.push(item)
+    }
+  })
+  return result
+}

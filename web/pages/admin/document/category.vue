@@ -14,84 +14,72 @@
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <TableList
-        :table-data="friendlinks"
+        :table-data="trees"
         :fields="tableListFields"
         :show-actions="true"
         :show-view="false"
         :show-edit="true"
         :show-delete="true"
         :show-select="true"
+        :tree-props="{ children: 'children' }"
         @selectRow="selectRow"
         @editRow="editRow"
         @deleteRow="deleteRow"
       />
     </el-card>
-    <el-card shadow="never" class="mgt-20px">
-      <div class="text-right">
-        <el-pagination
-          background
-          :current-page="search.page"
-          :page-sizes="[10, 20, 50, 100]"
-          :page-size="search.size"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @size-change="handleSizeChange"
-          @current-change="handlePageChange"
-        >
-        </el-pagination>
-      </div>
-    </el-card>
-
     <el-dialog
-      :title="friendlink.id ? '编辑友链' : '新增友链'"
-      :visible.sync="formFriendlinkVisible"
+      :title="category.id ? '编辑分类' : '新增分类'"
+      :visible.sync="formVisible"
+      :width="'640px'"
     >
-      <FormFriendlink
-        ref="friendlinkForm"
-        :init-friendlink="friendlink"
-        @success="formFriendlinkSuccess"
+      <FormCategory
+        ref="categoryForm"
+        :init-category="category"
+        :trees="trees"
+        @success="formCategorySuccess"
       />
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { listFriendlink, deleteFriendlink } from '~/api/friendlink'
+import { listCategory, deleteCategory, getCategory } from '~/api/category'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
-import FormFriendlink from '~/components/FormFriendlink.vue'
+import FormCategory from '~/components/FormCategory.vue'
+import { categoryToTrees } from '~/utils/utils'
 export default {
-  components: { TableList, FormSearch, FormFriendlink },
+  components: { TableList, FormSearch, FormCategory },
   layout: 'admin',
   data() {
     return {
       loading: false,
-      formFriendlinkVisible: false,
+      formVisible: false,
       search: {
         wd: '',
-        page: 1,
         status: [],
-        size: 10,
       },
-      friendlinks: [],
+      categories: [],
+      trees: [],
       total: 0,
       searchFormFields: [],
       tableListFields: [],
       selectedRow: [],
-      friendlink: { id: 0 },
+      category: { id: 0 },
     }
   },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listFriendlink()
+    await this.listCategory()
   },
   methods: {
-    async listFriendlink() {
+    async listCategory() {
       this.loading = true
-      const res = await listFriendlink(this.search)
+      const res = await listCategory(this.search)
       if (res.status === 200) {
-        this.friendlinks = res.data.friendlink
+        this.categories = res.data.category
+        this.trees = categoryToTrees(res.data.category)
         this.total = res.data.total
       } else {
         this.$message.error(res.data.message)
@@ -100,31 +88,36 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listFriendlink()
+      this.listCategory()
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listFriendlink()
+      this.listCategory()
     },
     onSearch(search) {
       this.search = { ...this.search, page: 1, ...search }
-      this.listFriendlink()
+      this.listCategory()
     },
     onCreate() {
-      this.friendlink = { id: 0 }
-      this.formFriendlinkVisible = true
-      this.$nextTick(() => {
-        this.$refs.friendlinkForm.reset()
-      })
+      this.category = { id: 0 }
+      this.formVisible = true
     },
-    editRow(row) {},
-    formFriendlinkSuccess() {
-      this.formFriendlinkVisible = false
-      this.listFriendlink()
+    async editRow(row) {
+      const res = await getCategory({ id: row.id })
+      if (res.status === 200) {
+        this.category = res.data
+        this.formVisible = true
+      } else {
+        this.$message.error(res.data.message || '查询失败')
+      }
+    },
+    formCategorySuccess() {
+      this.formVisible = false
+      this.listCategory()
     },
     batchDelete() {
       this.$confirm(
-        `您确定要删除选中的【${this.selectedRow.length}条】友链吗？删除之后不可恢复！`,
+        `您确定要删除选中的【${this.selectedRow.length}个】分类吗？删除之后不可恢复！`,
         '温馨提示',
         {
           confirmButtonText: '确定',
@@ -134,10 +127,10 @@ export default {
       )
         .then(async () => {
           const ids = this.selectedRow.map((item) => item.id)
-          const res = await deleteFriendlink({ id: ids })
+          const res = await deleteCategory({ id: ids })
           if (res.status === 200) {
             this.$message.success('删除成功')
-            this.listFriendlink()
+            this.listCategory()
           } else {
             this.$message.error(res.data.message)
           }
@@ -146,7 +139,7 @@ export default {
     },
     deleteRow(row) {
       this.$confirm(
-        `您确定要删除友链【${row.title}】吗？删除之后不可恢复！`,
+        `您确定要删除分类【${row.title}】吗？删除之后不可恢复！`,
         '温馨提示',
         {
           confirmButtonText: '确定',
@@ -155,10 +148,10 @@ export default {
         }
       )
         .then(async () => {
-          const res = await deleteFriendlink({ id: row.id })
+          const res = await deleteCategory({ id: row.id })
           if (res.status === 200) {
             this.$message.success('删除成功')
-            this.listFriendlink()
+            this.listCategory()
           } else {
             this.$message.error(res.data.message)
           }
@@ -179,34 +172,35 @@ export default {
         {
           type: 'select',
           label: '状态',
-          name: 'status',
+          name: 'enable',
           placeholder: '请选择状态',
           multiple: true,
           options: [
-            { label: '启用', value: 0 },
-            { label: '禁用', value: 1 },
+            { label: '启用', value: true },
+            { label: '禁用', value: false },
           ],
         },
       ]
     },
     initTableListFields() {
       this.tableListFields = [
-        { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
+        { prop: 'title', label: '名称', minWidth: 120, fixed: 'left' },
         {
-          prop: 'status',
-          label: '状态',
+          prop: 'enable',
+          label: '是否启用',
           width: 80,
-          type: 'enum',
-          enum: {
-            1: { label: '禁用', type: 'danger' },
-            0: { label: '启用', type: 'success' },
-          },
+          type: 'bool',
           fixed: 'left',
         },
-        { prop: 'title', label: '名称', minWidth: 150, fixed: 'left' },
-        { prop: 'link', label: '链接', minWidth: 250 },
-        { prop: 'sort', label: '排序', width: 80, type: 'number' },
-        { prop: 'description', label: '描述', minWidth: 250 },
+        {
+          prop: 'sort',
+          label: '排序',
+          width: 80,
+          type: 'number',
+          fixed: 'left',
+        },
+        { prop: 'doc_count', label: '文档数', width: 80, type: 'number' },
+        { prop: 'id', label: 'ID', width: 80, type: 'number' },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
       ]

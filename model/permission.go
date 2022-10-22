@@ -111,7 +111,7 @@ func (m *DBModel) DeletePermission(ids []interface{}) (err error) {
 }
 
 //  CheckPermissionByUserId 根据用户ID，检查用户是否有权限
-func (m *DBModel) CheckPermissionByUserId(userId int64, path string, httpMethod ...string) (yes bool) {
+func (m *DBModel) CheckPermissionByUserId(userId int64, path string, httpMethod ...string) (permission Permission, yes bool) {
 	var (
 		userGroups []UserGroup
 		groupId    []int64
@@ -135,20 +135,22 @@ func (m *DBModel) CheckPermissionByUserId(userId int64, path string, httpMethod 
 		}
 	}
 
-	yes = m.CheckPermissionByGroupId(groupId, method, path)
-	return yes || userId == 1
+	permission, yes = m.CheckPermissionByGroupId(groupId, method, path)
+	return permission, yes || userId == 1
 }
 
 //  CheckPermissionByGroupId 根据用户所属用户组ID，检查用户是否有权限
-func (m *DBModel) CheckPermissionByGroupId(groupId []int64, method, path string) (yes bool) {
-	fields := []string{"id", "method", "path"}
-	permission, err := m.GetPermissionByMethodPath(method, path, true, fields...)
+func (m *DBModel) CheckPermissionByGroupId(groupId []int64, method, path string) (permission Permission, yes bool) {
+	var err error
+	fields := []string{"id", "method", "path", "title"}
+	permission, err = m.GetPermissionByMethodPath(method, path, true, fields...)
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("CheckPermissionByGroupId", zap.Error(err))
 	}
 
 	if permission.Id == 0 { // 权限控制表里面不存在的记录，默认允许访问
-		return true
+		yes = true
+		return
 	}
 
 	// 校验当前登录了的用户所属用户组，是否有权限
@@ -159,7 +161,7 @@ func (m *DBModel) CheckPermissionByGroupId(groupId []int64, method, path string)
 	}
 
 	// 如果有权限，返回true
-	return groupPermission.Id > 0
+	return permission, groupPermission.Id > 0
 }
 
 type OptionGetPermissionList struct {

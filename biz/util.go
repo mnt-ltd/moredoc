@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"errors"
+	"fmt"
 	"moredoc/middleware/auth"
 	"moredoc/model"
 	"net/http"
@@ -12,6 +13,8 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+var errorMessagePermissionDeniedFormat = "您没有权限访问【%s】"
+
 func checkGinPermission(dbModel *model.DBModel, ctx *gin.Context) (userClaims *auth.UserClaims, statusCode int, err error) {
 	var ok bool
 	userClaims, ok = ctx.Value(auth.CtxKeyUserClaims.String()).(*auth.UserClaims)
@@ -20,9 +23,13 @@ func checkGinPermission(dbModel *model.DBModel, ctx *gin.Context) (userClaims *a
 		return nil, statusCode, errors.New(ErrorMessageInvalidToken)
 	}
 
-	if yes := dbModel.CheckPermissionByUserId(userClaims.UserId, ctx.Request.URL.Path, ctx.Request.Method); !yes {
+	if permission, yes := dbModel.CheckPermissionByUserId(userClaims.UserId, ctx.Request.URL.Path, ctx.Request.Method); !yes {
 		statusCode = http.StatusForbidden
-		return nil, statusCode, errors.New(ErrorMessagePermissionDenied)
+		item := permission.Title
+		if permission.Title == "" {
+			item = permission.Path
+		}
+		return nil, statusCode, fmt.Errorf(errorMessagePermissionDeniedFormat, item)
 	}
 	return
 }
@@ -35,8 +42,12 @@ func checkGRPCPermission(dbModel *model.DBModel, ctx context.Context) (userClaim
 	}
 
 	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
-	if yes := dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod); !yes {
-		return nil, status.Errorf(codes.PermissionDenied, ErrorMessagePermissionDenied)
+	if permission, yes := dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod); !yes {
+		item := permission.Title
+		if item == "" {
+			item = permission.Path
+		}
+		return nil, fmt.Errorf(errorMessagePermissionDeniedFormat, item)
 	}
 	return
 }

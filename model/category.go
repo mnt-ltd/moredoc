@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -16,7 +14,6 @@ type Category struct {
 	Cover     string     `form:"cover" json:"cover,omitempty" gorm:"column:cover;type:varchar(255);size:255;comment:分类封面;"`
 	DocCount  int        `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(11);size:11;default:0;comment:文档统计;"`
 	Sort      int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
-	Alias     string     `form:"alias" json:"alias,omitempty" gorm:"column:alias;type:varchar(64);size:64;comment:别名，限英文和数字等组成;"`
 	Enable    bool       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(1);size:1;default:1;"`
 	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
@@ -44,6 +41,8 @@ func (m *DBModel) UpdateCategory(category *Category, updateFields ...string) (er
 	updateFields = m.FilterValidFields(Category{}.TableName(), updateFields...)
 	if len(updateFields) > 0 { // 更新指定字段
 		db = db.Select(updateFields)
+	} else {
+		db = db.Select(m.GetTableFields(Category{}.TableName()))
 	}
 
 	err = db.Where("id = ?", category.Id).Updates(category).Error
@@ -96,41 +95,15 @@ type OptionGetCategoryList struct {
 	QueryRange   map[string][2]interface{} // map[field][]{min,max}
 	QueryIn      map[string][]interface{}  // map[field][]{value1,value2,...}
 	QueryLike    map[string][]interface{}  // map[field][]{value1,value2,...}
-	Sort         []string
 }
 
 // GetCategoryList 获取Category列表
-func (m *DBModel) GetCategoryList(opt OptionGetCategoryList) (categoryList []Category, total int64, err error) {
+func (m *DBModel) GetCategoryList(opt *OptionGetCategoryList) (categoryList []Category, total int64, err error) {
 	db := m.db.Model(&Category{})
+	tableName := Category{}.TableName()
 
-	for field, rangeValue := range opt.QueryRange {
-		fields := m.FilterValidFields(Category{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		if rangeValue[0] != nil {
-			db = db.Where(fmt.Sprintf("%s >= ?", field), rangeValue[0])
-		}
-		if rangeValue[1] != nil {
-			db = db.Where(fmt.Sprintf("%s <= ?", field), rangeValue[1])
-		}
-	}
-
-	for field, values := range opt.QueryIn {
-		fields := m.FilterValidFields(Category{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
-	}
-
-	for field, values := range opt.QueryLike {
-		fields := m.FilterValidFields(Category{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(strings.TrimSuffix(fmt.Sprintf(strings.Join(make([]string, len(values)+1), "%s like ? or"), field), "or"), values...)
-	}
+	db = m.generateQueryIn(db, tableName, opt.QueryIn)
+	db = m.generateQueryLike(db, tableName, opt.QueryLike)
 
 	if len(opt.Ids) > 0 {
 		db = db.Where("id in (?)", opt.Ids)
@@ -144,33 +117,14 @@ func (m *DBModel) GetCategoryList(opt OptionGetCategoryList) (categoryList []Cat
 		}
 	}
 
-	opt.SelectFields = m.FilterValidFields(Category{}.TableName(), opt.SelectFields...)
+	opt.SelectFields = m.FilterValidFields(tableName, opt.SelectFields...)
 	if len(opt.SelectFields) > 0 {
 		db = db.Select(opt.SelectFields)
 	}
 
-	if len(opt.Sort) > 0 {
-		var sorts []string
-		for _, sort := range opt.Sort {
-			slice := strings.Split(sort, " ")
-			if len(m.FilterValidFields(Category{}.TableName(), slice[0])) == 0 {
-				continue
-			}
-
-			if len(slice) == 2 {
-				sorts = append(sorts, fmt.Sprintf("%s %s", slice[0], slice[1]))
-			} else {
-				sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
-			}
-		}
-		if len(sorts) > 0 {
-			db = db.Order(strings.Join(sorts, ","))
-		}
-	}
-
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 
-	err = db.Find(&categoryList).Error
+	err = db.Order("parent_id asc, sort desc").Find(&categoryList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetCategoryList", zap.Error(err))
 	}
@@ -178,9 +132,9 @@ func (m *DBModel) GetCategoryList(opt OptionGetCategoryList) (categoryList []Cat
 }
 
 // DeleteCategory 删除数据
-// TODO: 删除数据之后，存在 category_id 的关联表，需要删除对应数据，同时相关表的统计数值，也要随着减少
-func (m *DBModel) DeleteCategory(ids []interface{}) (err error) {
-	err = m.db.Where("id in (?)", ids).Delete(&Category{}).Error
+// 分类下存在文档的分类，则不允许删除
+func (m *DBModel) DeleteCategory(ids []int64) (err error) {
+	err = m.db.Where("id in (?) and doc_count = ?", ids, 0).Delete(&Category{}).Error
 	if err != nil {
 		m.logger.Error("DeleteCategory", zap.Error(err))
 	}

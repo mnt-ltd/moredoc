@@ -1,6 +1,12 @@
 // 这里前端维护映射关系，后端只需要返回权限列表即可
 // Key 为组，对象为权限相关名称
 const cumstomPermissionMap = {
+  'api.v1.DocumentAPI': {
+    label: '文档管理',
+    path: 'ListDocument',
+    children: [],
+    pages: ['/admin/document', '/admin/document/list'],
+  },
   'api.v1.UserAPI': {
     label: '用户管理',
     path: 'ListUser',
