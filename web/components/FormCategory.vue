@@ -125,6 +125,15 @@ export default {
         }
         this.loading = true
         const category = { ...this.category }
+        if (category.parent_id) {
+          if (typeof category.parent_id === 'object') {
+            category.parent_id =
+              category.parent_id[category.parent_id.length - 1]
+          }
+        } else {
+          category.parent_id = 0
+        }
+
         if (this.category.id > 0) {
           const res = await updateCategory(category)
           if (res.status === 200) {

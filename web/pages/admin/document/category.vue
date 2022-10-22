@@ -78,8 +78,14 @@ export default {
       this.loading = true
       const res = await listCategory(this.search)
       if (res.status === 200) {
-        this.categories = res.data.category
-        this.trees = categoryToTrees(res.data.category)
+        let categories = res.data.category || []
+        categories = categories.map((item) => {
+          item.disable_delete = item.doc_count > 0
+          return item
+        })
+        this.categories = categories
+
+        this.trees = categoryToTrees(categories)
         this.total = res.data.total
       } else {
         this.$message.error(res.data.message)
@@ -99,7 +105,7 @@ export default {
       this.listCategory()
     },
     onCreate() {
-      this.category = { id: 0 }
+      this.category = { id: 0, enable: true }
       this.formVisible = true
     },
     async editRow(row) {
@@ -117,7 +123,7 @@ export default {
     },
     batchDelete() {
       this.$confirm(
-        `您确定要删除选中的【${this.selectedRow.length}个】分类吗？删除之后不可恢复！`,
+        `您确定要删除选中的【${this.selectedRow.length}个】分类吗？本次删除会连同子分类一起删除，删除之后不可恢复！`,
         '温馨提示',
         {
           confirmButtonText: '确定',
@@ -139,7 +145,7 @@ export default {
     },
     deleteRow(row) {
       this.$confirm(
-        `您确定要删除分类【${row.title}】吗？删除之后不可恢复！`,
+        `您确定要删除分类【${row.title}】吗？本次删除会连同子分类一起删除，删除之后不可恢复！`,
         '温馨提示',
         {
           confirmButtonText: '确定',

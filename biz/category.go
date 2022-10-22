@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"strings"
 
 	pb "moredoc/api/v1"
 	"moredoc/middleware/auth"
@@ -42,10 +43,25 @@ func (s *CategoryAPIService) CreateCategory(ctx context.Context, req *pb.Categor
 
 	cate := &model.Category{}
 	util.CopyStruct(req, &cate)
+	titles := strings.Split(cate.Title, "\n")
+	for _, title := range titles {
+		title = strings.TrimSpace(title)
+		if title == "" {
+			continue
+		}
 
-	err = s.dbModel.CreateCategory(cate)
-	if err != nil {
-		return nil, err
+		cate.Title = title
+		exist, _ := s.dbModel.GetCategoryByParentIdTitle(cate.ParentId, cate.Title, "id")
+		if exist.Id > 0 {
+			continue
+		}
+
+		cate.Id = 0
+		err = s.dbModel.CreateCategory(cate)
+		if err != nil {
+			s.logger.Error("CreateCategory", zap.Error(err))
+			return nil, status.Error(codes.Internal, err.Error())
+		}
 	}
 
 	return &emptypb.Empty{}, nil
@@ -68,6 +84,11 @@ func (s *CategoryAPIService) UpdateCategory(ctx context.Context, req *pb.Categor
 	exist, _ := s.dbModel.GetCategoryByParentIdTitle(cate.ParentId, cate.Title, "id")
 	if exist.Id > 0 && exist.Id != cate.Id {
 		return nil, status.Error(codes.Internal, "分类名称已存在")
+	}
+
+	err = s.dbModel.UpdateCategory(cate)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -106,7 +127,7 @@ func (s *CategoryAPIService) GetCategory(ctx context.Context, req *pb.GetCategor
 
 func (s *CategoryAPIService) ListCategory(ctx context.Context, req *pb.ListCategoryRequest) (*pb.ListCategoryReply, error) {
 	opt := &model.OptionGetCategoryList{
-		WithCount:    true,
+		WithCount:    false,
 		QueryIn:      make(map[string][]interface{}),
 		SelectFields: req.Field,
 		Page:         int(req.Page),

@@ -8,13 +8,12 @@ import (
 )
 
 type Category struct {
-	Id        int        `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
+	Id        int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	ParentId  int        `form:"parent_id" json:"parent_id,omitempty" gorm:"column:parent_id;type:int(11);size:11;default:0;index:parent_id_title,unique;index:parent_id;comment:上级ID;"`
 	Title     string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;index:parent_id_title,unique;comment:分类名称;"`
-	Cover     string     `form:"cover" json:"cover,omitempty" gorm:"column:cover;type:varchar(255);size:255;comment:分类封面;"`
 	DocCount  int        `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(11);size:11;default:0;comment:文档统计;"`
-	Sort      int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
-	Enable    bool       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(1);size:1;default:1;"`
+	Sort      int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;index:idx_sort;comment:排序，值越大越靠前;"`
+	Enable    bool       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(1);size:1;index:idx_enable;default:1;"`
 	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
@@ -124,7 +123,7 @@ func (m *DBModel) GetCategoryList(opt *OptionGetCategoryList) (categoryList []Ca
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 
-	err = db.Order("parent_id asc, sort desc").Find(&categoryList).Error
+	err = db.Order("enable desc, parent_id asc, sort desc").Find(&categoryList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetCategoryList", zap.Error(err))
 	}
@@ -133,7 +132,23 @@ func (m *DBModel) GetCategoryList(opt *OptionGetCategoryList) (categoryList []Ca
 
 // DeleteCategory 删除数据
 // 分类下存在文档的分类，则不允许删除
+// 查找子分类，如果子分类下存在文档，则不允许删除
 func (m *DBModel) DeleteCategory(ids []int64) (err error) {
+	var (
+		children    []Category
+		childrenIds []int64
+	)
+
+	m.db.Select("id").Where("parent_id in (?) and doc_count = ?", ids, 0).Find(&children)
+	if len(children) > 0 {
+		for _, v := range children {
+			childrenIds = append(childrenIds, v.Id)
+		}
+		if err = m.DeleteCategory(childrenIds); err != nil {
+			return
+		}
+	}
+
 	err = m.db.Where("id in (?) and doc_count = ?", ids, 0).Delete(&Category{}).Error
 	if err != nil {
 		m.logger.Error("DeleteCategory", zap.Error(err))
