@@ -1,5 +1,12 @@
 import { Message } from 'element-ui'
-import { login, getUser, updateUserProfile, logout } from '~/api/user'
+import {
+  login,
+  getUser,
+  updateUserProfile,
+  logout,
+  getUserPermissions,
+} from '~/api/user'
+import { permissionsToTree } from '~/utils/permission'
 export const user = {
   namespaced: true,
   state: {
@@ -14,6 +21,8 @@ export const user = {
       signature: '',
     },
     token: '',
+    permissions: [],
+    allowPages: [],
   },
   mutations: {
     setUser(state, user) {
@@ -29,6 +38,12 @@ export const user = {
       state.user = {}
       state.token = ''
       localStorage.clear()
+    },
+    setPermissions(state, permissions) {
+      state.permissions = permissions
+    },
+    setAllowPages(state, pages) {
+      state.allowPages = pages
     },
   },
   actions: {
@@ -52,22 +67,46 @@ export const user = {
       }
       return res
     },
-    async login({ commit }, loginInfo) {
+    async login({ commit, dispatch }, loginInfo) {
       const res = await login(loginInfo)
-      if (res.status === 200) {
-        commit('setUser', res.data.user)
-        commit('setToken', res.data.token)
-      } else {
+      if (res.status !== 200) {
         Message({
           type: 'error',
           message: res.data.message || '登录失败',
         })
+        return res
       }
+      commit('setUser', res.data.user)
+      commit('setToken', res.data.token)
+      // 获取用户权限
+      await dispatch('getUserPermissions')
       return res
     },
     async logout({ commit }) {
       const res = await logout()
       commit('logout')
+      return res
+    },
+    async getUserPermissions({ commit }) {
+      const res = await getUserPermissions()
+      if (res.status === 200) {
+        commit('setPermissions', res.data.permission)
+        const allowPages = []
+        try {
+          const trees = permissionsToTree(res.data.permission)
+          trees.forEach((tree) => {
+            if (tree.pages && tree.id && tree.id > 0) {
+              allowPages.push(...tree.pages)
+            }
+          })
+        } catch (error) {}
+        commit('setAllowPages', allowPages)
+      } else {
+        Message({
+          type: 'error',
+          message: res.data.message || '获取权限失败',
+        })
+      }
       return res
     },
   },
@@ -77,6 +116,12 @@ export const user = {
     },
     token(state) {
       return state.token
+    },
+    permissions(state) {
+      return state.permissions
+    },
+    allowPages(state) {
+      return state.allowPages
     },
   },
 }

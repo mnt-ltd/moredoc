@@ -33,6 +33,7 @@
   </div>
 </template>
 <script>
+import { mapActions } from 'vuex'
 import { listPermission } from '~/api/permission'
 import { permissionsToTree } from '~/utils/permission'
 import { getGroupPermission, updateGroupPermission } from '~/api/group'
@@ -71,6 +72,7 @@ export default {
     this.permission = this.initPermission
   },
   methods: {
+    ...mapActions('user', ['getUserPermissions']),
     async onSubmit() {
       this.loading = true
       const res = await updateGroupPermission({
@@ -80,6 +82,7 @@ export default {
       if (res.status === 200) {
         this.groupPermission.permission_id = this.$refs.tree.getCheckedKeys()
         this.$message.success('设置成功')
+        this.getUserPermissions()
         this.$emit('success')
       } else {
         this.resetChecked()

@@ -2,8 +2,9 @@
   <div class="page-login">
     <el-card shadow="never">
       <div slot="header" class="clearfix">
-        <span>管理员登录</span>
+        <span>用户登录</span>
       </div>
+      <!-- TODO: 登录成功之后，跳转到指定页面 -->
       <form-login :redirect="'/admin'"></form-login>
     </el-card>
   </div>
@@ -11,11 +12,9 @@
 
 <script>
 export default {
-  // 这样也行，多个中间件的时候就这样写
-  middleware: ['auth'],
   head() {
     return {
-      title: `管理员登录 - MOREDOC · 魔刀文库`,
+      title: `用户登录 - MOREDOC · 魔刀文库`,
     }
   },
 }

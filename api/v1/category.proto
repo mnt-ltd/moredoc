@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Category {
+  int32 id = 1;
+  int32 parent_id = 2;
+  string title = 3;
+  string cover = 4;
+  int32 doc_count = 5;
+  int32 sort = 6;
+  string alias = 7;
+  bool enable = 8;
+  google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
+}
+
+message ListCategoryRequest {
+  int64 page = 1;
+  int64 size = 2;
+  int64 parent_id = 3;
+  string wd = 4;
+  repeated bool enable = 5;
+  repeated string field = 6;
+}
+
+message ListCategoryReply {
+  int64 total = 1;
+  repeated Category category = 2;
+}
+
+message DeleteCategoryRequest{
+    repeated int64 id = 1;
+}
+
+message GetCategoryRequest{
+    int64 id = 1;
+}
+
+service CategoryAPI {
+  rpc CreateCategory(Category) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : '/api/v1/category',
+      body : '*',
+    };
+  }
+
+  rpc UpdateCategory(Category) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/category',
+      body : '*',
+    };
+  }
+
+  rpc DeleteCategory(DeleteCategoryRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/category',
+    };
+  }
+
+  rpc GetCategory(GetCategoryRequest) returns (Category) {
+    option (google.api.http) = {
+      get : '/api/v1/category',
+    };
+  }
+
+  rpc ListCategory(ListCategoryRequest) returns (ListCategoryReply) {
+    option (google.api.http) = {
+      get : '/api/v1/category/list',
+    };
+  }
+}

@@ -15,7 +15,6 @@
       >
         <el-menu
           :router="true"
-          :default-openeds="['/admin/documemnt', '/admin/user']"
           :default-active="$route.path"
           :collapse="isCollapse"
           class="layout-admin-menu"
@@ -24,63 +23,37 @@
             <i class="el-icon-monitor"></i>
             <span slot="title">面板</span>
           </el-menu-item>
-
-          <el-submenu index="/admin/documemnt">
-            <template slot="title">
-              <i class="el-icon-document-copy"></i>
-              <span slot="title">文档管理</span>
-            </template>
-            <el-menu-item index="/admin/document/category">
-              <i class="el-icon-s-grid"></i>
-              <span>分类管理</span>
+          <template v-for="menu in menus">
+            <el-submenu
+              v-if="menu.children"
+              v-show="allowPages.includes(menu.page)"
+              :key="'submenu-' + menu.page"
+              :index="menu.page"
+            >
+              <template slot="title">
+                <i :class="menu.icon"></i>
+                <span slot="title">{{ menu.title }}</span>
+              </template>
+              <el-menu-item
+                v-for="child in menu.children"
+                v-show="allowPages.includes(child.page)"
+                :key="child.page"
+                :index="child.page"
+              >
+                <i :class="child.icon"></i>
+                <span>{{ child.title }}</span>
+              </el-menu-item>
+            </el-submenu>
+            <el-menu-item
+              v-else
+              v-show="allowPages.includes(menu.page)"
+              :key="'menu-' + menu.page"
+              :index="menu.page"
+            >
+              <i :class="menu.icon"></i>
+              <span slot="title">{{ menu.title }}</span>
             </el-menu-item>
-            <el-menu-item index="/admin/document/list">
-              <i class="el-icon-tickets"></i>
-              <span>文档列表</span>
-            </el-menu-item>
-            <el-menu-item index="/admin/document/recycle">
-              <i class="el-icon-delete"></i>
-              <span>回收站</span>
-            </el-menu-item>
-          </el-submenu>
-          <el-submenu index="/admin/user">
-            <template slot="title">
-              <i class="el-icon-user"></i>
-              <span slot="title">用户管理</span>
-            </template>
-            <el-menu-item index="/admin/user/list">
-              <i class="el-icon-user"></i>
-              <span>用户管理</span>
-            </el-menu-item>
-            <el-menu-item index="/admin/user/group">
-              <i class="el-icon-magic-stick"></i>
-              <span>角色管理</span>
-            </el-menu-item>
-            <el-menu-item index="/admin/user/permission">
-              <i class="el-icon-circle-check"></i>
-              <span>权限管理</span>
-            </el-menu-item>
-          </el-submenu>
-          <el-menu-item index="/admin/banner">
-            <i class="el-icon-picture-outline"></i>
-            <span slot="title">横幅管理</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/friendlink">
-            <i class="el-icon-link"></i>
-            <span slot="title">友链管理</span>
-          </el-menu-item>
-          <!-- <el-menu-item index="/admin/comment">
-            <i class="el-icon-chat-dot-square"></i>
-            <span slot="title">评论管理</span>
-          </el-menu-item> -->
-          <el-menu-item index="/admin/attachment">
-            <i class="el-icon-paperclip"></i>
-            <span slot="title">附件管理</span>
-          </el-menu-item>
-          <el-menu-item index="/admin/config">
-            <i class="el-icon-setting"></i>
-            <span slot="title">系统设置</span>
-          </el-menu-item>
+          </template>
         </el-menu>
       </transition>
     </el-aside>
@@ -115,13 +88,6 @@
       <el-main>
         <nuxt />
       </el-main>
-      <!-- <el-footer>
-        <span>© 2019-2022</span>
-        <span>Powered by</span>
-        <a href="https://mnt.ltd" target="_blank" title="MOREDOC"
-          >MOREDOC · 魔刀文库</a
-        >
-      </el-footer> -->
     </el-container>
     <el-dialog title="个人资料" :visible.sync="formProfileVisible" width="30%">
       <FormProfile @success="profileSuccess" />
@@ -146,6 +112,77 @@ export default {
       formProfileVisible: false,
       formPasswordVisible: false,
       isCollapse: false,
+      menus: [
+        {
+          page: '/admin/document',
+          title: '文档管理',
+          icon: 'el-icon-document-copy',
+          children: [
+            {
+              page: '/admin/document/category',
+              title: '分类管理',
+              icon: 'el-icon-s-grid',
+            },
+            {
+              page: '/admin/document/list',
+              title: '文档列表',
+              icon: 'el-icon-tickets',
+            },
+            {
+              page: '/admin/document/recycle',
+              title: '回收站',
+              icon: 'el-icon-delete',
+            },
+          ],
+        },
+        {
+          page: '/admin/user',
+          title: '用户管理',
+          icon: 'el-icon-user',
+          children: [
+            {
+              page: '/admin/user/list',
+              title: '用户管理',
+              icon: 'el-icon-user',
+            },
+            {
+              page: '/admin/user/group',
+              title: '角色管理',
+              icon: 'el-icon-magic-stick',
+            },
+            {
+              page: '/admin/user/permission',
+              title: '权限管理',
+              icon: 'el-icon-circle-check',
+            },
+          ],
+        },
+        {
+          page: '/admin/banner',
+          title: '横幅管理',
+          icon: 'el-icon-picture-outline',
+        },
+        {
+          page: '/admin/friendlink',
+          title: '友链管理',
+          icon: 'el-icon-link',
+        },
+        {
+          page: '/admin/comment',
+          title: '评论管理',
+          icon: 'el-icon-chat-dot-square',
+        },
+        {
+          page: '/admin/attachment',
+          title: '附件管理',
+          icon: 'el-icon-paperclip',
+        },
+        {
+          page: '/admin/config',
+          title: '系统设置',
+          icon: 'el-icon-setting',
+        },
+      ],
     }
   },
   head() {
@@ -153,14 +190,11 @@ export default {
       title: 'MOREDOC · 魔刀文库',
     }
   },
-  computed: {
-    ...mapGetters('user', ['user', 'token']),
+  created() {
+    this.getUserPermissions()
   },
-  watch: {
-    // async $route(to, from) {
-    //   this.activePath = to.path
-    //   this.$refs.mobileMenu.close('mobileMenu')
-    // },
+  computed: {
+    ...mapGetters('user', ['user', 'token', 'permissions', 'allowPages']),
   },
   mounted() {
     const screenWidth = document.body.clientWidth
@@ -169,7 +203,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('user', ['logout']),
+    ...mapActions('user', ['logout', 'getUserPermissions']),
     profileSuccess() {
       this.formProfileVisible = false
     },

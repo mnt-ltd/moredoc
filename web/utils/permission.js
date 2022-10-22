@@ -1,39 +1,47 @@
 // 这里前端维护映射关系，后端只需要返回权限列表即可
+// Key 为组，对象为权限相关名称
 const cumstomPermissionMap = {
   'api.v1.UserAPI': {
     label: '用户管理',
     path: 'ListUser',
     children: [],
+    pages: ['/admin/user', '/admin/user/list'],
   },
   'api.v1.FriendlinkAPI': {
     label: '友链管理',
     path: 'ListFriendlink',
     children: [],
+    pages: ['/admin/friendlink'],
   },
   'api.v1.AttachmentAPI': {
     label: '附件管理',
     path: 'ListAttachment',
     children: [],
+    pages: ['/admin/attachment'],
   },
   'api.v1.BannerAPI': {
     label: '横幅管理',
     path: 'ListBanner',
     children: [],
+    pages: ['/admin/banner'],
   },
   'api.v1.GroupAPI': {
     label: '角色管理',
     path: 'ListGroup',
     children: [],
+    pages: ['/admin/user', '/admin/user/group'],
   },
   'api.v1.PermissionAPI': {
     label: '权限管理',
     path: 'ListPermission',
     children: [],
+    pages: ['/admin/user', '/admin/user/permission'],
   },
   'api.v1.ConfigAPI': {
     label: '系统设置',
     path: 'ListConfig',
     children: [],
+    pages: ['/admin/config'],
   },
   upload: {
     id: 0,

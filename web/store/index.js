@@ -8,6 +8,7 @@ Vue.use(Vuex)
 const vuexLocal = new VuexPersistence({
   storage: window.localStorage,
   modules: ['user'],
+  key: 'moredoc',
 })
 
 const store = () =>

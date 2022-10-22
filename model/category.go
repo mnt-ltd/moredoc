@@ -17,24 +17,10 @@ type Category struct {
 	DocCount  int        `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(11);size:11;default:0;comment:文档统计;"`
 	Sort      int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
 	Alias     string     `form:"alias" json:"alias,omitempty" gorm:"column:alias;type:varchar(64);size:64;comment:别名，限英文和数字等组成;"`
-	Enable    bool       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(1);size:1;default:0;"`
+	Enable    bool       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(1);size:1;default:1;"`
 	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
-
-// 这里是proto文件中的结构体，可以根据需要删除或者调整
-//message Category {
-// int32 id = 1;
-// int32 parent_id = 2;
-// string title = 3;
-// string cover = 4;
-// int32 doc_count = 5;
-// int32 sort = 6;
-// string alias = 7;
-// int32 enable = 8;
-// google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
-// google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
-//}
 
 func (Category) TableName() string {
 	return tablePrefix + "category"

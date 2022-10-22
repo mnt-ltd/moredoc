@@ -48,12 +48,16 @@ func (m *DBModel) UpdateGroupPermissions(groupdId int64, permissionIds []int64) 
 		existPermission = make(map[int64]struct{})
 	)
 
+	// 去重
 	for _, permissionId := range permissionIds {
 		if _, ok := existPermission[permissionId]; !ok && permissionId > 0 {
-			// 去重
 			existPermission[permissionId] = struct{}{}
 			permissions = append(permissions, GroupPermission{GroupId: groupdId, PermissionId: permissionId})
 		}
+	}
+
+	if len(permissions) == 0 {
+		return
 	}
 
 	err = sess.Create(&permissions).Error
