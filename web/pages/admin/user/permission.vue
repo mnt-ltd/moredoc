@@ -16,6 +16,7 @@
         :fields="tableListFields"
         :show-actions="true"
         :show-view="false"
+        :loading="loading"
         :show-edit="true"
         :show-delete="false"
         :show-select="false"

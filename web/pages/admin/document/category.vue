@@ -15,6 +15,7 @@
     <el-card shadow="never" class="mgt-20px">
       <TableList
         :table-data="trees"
+        :loading="loading"
         :fields="tableListFields"
         :show-actions="true"
         :show-view="false"

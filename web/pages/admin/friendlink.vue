@@ -14,6 +14,7 @@
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <TableList
+        :loading="loading"
         :table-data="friendlinks"
         :fields="tableListFields"
         :show-actions="true"

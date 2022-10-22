@@ -1,6 +1,7 @@
 <template>
   <div class="com-table-list">
     <el-table
+      v-loading="loading"
       :data="tableData"
       style="width: 100%"
       row-key="id"
@@ -126,6 +127,10 @@ export default {
     tableData: {
       type: Array,
       default: () => [],
+    },
+    loading: {
+      type: Boolean,
+      default: false,
     },
     // 每个field结构，包括：label、prop、width、min-width、fixed，还有type，其中type枚举包括：text、image、link、button、slot
     fields: {

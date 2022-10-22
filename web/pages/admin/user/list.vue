@@ -14,6 +14,7 @@
     <el-card class="mgt-20px" shadow="never">
       <TableList
         :table-data="users"
+        :loading="loading"
         :fields="listFields"
         :show-actions="true"
         :show-view="true"

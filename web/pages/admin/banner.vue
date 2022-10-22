@@ -14,6 +14,7 @@
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <TableList
+        :loading="loading"
         :table-data="listData"
         :fields="tableListFields"
         :show-actions="true"
