@@ -29,6 +29,22 @@
             :value="item.value"
           ></el-option>
         </el-select>
+        <el-cascader
+          v-else-if="field.type == 'cascader'"
+          v-model="search[field.name]"
+          :options="field.trees || []"
+          :filterable="true"
+          :props="
+            field.props || {
+              checkStrictly: true,
+              expandTrigger: 'hover',
+              label: 'title',
+              value: 'id',
+            }
+          "
+          clearable
+          :placeholder="field.placeholder"
+        ></el-cascader>
       </el-form-item>
 
       <el-form-item>

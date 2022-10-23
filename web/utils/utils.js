@@ -114,11 +114,13 @@ export function formatBytes(bytes, decimals = 2) {
 }
 
 // categoryToTrees 分类转树形结构
-export function categoryToTrees(categories) {
+export function categoryToTrees(categories, withDisabled = true) {
   const result = []
   const map = {}
   categories.forEach((item) => {
-    item.disabled = !item.enable
+    if (withDisabled) {
+      item.disabled = !item.enable
+    }
     map[item.id] = item
   })
   categories.forEach((item) => {

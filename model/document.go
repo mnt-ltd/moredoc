@@ -1,13 +1,27 @@
 package model
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
+
+const (
+	DocumentStatusPending    = iota // 待转换
+	DocumentStatusConverting        // 转换中
+	DocumentStatusConverted         // 已转换
+	DocumentStatusFailed            // 转换失败
+	DocumentStatusDisabled          // 已禁用
+)
+
+var DocumentStatusMap = map[int]struct{}{
+	DocumentStatusPending:    {},
+	DocumentStatusConverting: {},
+	DocumentStatusConverted:  {},
+	DocumentStatusFailed:     {},
+	DocumentStatusDisabled:   {},
+}
 
 type Document struct {
 	Id            int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
@@ -52,6 +66,7 @@ func (m *DBModel) CreateDocument(document *Document) (err error) {
 }
 
 // UpdateDocument 更新Document，如果需要更新指定字段，则请指定updateFields参数
+// TODO: 不允许修改文档状态
 func (m *DBModel) UpdateDocument(document *Document, updateFields ...string) (err error) {
 	db := m.db.Model(document)
 
@@ -64,6 +79,14 @@ func (m *DBModel) UpdateDocument(document *Document, updateFields ...string) (er
 	if err != nil {
 		m.logger.Error("UpdateDocument", zap.Error(err))
 	}
+	return
+}
+
+// UpdateDocumentStatus 更新文档状态。如文档转换失败，重新更改为待转换等
+func (m *DBModel) UpdateDocumentStatus(status int, documentId []int64) (err error) {
+	// 1. 查询文档所属用户与所属分类
+	// 2. 如果是禁用文档或者由禁用状态变更为其他状态，用户文档数加减1，分类文档数加减1
+	// 3. 更新文档状态
 	return
 }
 
@@ -93,38 +116,11 @@ type OptionGetDocumentList struct {
 }
 
 // GetDocumentList 获取Document列表
-func (m *DBModel) GetDocumentList(opt OptionGetDocumentList) (documentList []Document, total int64, err error) {
+func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Document, total int64, err error) {
+	tableName := Document{}.TableName()
 	db := m.db.Model(&Document{})
-
-	for field, rangeValue := range opt.QueryRange {
-		fields := m.FilterValidFields(Document{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		if rangeValue[0] != nil {
-			db = db.Where(fmt.Sprintf("%s >= ?", field), rangeValue[0])
-		}
-		if rangeValue[1] != nil {
-			db = db.Where(fmt.Sprintf("%s <= ?", field), rangeValue[1])
-		}
-	}
-
-	for field, values := range opt.QueryIn {
-		fields := m.FilterValidFields(Document{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
-	}
-
-	for field, values := range opt.QueryLike {
-		fields := m.FilterValidFields(Document{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(strings.TrimSuffix(fmt.Sprintf(strings.Join(make([]string, len(values)+1), "%s like ? or"), field), "or"), values...)
-	}
-
+	db = m.generateQueryIn(db, tableName, opt.QueryIn)
+	db = m.generateQueryLike(db, tableName, opt.QueryLike)
 	if len(opt.Ids) > 0 {
 		db = db.Where("id in (?)", opt.Ids)
 	}
@@ -143,26 +139,12 @@ func (m *DBModel) GetDocumentList(opt OptionGetDocumentList) (documentList []Doc
 	}
 
 	if len(opt.Sort) > 0 {
-		var sorts []string
-		for _, sort := range opt.Sort {
-			slice := strings.Split(sort, " ")
-			if len(m.FilterValidFields(Document{}.TableName(), slice[0])) == 0 {
-				continue
-			}
-
-			if len(slice) == 2 {
-				sorts = append(sorts, fmt.Sprintf("%s %s", slice[0], slice[1]))
-			} else {
-				sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
-			}
-		}
-		if len(sorts) > 0 {
-			db = db.Order(strings.Join(sorts, ","))
-		}
+		db = m.generateQuerySort(db, tableName, opt.Sort)
+	} else {
+		db = db.Order("id desc")
 	}
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
-
 	err = db.Find(&documentList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetDocumentList", zap.Error(err))
@@ -172,6 +154,7 @@ func (m *DBModel) GetDocumentList(opt OptionGetDocumentList) (documentList []Doc
 
 // DeleteDocument 删除数据
 // TODO: 删除数据之后，存在 document_id 的关联表，需要删除对应数据，同时相关表的统计数值，也要随着减少
+// TODO: 如果是删除文档，则文档所属分类以及用户的文档数量都需要减1（需要判断文档是否是禁用再做处理）
 func (m *DBModel) DeleteDocument(ids []interface{}) (err error) {
 	err = m.db.Where("id in (?)", ids).Delete(&Document{}).Error
 	if err != nil {

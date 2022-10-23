@@ -51,6 +51,7 @@ message ListDocumentRequest {
   string order = 5;
   repeated int64 category_id = 6;
   repeated int64 user_id = 7;
+  repeated int32 status = 8;
 }
 
 message ListDocumentReply {

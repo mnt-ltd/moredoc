@@ -16,6 +16,14 @@ export const attachmentTypeOptions = [
   { label: '分类封面', value: 6 },
 ]
 
+export const documentStatusOptions = [
+  { label: '待转换', value: 0, type: 'info' },
+  { label: '转换中', value: 1, type: 'primary' },
+  { label: '已转换', value: 2, type: 'success' },
+  { label: '转换失败', value: 3, type: 'warning' },
+  { label: '已禁用', value: 4, type: 'danger' },
+]
+
 // 0 网站横幅，1 小程序横幅，2 APP横幅
 export const bannerTypeOptions = [
   { label: '网站横幅', value: 0, type: 'primary' },
