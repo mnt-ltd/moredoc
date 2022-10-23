@@ -114,9 +114,9 @@ export default {
     }
   },
   async created() {
-    this.initTableListFields()
-    await this.listGroup()
     await this.initSearchForm()
+    await this.initTableListFields()
+    await this.listGroup()
     await this.listUser()
   },
   methods: {

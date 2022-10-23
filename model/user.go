@@ -288,7 +288,8 @@ func (m *DBModel) DeleteUser(ids []int64) (err error) {
 		}
 	}()
 
-	err = sess.Where("id in (?)", ids).Delete(&User{}).Error
+	// id==1的用户不允许删除
+	err = sess.Where("id in (?) and id != ?", ids, 1).Delete(&User{}).Error
 	if err != nil {
 		m.logger.Error("DeleteUser", zap.Error(err))
 	}
