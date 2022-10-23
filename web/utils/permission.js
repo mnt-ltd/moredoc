@@ -7,6 +7,12 @@ const cumstomPermissionMap = {
     children: [],
     pages: ['/admin/document', '/admin/document/list'],
   },
+  'api.v1.CategoryAPI': {
+    label: '分类管理',
+    path: 'ListCategory',
+    children: [],
+    pages: ['/admin/document', '/admin/document/category'],
+  },
   'api.v1.UserAPI': {
     label: '用户管理',
     path: 'ListUser',

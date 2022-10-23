@@ -167,13 +167,51 @@ func (s *AttachmentAPIService) ListAttachment(ctx context.Context, req *pb.ListA
 			}
 		}
 	}
-	s.logger.Debug("ListAttachment", zap.Any("pbAttachments", pbAttachments), zap.Int64("total", total), zap.Any("attachments", attachments))
 	return &pb.ListAttachmentReply{Total: total, Attachment: pbAttachments}, nil
 }
 
-// 上传文档
+// UploadDocument 上传文档
 func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
+	userCliams, statusCodes, err := s.checkGinPermission(ctx)
+	if err != nil {
+		ctx.JSON(statusCodes, ginResponse{Code: statusCodes, Message: err.Error(), Error: err.Error()})
+		return
+	}
 
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: err.Error(), Error: err.Error()})
+		return
+	}
+
+	var attachments []*model.Attachment
+
+	name := "file"
+	fileheaders := form.File[name]
+	for _, fileheader := range fileheaders {
+		ext := strings.ToLower(filepath.Ext(fileheader.Filename))
+		if !filetil.IsDocument(ext) {
+			ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: "不支持的文件类型", Error: "不支持的文件类型"})
+			return
+		}
+		attachment, err := s.saveFile(ctx, fileheader)
+		if err != nil {
+			os.Remove("." + attachment.Path)
+			ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
+			return
+		}
+		attachment.UserId = userCliams.UserId
+		attachment.Type = model.AttachmentTypeDocument
+		attachments = append(attachments, attachment)
+	}
+
+	err = s.dbModel.CreateAttachments(attachments)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, ginResponse{Code: http.StatusOK, Message: "ok", Data: attachments})
 }
 
 // UploadAvatar 上传头像

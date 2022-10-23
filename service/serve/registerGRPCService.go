@@ -86,5 +86,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 注册文档服务
+	documentAPIService := biz.NewDocumentAPIService(dbModel, logger)
+	v1.RegisterDocumentAPIServer(grpcServer, documentAPIService)
+	err = v1.RegisterDocumentAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterDocumentAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }

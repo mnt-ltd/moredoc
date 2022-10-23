@@ -22,6 +22,27 @@ var imagesExt = map[string]struct{}{
 	// ".webp": {},
 }
 
+var documentExt = map[string]struct{}{
+	// word
+	".doc": {}, ".docx": {}, ".rtf": {}, ".wps": {}, ".odt": {},
+	// PPT
+	".ppt": {}, ".pptx": {}, ".pps": {}, ".ppsx": {}, ".dps": {}, ".odp": {}, ".pot": {},
+	// XLS
+	".xls": {}, ".xlsx": {}, ".et": {}, ".ods": {},
+	// 其他
+	".epub": {}, ".umd": {}, ".chm": {}, ".mobi": {},
+	// TXT
+	".txt": {},
+	// PDF
+	".pdf": {},
+}
+
+// IsDocument 是否是文档
+func IsDocument(ext string) bool {
+	_, ok := documentExt[ext]
+	return ok
+}
+
 // IsImage 判断文件是否是图片
 func IsImage(ext string) bool {
 	_, ok := imagesExt[ext]

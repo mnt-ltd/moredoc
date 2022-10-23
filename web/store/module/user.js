@@ -103,7 +103,6 @@ export const user = {
         // TODO: 剔除。这里只是开发的时候暂时用到
         allowPages.push(
           '/admin/document',
-          '/admin/document/category',
           '/admin/document/list',
           '/admin/document/recycle'
         )

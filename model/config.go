@@ -307,13 +307,13 @@ func (m *DBModel) initConfig() (err error) {
 	cfgs := []Config{
 		// 系统配置项
 		{Category: ConfigCategorySystem, Name: ConfigSystemTitle, Label: "网站名称", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的名称", InputType: "text", Sort: 1, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemDescription, Label: "网站描述", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的描述", InputType: "text", Sort: 2, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemDescription, Label: "网站描述", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的描述", InputType: "textarea", Sort: 2, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemKeywords, Label: "网站关键字", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的关键字", InputType: "text", Sort: 3, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemLogo, Label: "网站Logo", Value: "", Placeholder: "请输入您网站的Logo", InputType: "text", Sort: 4, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemFavicon, Label: "网站Favicon", Value: "", Placeholder: "请输入您网站的Favicon", InputType: "text", Sort: 5, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemLogo, Label: "网站Logo", Value: "", Placeholder: "请输入您网站的Logo路径", InputType: "text", Sort: 4, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemFavicon, Label: "网站Favicon", Value: "", Placeholder: "请输入您网站的Favicon路径", InputType: "text", Sort: 5, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemIcp, Label: "网站备案号", Value: "", Placeholder: "请输入您网站的备案号", InputType: "text", Sort: 6, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "", Placeholder: "请输入您网站的域名", InputType: "textarea", Sort: 7, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemAnalytics, Label: "网站统计代码", Value: "", Placeholder: "请输入您网站的统计代码", InputType: "text", Sort: 8, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "", Placeholder: "请输入您网站的域名访问地址，如 https://moredoc.mnt.ltd", InputType: "text", Sort: 7, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemAnalytics, Label: "网站统计代码", Value: "", Placeholder: "请输入您网站的统计代码", InputType: "textarea", Sort: 8, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemTheme, Label: "网站主题", Value: "default", Placeholder: "请输入您网站的主题", InputType: "text", Sort: 9, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemCopyright, Label: "网站版权信息", Value: "", Placeholder: "请输入您网站的版权信息", InputType: "text", Sort: 10, Options: ""},
 

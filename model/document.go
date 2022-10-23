@@ -20,7 +20,7 @@ type Document struct {
 	Height        int        `form:"height" json:"height,omitempty" gorm:"column:height;type:int(11);size:11;default:0;comment:高;"`
 	Preview       int        `form:"preview" json:"preview,omitempty" gorm:"column:preview;type:int(11);size:11;default:0;comment:允许预览页数;"`
 	Pages         int        `form:"pages" json:"pages,omitempty" gorm:"column:pages;type:int(11);size:11;default:0;comment:文档页数;"`
-	Uuid          string     `form:"uuid" json:"uuid,omitempty" gorm:"column:uuid;type:varchar(36);size:36;comment:文档UUID，用于隐藏文档真实路径;"`
+	UUID          string     `form:"uuid" json:"uuid,omitempty" gorm:"column:uuid;type:varchar(36);size:36;comment:文档UUID，用于隐藏文档真实路径;"`
 	DownloadCount int        `form:"download_count" json:"download_count,omitempty" gorm:"column:download_count;type:int(11);size:11;default:0;comment:下载人次;"`
 	ViewCount     int        `form:"view_count" json:"view_count,omitempty" gorm:"column:view_count;type:int(11);size:11;default:0;comment:浏览人次;"`
 	FavoriteCount int        `form:"favorite_count" json:"favorite_count,omitempty" gorm:"column:favorite_count;type:int(11);size:11;default:0;comment:收藏人次;"`
@@ -32,34 +32,9 @@ type Document struct {
 	Status        int        `form:"status" json:"status,omitempty" gorm:"column:status;type:smallint(6);size:6;default:0;index:status;comment:文档状态：0 待转换，1 转换中，2 转换完成，3 转换失败，4 禁用;"`
 	CreatedAt     *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt     *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	DeletedAt     *gorm.DeletedAt
+	DeletedUserId int64 `form:"deleted_user_id" json:"deleted_user_id,omitempty" gorm:"column:deleted_user_id;type:bigint(20);size:20;default:0;comment:删除用户ID;"`
 }
-
-// 这里是proto文件中的结构体，可以根据需要删除或者调整
-//message Document {
-// int64 id = 1;
-// string title = 2;
-// string keywords = 3;
-// string description = 4;
-// int64 user_id = 5;
-// string cover = 6;
-// int32 width = 7;
-// int32 height = 8;
-// int32 preview = 9;
-// int32 pages = 10;
-// string uuid = 11;
-// int32 download_count = 12;
-// int32 view_count = 13;
-// int32 favorite_count = 14;
-// int32 comment_count = 15;
-// int32 score = 16;
-// int32 score_count = 17;
-// int32 price = 18;
-// int64 size = 19;
-// int32 status = 20;
-// google.protobuf.Timestamp created_at = 21 [ (gogoproto.stdtime) = true ];
-// google.protobuf.Timestamp updated_at = 22 [ (gogoproto.stdtime) = true ];
-// google.protobuf.Timestamp deleted_at = 23 [ (gogoproto.stdtime) = true ];
-//}
 
 func (Document) TableName() string {
 	return tablePrefix + "document"

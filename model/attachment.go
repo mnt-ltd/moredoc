@@ -10,7 +10,8 @@ import (
 // TODO: 附件管理，需要有一个定时任务，定时根据type和type_id清理无效的附件数据，同时删除无效的文件
 
 const (
-	AttachmentTypeAvatar        = iota // 用户头像
+	AttachmentTypeUnknown       = iota // 未知
+	AttachmentTypeAvatar               // 用户头像
 	AttachmentTypeDocument             // 文档
 	AttachmentTypeArticle              // 文章
 	AttachmentTypeComment              // 评论
@@ -32,7 +33,7 @@ type Attachment struct {
 	Hash        string    `form:"hash" json:"hash,omitempty" gorm:"column:hash;type:char(32);size:32;index:hash;comment:文件MD5;"`
 	UserId      int64     `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);default:0;index:user_id;comment:用户 id;"`
 	TypeId      int64     `form:"type_id" json:"type_id,omitempty" gorm:"column:type_id;type:bigint(20);default:0;comment:类型数据ID，对应与用户头像时，则为用户id，对应为文档时，则为文档ID;"`
-	Type        int       `form:"type" json:"type,omitempty" gorm:"column:type;type:smallint(5);default:0;comment:附件类型(0 头像，1 文档，2 文章附件 ...);"`
+	Type        int       `form:"type" json:"type,omitempty" gorm:"column:type;type:smallint(5);default:0;comment:附件类型(0 位置，1 头像，2 文档，3 文章附件 ...);"`
 	Enable      bool      `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(3);default:1;comment:是否合法;"`
 	Path        string    `form:"path" json:"path,omitempty" gorm:"column:path;type:varchar(255);size:255;comment:文件存储路径;"`
 	Name        string    `form:"name" json:"name,omitempty" gorm:"column:name;type:varchar(255);size:255;comment:文件原名称;"`
@@ -53,6 +54,16 @@ func (Attachment) TableName() string {
 // CreateAttachment 创建Attachment
 func (m *DBModel) CreateAttachment(attachment *Attachment) (err error) {
 	err = m.db.Create(attachment).Error
+	if err != nil {
+		m.logger.Error("CreateAttachment", zap.Error(err))
+		return
+	}
+	return
+}
+
+// CreateAttachment 创建Attachment
+func (m *DBModel) CreateAttachments(attachments []*Attachment) (err error) {
+	err = m.db.Create(attachments).Error
 	if err != nil {
 		m.logger.Error("CreateAttachment", zap.Error(err))
 		return

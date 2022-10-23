@@ -1,0 +1,107 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Document {
+  int64 id = 1;
+  string title = 2;
+  string keywords = 3;
+  string description = 4;
+  int64 user_id = 5;
+  string cover = 6;
+  int32 width = 7;
+  int32 height = 8;
+  int32 preview = 9;
+  int32 pages = 10;
+  string uuid = 11;
+  int32 download_count = 12;
+  int32 view_count = 13;
+  int32 favorite_count = 14;
+  int32 comment_count = 15;
+  int32 score = 16;
+  int32 score_count = 17;
+  int32 price = 18;
+  int64 size = 19;
+  int32 status = 20;
+  google.protobuf.Timestamp created_at = 21 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 22 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp deleted_at = 23 [ (gogoproto.stdtime) = true ];
+  int64 deleted_user_id = 24;
+}
+
+message DeleteDocumentRequest { repeated int64 id = 1; }
+
+message GetDocumentRequest { int64 id = 1; }
+
+message ListDocumentRequest {
+  int64 page = 1;
+  int64 size = 2;
+  string wd = 3;
+  repeated string field = 4;
+  string order = 5;
+  repeated int64 category_id = 6;
+  repeated int64 user_id = 7;
+}
+
+message ListDocumentReply {
+  int64 total = 1;
+  repeated Document document = 2;
+}
+
+message DocumentItem {
+  string title = 1;         // 文档标题
+  string keywords = 2;      // 文档关键字
+  string description = 3;   // 文档描述
+  string filepath = 4;      // 文档路径
+  int64 attachment_id = 5; // 附件ID
+  int32 price = 6;          // 价格
+}
+
+message CreateDocumentRequest {
+  repeated int64 category_id = 1;
+  repeated DocumentItem document = 2;
+}
+
+service DocumentAPI {
+  rpc CreateDocument(CreateDocumentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : '/api/v1/document',
+      body : '*',
+    };
+  }
+
+  rpc UpdateDocument(Document) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/document',
+      body : '*',
+    };
+  }
+
+  rpc DeleteDocument(DeleteDocumentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/document',
+    };
+  }
+
+  rpc GetDocument(GetDocumentRequest) returns (Document) {
+    option (google.api.http) = {
+      get : '/api/v1/document',
+    };
+  }
+
+  rpc ListDocument(ListDocumentRequest) returns (ListDocumentReply) {
+    option (google.api.http) = {
+      get : '/api/v1/document/list',
+    };
+  }
+}

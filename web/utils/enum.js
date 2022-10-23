@@ -7,12 +7,13 @@ export const userStatusOptions = [
 ]
 
 export const attachmentTypeOptions = [
-  { label: '头像', value: 0 },
-  { label: '文档', value: 1 },
-  { label: '文章', value: 2 },
-  { label: '评论', value: 3 },
-  { label: '横幅', value: 4 },
-  { label: '分类封面', value: 5 },
+  { label: '未知', value: 0 },
+  { label: '头像', value: 1 },
+  { label: '文档', value: 2 },
+  { label: '文章', value: 3 },
+  { label: '评论', value: 4 },
+  { label: '横幅', value: 5 },
+  { label: '分类封面', value: 6 },
 ]
 
 // 0 网站横幅，1 小程序横幅，2 APP横幅
