@@ -46,7 +46,7 @@
 
 <script>
 import { listCategory } from '~/api/category'
-import { listDocument } from '~/api/document'
+import { deleteDocument, listDocument } from '~/api/document'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import { categoryToTrees } from '~/utils/utils'
@@ -151,7 +151,7 @@ export default {
     },
     batchDelete() {
       this.$confirm(
-        `您确定要删除选中的【${this.selectedRow.length}个】分类吗？本次删除会连同子分类一起删除，删除之后不可恢复！`,
+        `您确定要删除选中的【${this.selectedRow.length}个】文档吗？删除之后将会进入到回收站，可以在回收站中恢复。`,
         '温馨提示',
         {
           confirmButtonText: '确定',
@@ -160,20 +160,20 @@ export default {
         }
       )
         .then(async () => {
-          // const ids = this.selectedRow.map((item) => item.id)
-          // const res = await deleteCategory({ id: ids })
-          // if (res.status === 200) {
-          //   this.$message.success('删除成功')
-          //   this.listCategory()
-          // } else {
-          //   this.$message.error(res.data.message)
-          // }
+          const ids = this.selectedRow.map((item) => item.id)
+          const res = await deleteDocument({ id: ids })
+          if (res.status === 200) {
+            this.$message.success('删除成功')
+            this.listDocument()
+          } else {
+            this.$message.error(res.data.message)
+          }
         })
         .catch(() => {})
     },
     deleteRow(row) {
       this.$confirm(
-        `您确定要删除分类【${row.title}】吗？本次删除会连同子分类一起删除，删除之后不可恢复！`,
+        `您确定要删除文档【${row.title}】吗？删除之后将会进入到回收站，可以在回收站中恢复。`,
         '温馨提示',
         {
           confirmButtonText: '确定',
@@ -182,13 +182,13 @@ export default {
         }
       )
         .then(async () => {
-          // const res = await deleteCategory({ id: row.id })
-          // if (res.status === 200) {
-          //   this.$message.success('删除成功')
-          //   this.listCategory()
-          // } else {
-          //   this.$message.error(res.data.message)
-          // }
+          const res = await deleteDocument({ id: row.id })
+          if (res.status === 200) {
+            this.$message.success('删除成功')
+            this.listDocument()
+          } else {
+            this.$message.error(res.data.message)
+          }
         })
         .catch(() => {})
     },

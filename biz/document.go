@@ -45,6 +45,34 @@ func (s *DocumentAPIService) UpdateDocument(ctx context.Context, req *pb.Documen
 // 1. 对于普通用户，可以删除自己创建的文档
 // 2. 对于管理员，可以删除所有文档
 func (s *DocumentAPIService) DeleteDocument(ctx context.Context, req *pb.DeleteDocumentRequest) (*emptypb.Empty, error) {
+	userClaims, err := s.checkPermission(ctx)
+	s.logger.Info("DeleteDocument", zap.Any("userClaims", userClaims), zap.Error(err))
+	if err != nil && userClaims == nil { // 未登录
+		return nil, err
+	}
+
+	ids := req.Id
+	if err != nil { // 普通用户，只能删除自己创建的文档
+		userDocs, _, _ := s.dbModel.GetDocumentList(&model.OptionGetDocumentList{
+			WithCount:    false,
+			SelectFields: []string{"id"},
+			Ids:          util.Slice2Interface(req.Id),
+		})
+
+		if len(userDocs) == 0 {
+			return &emptypb.Empty{}, nil
+		}
+
+		for _, doc := range userDocs {
+			ids = append(ids, doc.Id)
+		}
+	}
+
+	err = s.dbModel.DeleteDocument(ids, userClaims.UserId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "删除文档失败：%v", err)
+	}
+
 	return &emptypb.Empty{}, nil
 }
 

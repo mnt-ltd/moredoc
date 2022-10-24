@@ -29,7 +29,7 @@ func checkGinPermission(dbModel *model.DBModel, ctx *gin.Context) (userClaims *a
 		if permission.Title == "" {
 			item = permission.Path
 		}
-		return nil, statusCode, fmt.Errorf(errorMessagePermissionDeniedFormat, item)
+		return userClaims, statusCode, fmt.Errorf(errorMessagePermissionDeniedFormat, item)
 	}
 	return
 }
@@ -47,7 +47,7 @@ func checkGRPCPermission(dbModel *model.DBModel, ctx context.Context) (userClaim
 		if item == "" {
 			item = permission.Path
 		}
-		return nil, fmt.Errorf(errorMessagePermissionDeniedFormat, item)
+		return userClaims, fmt.Errorf(errorMessagePermissionDeniedFormat, item)
 	}
 	return
 }
