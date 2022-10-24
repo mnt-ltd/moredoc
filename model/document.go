@@ -34,7 +34,7 @@ type Document struct {
 	Height        int        `form:"height" json:"height,omitempty" gorm:"column:height;type:int(11);size:11;default:0;comment:高;"`
 	Preview       int        `form:"preview" json:"preview,omitempty" gorm:"column:preview;type:int(11);size:11;default:0;comment:允许预览页数;"`
 	Pages         int        `form:"pages" json:"pages,omitempty" gorm:"column:pages;type:int(11);size:11;default:0;comment:文档页数;"`
-	UUID          string     `form:"uuid" json:"uuid,omitempty" gorm:"column:uuid;type:varchar(36);size:36;comment:文档UUID，用于隐藏文档真实路径;"`
+	UUID          string     `form:"uuid" json:"uuid,omitempty" gorm:"column:uuid;type:varchar(36);size:36;index:idx_uuid,unique;comment:文档UUID，用于隐藏文档真实路径;"`
 	DownloadCount int        `form:"download_count" json:"download_count,omitempty" gorm:"column:download_count;type:int(11);size:11;default:0;comment:下载人次;"`
 	ViewCount     int        `form:"view_count" json:"view_count,omitempty" gorm:"column:view_count;type:int(11);size:11;default:0;comment:浏览人次;"`
 	FavoriteCount int        `form:"favorite_count" json:"favorite_count,omitempty" gorm:"column:favorite_count;type:int(11);size:11;default:0;comment:收藏人次;"`

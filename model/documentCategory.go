@@ -1,8 +1,6 @@
 package model
 
 import (
-	"fmt"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -83,38 +81,10 @@ type OptionGetDocumentCategoryList struct {
 }
 
 // GetDocumentCategoryList 获取DocumentCategory列表
-func (m *DBModel) GetDocumentCategoryList(opt OptionGetDocumentCategoryList) (documentCategoryList []DocumentCategory, total int64, err error) {
-	db := m.db.Model(&DocumentCategory{})
-
-	for field, rangeValue := range opt.QueryRange {
-		fields := m.FilterValidFields(DocumentCategory{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		if rangeValue[0] != nil {
-			db = db.Where(fmt.Sprintf("%s >= ?", field), rangeValue[0])
-		}
-		if rangeValue[1] != nil {
-			db = db.Where(fmt.Sprintf("%s <= ?", field), rangeValue[1])
-		}
-	}
-
-	for field, values := range opt.QueryIn {
-		fields := m.FilterValidFields(DocumentCategory{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
-	}
-
-	for field, values := range opt.QueryLike {
-		fields := m.FilterValidFields(DocumentCategory{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(strings.TrimSuffix(fmt.Sprintf(strings.Join(make([]string, len(values)+1), "%s like ? or"), field), "or"), values...)
-	}
-
+func (m *DBModel) GetDocumentCategoryList(opt *OptionGetDocumentCategoryList) (documentCategoryList []DocumentCategory, total int64, err error) {
+	model := &DocumentCategory{}
+	db := m.db.Model(model)
+	db = m.generateQueryIn(db, model.TableName(), opt.QueryIn)
 	if len(opt.Ids) > 0 {
 		db = db.Where("id in (?)", opt.Ids)
 	}
@@ -127,28 +97,9 @@ func (m *DBModel) GetDocumentCategoryList(opt OptionGetDocumentCategoryList) (do
 		}
 	}
 
-	opt.SelectFields = m.FilterValidFields(DocumentCategory{}.TableName(), opt.SelectFields...)
+	opt.SelectFields = m.FilterValidFields(model.TableName(), opt.SelectFields...)
 	if len(opt.SelectFields) > 0 {
 		db = db.Select(opt.SelectFields)
-	}
-
-	if len(opt.Sort) > 0 {
-		var sorts []string
-		for _, sort := range opt.Sort {
-			slice := strings.Split(sort, " ")
-			if len(m.FilterValidFields(DocumentCategory{}.TableName(), slice[0])) == 0 {
-				continue
-			}
-
-			if len(slice) == 2 {
-				sorts = append(sorts, fmt.Sprintf("%s %s", slice[0], slice[1]))
-			} else {
-				sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
-			}
-		}
-		if len(sorts) > 0 {
-			db = db.Order(strings.Join(sorts, ","))
-		}
 	}
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)

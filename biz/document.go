@@ -124,6 +124,45 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 		s.logger.Error("CopyStruct failed", zap.Error(err))
 	}
 
+	var (
+		docCates       []model.DocumentCategory
+		docUsers       []model.User
+		docIndexMap    = make(map[int64]int)
+		userIndexesMap = make(map[int64][]int)
+		docIds         []int64
+		userIds        []int64
+	)
+
+	for i, doc := range pbDocs {
+		docIndexMap[doc.Id] = i
+		userIndexesMap[doc.UserId] = append(userIndexesMap[doc.UserId], i)
+		docIds = append(docIds, doc.Id)
+		userIds = append(userIds, doc.UserId)
+	}
+
+	if len(pbDocs) > 0 {
+		docCates, _, _ = s.dbModel.GetDocumentCategoryList(&model.OptionGetDocumentCategoryList{
+			WithCount:    false,
+			SelectFields: []string{"document_id", "category_id"},
+			QueryIn:      map[string][]interface{}{"document_id": util.Slice2Interface(docIds)},
+		})
+		for _, docCate := range docCates {
+			pbDocs[docIndexMap[docCate.DocumentId]].CategoryId = append(pbDocs[docIndexMap[docCate.DocumentId]].CategoryId, docCate.CategoryId)
+		}
+
+		docUsers, _, _ = s.dbModel.GetUserList(&model.OptionGetUserList{
+			WithCount:    false,
+			SelectFields: []string{"id", "username"},
+			QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(userIds)},
+		})
+		for _, docUser := range docUsers {
+			indexes := userIndexesMap[docUser.Id]
+			for _, index := range indexes {
+				pbDocs[index].Username = docUser.Username
+			}
+		}
+	}
+
 	return &pb.ListDocumentReply{
 		Total:    total,
 		Document: pbDocs,

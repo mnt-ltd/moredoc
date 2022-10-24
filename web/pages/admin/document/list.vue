@@ -18,8 +18,8 @@
         :table-data="documents"
         :fields="tableListFields"
         :show-actions="true"
-        :show-view="false"
-        :show-edit="false"
+        :show-view="true"
+        :show-edit="true"
         :show-delete="true"
         :show-select="true"
         @selectRow="selectRow"
@@ -64,6 +64,7 @@ export default {
       },
       documents: [],
       trees: [],
+      categoryMap: {},
       total: 0,
       searchFormFields: [],
       tableListFields: [],
@@ -75,20 +76,25 @@ export default {
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    this.listCategory()
+    // 需要先加载分类数据
+    await this.listCategory()
     await this.listDocument()
   },
   methods: {
     async listCategory() {
-      const res = await listCategory()
+      const res = await listCategory({ field: ['id', 'parent_id', 'title'] })
       if (res.status === 200) {
         let categories = res.data.category || []
         categories = categories.map((item) => {
           item.disable_delete = item.doc_count > 0
           return item
         })
-        this.categories = categories
 
+        const categoryMap = {}
+        categories.forEach((item) => {
+          categoryMap[item.id] = item
+        })
+        this.categoryMap = categoryMap
         this.trees = categoryToTrees(categories, false)
         this.total = res.data.total
         this.initSearchForm()
@@ -104,7 +110,16 @@ export default {
       }
       const res = await listDocument(search)
       if (res.status === 200) {
-        this.documents = res.data.document || []
+        const documents = res.data.document || []
+        documents.forEach((item) => {
+          ;(item.category_id || (item.category_id = [])).forEach((id) => {
+            ;(item.category_name || (item.category_name = [])).push(
+              this.categoryMap[id].title
+            )
+          })
+        })
+
+        this.documents = documents
         this.total = res.data.total
       } else {
         this.$message.error(res.data.message)
@@ -124,8 +139,11 @@ export default {
       this.listDocument()
     },
     onCreate() {
-      this.document = { id: 0, enable: true }
-      this.formVisible = true
+      // 新增，跳转到前台文档上传页面
+      const routeUrl = this.$router.resolve({
+        path: '/upload',
+      })
+      window.open(routeUrl.href, '_blank')
     },
     formSuccess() {
       this.formVisible = false
@@ -218,6 +236,12 @@ export default {
           width: 120,
           type: 'enum',
           enum: statusMap,
+        },
+        {
+          prop: 'category_name',
+          label: '分类',
+          minWidth: 180,
+          type: 'breadcrumb',
         },
         { prop: 'pages', label: '页数', width: 80, type: 'number' },
         { prop: 'price', label: '价格', width: 80, type: 'number' },

@@ -74,6 +74,30 @@
           <span v-else-if="item.type === 'banner'">
             <UploadImage :disabled="true" :image="scope.row[item.prop]" />
           </span>
+          <span v-else-if="item.type === 'array'">
+            <template v-if="scope.row[item.prop]">
+              <el-tag
+                v-for="(value, idx) in scope.row[item.prop]"
+                :key="item.prop + idx"
+                class="mgr-5px"
+                >{{ value }}</el-tag
+              >
+            </template>
+            <template v-else>-</template>
+          </span>
+          <!-- 有层级的，用breadcrumb -->
+          <span v-else-if="item.type === 'breadcrumb'">
+            <template v-if="scope.row[item.prop]">
+              <el-breadcrumb separator-class="el-icon-arrow-right">
+                <el-breadcrumb-item
+                  v-for="(value, idx) in scope.row[item.prop]"
+                  :key="item.prop + idx"
+                  >{{ value }}</el-breadcrumb-item
+                >
+              </el-breadcrumb>
+            </template>
+            <template v-else>-</template>
+          </span>
           <!-- 字符串。更多，则需要继续扩展 -->
           <span v-else>{{ scope.row[item.prop] || '-' }}</span>
         </template>
@@ -193,6 +217,9 @@ export default {
   .el-button {
     margin-left: 0;
     margin-right: 10px;
+  }
+  .el-breadcrumb__separator[class*='icon'] {
+    margin: 0;
   }
 }
 </style>
