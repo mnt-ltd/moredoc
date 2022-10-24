@@ -42,6 +42,7 @@ message Document {
 }
 
 message DeleteDocumentRequest { repeated int64 id = 1; }
+message RecoverRecycleDocumentRequest { repeated int64 id = 1; }
 
 message GetDocumentRequest { int64 id = 1; }
 
@@ -61,22 +62,8 @@ message ListDocumentReply {
   repeated Document document = 2;
 }
 
-message DocumentItem {
-  string title = 1;         // 文档标题
-  string keywords = 2;      // 文档关键字
-  string description = 3;   // 文档描述
-  string filepath = 4;      // 文档路径
-  int64 attachment_id = 5; // 附件ID
-  int32 price = 6;          // 价格
-}
-
-message CreateDocumentRequest {
-  repeated int64 category_id = 1;
-  repeated DocumentItem document = 2;
-}
-
 service DocumentAPI {
-  rpc CreateDocument(CreateDocumentRequest) returns (google.protobuf.Empty) {
+  rpc CreateDocument(Document) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post : '/api/v1/document',
       body : '*',
@@ -107,4 +94,33 @@ service DocumentAPI {
       get : '/api/v1/document/list',
     };
   }
+  
+  // 文档回收站列表
+  rpc ListRecycleDocument(ListDocumentRequest) returns (ListDocumentReply) {
+    option (google.api.http) = {
+      get : '/api/v1/document/recycle',
+    };
+  }
+
+  // 恢复回收站文档，支持恢复单个文档或者是批量恢复
+  rpc RecoverRecycleDocument(RecoverRecycleDocumentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/document/recycle',
+    };
+  }
+
+  // 删除回收站文档
+  rpc DeleteRecycleDocument(DeleteDocumentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/document/recycle',
+    };
+  }
+
+  // 清空回收站文档
+  rpc ClearRecycleDocument(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/document/recycle/all',
+    };
+  }
+
 }

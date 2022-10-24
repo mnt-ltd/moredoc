@@ -30,7 +30,7 @@ func (s *DocumentAPIService) checkPermission(ctx context.Context) (userClaims *a
 
 // CreateDocument 创建文档
 // 判断是否有权限
-func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateDocumentRequest) (*emptypb.Empty, error) {
+func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
 	return &emptypb.Empty{}, nil
 }
 
@@ -38,6 +38,30 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 // 1. 对于普通用户，可以更新自己创建的文档
 // 2. 对于管理员，可以更新所有文档
 func (s *DocumentAPIService) UpdateDocument(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
+	s.logger.Debug("UpdateDocument", zap.Any("req", req))
+	userClaims, err := s.checkPermission(ctx)
+	if userClaims == nil { // 未登录
+		return nil, err
+	}
+
+	fields := []string{"id", "title", "keywords", "description", "price"}
+	doc := &model.Document{}
+	util.CopyStruct(req, doc)
+
+	if err != nil { // 普通用户，只能更新自己的文档
+		existDoc, _ := s.dbModel.GetDocument(req.Id, "id", "user_id")
+		if existDoc.UserId != userClaims.UserId {
+			return nil, status.Error(codes.PermissionDenied, "文档不存在或没有权限")
+		}
+	} else { // 管理员，可以更新所有文档
+		fields = append(fields, "status")
+	}
+
+	err = s.dbModel.UpdateDocument(doc, req.CategoryId, fields...)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -84,12 +108,23 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 	}
 
 	_, err := s.checkPermission(ctx)
-	if doc.Status == model.DocumentStatusDisabled && err != nil {
-		return nil, status.Error(codes.NotFound, "文档不存在")
+	if err != nil && doc.Status == model.DocumentStatusDisabled {
+		return nil, status.Error(codes.NotFound, "文档不存在或没有权限")
 	}
 
 	pbDoc := &pb.Document{}
 	util.CopyStruct(doc, pbDoc)
+	docCates, _, _ := s.dbModel.GetDocumentCategoryList(
+		&model.OptionGetDocumentCategoryList{
+			WithCount:    false,
+			SelectFields: []string{"category_id"},
+			QueryIn:      map[string][]interface{}{"document_id": {doc.Id}},
+		},
+	)
+
+	for _, dc := range docCates {
+		pbDoc.CategoryId = append(pbDoc.CategoryId, dc.CategoryId)
+	}
 
 	return pbDoc, nil
 }

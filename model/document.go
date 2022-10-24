@@ -66,19 +66,79 @@ func (m *DBModel) CreateDocument(document *Document) (err error) {
 }
 
 // UpdateDocument 更新Document，如果需要更新指定字段，则请指定updateFields参数
-// TODO: 不允许修改文档状态
-func (m *DBModel) UpdateDocument(document *Document, updateFields ...string) (err error) {
-	db := m.db.Model(document)
+// TODO: 如果是禁用文档，则分类统计数值需要减少
+func (m *DBModel) UpdateDocument(document *Document, categoryId []int64, updateFields ...string) (err error) {
+	sess := m.db.Begin()
+	defer func() {
+		if err != nil {
+			sess.Rollback()
+		} else {
+			sess.Commit()
+		}
+	}()
+
+	var (
+		oldDocCategories      []DocumentCategory
+		oldDocCategoryIds     []int64
+		newDocCategories      []DocumentCategory
+		modelDocumentCategory = &DocumentCategory{}
+		modelCategory         = &Category{}
+	)
+
+	sess.Table(modelDocumentCategory.TableName()).Select("category_id").Where("document_id = ?", document.Id).Find(&oldDocCategories)
+	for _, cate := range oldDocCategories {
+		oldDocCategoryIds = append(oldDocCategoryIds, cate.CategoryId)
+	}
+
+	if len(oldDocCategoryIds) > 0 {
+		err = sess.Where("document_id = ?", document.Id).Delete(modelDocumentCategory).Error
+		if err != nil {
+			m.logger.Error("Delete DocumentCategory", zap.Error(err))
+			return
+		}
+
+		// 更新分类统计
+		err = sess.Model(modelCategory).Where("id in (?)", oldDocCategoryIds).Update("doc_count", gorm.Expr("doc_count - ?", 1)).Error
+		if err != nil {
+			m.logger.Error("Update doc_count--", zap.Error(err))
+			return
+		}
+	}
+
+	for _, cateId := range categoryId {
+		newDocCategories = append(newDocCategories, DocumentCategory{
+			DocumentId: document.Id,
+			CategoryId: cateId,
+		})
+	}
+	if len(newDocCategories) > 0 {
+		m.logger.Debug("newDocCategories", zap.Any("newDocCategories", newDocCategories))
+		err = sess.Create(&newDocCategories).Error
+		if err != nil {
+			m.logger.Error("Create New Category", zap.Error(err))
+			return
+		}
+
+		err = sess.Model(modelCategory).Where("id in (?)", categoryId).Update("doc_count", gorm.Expr("doc_count + ?", 1)).Error
+		if err != nil {
+			m.logger.Error("Update doc_count++", zap.Error(err))
+			return
+		}
+	}
 
 	updateFields = m.FilterValidFields(Document{}.TableName(), updateFields...)
 	if len(updateFields) > 0 { // 更新指定字段
-		db = db.Select(updateFields)
+		sess = sess.Select(updateFields)
+	} else {
+		sess = sess.Select(m.GetTableFields(document.TableName())).Omit("deleted_at", "deleted_user_id")
 	}
 
-	err = db.Where("id = ?", document.Id).Updates(document).Error
+	err = sess.Where("id = ?", document.Id).Updates(document).Error
 	if err != nil {
 		m.logger.Error("UpdateDocument", zap.Error(err))
+		return
 	}
+
 	return
 }
 
@@ -210,6 +270,17 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 
 		if len(deepDelete) > 0 && deepDelete[0] { // 彻底删除
 			err = sess.Unscoped().Delete(&doc).Error
+			if err != nil {
+				m.logger.Error("DeleteDocument", zap.Error(err))
+				return
+			}
+
+			// 关联的分类也需要删除
+			err = sess.Unscoped().Where("document_id = ?", doc.Id).Delete(modelCategory).Error
+			if err != nil {
+				m.logger.Error("DeleteDocument", zap.Error(err))
+				return
+			}
 		} else { // 逻辑删除
 			err = sess.Model(&doc).Where("id = ?", doc.Id).Updates(map[string]interface{}{
 				"deleted_at":      time.Now(),

@@ -22,6 +22,8 @@
         :show-edit="true"
         :show-delete="true"
         :show-select="true"
+        @editRow="editRow"
+        @viewRow="viewRow"
         @selectRow="selectRow"
         @deleteRow="deleteRow"
       />
@@ -41,18 +43,27 @@
         </el-pagination>
       </div>
     </el-card>
+    <el-dialog title="编辑文档" width="640px" :visible.sync="formVisible">
+      <FormUpdateDocument
+        :category-trees="trees"
+        :init-document="document"
+        :is-admin="true"
+        @success="formSuccess"
+      />
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import { listCategory } from '~/api/category'
-import { deleteDocument, listDocument } from '~/api/document'
+import { deleteDocument, getDocument, listDocument } from '~/api/document'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import { categoryToTrees } from '~/utils/utils'
 import { documentStatusOptions } from '~/utils/enum'
+import FormUpdateDocument from '~/components/FormUpdateDocument.vue'
 export default {
-  components: { TableList, FormSearch },
+  components: { TableList, FormSearch, FormUpdateDocument },
   layout: 'admin',
   data() {
     return {
@@ -144,6 +155,22 @@ export default {
         path: '/upload',
       })
       window.open(routeUrl.href, '_blank')
+    },
+    viewRow(row) {
+      // 查看，跳转到前台文档详情页面
+      const routeUrl = this.$router.resolve({
+        path: '/document/' + row.uuid,
+      })
+      window.open(routeUrl.href, '_blank')
+    },
+    async editRow(row) {
+      const res = await getDocument({ id: row.id })
+      if (res.status === 200) {
+        this.document = res.data
+        this.formVisible = true
+      } else {
+        this.$message.error(res.data.message)
+      }
     },
     formSuccess() {
       this.formVisible = false
