@@ -66,7 +66,6 @@ func (m *DBModel) CreateDocument(document *Document) (err error) {
 }
 
 // UpdateDocument 更新Document，如果需要更新指定字段，则请指定updateFields参数
-// TODO: 如果是禁用文档，则分类统计数值需要减少
 func (m *DBModel) UpdateDocument(document *Document, categoryId []int64, updateFields ...string) (err error) {
 	sess := m.db.Begin()
 	defer func() {
@@ -173,12 +172,19 @@ type OptionGetDocumentList struct {
 	QueryIn      map[string][]interface{}  // map[field][]{value1,value2,...}
 	QueryLike    map[string][]interface{}  // map[field][]{value1,value2,...}
 	Sort         []string
+	IsRecycle    bool // 是否是回收站模式查询
 }
 
 // GetDocumentList 获取Document列表
 func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Document, total int64, err error) {
 	tableName := Document{}.TableName()
 	db := m.db.Model(&Document{})
+	if opt.IsRecycle {
+		// 回收站模式，只根据删除的倒序排序
+		opt.Sort = []string{"deleted_at desc"}
+		db = db.Unscoped().Where("deleted_at IS NOT NULL")
+	}
+
 	db = m.generateQueryIn(db, tableName, opt.QueryIn)
 	db = m.generateQueryLike(db, tableName, opt.QueryLike)
 	if len(opt.Ids) > 0 {
@@ -252,7 +258,8 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 
 	for _, doc := range docs {
 		// 文档不是禁用状态，且未被逻辑删除，则需要减少用户、分类下的文档统计数量
-		if doc.Status != DocumentStatusDisabled && doc.DeletedAt == nil {
+		// if doc.Status != DocumentStatusDisabled && doc.DeletedAt == nil {
+		if doc.DeletedAt == nil {
 			err = sess.Model(modelUser).Where("id = ?", doc.UserId).Update("doc_count", gorm.Expr("doc_count - ?", 1)).Error
 			if err != nil {
 				m.logger.Error("DeleteDocument", zap.Error(err))

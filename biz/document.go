@@ -175,7 +175,75 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 	}
 
 	s.logger.Debug("ListDocument", zap.Any("opt", opt))
+	return s.listDocument(opt)
+}
 
+// ListRecycleDocument 回收站文档
+func (s *DocumentAPIService) ListRecycleDocument(ctx context.Context, req *pb.ListDocumentRequest) (*pb.ListDocumentReply, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, status.Error(codes.PermissionDenied, err.Error())
+	}
+
+	opt := &model.OptionGetDocumentList{
+		WithCount:    true,
+		Page:         int(req.Page),
+		Size:         int(req.Size_),
+		SelectFields: req.Field,
+		QueryIn:      make(map[string][]interface{}),
+		QueryLike:    make(map[string][]interface{}),
+		IsRecycle:    true,
+	}
+
+	if len(req.CategoryId) > 0 {
+		opt.QueryIn["category_id"] = util.Slice2Interface(req.CategoryId)
+	}
+
+	if len(req.UserId) > 0 {
+		opt.QueryIn["user_id"] = []interface{}{req.UserId[0]}
+	}
+
+	if req.Wd != "" {
+		opt.QueryLike["title"] = []interface{}{req.Wd}
+		opt.QueryLike["keywords"] = []interface{}{req.Wd}
+		opt.QueryLike["description"] = []interface{}{req.Wd}
+	}
+
+	if len(req.Status) > 0 {
+		opt.QueryIn["status"] = util.Slice2Interface(req.Status)
+	}
+
+	return s.listDocument(opt)
+}
+
+// RecoverRecycleDocument 恢复回收站文档
+func (s *DocumentAPIService) RecoverRecycleDocument(ctx context.Context, req *pb.RecoverRecycleDocumentRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, status.Error(codes.PermissionDenied, err.Error())
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// DeleteRecycleDocument 删除回收站文档
+func (s *DocumentAPIService) DeleteRecycleDocument(ctx context.Context, req *pb.DeleteDocumentRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, status.Error(codes.PermissionDenied, err.Error())
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// ClearRecycleDocument 清空回收站文档
+func (s *DocumentAPIService) ClearRecycleDocument(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, status.Error(codes.PermissionDenied, err.Error())
+	}
+	return &emptypb.Empty{}, nil
+}
+
+func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList) (*pb.ListDocumentReply, error) {
 	docs, total, err := s.dbModel.GetDocumentList(opt)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -188,12 +256,13 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 	}
 
 	var (
-		docCates       []model.DocumentCategory
-		docUsers       []model.User
-		docIndexMap    = make(map[int64]int)
-		userIndexesMap = make(map[int64][]int)
-		docIds         []int64
-		userIds        []int64
+		docCates            []model.DocumentCategory
+		docUsers            []model.User
+		docIndexMap         = make(map[int64]int)
+		userIndexesMap      = make(map[int64][]int)
+		deletedUserIndexMap = make(map[int64][]int)
+		docIds              []int64
+		userIds             []int64
 	)
 
 	for i, doc := range pbDocs {
@@ -201,6 +270,10 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 		userIndexesMap[doc.UserId] = append(userIndexesMap[doc.UserId], i)
 		docIds = append(docIds, doc.Id)
 		userIds = append(userIds, doc.UserId)
+		if doc.DeletedUserId > 0 {
+			userIds = append(userIds, doc.DeletedUserId)
+			deletedUserIndexMap[doc.DeletedUserId] = append(deletedUserIndexMap[doc.DeletedUserId], i)
+		}
 	}
 
 	if len(pbDocs) > 0 {
@@ -218,10 +291,16 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 			SelectFields: []string{"id", "username"},
 			QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(userIds)},
 		})
+
 		for _, docUser := range docUsers {
 			indexes := userIndexesMap[docUser.Id]
 			for _, index := range indexes {
 				pbDocs[index].Username = docUser.Username
+			}
+
+			indexes = deletedUserIndexMap[docUser.Id]
+			for _, index := range indexes {
+				pbDocs[index].DeletedUsername = docUser.Username
 			}
 		}
 	}

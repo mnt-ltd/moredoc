@@ -39,6 +39,7 @@ message Document {
   int64 deleted_user_id = 24;
   string username = 25;
   repeated int64 category_id = 26;
+  string deleted_username = 27;
 }
 
 message DeleteDocumentRequest { repeated int64 id = 1; }

@@ -40,4 +40,34 @@ export const listDocument = (params) => {
   })
 }
 
+export const listRecycleDocument = (params) => {
+  return service({
+    url: '/api/v1/document/recycle',
+    method: 'get',
+    params,
+  })
+}
 
+export const recoverRecycleDocument = (data) => {
+  return service({
+    url: '/api/v1/document/recycle',
+    method: 'put',
+    data,
+  })
+}
+
+export const deleteRecycleDocument = (params) => {
+  return service({
+    url: '/api/v1/document/recycle',
+    method: 'delete',
+    params,
+  })
+}
+
+export const clearRecycleDocument = (params) => {
+  return service({
+    url: '/api/v1/document/recycle/all',
+    method: 'delete',
+    params,
+  })
+}

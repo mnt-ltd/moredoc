@@ -46,7 +46,6 @@
           :placeholder="field.placeholder"
         ></el-cascader>
       </el-form-item>
-
       <el-form-item>
         <el-button
           type="primary"
@@ -70,6 +69,7 @@
           >批量删除</el-button
         >
       </el-form-item>
+      <slot name="buttons"></slot>
     </el-form>
   </div>
 </template>
