@@ -170,10 +170,10 @@ export default {
         cancelButtonText: '取消',
         type: 'info',
       }).then(async () => {
-        const res = await recoverRecycleDocument({ id: row.id })
+        const res = await recoverRecycleDocument({ id: [row.id] })
         if (res.status === 200) {
           this.$message.success('恢复成功')
-          this.listRecycleDocument()
+          this.listDocument()
         } else {
           this.$message.error(res.data.message || '操作失败')
         }

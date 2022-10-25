@@ -222,15 +222,33 @@ func (s *DocumentAPIService) RecoverRecycleDocument(ctx context.Context, req *pb
 	if err != nil {
 		return nil, status.Error(codes.PermissionDenied, err.Error())
 	}
+
+	s.logger.Debug("RecoverRecycleDocument", zap.Any("req", req))
+
+	if len(req.Id) == 0 {
+		return &emptypb.Empty{}, nil
+	}
+
+	err = s.dbModel.RecoverRecycleDocument(req.Id)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
 // DeleteRecycleDocument 删除回收站文档
 func (s *DocumentAPIService) DeleteRecycleDocument(ctx context.Context, req *pb.DeleteDocumentRequest) (*emptypb.Empty, error) {
-	_, err := s.checkPermission(ctx)
+	userClaims, err := s.checkPermission(ctx)
 	if err != nil {
 		return nil, status.Error(codes.PermissionDenied, err.Error())
 	}
+
+	err = s.dbModel.DeleteDocument(req.Id, userClaims.UserId, true)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
@@ -240,6 +258,13 @@ func (s *DocumentAPIService) ClearRecycleDocument(ctx context.Context, req *empt
 	if err != nil {
 		return nil, status.Error(codes.PermissionDenied, err.Error())
 	}
+
+	err = s.dbModel.ClearRecycleDocument()
+	if err != nil {
+		s.logger.Error("ClearRecycleDocument", zap.Error(err))
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
 	return &emptypb.Empty{}, nil
 }
 

@@ -19,7 +19,7 @@
         >
         </el-tree>
       </el-form-item>
-      <el-form-item>
+      <el-form-item class="btn-fixed">
         <el-button
           type="primary"
           class="btn-block"
@@ -145,3 +145,20 @@ export default {
   },
 }
 </script>
+<style lang="scss">
+.com-form-group-permission {
+  .el-form {
+    padding-bottom: 80px;
+  }
+  .btn-fixed {
+    position: absolute;
+    bottom: -22px;
+    z-index: 99;
+    background: #fff;
+    width: 100%;
+    margin-left: -20px;
+    padding: 20px;
+    box-sizing: border-box;
+  }
+}
+</style>

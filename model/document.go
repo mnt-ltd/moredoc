@@ -283,7 +283,7 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 			}
 
 			// 关联的分类也需要删除
-			err = sess.Unscoped().Where("document_id = ?", doc.Id).Delete(modelCategory).Error
+			err = sess.Unscoped().Where("document_id = ?", doc.Id).Delete(modelDocumentCategory).Error
 			if err != nil {
 				m.logger.Error("DeleteDocument", zap.Error(err))
 				return
@@ -299,6 +299,83 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 			m.logger.Error("DeleteDocument", zap.Error(err))
 			return
 		}
+	}
+
+	return
+}
+
+// RecoverRecycleDocument 恢复回收站中的文档
+func (m *DBModel) RecoverRecycleDocument(documentId []int64) (err error) {
+	var (
+		modelDocument      = &Document{}
+		modelCategory      = &Category{}
+		modelUser          = &User{}
+		documentCategories []DocumentCategory
+		docs               []Document
+	)
+
+	m.db.Select([]string{"category_id"}).Where("document_id in (?)", documentId).Find(&documentCategories)
+	m.db.Select("user_id").Unscoped().Where("id in (?)", documentId).Find(&docs)
+
+	sess := m.db.Begin()
+	defer func() {
+		if err != nil {
+			sess.Rollback()
+		} else {
+			sess.Commit()
+		}
+	}()
+
+	err = sess.Model(modelDocument).Unscoped().Where("id in ?", documentId).Updates(map[string]interface{}{
+		"deleted_at":      nil,
+		"deleted_user_id": 0,
+	}).Error
+
+	if err != nil {
+		m.logger.Error("RecoverRecycleDocument", zap.Error(err))
+		return
+	}
+
+	for _, docCate := range documentCategories {
+		err = sess.Model(modelCategory).Where("id = ?", docCate.CategoryId).Update("doc_count", gorm.Expr("doc_count + ?", 1)).Error
+		if err != nil {
+			m.logger.Error("RecoverRecycleDocument", zap.Error(err))
+			return
+		}
+	}
+
+	for _, doc := range docs {
+		err = sess.Model(modelUser).Where("id = ?", doc.UserId).Update("doc_count", gorm.Expr("doc_count + ?", 1)).Error
+		if err != nil {
+			m.logger.Error("RecoverRecycleDocument", zap.Error(err))
+			return
+		}
+	}
+
+	return
+}
+
+func (m *DBModel) ClearRecycleDocument() (err error) {
+	var docs []Document
+	err = m.db.Unscoped().Select("id").Where("deleted_at is not null").Find(&docs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("ClearRecycleDocument", zap.Error(err))
+		return
+	}
+
+	if len(docs) == 0 {
+		err = nil
+		return
+	}
+
+	var ids []int64
+	for _, doc := range docs {
+		ids = append(ids, doc.Id)
+	}
+
+	err = m.DeleteDocument(ids, 0, true)
+	if err != nil {
+		m.logger.Error("DeleteDocument", zap.Error(err))
 	}
 
 	return

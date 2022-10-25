@@ -107,6 +107,7 @@ service DocumentAPI {
   rpc RecoverRecycleDocument(RecoverRecycleDocumentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/document/recycle',
+      body : '*',
     };
   }
 
