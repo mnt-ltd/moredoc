@@ -7,6 +7,12 @@ const cumstomPermissionMap = {
     children: [],
     pages: ['/admin/document', '/admin/document/list'],
   },
+  'api.v1.RecycleAPI': {
+    label: '回收站管理',
+    path: 'ListRecycleDocument',
+    children: [],
+    pages: ['/admin/document', '/admin/document/recycle'],
+  },
   'api.v1.CategoryAPI': {
     label: '分类管理',
     path: 'ListCategory',

@@ -95,7 +95,9 @@ service DocumentAPI {
       get : '/api/v1/document/list',
     };
   }
-  
+}
+
+service RecycleAPI {
   // 文档回收站列表
   rpc ListRecycleDocument(ListDocumentRequest) returns (ListDocumentReply) {
     option (google.api.http) = {
@@ -104,7 +106,8 @@ service DocumentAPI {
   }
 
   // 恢复回收站文档，支持恢复单个文档或者是批量恢复
-  rpc RecoverRecycleDocument(RecoverRecycleDocumentRequest) returns (google.protobuf.Empty) {
+  rpc RecoverRecycleDocument(RecoverRecycleDocumentRequest)
+      returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/document/recycle',
       body : '*',
@@ -112,17 +115,18 @@ service DocumentAPI {
   }
 
   // 删除回收站文档
-  rpc DeleteRecycleDocument(DeleteDocumentRequest) returns (google.protobuf.Empty) {
+  rpc DeleteRecycleDocument(DeleteDocumentRequest)
+      returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete : '/api/v1/document/recycle',
     };
   }
 
   // 清空回收站文档
-  rpc ClearRecycleDocument(google.protobuf.Empty) returns (google.protobuf.Empty) {
+  rpc ClearRecycleDocument(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete : '/api/v1/document/recycle/all',
     };
   }
-
 }

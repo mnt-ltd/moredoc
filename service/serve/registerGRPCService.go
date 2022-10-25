@@ -95,5 +95,13 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 文档回收站服务
+	v1.RegisterRecycleAPIServer(grpcServer, documentAPIService)
+	err = v1.RegisterRecycleAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterRecycleAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }
