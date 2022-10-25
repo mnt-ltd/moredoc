@@ -62,12 +62,24 @@
             <div slot="header" class="clearfix">
               <strong>编程开发</strong>
             </div>
-            <nuxt-link to="/">前端开发</nuxt-link>
-            <nuxt-link to="/">后端开发</nuxt-link>
-            <nuxt-link to="/">移动开发</nuxt-link>
-            <nuxt-link to="/">游戏开发</nuxt-link>
-            <nuxt-link to="/">硬件开发</nuxt-link>
-            <nuxt-link to="/">开发工具</nuxt-link>
+            <nuxt-link class="el-link el-link--default" to="/"
+              >前端开发</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >后端开发</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >移动开发</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >游戏开发</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >硬件开发</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >开发工具</nuxt-link
+            >
           </el-card>
         </el-col>
 
@@ -76,12 +88,24 @@
             <div slot="header" class="clearfix">
               <strong>设计·创作</strong>
             </div>
-            <nuxt-link to="/">云计算</nuxt-link>
-            <nuxt-link to="/">大数据</nuxt-link>
-            <nuxt-link to="/">数据库</nuxt-link>
-            <nuxt-link to="/">云平台</nuxt-link>
-            <nuxt-link to="/">网络/安全</nuxt-link>
-            <nuxt-link to="/">人工智能</nuxt-link>
+            <nuxt-link class="el-link el-link--default" to="/"
+              >云计算</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >大数据</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >数据库</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >云平台</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >网络/安全</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >人工智能</nuxt-link
+            >
           </el-card>
         </el-col>
 
@@ -90,12 +114,22 @@
             <div slot="header" class="clearfix">
               <strong>系统运维</strong>
             </div>
-            <nuxt-link to="/">架构</nuxt-link>
-            <nuxt-link to="/">服务器</nuxt-link>
-            <nuxt-link to="/">操作系统</nuxt-link>
-            <nuxt-link to="/">游戏开发</nuxt-link>
-            <nuxt-link to="/">网络/安全</nuxt-link>
-            <nuxt-link to="/">考试认证</nuxt-link>
+            <nuxt-link class="el-link el-link--default" to="/">架构</nuxt-link>
+            <nuxt-link class="el-link el-link--default" to="/"
+              >服务器</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >操作系统</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >游戏开发</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >网络/安全</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >考试认证</nuxt-link
+            >
           </el-card>
         </el-col>
 
@@ -104,12 +138,24 @@
             <div slot="header" class="clearfix">
               <strong>云计算·大数据</strong>
             </div>
-            <nuxt-link to="/">云计算</nuxt-link>
-            <nuxt-link to="/">大数据</nuxt-link>
-            <nuxt-link to="/">数据库</nuxt-link>
-            <nuxt-link to="/">云平台</nuxt-link>
-            <nuxt-link to="/">网络/安全</nuxt-link>
-            <nuxt-link to="/">人工智能</nuxt-link>
+            <nuxt-link class="el-link el-link--default" to="/"
+              >云计算</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >大数据</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >数据库</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >云平台</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >网络/安全</nuxt-link
+            >
+            <nuxt-link class="el-link el-link--default" to="/"
+              >人工智能</nuxt-link
+            >
           </el-card>
         </el-col>
       </el-row>
@@ -128,15 +174,19 @@
               <img src="/static/images/cover-news.png" alt="" />
             </div>
             <div class="card-body-right">
-              <nuxt-link to="/document/"
+              <nuxt-link class="el-link el-link--default" to="/document/"
                 >Docker — 从入门到实战-BookStack.CN</nuxt-link
               >
-              <nuxt-link to="/document/">MongoDB简明教程</nuxt-link>
-              <nuxt-link to="/document/">TypeScript 官方文档</nuxt-link>
-              <nuxt-link to="/document/"
+              <nuxt-link class="el-link el-link--default" to="/document/"
+                >MongoDB简明教程</nuxt-link
+              >
+              <nuxt-link class="el-link el-link--default" to="/document/"
+                >TypeScript 官方文档</nuxt-link
+              >
+              <nuxt-link class="el-link el-link--default" to="/document/"
                 >DolphinPHP1.3.0完全开发手册-基于ThinkPHP5.0.20的快速开发框架-05221135</nuxt-link
               >
-              <nuxt-link to="/document/">
+              <nuxt-link class="el-link el-link--default" to="/document/">
                 ThinkPHP5.1完全开发手册-09081747
               </nuxt-link>
             </div>

@@ -24,7 +24,7 @@
               <el-menu-item index="/category/7">选项3</el-menu-item>
             </el-submenu>
           </el-submenu>
-          <el-menu-item index="/upload">上传</el-menu-item>
+          <el-menu-item index="/upload">上传文档</el-menu-item>
           <el-menu-item index="/me">会员中心</el-menu-item>
         </el-menu>
         <el-form
@@ -46,7 +46,7 @@
       <nuxt />
     </el-main>
     <el-footer>
-      <div v-if="$route.path === '/'" class="footer-friendlink">
+      <div class="footer-friendlink">
         <el-card class="box-card" shadow="never">
           <div slot="header" class="clearfix">
             <strong>友情链接</strong>
@@ -204,6 +204,7 @@ export default {
   .logo {
     padding-left: 0;
     img {
+      margin-top: -5px;
       height: 50px;
     }
   }

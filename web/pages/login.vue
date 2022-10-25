@@ -1,10 +1,9 @@
 <template>
-  <div class="page-login">
+  <div class="page page-login">
     <el-card shadow="never">
       <div slot="header" class="clearfix">
         <span>用户登录</span>
       </div>
-      <!-- TODO: 登录成功之后，跳转到指定页面 -->
       <form-login :redirect="'/admin'"></form-login>
     </el-card>
   </div>
@@ -24,7 +23,11 @@ export default {
   .el-card {
     width: 450px;
     max-width: 100%;
-    margin: 20vh auto;
+    margin: 100px auto;
+    margin-right: 0;
+    .el-card__body {
+      padding-bottom: 0;
+    }
   }
 }
 </style>
