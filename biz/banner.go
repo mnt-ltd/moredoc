@@ -129,7 +129,5 @@ func (s *BannerAPIService) ListBanner(ctx context.Context, req *pb.ListBannerReq
 	var pbBanner []*pb.Banner
 	util.CopyStruct(banners, &pbBanner)
 
-	s.logger.Debug("ListBanner", zap.Any("banners", banners), zap.Any("pbBanner", pbBanner))
-
 	return &pb.ListBannerReply{Total: total, Banner: pbBanner}, nil
 }

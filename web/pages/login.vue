@@ -19,3 +19,12 @@ export default {
   },
 }
 </script>
+<style lang="scss">
+.page-login {
+  .el-card {
+    width: 450px;
+    max-width: 100%;
+    margin: 20vh auto;
+  }
+}
+</style>

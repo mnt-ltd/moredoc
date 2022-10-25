@@ -235,8 +235,90 @@ export default {
 .layout-admin {
   .logo {
     cursor: pointer;
+    height: 60px;
+    border-bottom: 1px solid #e5e5e5;
+    box-sizing: border-box;
+    overflow: hidden;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    img {
+      width: 50px;
+      padding: 5px;
+      height: 50px;
+      margin: 0 2px;
+    }
+    span {
+      font-size: 26px;
+      width: 240px;
+      font-weight: bold;
+      text-align: left;
+      height: 60px;
+      line-height: 60px;
+    }
+  }
+  height: 100vh;
+  .el-main {
+    background-color: #f0f2f5;
+  }
+  .el-aside {
+    transition: width 0.2s;
+    height: 100vh;
+    border-right: 1px solid #e6e6e6;
+    .el-menu {
+      border-right: 0;
+    }
+  }
+  .el-header {
+    border-bottom: 1px solid #e6e6e6;
+    line-height: 60px;
+    .fold {
+      padding: 0 15px 0 0;
+      font-size: 20px;
+      color: #999;
+      cursor: pointer;
+      &:hover {
+        color: #555;
+      }
+    }
+  }
+  .el-footer {
+    border-top: 1px solid #e6e6e6;
+    text-align: center;
+    line-height: 60px;
+    height: 60px;
+    overflow: hidden;
+    color: #999;
+    a {
+      color: #409eff;
+    }
+  }
+  .el-table th {
+    height: 45px;
+    line-height: 45px;
+    padding: 5px 0;
+    &.el-table__cell {
+      background-color: #f7fbff;
+      color: #000;
+      font-weight: normal;
+      &.el-table-column--selection > .cell {
+        padding-left: 14px;
+      }
+    }
+    &.el-table__cell.is-leaf {
+      border-bottom: 0;
+    }
+  }
+  .search-card {
+    .el-card__body {
+      padding-bottom: 0;
+    }
+  }
+  .el-menu-item.is-active {
+    background-color: #ecf5ff;
   }
 }
+
 .layout-aside-collapsed {
   width: 64px !important;
   overflow: hidden;

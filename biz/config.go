@@ -72,7 +72,5 @@ func (s *ConfigAPIService) ListConfig(ctx context.Context, req *pb.ListConfigReq
 	var pbConfigs []*pb.Config
 	util.CopyStruct(&configs, &pbConfigs)
 
-	s.logger.Debug("ListConfig", zap.Any("req", req), zap.Any("configs", configs), zap.Any("pbConfigs", pbConfigs))
-
 	return &pb.Configs{Config: pbConfigs}, nil
 }

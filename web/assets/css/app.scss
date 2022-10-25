@@ -1,9 +1,8 @@
-$bg: #ecf5ff;
 body{
     margin: 0;padding: 0;
     background-color: #fff;
 }
-
+.el-main{padding-left: 0;padding-right: 0;}
 .pointer{cursor: pointer;}
 
 .btn-block{
@@ -13,104 +12,7 @@ body{
 .mgt-20px{margin-top: 20px;}
 .mgr-5px{margin-right: 5px;}
 .text-right{text-align: right;}
-
-.layout-admin{
-    .logo{
-        height: 60px;
-        border-bottom: 1px solid #e5e5e5;
-        box-sizing: border-box;
-        overflow: hidden;
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        img{
-            width: 50px;
-            padding: 5px;
-            height: 50px;
-            margin: 0 2px;
-        }
-        span{
-            font-size: 26px;
-            width: 240px;
-            font-weight: bold;
-            text-align: left;
-            height: 60px;
-            line-height: 60px;
-        }
-    }
-    height: 100vh;
-    .el-main{
-        background-color: #f0f2f5;
-    }
-    .el-aside{
-        transition: width 0.2s;
-        height: 100vh;
-        border-right: 1px solid #e6e6e6;
-        .el-menu{
-            border-right: 0;
-        }
-    }
-    .quickstart-upload{
-        padding: 9px;
-        padding-top: 10px;
-        text-align: center;
-        border-bottom: 1px solid $bg;
-        &:hover{
-            background-color: $bg;
-        }
-    }
-    .el-header{
-        border-bottom: 1px solid #e6e6e6;
-        line-height: 60px;
-        .fold{
-            padding: 0 15px 0 0;
-            font-size: 20px;
-            color: #999;
-            cursor: pointer;
-            &:hover{
-                color: #555
-            }
-        }
-    }
-    .el-footer{
-        border-top: 1px solid #e6e6e6;
-        text-align: center;
-        line-height: 60px;
-        height: 60px;
-        overflow: hidden;
-        color: #999;
-        a{
-            color: #409eff;
-        }
-    }
-    .el-table th{
-        height: 45px;
-        line-height: 45px;
-        padding: 5px 0;
-        &.el-table__cell {
-            background-color: #f7fbff;
-            color: #000;
-            font-weight: normal;
-            &.el-table-column--selection>.cell{
-                padding-left: 14px;
-            }
-        }
-        &.el-table__cell.is-leaf{
-            border-bottom: 0;
-        }
-    }
-    .search-card{
-        .el-card__body{
-            padding-bottom: 0;
-        }
-    }
-    .el-menu-item.is-active{background-color: #ecf5ff;}
-}
-
-.page-login{
-    .el-card{
-        width: 450px;
-        max-width: 100%;
-        margin: 20vh auto;
-    }
-}
+.text-center{text-align: center;}
+.float-right{float: right;}
+.float-left{float: left;}
+.no-border{border: 0;}
