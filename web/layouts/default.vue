@@ -1,6 +1,6 @@
 <template>
   <el-container class="layout-default">
-    <el-header>
+    <el-header v-if="$route.path !== '/search'">
       <div>
         <el-menu
           :default-active="$route.path"
