@@ -91,7 +91,7 @@
       <el-card shadow="never">
         <el-row>
           <el-col :span="18">
-            <el-button-group>
+            <el-button-group class="btn-actions">
               <el-tooltip content="全屏阅读">
                 <el-button icon="el-icon-full-screen"></el-button>
               </el-tooltip>
@@ -309,6 +309,16 @@ export default {
       .btn-comment {
         top: 1px;
         position: relative;
+        background-color: transparent;
+        &:hover {
+          background-color: #ecf5ff;
+        }
+      }
+      .btn-actions .el-button {
+        background-color: transparent;
+        &:hover {
+          background-color: #ecf5ff;
+        }
       }
       .btn-coin {
         background-color: transparent;
