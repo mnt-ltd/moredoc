@@ -11,8 +11,14 @@
           <el-menu-item class="logo">
             <img src="/static/images/logo.png" alt="魔刀文库" />
           </el-menu-item>
-          <el-menu-item index="/"> 首页 </el-menu-item>
-          <el-submenu index="/category">
+          <el-menu-item index="/">
+            <template slot="title">
+              <!-- <i class="el-icon-s-home"></i> -->
+              <span>首页</span>
+            </template>
+          </el-menu-item>
+          <el-menu-item index="/category"> 分类 </el-menu-item>
+          <!-- <el-submenu index="/category">
             <template slot="title">分类</template>
             <el-menu-item index="/category/1">选项1</el-menu-item>
             <el-menu-item index="/category/2">选项2</el-menu-item>
@@ -23,9 +29,9 @@
               <el-menu-item index="/category/6">选项2</el-menu-item>
               <el-menu-item index="/category/7">选项3</el-menu-item>
             </el-submenu>
-          </el-submenu>
-          <el-menu-item index="/upload">上传文档</el-menu-item>
-          <el-menu-item index="/me">会员中心</el-menu-item>
+          </el-submenu> -->
+          <el-menu-item index="/upload">上传</el-menu-item>
+          <el-menu-item index="/me">我的</el-menu-item>
         </el-menu>
         <el-form
           :inline="true"
@@ -133,6 +139,10 @@ export default {
 </script>
 <style lang="scss">
 .layout-default {
+  .el-main {
+    padding-left: 0;
+    padding-right: 0;
+  }
   .nav-search-form {
     margin-top: 10px;
     .el-form-item {
@@ -143,14 +153,23 @@ export default {
     font-size: 15px;
   }
   // font-family: Lato, Helvetica, Arial, sans-serif;
-  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, sans-serif;
+  // font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+  //   Roboto, 'Helvetica Neue', Arial, sans-serif;
+  .el-rate {
+    display: inline-block;
+    .el-rate__icon {
+      margin-right: 0;
+    }
+    .el-rate__text {
+      margin-left: 5px;
+    }
+  }
   padding-top: 60px;
   a {
     color: #303133;
   }
   .el-card {
-    border-radius: 0;
+    border-radius: 5px;
     border: 0;
   }
   .el-header {

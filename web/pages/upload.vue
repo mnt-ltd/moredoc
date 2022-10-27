@@ -64,7 +64,7 @@
 
 <script>
 export default {
-  name: 'IndexPage',
+  name: 'PageUpload',
   data() {
     return {
       document: {

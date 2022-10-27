@@ -305,16 +305,6 @@ export default {
     }
   }
   .search-main {
-    .el-rate {
-      display: inline-block;
-      .el-rate__icon {
-        margin-right: 0;
-      }
-      .el-rate__text {
-        margin-left: 5px;
-      }
-    }
-
     .el-card__header {
       font-weight: normal;
       font-size: 15px;
