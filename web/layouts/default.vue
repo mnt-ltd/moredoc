@@ -31,7 +31,7 @@
             </el-submenu>
           </el-submenu> -->
           <el-menu-item index="/upload">上传</el-menu-item>
-          <el-menu-item index="/me">我的</el-menu-item>
+          <el-menu-item index="/user">我的</el-menu-item>
         </el-menu>
         <el-form
           :inline="true"
