@@ -12,28 +12,31 @@
         </el-card>
       </el-col>
       <el-col :span="18" class="user-right">
-        <el-card shadow="never">
-          <el-tabs>
-            <el-tab-pane name="doc">
-              <span slot="label"><i class="el-icon-document"></i> 文档</span>
-              用户上传的文档列表
-            </el-tab-pane>
-            <el-tab-pane name="favorite">
-              <span slot="label"><i class="el-icon-star-off"></i> 收藏</span>
-              用户收藏的文档列表
-            </el-tab-pane>
-            <el-tab-pane name="dynamic">
-              <span slot="label"><i class="el-icon-magic-stick"></i> 动态</span>
-              用户的动态列表
-            </el-tab-pane>
-            <!-- <el-tab-pane name="follow">
+        <el-tabs
+          v-model="activeTab"
+          class="user-tabs"
+          type="border-card"
+          @tab-click="tabClick"
+        >
+          <el-tab-pane name="doc">
+            <span slot="label"><i class="el-icon-document"></i> 文档</span>
+            <user-document />
+          </el-tab-pane>
+          <el-tab-pane name="favorite">
+            <span slot="label"><i class="el-icon-star-off"></i> 收藏</span>
+            <user-favorite />
+          </el-tab-pane>
+          <el-tab-pane name="dynamic">
+            <span slot="label"><i class="el-icon-magic-stick"></i> 动态</span>
+            <user-dynamic />
+          </el-tab-pane>
+          <!-- <el-tab-pane name="follow">
               <span slot="label"><i class="el-icon-user-solid"></i> 关注</span>
             </el-tab-pane>
             <el-tab-pane name="fans">
               <span slot="label"><i class="el-icon-user"></i> 粉丝</span>
             </el-tab-pane> -->
-          </el-tabs>
-        </el-card>
+        </el-tabs>
       </el-col>
     </el-row>
   </div>
@@ -54,6 +57,7 @@ export default {
         favorite_count: 12,
         money: 100,
       },
+      activeTab: 'doc',
     }
   },
   head() {
@@ -62,7 +66,11 @@ export default {
     }
   },
   async created() {},
-  methods: {},
+  methods: {
+    tabClick(e) {
+      console.log(e)
+    },
+  },
 }
 </script>
 <style lang="scss">
@@ -73,11 +81,23 @@ export default {
     }
   }
   .user-right {
-    .el-card__body {
-      padding-top: 0;
-      .el-tabs__item {
-        height: 60px;
-        line-height: 60px;
+    .user-tabs.el-tabs--border-card {
+      box-shadow: none;
+      border: 0;
+      border-radius: 5px;
+      & > .el-tabs__header {
+        background-color: $background-grey-light;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+      .el-tabs__item.is-active {
+        margin-top: 0;
+        border-top: 1px solid #dcdfe6;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+      }
+      & > .el-tabs__content {
+        padding-top: 5px;
       }
     }
   }

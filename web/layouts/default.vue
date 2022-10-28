@@ -139,6 +139,22 @@ export default {
 </script>
 <style lang="scss">
 .layout-default {
+  .el-table th {
+    height: 45px;
+    line-height: 45px;
+    padding: 1px 0 5px;
+    &.el-table__cell {
+      background-color: #f7fbff;
+      color: #000;
+      font-weight: normal;
+      &.el-table-column--selection > .cell {
+        padding-left: 14px;
+      }
+    }
+    &.el-table__cell.is-leaf {
+      border-bottom: 0;
+    }
+  }
   .el-main {
     padding-left: 0;
     padding-right: 0;

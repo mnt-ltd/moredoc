@@ -296,7 +296,7 @@ export default {
   .el-table th {
     height: 45px;
     line-height: 45px;
-    padding: 5px 0;
+    padding: 1px 0 5px;
     &.el-table__cell {
       background-color: #f7fbff;
       color: #000;
