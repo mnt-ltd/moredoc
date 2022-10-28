@@ -22,7 +22,7 @@
         </el-tabs>
       </div>
       <el-table v-loading="loading" :data="docs" style="width: 100%">
-        <el-table-column prop="title" label="文档" min-width="300" fixed="left">
+        <el-table-column prop="title" label="名称" min-width="300">
           <template slot-scope="scope">
             <nuxt-link
               target="_blank"
@@ -49,7 +49,6 @@
             ></el-rate>
           </template>
         </el-table-column>
-
         <el-table-column prop="view_count" label="浏览" width="70">
         </el-table-column>
         <el-table-column prop="download_count" label="下载" width="70">
@@ -264,6 +263,9 @@ export default {
   }
   .el-tabs__item.is-active {
     border-top: 0 !important;
+  }
+  .el-table {
+    margin-top: -11px;
   }
   .doc-title {
     display: block;

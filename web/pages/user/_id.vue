@@ -20,15 +20,17 @@
         >
           <el-tab-pane name="doc">
             <span slot="label"><i class="el-icon-document"></i> 文档</span>
-            <user-document />
+            <keep-alive>
+              <user-document />
+            </keep-alive>
           </el-tab-pane>
           <el-tab-pane name="favorite">
             <span slot="label"><i class="el-icon-star-off"></i> 收藏</span>
-            <user-favorite />
+            <keep-alive> <user-favorite /></keep-alive>
           </el-tab-pane>
           <el-tab-pane name="dynamic">
             <span slot="label"><i class="el-icon-magic-stick"></i> 动态</span>
-            <user-dynamic />
+            <keep-alive> <user-dynamic /></keep-alive>
           </el-tab-pane>
           <!-- <el-tab-pane name="follow">
               <span slot="label"><i class="el-icon-user-solid"></i> 关注</span>
