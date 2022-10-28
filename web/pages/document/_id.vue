@@ -80,6 +80,7 @@
       <el-col :span="6">
         <el-card shadow="never">
           <div slot="header">分享用户</div>
+          <user-card :hide-actions="true" :user="user" />
         </el-card>
         <el-card shadow="never" class="mgt-20px relate-docs">
           <div slot="header">相关文档</div>
@@ -195,6 +196,12 @@ export default {
         },
       ],
       score: '4.0',
+      user: {
+        id: 0,
+        username: 'Hello World',
+        avatar: '',
+        doc_count: 10,
+      },
     }
   },
   head() {

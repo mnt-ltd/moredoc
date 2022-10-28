@@ -22,6 +22,7 @@ export default {
   css: [
     'element-ui/lib/theme-chalk/index.css',
     'element-ui/lib/theme-chalk/display.css',
+    '~assets/font-awesome-4.7.0/css/font-awesome.min.css',
     '~assets/css/var.scss',
     '~assets/css/app.scss',
   ],

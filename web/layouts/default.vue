@@ -232,5 +232,6 @@ export default {
   width: $default-width;
   max-width: $max-width;
   margin: 0 auto;
+  overflow-x: hidden;
 }
 </style>
