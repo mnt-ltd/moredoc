@@ -156,7 +156,7 @@ func (m *DBModel) CheckPermissionByGroupId(groupId []int64, method, path string)
 	// 校验当前登录了的用户所属用户组，是否有权限
 	var groupPermission GroupPermission
 	err = m.db.Where("group_id in (?) and permission_id = ?", groupId, permission.Id).First(&groupPermission).Error
-	if err != nil {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("CheckPermissionByGroupId", zap.Error(err))
 	}
 

@@ -73,7 +73,7 @@
           @onCreated="onCreated"
         />
       </el-form-item>
-      <el-form-item>
+      <el-form-item v-if="!isEditorFullScreen">
         <el-button
           type="primary"
           class="btn-block"
@@ -90,7 +90,6 @@
 import { Boot } from '@wangeditor/editor'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import markdownModule from '@wangeditor/plugin-md'
-import ctrlEnterModule from '@wangeditor/plugin-ctrl-enter'
 import { createArticle, updateArticle } from '~/api/article'
 
 export default {
@@ -113,11 +112,12 @@ export default {
       article: {},
       editor: null,
       toolbarConfig: {},
+      isEditorFullScreen: false,
       editorConfig: {
         placeholder: '请输入内容...',
         MENU_CONF: {
           uploadImage: {
-            server: '/api/v1/upload/article',
+            server: '/api/v1/upload/article?type=image',
             fieldName: 'file',
             maxFileSize: 20 * 1024 * 1024, // 20M
             headers: {
@@ -125,9 +125,12 @@ export default {
             },
             timeout: 30 * 1000, // 30s
             withCredentials: false,
+            onFailed: (file, res) => {
+              this.$message.error(`${file.name}上传失败：${res.msg}`)
+            },
           },
           uploadVideo: {
-            server: '/api/v1/upload/article',
+            server: '/api/v1/upload/article?type=video',
             fieldName: 'file',
             maxFileSize: 1024 * 1024 * 1024, // 1GB
             headers: {
@@ -135,6 +138,9 @@ export default {
             },
             timeout: 600 * 1000, // 10min
             withCredentials: false,
+            onFailed: (file, res) => {
+              this.$message.error(`${file.name}上传失败：${res.msg}`)
+            },
           },
         },
       },
@@ -151,7 +157,6 @@ export default {
   },
   created() {
     Boot.registerModule(markdownModule)
-    Boot.registerModule(ctrlEnterModule)
     this.article = { ...this.initArticle }
   },
   beforeDestroy() {
@@ -162,6 +167,12 @@ export default {
   methods: {
     onCreated(editor) {
       this.editor = Object.seal(editor) // 一定要用 Object.seal() ，否则会报错
+      this.editor.on('fullScreen', () => {
+        this.isEditorFullScreen = true
+      })
+      this.editor.on('unFullScreen', () => {
+        this.isEditorFullScreen = false
+      })
     },
     onSubmit() {
       this.$refs.formArticle.validate(async (valid) => {

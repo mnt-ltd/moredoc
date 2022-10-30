@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="page-admin-article">
     <el-card shadow="never" class="search-card">
       <FormSearch
         :fields="searchFormFields"
@@ -42,17 +42,18 @@
         </el-pagination>
       </div>
     </el-card>
-
-    <el-dialog
+    <el-drawer
       :title="article.id ? '编辑文章' : '新增文章'"
       :visible.sync="formArticleVisible"
+      :size="'80%'"
+      :wrapper-closable="true"
     >
       <FormArticle
         ref="articleForm"
         :init-article="article"
         @success="formSuccess"
       />
-    </el-dialog>
+    </el-drawer>
   </div>
 </template>
 
@@ -122,7 +123,11 @@ export default {
       this.article = { id: 0 }
       this.formArticleVisible = true
       this.$nextTick(() => {
-        this.$refs.articleForm.reset()
+        try {
+          this.$refs.articleForm.reset()
+        } catch (error) {
+          console.log(error)
+        }
       })
     },
     async editRow(row) {
@@ -209,4 +214,10 @@ export default {
   },
 }
 </script>
-<style></style>
+<style lang="scss">
+.page-admin-article {
+  .el-drawer__body {
+    padding: 0 20px;
+  }
+}
+</style>

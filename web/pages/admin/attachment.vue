@@ -198,9 +198,9 @@ export default {
     },
     initTableListFields() {
       this.tableListFields = [
-        { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
-        { prop: 'type_name', label: '类型', width: 80, fixed: 'left' },
-        { prop: 'name', label: '名称', minWidth: 150, fixed: 'left' },
+        { prop: 'id', label: 'ID', width: 80, type: 'number' },
+        { prop: 'type_name', label: '类型', width: 80 },
+        { prop: 'name', label: '名称', minWidth: 200 },
         {
           prop: 'enable',
           label: '是否合法',
@@ -213,7 +213,7 @@ export default {
         { prop: 'width', label: '宽', width: 90 },
         { prop: 'height', label: '高', width: 90 },
         { prop: 'ext', label: '扩展', width: 90 },
-        { prop: 'hash', label: 'HASH', width: 280 },
+        { prop: 'hash', label: 'HASH', width: 290 },
         { prop: 'path', label: '存储路径', minWidth: 300 },
         { prop: 'description', label: '备注', width: 200 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },

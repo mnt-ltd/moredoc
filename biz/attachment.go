@@ -219,6 +219,60 @@ func (s *AttachmentAPIService) UploadAvatar(ctx *gin.Context) {
 	s.uploadImage(ctx, model.AttachmentTypeAvatar)
 }
 
+//  UploadArticle 上传文章相关图片和视频。这里不验证文件格式。
+// 注意：当前适配了wangeditor的接口规范，如果需要适配其他编辑器，需要修改此接口或者增加其他接口
+func (s *AttachmentAPIService) UploadArticle(ctx *gin.Context) {
+	typ := ctx.Query("type")
+	if typ != "image" && typ != "video" {
+		ctx.JSON(http.StatusOK, map[string]interface{}{"errno": 1, "msg": "类型参数错误"})
+		return
+	}
+
+	userCliams, _, err := s.checkGinPermission(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusOK, map[string]interface{}{"errno": 1, "msg": err.Error()})
+		return
+	}
+
+	name := "file"
+	fileHeader, err := ctx.FormFile(name)
+	if err != nil {
+		s.logger.Error("MultipartForm", zap.Error(err))
+		ctx.JSON(http.StatusOK, map[string]interface{}{"errno": 1, "msg": err.Error()})
+		return
+	}
+
+	attachment, err := s.saveFile(ctx, fileHeader)
+	if err != nil {
+		s.logger.Error("saveFile", zap.Error(err))
+		os.Remove("." + attachment.Path)
+		ctx.JSON(http.StatusOK, map[string]interface{}{"errno": 1, "msg": err.Error()})
+		return
+	}
+	attachment.UserId = userCliams.UserId
+	attachment.Type = model.AttachmentTypeArticle
+
+	err = s.dbModel.CreateAttachment(attachment)
+	if err != nil {
+		s.logger.Error("CreateAttachments", zap.Error(err))
+		ctx.JSON(http.StatusOK, map[string]interface{}{"errno": 1, "msg": err.Error()})
+		return
+	}
+
+	if typ == "image" {
+		ctx.JSON(http.StatusOK, map[string]interface{}{"errno": 0, "data": map[string]interface{}{
+			"url": attachment.Path,
+			"alt": attachment.Name,
+			// "href": "",
+		}})
+	} else {
+		ctx.JSON(http.StatusOK, map[string]interface{}{"errno": 0, "data": map[string]interface{}{
+			"url": attachment.Path,
+			// "poster": "",
+		}})
+	}
+}
+
 // UploadBanner 上传横幅，创建横幅的时候，要根据附件id，更新附件的type_id字段
 func (s *AttachmentAPIService) UploadBanner(ctx *gin.Context) {
 	s.uploadImage(ctx, model.AttachmentTypeBanner)

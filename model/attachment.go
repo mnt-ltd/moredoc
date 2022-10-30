@@ -33,7 +33,7 @@ type Attachment struct {
 	Hash        string    `form:"hash" json:"hash,omitempty" gorm:"column:hash;type:char(32);size:32;index:hash;comment:文件MD5;"`
 	UserId      int64     `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);default:0;index:user_id;comment:用户 id;"`
 	TypeId      int64     `form:"type_id" json:"type_id,omitempty" gorm:"column:type_id;type:bigint(20);default:0;comment:类型数据ID，对应与用户头像时，则为用户id，对应为文档时，则为文档ID;"`
-	Type        int       `form:"type" json:"type,omitempty" gorm:"column:type;type:smallint(5);default:0;comment:附件类型(0 位置，1 头像，2 文档，3 文章附件 ...);"`
+	Type        int       `form:"type" json:"type,omitempty" gorm:"column:type;type:smallint(5);default:0;comment:附件类型(0 未知，1 头像，2 文档，3 文章附件 ...);"`
 	Enable      bool      `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(3);default:1;comment:是否合法;"`
 	Path        string    `form:"path" json:"path,omitempty" gorm:"column:path;type:varchar(255);size:255;comment:文件存储路径;"`
 	Name        string    `form:"name" json:"name,omitempty" gorm:"column:name;type:varchar(255);size:255;comment:文件原名称;"`

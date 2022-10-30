@@ -1,8 +1,11 @@
 package model
 
 import (
+	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -31,6 +34,7 @@ func (m *DBModel) CreateArticle(article *Article) (err error) {
 		m.logger.Error("CreateArticle", zap.Error(err))
 		return
 	}
+	m.checkArticleFile(article)
 	return
 }
 
@@ -51,6 +55,8 @@ func (m *DBModel) UpdateArticle(article *Article, updateFields ...string) (err e
 	if err != nil {
 		m.logger.Error("UpdateArticle", zap.Error(err))
 	}
+
+	m.checkArticleFile(article)
 	return
 }
 
@@ -145,4 +151,38 @@ func (m *DBModel) DeleteArticle(ids []int64) (err error) {
 		m.logger.Error("DeleteArticle", zap.Error(err))
 	}
 	return
+}
+
+// checkArticleFile 检查文章中的文件，包括音频视频和图片等
+func (m *DBModel) checkArticleFile(article *Article) {
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader(article.Content))
+	if err != nil {
+		m.logger.Error("checkArticleFile", zap.Error(err))
+		return
+	}
+
+	var (
+		hashes []string
+		tags   = []string{"img", "video", "audio"}
+	)
+
+	for _, tag := range tags {
+		doc.Find(tag).Each(func(i int, selection *goquery.Selection) {
+			src, ok := selection.Attr("src")
+			if !ok {
+				src, ok = selection.Find("source").Attr("src")
+			}
+			if ok && strings.HasPrefix(src, "/uploads/") {
+				src = strings.Split(src, "?")[0]
+				hashes = append(hashes, strings.TrimSuffix(filepath.Base(src), filepath.Ext(src)))
+			}
+		})
+	}
+
+	if len(hashes) > 0 { // 更新内容ID
+		err = m.db.Model(&Attachment{}).Where("hash in (?) and type = ? and type_id = 0", hashes, AttachmentTypeArticle).Update("type_id", article.Id).Error
+		if err != nil {
+			m.logger.Error("checkArticleFile", zap.Error(err))
+		}
+	}
 }
