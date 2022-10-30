@@ -146,10 +146,28 @@ func (m *DBModel) GetArticleList(opt *OptionGetArticleList) (articleList []Artic
 
 // DeleteArticle 删除数据
 func (m *DBModel) DeleteArticle(ids []int64) (err error) {
-	err = m.db.Where("id in (?)", ids).Delete(&Article{}).Error
+	sess := m.db.Begin()
+	defer func() {
+		if err != nil {
+			sess.Rollback()
+		} else {
+			sess.Commit()
+		}
+	}()
+
+	err = sess.Where("id in (?)", ids).Delete(&Article{}).Error
 	if err != nil {
 		m.logger.Error("DeleteArticle", zap.Error(err))
+		return
 	}
+
+	// 附件，标记删除：将type_id设置为0
+	err = sess.Model(&Attachment{}).Where("type = ? and type_id in (?)", AttachmentTypeArticle, ids).Update("type_id", 0).Error
+	if err != nil {
+		m.logger.Error("DeleteArticle", zap.Error(err))
+		return
+	}
+
 	return
 }
 

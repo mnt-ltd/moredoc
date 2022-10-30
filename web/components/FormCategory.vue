@@ -21,6 +21,24 @@
           placeholder="请选择上级分类"
         ></el-cascader>
       </el-form-item>
+      <!-- 创建的时候，不支持上传封面。因为创建的时候，支持批量创建 -->
+      <el-form-item
+        v-if="
+          category.id > 0 &&
+          (!category.parent_id ||
+            category.parent_id === 0 ||
+            category.parent_id.length === 0)
+        "
+        label="分类封面(一级分类才需要上传)"
+        class="form-item-cover"
+      >
+        <UploadImage
+          :action="'/api/v1/upload/category'"
+          :image="category.cover"
+          :width="'180px'"
+          @success="successUpload"
+        />
+      </el-form-item>
       <el-form-item
         label="名称"
         prop="title"
@@ -77,9 +95,13 @@
   </div>
 </template>
 <script>
+import UploadImage from '~/components/UploadImage.vue'
 import { createCategory, updateCategory } from '~/api/category'
 export default {
   name: 'FormCategory',
+  components: {
+    UploadImage,
+  },
   props: {
     initCategory: {
       type: Object,
@@ -102,6 +124,7 @@ export default {
         title: '',
         sort: 0,
         enable: false,
+        cover: '',
       },
     }
   },
@@ -109,13 +132,14 @@ export default {
     initCategory: {
       handler(val) {
         if (!val.sort) val.sort = 0
+        if (!val.cover) val.cover = ''
         this.category = val
       },
       immediate: true,
     },
   },
   created() {
-    this.category = { title: '', sort: 0, ...this.initCategory }
+    this.category = { title: '', cover: '', sort: 0, ...this.initCategory }
   },
   methods: {
     onSubmit() {
@@ -135,6 +159,10 @@ export default {
         }
 
         if (this.category.id > 0) {
+          if (category.parent_id > 0 || category.parent_id.length > 0) {
+            category.cover = ''
+          }
+
           const res = await updateCategory(category)
           if (res.status === 200) {
             this.$message.success('修改成功')
@@ -160,12 +188,24 @@ export default {
       this.$refs.formCategory.clearValidate()
     },
     resetFields() {
-      this.$refs.formCategory.resetFields()
+      this.category = { title: '', cover: '', sort: 0, ...this.initCategory }
     },
     reset() {
       this.resetFields()
       this.clearValidate()
     },
+    successUpload(res) {
+      this.category.cover = res.data.path
+    },
   },
 }
 </script>
+<style lang="scss">
+.com-form-category {
+  .form-item-cover {
+    .el-form-item__content {
+      line-height: 1;
+    }
+  }
+}
+</style>

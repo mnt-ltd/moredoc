@@ -216,7 +216,7 @@ export default {
       })
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number' },
-        { prop: 'path', label: '横幅', width: 360, type: 'banner' },
+        { prop: 'path', label: '横幅', width: 360, type: 'image' },
         {
           prop: 'type',
           label: '类型',

@@ -2,11 +2,15 @@ package util
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"image"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/disintegration/imaging"
 	jsoniter "github.com/json-iterator/go"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
@@ -44,6 +48,24 @@ func GetGRPCRemoteIP(ctx context.Context) (ips []string, err error) {
 		}
 	}
 	return
+}
+
+// 图片缩放居中裁剪
+func CropImage(file string, width, height int) (err error) {
+	var img image.Image
+	img, err = imaging.Open(file)
+	if err != nil {
+		return
+	}
+	ext := strings.ToLower(filepath.Ext(file))
+	switch ext {
+	case ".jpeg", ".jpg", ".png", ".gif":
+		img = imaging.Fill(img, width, height, imaging.Center, imaging.CatmullRom)
+	default:
+		err = errors.New("unsupported image format")
+		return
+	}
+	return imaging.Save(img, file)
 }
 
 // LimitMin 数字最小值限制

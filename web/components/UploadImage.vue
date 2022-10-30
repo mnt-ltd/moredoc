@@ -6,6 +6,7 @@
       :headers="{ authorization: `bearer ${token}` }"
       :show-file-list="false"
       :on-success="success"
+      :on-error="onError"
       accept="image/jpeg,image/png,image/gif,image/jpg"
       :multiple="false"
       :disabled="disabled"
@@ -71,6 +72,24 @@ export default {
     success(res) {
       this.$emit('success', res)
     },
+    onError(err) {
+      try {
+        const message = JSON.parse(err.message)
+        this.$message.error(message.message)
+      } catch (e) {
+        this.$message.error(err)
+      }
+    },
   },
 }
 </script>
+<style lang="scss">
+.com-upload-image {
+  .el-image {
+    img {
+      width: 100%;
+      height: auto;
+    }
+  }
+}
+</style>

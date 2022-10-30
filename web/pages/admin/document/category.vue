@@ -66,7 +66,7 @@ export default {
       searchFormFields: [],
       tableListFields: [],
       selectedRow: [],
-      category: { id: 0 },
+      category: { id: 0, title: '', cover: '', sort: '' },
     }
   },
   async created() {
@@ -106,13 +106,20 @@ export default {
       this.listCategory()
     },
     onCreate() {
-      this.category = { id: 0, enable: true }
+      this.category = {
+        id: 0,
+        enable: true,
+        title: '',
+        cover: '',
+        parent_id: 0,
+        sort: 0,
+      }
       this.formVisible = true
     },
     async editRow(row) {
       const res = await getCategory({ id: row.id })
       if (res.status === 200) {
-        this.category = res.data
+        this.category = { cover: '', ...res.data }
         this.formVisible = true
       } else {
         this.$message.error(res.data.message || '查询失败')
@@ -206,6 +213,7 @@ export default {
           type: 'number',
           fixed: 'left',
         },
+        { prop: 'cover', label: '封面', width: 100, type: 'image' },
         { prop: 'doc_count', label: '文档数', width: 80, type: 'number' },
         { prop: 'id', label: 'ID', width: 80, type: 'number' },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },

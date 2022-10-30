@@ -1,6 +1,8 @@
 package model
 
 import (
+	"path/filepath"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
@@ -171,4 +173,20 @@ func (m *DBModel) DeleteAttachment(ids []int64) (err error) {
 		m.logger.Error("DeleteAttachment", zap.Error(err))
 	}
 	return
+}
+
+func (m *DBModel) setAttachmentType(attachmentType int, attachmentTypeId int64, paths ...string) {
+	var hashes []string
+	for _, path := range paths {
+		if strings.HasPrefix(strings.TrimLeft(path, "."), "/uploads/") {
+			filename := filepath.Base(path)
+			hashes = append(hashes, strings.TrimSuffix(filename, filepath.Ext(filename)))
+		}
+	}
+	if len(hashes) > 0 {
+		err := m.db.Model(&Attachment{}).Where("hash in (?) and type = ? and type_id = 0", hashes, attachmentType).Update("type_id", attachmentTypeId).Error
+		if err != nil {
+			m.logger.Error("setAttachmentType", zap.Error(err))
+		}
+	}
 }

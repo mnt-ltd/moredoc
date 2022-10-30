@@ -19,6 +19,7 @@ message Category {
   int32 doc_count = 4;
   int32 sort = 5;
   bool enable = 6;
+  string cover = 9; // 分类封面
   google.protobuf.Timestamp created_at = 7 [ (gogoproto.stdtime) = true ];
   google.protobuf.Timestamp updated_at = 8 [ (gogoproto.stdtime) = true ];
 }

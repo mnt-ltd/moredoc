@@ -71,8 +71,16 @@
               <i class="el-icon-link"></i> {{ scope.row[item.prop] }}</a
             >
           </span>
-          <span v-else-if="item.type === 'banner'">
-            <UploadImage :disabled="true" :image="scope.row[item.prop]" />
+          <span v-else-if="item.type === 'image'">
+            <!-- 因为table cell有个左右的10px内边距，所以需要调整下 -->
+            <UploadImage
+              v-if="scope.row[item.prop]"
+              :disabled="true"
+              :image="scope.row[item.prop]"
+              :width="item.width ? item.width + 'px' : 'auto'"
+              style="margin-left: -10px; margin-right: -10px"
+            />
+            <span v-else>-</span>
           </span>
           <span v-else-if="item.type === 'array'">
             <template v-if="scope.row[item.prop]">

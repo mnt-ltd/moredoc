@@ -9,6 +9,7 @@ import (
 
 type Category struct {
 	Id        int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
+	Cover     string     `form:"cover" json:"cover,omitempty" gorm:"column:cover;comment:分类封面;type:varchar(255);size:255;"` //
 	ParentId  int        `form:"parent_id" json:"parent_id,omitempty" gorm:"column:parent_id;type:int(11);size:11;default:0;index:parent_id_title,unique;index:parent_id;comment:上级ID;"`
 	Title     string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;index:parent_id_title,unique;comment:分类名称;"`
 	DocCount  int        `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(11);size:11;default:0;comment:文档统计;"`
@@ -23,12 +24,14 @@ func (Category) TableName() string {
 }
 
 // CreateCategory 创建Category
-// TODO: 创建成功之后，注意相关表统计字段数值的增减
 func (m *DBModel) CreateCategory(category *Category) (err error) {
 	err = m.db.Create(category).Error
 	if err != nil {
 		m.logger.Error("CreateCategory", zap.Error(err))
 		return
+	}
+	if category.Cover != "" {
+		m.setAttachmentType(AttachmentTypeCategoryCover, category.Id, category.Cover)
 	}
 	return
 }
@@ -48,6 +51,11 @@ func (m *DBModel) UpdateCategory(category *Category, updateFields ...string) (er
 	if err != nil {
 		m.logger.Error("UpdateCategory", zap.Error(err))
 	}
+
+	if category.Cover != "" {
+		m.setAttachmentType(AttachmentTypeCategoryCover, category.Id, category.Cover)
+	}
+
 	return
 }
 

@@ -279,7 +279,7 @@ func (s *AttachmentAPIService) UploadBanner(ctx *gin.Context) {
 }
 
 // 上传文档分类封面
-func (s *AttachmentAPIService) UploadCategoryCover(ctx *gin.Context) {
+func (s *AttachmentAPIService) UploadCategory(ctx *gin.Context) {
 	s.uploadImage(ctx, model.AttachmentTypeCategoryCover)
 }
 

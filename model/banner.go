@@ -25,7 +25,6 @@ func (Banner) TableName() string {
 }
 
 // CreateBanner 创建Banner
-// TODO: 创建成功之后，注意相关表统计字段数值的增减
 func (m *DBModel) CreateBanner(banner *Banner) (err error) {
 	err = m.db.Create(banner).Error
 	if err != nil {
@@ -112,9 +111,27 @@ func (m *DBModel) GetBannerList(opt *OptionGetBannerList) (bannerList []Banner, 
 
 // DeleteBanner 删除数据
 func (m *DBModel) DeleteBanner(ids []int64) (err error) {
-	err = m.db.Where("id in (?)", ids).Delete(&Banner{}).Error
+	sess := m.db.Begin()
+	defer func() {
+		if err != nil {
+			sess.Rollback()
+		} else {
+			sess.Commit()
+		}
+	}()
+
+	err = sess.Where("id in (?)", ids).Delete(&Banner{}).Error
 	if err != nil {
 		m.logger.Error("DeleteBanner", zap.Error(err))
+		return
 	}
+
+	// 附件，标记删除
+	err = sess.Model(&Attachment{}).Where("type = ? and type_id in (?)", AttachmentTypeBanner, ids).Update("type_id", 0).Error
+	if err != nil {
+		m.logger.Error("DeleteBanner", zap.Error(err))
+		return
+	}
+
 	return
 }
