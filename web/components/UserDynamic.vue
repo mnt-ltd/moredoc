@@ -176,17 +176,10 @@ export default {
       font-weight: 400;
     }
     .el-card__body {
-      padding: 0;
-      padding-bottom: 20px;
+      padding: 18px 0 20px;
     }
   }
-  .float-right {
-    position: relative;
-    top: -20px;
-  }
-  .el-table {
-    margin-top: -1px;
-  }
+
   .el-tabs__header {
     margin-bottom: 0;
   }
