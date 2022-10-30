@@ -102,13 +102,13 @@ export default {
   watch: {
     initFriendlink: {
       handler(val) {
-        this.friendlink = val
+        this.friendlink = { ...val }
       },
       immediate: true,
     },
   },
   created() {
-    this.friendlink = { ...this.friendlink, ...this.initFriendlink }
+    this.friendlink = { ...this.initFriendlink }
   },
   methods: {
     onSubmit() {
@@ -144,7 +144,14 @@ export default {
       this.$refs.formFriendlink.clearValidate()
     },
     resetFields() {
-      this.$refs.formFriendlink.resetFields()
+      this.friendlink = {
+        id: 0,
+        title: '',
+        link: '',
+        sort: 0,
+        enable: true,
+        description: '',
+      }
     },
     reset() {
       this.resetFields()

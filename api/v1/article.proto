@@ -1,0 +1,81 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Article {
+  int64 id = 1;
+  string identifier = 2;
+  string author = 3;
+  int64 view_count = 4;
+  string title = 5;
+  string keywords = 6;
+  string description = 7;
+  string content = 8;
+  google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
+}
+
+message DeleteArticleRequest { repeated int64 id = 1; }
+
+// 根据ID或者文章标识获取文章
+message GetArticleRequest { 
+    int64 id = 1;
+    string identifier = 2;
+ }
+
+message ListArticleRequest {
+  int64 page = 1;
+  int64 size = 2;
+  string wd = 3;
+  repeated string field = 4;
+  string order = 5;
+}
+
+message ListArticleReply {
+  int64 total = 1;
+  repeated Article article = 2;
+}
+
+service ArticleAPI {
+  rpc CreateArticle(Article) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : '/api/v1/article',
+      body : '*',
+    };
+  }
+
+  rpc UpdateArticle(Article) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/article',
+      body : '*',
+    };
+  }
+
+  rpc DeleteArticle(DeleteArticleRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/article',
+    };
+  }
+
+  rpc GetArticle(GetArticleRequest) returns (Article) {
+    option (google.api.http) = {
+      get : '/api/v1/article',
+    };
+  }
+
+  rpc ListArticle(ListArticleRequest) returns (ListArticleReply) {
+    option (google.api.http) = {
+      get : '/api/v1/article/list',
+    };
+  }
+}

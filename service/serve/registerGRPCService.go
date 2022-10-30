@@ -103,5 +103,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 文章服务
+	articleAPIService := biz.NewArticleAPIService(dbModel, logger)
+	v1.RegisterArticleAPIServer(grpcServer, articleAPIService)
+	err = v1.RegisterArticleAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterArticleAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }

@@ -15,6 +15,9 @@
   "dependencies": {
     "@nuxtjs/axios": "^5.13.6",
     "@nuxtjs/pwa": "^3.3.5",
+    "@wangeditor/editor": "^5.1.22",
+    "@wangeditor/editor-for-vue": "^1.0.2",
+    "@wangeditor/plugin-md": "^1.0.0",
     "core-js": "^3.19.3",
     "element-ui": "^2.15.6",
     "hotkeys-js": "^3.10.0",

@@ -61,6 +61,12 @@ const cumstomPermissionMap = {
     children: [],
     pages: ['/admin/config'],
   },
+  'api.v1.ArticleAPI': {
+    label: '单页管理',
+    path: 'ListArticle',
+    children: [],
+    pages: ['/admin/article'],
+  },
   upload: {
     id: 0,
     label: '上传管理',

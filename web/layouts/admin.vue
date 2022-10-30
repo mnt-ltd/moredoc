@@ -163,6 +163,11 @@ export default {
           icon: 'el-icon-picture-outline',
         },
         {
+          page: '/admin/article',
+          title: '单页管理',
+          icon: 'el-icon-discover',
+        },
+        {
           page: '/admin/friendlink',
           title: '友链管理',
           icon: 'el-icon-link',

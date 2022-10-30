@@ -145,6 +145,7 @@ func (m *DBModel) SyncDB() (err error) {
 		&Permission{},
 		&GroupPermission{},
 		&Logout{},
+		&Article{},
 	}
 	if err = m.db.AutoMigrate(tableModels...); err != nil {
 		m.logger.Fatal("SyncDB", zap.Error(err))
