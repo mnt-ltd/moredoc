@@ -90,6 +90,7 @@
 import { Boot } from '@wangeditor/editor'
 import { Editor, Toolbar } from '@wangeditor/editor-for-vue'
 import markdownModule from '@wangeditor/plugin-md'
+import ctrlEnterModule from '@wangeditor/plugin-ctrl-enter'
 import { createArticle, updateArticle } from '~/api/article'
 
 export default {
@@ -112,7 +113,31 @@ export default {
       article: {},
       editor: null,
       toolbarConfig: {},
-      editorConfig: { placeholder: '请输入内容...' },
+      editorConfig: {
+        placeholder: '请输入内容...',
+        MENU_CONF: {
+          uploadImage: {
+            server: '/api/v1/upload/article',
+            fieldName: 'file',
+            maxFileSize: 20 * 1024 * 1024, // 20M
+            headers: {
+              Authorization: 'Bearer ' + this.$store.getters['user/token'],
+            },
+            timeout: 30 * 1000, // 30s
+            withCredentials: false,
+          },
+          uploadVideo: {
+            server: '/api/v1/upload/article',
+            fieldName: 'file',
+            maxFileSize: 1024 * 1024 * 1024, // 1GB
+            headers: {
+              Authorization: 'Bearer ' + this.$store.getters['user/token'],
+            },
+            timeout: 600 * 1000, // 10min
+            withCredentials: false,
+          },
+        },
+      },
       mode: 'default', // 'default' or 'simple'
     }
   },
@@ -126,6 +151,7 @@ export default {
   },
   created() {
     Boot.registerModule(markdownModule)
+    Boot.registerModule(ctrlEnterModule)
     this.article = { ...this.initArticle }
   },
   beforeDestroy() {

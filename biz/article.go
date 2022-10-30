@@ -137,7 +137,7 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 	}
 
 	_, err := s.checkPermission(ctx)
-	if err == nil {
+	if err == nil && req.Wd != "" {
 		opt.QueryLike["title"] = []interface{}{req.Wd}
 		opt.QueryLike["keywords"] = []interface{}{req.Wd}
 		opt.QueryLike["description"] = []interface{}{req.Wd}
