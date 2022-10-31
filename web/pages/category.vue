@@ -17,6 +17,9 @@
             :data="trees"
             :props="defaultProps"
             :indent="8"
+            node-key="id"
+            :default-expanded-keys="defaultExpandedKeys"
+            highlight-current
             accordion
             :filter-node-method="filterTree"
             @node-click="handleNodeClick"
@@ -26,10 +29,10 @@
       <el-col :span="18">
         <el-card shadow="never" class="doc-list">
           <div slot="header">
-            <span>全部</span>
+            <span>{{ activeCategory.title }}</span>
             <div class="float-right">
               <div class="sort-items">
-                <el-tabs>
+                <el-tabs v-model="query.sort" @tab-click="sortClick">
                   <el-tab-pane name="latest">
                     <span slot="label"><i class="el-icon-date"></i> 最新</span>
                   </el-tab-pane>
@@ -112,10 +115,12 @@
             </ul>
           </div>
           <el-pagination
-            :current-page="1"
+            v-if="total > 0"
+            :current-page="query.page"
             :page-size="10"
             layout="total,  prev, pager, next, jumper"
-            :total="400"
+            :total="total"
+            @current-change="pageChange"
           >
           </el-pagination>
         </el-card>
@@ -126,20 +131,24 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { listCategory } from '~/api/category'
-import { categoryToTrees } from '~/utils/utils'
 export default {
   name: 'PageCategory',
   data() {
     return {
       filterText: '',
-      loadingTrees: false,
-      trees: [],
       score: 4.5,
+      defaultExpandedKeys: [],
       defaultProps: {
         children: 'children',
         label: 'title',
       },
+      query: {
+        id: 0,
+        sort: 'latest',
+        page: 1,
+      },
+      activeCategory: { id: 0, title: '全部' },
+      total: 0,
     }
   },
   head() {
@@ -149,37 +158,100 @@ export default {
   },
   computed: {
     ...mapGetters('category', ['categories', 'categoryTrees']),
+    trees() {
+      return [
+        {
+          id: 0,
+          title: '不限',
+        },
+        ...this.categoryTrees,
+      ]
+    },
+    categoryMap() {
+      const map = {}
+      this.categories.forEach((x) => {
+        map[x.id] = x
+      })
+      return map
+    },
   },
   watch: {
     filterText(val) {
       this.$refs.tree.filter(val)
     },
+    $route() {
+      this.setQuery()
+      this.setActiveCategory()
+      this.loadData()
+    },
   },
-  async created() {
-    this.loadingTrees = true
-    const res = await listCategory({
-      field: ['id', 'title', 'parent_id', 'enable'],
-    })
-    if (res.status === 200) {
-      const categories = res.data.category || []
-      const trees = [
-        { id: 0, title: '全部', children: [] },
-        ...categoryToTrees(categories),
-      ]
-      this.trees = trees
-    }
-    this.loadingTrees = false
+  created() {
+    this.setQuery()
+    this.setActiveCategory()
+    this.setDefaultExpandedKeys()
+    this.loadData()
   },
   methods: {
     filterTree(value, data) {
       if (!value) return true
-      return data.title.includes(value)
+      return data.title.toLowerCase().includes(value.toLowerCase())
     },
-    handleNodeClick() {
-      console.log('handleNodeClick')
+    handleNodeClick(category) {
+      this.$router.push({
+        path: '/category',
+        query: {
+          id: category.id,
+        },
+      })
     },
-    clearSelected() {
-      console.log('clearSelected')
+    setQuery() {
+      this.query.id = parseInt(this.$route.query.id) || 0
+      this.query.sort = this.$route.query.sort || 'latest'
+      this.query.page = parseInt(this.$route.query.page) || 1
+    },
+    setActiveCategory() {
+      const activeCategory = this.categories.find(
+        (x) => x.id === this.query.id
+      ) || {
+        id: 0,
+        title: '不限',
+      }
+      this.activeCategory = activeCategory
+    },
+    setDefaultExpandedKeys() {
+      const defaultExpandedKeys = []
+      let category = this.activeCategory
+      if (category) {
+        defaultExpandedKeys.push(category.id)
+        while (category.parent_id) {
+          defaultExpandedKeys.unshift(category.parent_id)
+          category = this.categoryMap[category.parent_id]
+        }
+      }
+      this.defaultExpandedKeys = defaultExpandedKeys
+    },
+    sortClick(tab) {
+      this.$router.push({
+        path: '/category',
+        query: {
+          id: this.query.id,
+          sort: tab.name,
+        },
+      })
+    },
+    pageChange(page) {
+      this.$router.push({
+        path: '/category',
+        query: {
+          id: this.query.id,
+          sort: this.query.sort,
+          page,
+        },
+      })
+    },
+    loadData() {
+      // TODO: 加载数据
+      console.log('loadData')
     },
   },
 }
