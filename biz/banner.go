@@ -111,7 +111,7 @@ func (s *BannerAPIService) ListBanner(ctx context.Context, req *pb.ListBannerReq
 	if errPermission != nil {
 		opt.QueryIn["enable"] = []interface{}{true} // 非权限用户，只能查询正常状态的横幅
 	} else {
-		opt.SelectFields = []string{} // 不限字段
+		opt.SelectFields = req.Field // 权限用户，可查询指定字段
 		if len(req.Enable) > 0 {
 			opt.QueryIn["enable"] = util.Slice2Interface(req.Enable)
 		}

@@ -35,6 +35,7 @@ message ListBannerRequest {
   repeated int32 type = 3;
   repeated bool enable = 4;
   string wd = 5;
+  repeated string field = 6;
 }
 
 message ListBannerReply {

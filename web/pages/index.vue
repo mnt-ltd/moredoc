@@ -53,11 +53,23 @@
           </el-form>
         </el-card>
       </el-col>
-      <el-col :span="18" :xs="24">
+      <el-col :span="18" :xs="24" class="banners">
         <el-carousel :interval="5000" arrow="always" :height="'323px'">
-          <el-carousel-item v-for="item in 4" :key="item">
-            <h3>{{ item }}</h3>
-          </el-carousel-item>
+          <a
+            v-for="banner in banners"
+            :key="'banner-' + banner.id"
+            :href="banner.url"
+            target="_blank"
+            :title="banner.title"
+          >
+            <el-carousel-item
+              :style="
+                'background: url(' + banner.path + ') center center no-repeat;'
+              "
+            >
+              <!-- <h3>{{ banner.title }}</h3> -->
+            </el-carousel-item>
+          </a>
         </el-carousel>
       </el-col>
     </el-row>
@@ -142,6 +154,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { listBanner } from '~/api/banner'
 export default {
   name: 'IndexPage',
   data() {
@@ -150,6 +163,7 @@ export default {
         username: '',
         password: '',
       },
+      banners: [],
     }
   },
   head() {
@@ -160,14 +174,32 @@ export default {
   computed: {
     ...mapGetters('category', ['categoryTrees']),
   },
-  async created() {},
-  methods: {},
+  async created() {
+    await this.listBanner()
+  },
+  methods: {
+    async listBanner() {
+      const res = await listBanner({
+        enable: true,
+        field: ['id', 'title', 'path', 'url'],
+        type: 0, // 0，网站横幅
+      })
+      if (res.status === 200) {
+        this.banners = res.data.banner
+      } else {
+        console.log(res)
+      }
+    },
+  },
 }
 </script>
 <style lang="scss">
 .page-index {
   width: 100%;
   max-width: 100%;
+  .el-carousel--horizontal {
+    border-radius: 5px;
+  }
   & > .el-row {
     width: $default-width;
     max-width: $max-width;
@@ -217,21 +249,19 @@ export default {
     padding-bottom: 0;
   }
 
-  .el-carousel__item h3 {
-    color: #475669;
-    font-size: 18px;
-    opacity: 0.6;
-    text-align: center;
-    line-height: 320px;
-    margin: 0;
-  }
-
-  .el-carousel__item:nth-child(2n) {
-    background-color: #99a9bf;
-  }
-
-  .el-carousel__item:nth-child(2n + 1) {
-    background-color: #d3dce6;
+  .banners {
+    .el-carousel__item {
+      background-size: cover !important;
+      h3 {
+        font-size: 18px;
+        color: #fff;
+        opacity: 0.5;
+        text-align: center;
+        position: absolute;
+        bottom: 5px;
+        width: 100%;
+      }
+    }
   }
 
   .category-item {
@@ -249,6 +279,7 @@ export default {
         img {
           width: 180px;
           height: 145px;
+          border-radius: 5px;
         }
       }
       .card-body-right {
