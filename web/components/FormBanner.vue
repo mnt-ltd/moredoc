@@ -17,6 +17,7 @@
           :action="'/api/v1/upload/banner'"
           :image="banner.path"
           :width="'600px'"
+          :error-image="'/static/images/banner.png'"
           @success="success"
         />
       </el-form-item>
