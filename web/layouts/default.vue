@@ -37,12 +37,14 @@
           :inline="true"
           :model="search"
           class="float-right nav-search-form"
+          @submit.native.prevent
         >
           <el-form-item>
             <el-input
               v-model="search.wd"
               placeholder="Search..."
               suffix-icon="el-icon-search"
+              @keydown.native.enter="onSearch"
             ></el-input>
           </el-form-item>
         </el-form>
@@ -150,6 +152,14 @@ export default {
   mounted() {},
   methods: {
     ...mapActions('category', ['getCategories']),
+    onSearch() {
+      this.$router.push({
+        path: '/search',
+        query: {
+          wd: this.search.wd,
+        },
+      })
+    },
   },
 }
 </script>

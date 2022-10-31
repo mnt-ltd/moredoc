@@ -62,7 +62,7 @@
               <li v-for="x in 10" :key="'x-' + x">
                 <el-row :gutter="20">
                   <el-col :span="4" class="doc-cover">
-                    <nuxt-link to="/">
+                    <nuxt-link to="/document/">
                       <img
                         v-if="x % 3 == 0"
                         src="https://static.wenkuzhijia.cn/fe5642195d3060c51d12fccaa46f4c61.jpg"
@@ -85,7 +85,9 @@
                   </el-col>
                   <el-col :span="20">
                     <h3>
-                      <nuxt-link to="/" class="el-link el-link--primary"
+                      <nuxt-link
+                        to="/document/"
+                        class="el-link el-link--primary"
                         ><img src="/static/images/pdf_24.png" alt="" />
                         啊实打实大</nuxt-link
                       >

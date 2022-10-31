@@ -34,7 +34,9 @@
               ></el-input>
             </el-form-item>
             <el-form-item style="margin-bottom: 0">
-              <el-button class="btn-block" type="primary">立即登录</el-button>
+              <el-button class="btn-block" type="primary" @click="login"
+                >立即登录</el-button
+              >
             </el-form-item>
             <el-form-item style="margin-bottom: 5px">
               <nuxt-link
@@ -189,6 +191,10 @@ export default {
       } else {
         console.log(res)
       }
+    },
+    login() {
+      // 跳转到登录页面，先串通页面
+      this.$router.push('/login')
     },
   },
 }

@@ -2,7 +2,7 @@
   <div class="com-document-simple-list">
     <ul>
       <li v-for="doc in docs" :key="'doc-' + doc.id">
-        <nuxt-link to="/" class="el-link el-link--default">
+        <nuxt-link to="/document/" class="el-link el-link--default">
           <img :src="'/static/images/' + doc.type + '_24.png'" alt="" />
           {{ doc.title }}
         </nuxt-link>

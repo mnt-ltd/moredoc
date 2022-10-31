@@ -89,7 +89,7 @@
             <ul>
               <li v-for="i in 10" :key="'i-' + i">
                 <h3 class="doc-title">
-                  <a href="" class="el-link el-link--primary">
+                  <a href="/document/" class="el-link el-link--primary">
                     <img
                       v-if="i === 1"
                       src="/static/images/pdf_24.png"
