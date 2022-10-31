@@ -125,6 +125,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { listCategory } from '~/api/category'
 import { categoryToTrees } from '~/utils/utils'
 export default {
@@ -145,6 +146,9 @@ export default {
     return {
       title: 'MOREDOC · 魔刀文库，开源文库系统',
     }
+  },
+  computed: {
+    ...mapGetters('category', ['categories', 'categoryTrees']),
   },
   watch: {
     filterText(val) {

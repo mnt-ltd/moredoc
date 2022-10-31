@@ -36,6 +36,7 @@ message ListFriendlinkRequest {
     int32 size = 2;
     string wd = 3;
     repeated bool enable = 4;
+    repeated string field = 5;
 }
 
 message ListFriendlinkReply {

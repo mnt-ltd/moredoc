@@ -37,11 +37,17 @@
               <el-button class="btn-block" type="primary">立即登录</el-button>
             </el-form-item>
             <el-form-item style="margin-bottom: 5px">
-              <nuxt-link to="/" class="el-link el-link--info"
+              <nuxt-link
+                to="/findpassword"
+                title="找回密码"
+                class="el-link el-link--info"
                 ><small>忘记密码？</small></nuxt-link
               >
-              <nuxt-link to="/" class="float-right el-link el-link--info"
-                ><small>注册会员</small></nuxt-link
+              <nuxt-link
+                to="/register"
+                title="注册用户"
+                class="float-right el-link el-link--info"
+                ><small>注册用户</small></nuxt-link
               >
             </el-form-item>
           </el-form>
@@ -57,121 +63,58 @@
     </el-row>
     <div class="categories mgt-20px">
       <el-row :gutter="20">
-        <el-col :span="6">
-          <el-card class="box-card" shadow="never">
-            <div slot="header" class="clearfix">
-              <strong>编程开发</strong>
-            </div>
-            <nuxt-link class="el-link el-link--default" to="/"
-              >前端开发</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >后端开发</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >移动开发</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >游戏开发</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >硬件开发</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >开发工具</nuxt-link
-            >
-          </el-card>
-        </el-col>
-
-        <el-col :span="6">
-          <el-card class="box-card" shadow="never">
-            <div slot="header" class="clearfix">
-              <strong>设计·创作</strong>
-            </div>
-            <nuxt-link class="el-link el-link--default" to="/"
-              >云计算</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >大数据</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >数据库</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >云平台</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >网络/安全</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >人工智能</nuxt-link
-            >
-          </el-card>
-        </el-col>
-
-        <el-col :span="6">
-          <el-card class="box-card" shadow="never">
-            <div slot="header" class="clearfix">
-              <strong>系统运维</strong>
-            </div>
-            <nuxt-link class="el-link el-link--default" to="/">架构</nuxt-link>
-            <nuxt-link class="el-link el-link--default" to="/"
-              >服务器</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >操作系统</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >游戏开发</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >网络/安全</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >考试认证</nuxt-link
-            >
-          </el-card>
-        </el-col>
-
-        <el-col :span="6">
-          <el-card class="box-card" shadow="never">
-            <div slot="header" class="clearfix">
-              <strong>云计算·大数据</strong>
-            </div>
-            <nuxt-link class="el-link el-link--default" to="/"
-              >云计算</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >大数据</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >数据库</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >云平台</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >网络/安全</nuxt-link
-            >
-            <nuxt-link class="el-link el-link--default" to="/"
-              >人工智能</nuxt-link
-            >
-          </el-card>
-        </el-col>
+        <div
+          v-for="(category, index) in categoryTrees"
+          :key="'tree-' + category.id"
+        >
+          <el-col v-if="index < 4" :span="6">
+            <el-card class="box-card" shadow="never">
+              <div slot="header" class="clearfix">
+                <strong>{{ category.title }}</strong>
+              </div>
+              <nuxt-link
+                v-for="child in category.children"
+                :key="'child-' + child.id"
+                class="el-link el-link--default"
+                :to="{ path: '/category', query: { id: child.id } }"
+                >{{ child.title }}</nuxt-link
+              >
+            </el-card>
+          </el-col>
+        </div>
       </el-row>
     </div>
     <el-row :gutter="20" class="category-item">
-      <el-col v-for="i in 6" :key="'card-' + i" :md="12" :sm="12" :xs="24">
+      <el-col
+        v-for="category in categoryTrees"
+        :key="'card-cate-' + category.id"
+        :md="12"
+        :sm="12"
+        :xs="24"
+      >
         <el-card class="box-card mgt-20px" shadow="never">
           <div slot="header" class="clearfix">
-            <strong>卡片名称</strong>
-            <el-button style="float: right; padding: 3px 0" type="text"
-              >更多</el-button
+            <strong>{{ category.title }}</strong>
+            <nuxt-link :to="{ path: '/category', query: { id: category.id } }"
+              ><el-button style="float: right; padding: 3px 0" type="text"
+                >更多</el-button
+              ></nuxt-link
             >
           </div>
           <div>
             <div class="card-body-left hidden-xs-only">
-              <img src="/static/images/cover-news.png" alt="" />
+              <nuxt-link
+                :to="{ path: '/category', query: { id: category.id } }"
+              >
+                <el-image :src="category.cover">
+                  <div slot="error" class="image-slot">
+                    <img
+                      src="/static/images/cover-news.png"
+                      :alt="category.title"
+                    />
+                  </div>
+                </el-image>
+              </nuxt-link>
             </div>
             <div class="card-body-right">
               <nuxt-link class="el-link el-link--default" to="/document/"
@@ -198,6 +141,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   name: 'IndexPage',
   data() {
@@ -212,6 +156,9 @@ export default {
     return {
       title: 'MOREDOC · 魔刀文库，开源文库系统',
     }
+  },
+  computed: {
+    ...mapGetters('category', ['categoryTrees']),
   },
   async created() {},
   methods: {},
@@ -255,13 +202,13 @@ export default {
         padding-bottom: 0;
       }
       .el-card__body {
-        padding: 20px 0;
+        padding: 15px 0;
       }
       a {
         display: inline-block;
         padding: 5px 0;
         text-decoration: none;
-        margin-right: 5px;
+        margin-right: 10px;
       }
     }
   }
@@ -295,8 +242,13 @@ export default {
       .card-body-left {
         width: 180px;
         padding-right: 20px;
+        .image-slot {
+          height: 145px;
+          overflow: hidden;
+        }
         img {
           width: 180px;
+          height: 145px;
         }
       }
       .card-body-right {

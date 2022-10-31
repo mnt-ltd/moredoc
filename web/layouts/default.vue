@@ -57,11 +57,15 @@
           <div slot="header" class="clearfix">
             <strong>友情链接</strong>
           </div>
-          <el-link :underline="false" href="/article/about">书栈网</el-link>
-          <el-link :underline="false" href="/article/about"
-            >摩枫网络科技</el-link
+          <a
+            v-for="link in friendlinks"
+            :key="'fl-' + link.id"
+            :underline="false"
+            :href="link.link"
+            class="el-link el-link--default"
+            target="_blank"
+            >{{ link.title }}</a
           >
-          <el-link :underline="false" href="/article/about">卓一信息</el-link>
         </el-card>
       </div>
       <div class="footer-links">
@@ -112,16 +116,15 @@
   </el-container>
 </template>
 <script>
-import {
-  mapGetters,
-  //  mapActions,
-} from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
+import { listFriendlink } from '~/api/friendlink'
 export default {
   data() {
     return {
       search: {
         wd: '',
       },
+      friendlinks: [],
     }
   },
   head() {
@@ -132,9 +135,22 @@ export default {
   computed: {
     ...mapGetters('user', ['user', 'token']),
   },
-  created() {},
+  async created() {
+    const [res] = await Promise.all([
+      listFriendlink({
+        enable: true,
+        field: ['id', 'title', 'link'],
+      }),
+      this.getCategories(),
+    ])
+    if (res.status === 200) {
+      this.friendlinks = res.data.friendlink
+    }
+  },
   mounted() {},
-  methods: {},
+  methods: {
+    ...mapActions('category', ['getCategories']),
+  },
 }
 </script>
 <style lang="scss">

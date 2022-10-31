@@ -107,9 +107,10 @@ func (s *FriendlinkAPIService) GetFriendlink(ctx context.Context, req *pb.GetFri
 
 func (s *FriendlinkAPIService) ListFriendlink(ctx context.Context, req *pb.ListFriendlinkRequest) (*pb.ListFriendlinkReply, error) {
 	opt := &model.OptionGetFriendlinkList{
-		WithCount: true,
-		Page:      int(req.Page),
-		Size:      int(req.Size_),
+		WithCount:    true,
+		Page:         int(req.Page),
+		Size:         int(req.Size_),
+		SelectFields: req.Field,
 	}
 
 	_, err := s.checkPermission(ctx)

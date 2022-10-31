@@ -37,11 +37,12 @@ func (m *DBModel) CreateBanner(banner *Banner) (err error) {
 // UpdateBanner 更新Banner，如果需要更新指定字段，则请指定updateFields参数
 func (m *DBModel) UpdateBanner(banner *Banner, updateFields ...string) (err error) {
 	db := m.db.Model(banner)
-
-	updateFields = m.FilterValidFields(Banner{}.TableName(), updateFields...)
-	if len(updateFields) > 0 { // 更新指定字段
-		db = db.Select(updateFields)
+	tableName := Banner{}.TableName()
+	updateFields = m.FilterValidFields(tableName, updateFields...)
+	if len(updateFields) == 0 {
+		updateFields = m.GetTableFields(tableName)
 	}
+	db = db.Select(updateFields)
 
 	err = db.Where("id = ?", banner.Id).Updates(banner).Error
 	if err != nil {

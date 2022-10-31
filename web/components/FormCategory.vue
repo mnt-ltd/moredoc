@@ -159,7 +159,11 @@ export default {
         }
 
         if (this.category.id > 0) {
-          if (category.parent_id > 0 || category.parent_id.length > 0) {
+          if (
+            category.parent_id > 0 ||
+            (typeof category.parent_id === 'object' &&
+              category.parent_id.length > 0)
+          ) {
             category.cover = ''
           }
 
