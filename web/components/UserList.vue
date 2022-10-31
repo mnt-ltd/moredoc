@@ -36,9 +36,9 @@ export default {
       default: () => [
         { id: 1, username: 'Admin', avatar: '', doc_count: 123 },
         { id: 2, username: 'Hello Word', avatar: '', doc_count: 123 },
-        { id: 1, username: 'Admin', avatar: '', doc_count: 123 },
-        { id: 2, username: 'Hello Word', avatar: '', doc_count: 123 },
-        { id: 1, username: 'Admin', avatar: '', doc_count: 123 },
+        { id: 3, username: 'Admin', avatar: '', doc_count: 123 },
+        { id: 4, username: 'Hello Word', avatar: '', doc_count: 123 },
+        { id: 5, username: 'Admin', avatar: '', doc_count: 123 },
       ],
     },
   },
