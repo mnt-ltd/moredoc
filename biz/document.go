@@ -30,7 +30,14 @@ func (s *DocumentAPIService) checkPermission(ctx context.Context) (userClaims *a
 
 // CreateDocument 创建文档
 // 判断是否有权限
-func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.Document) (*emptypb.Empty, error) {
+func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateDocumentRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// TODO: 批量创建文档。注意：判断附件id是否与用户id匹配
+
 	return &emptypb.Empty{}, nil
 }
 

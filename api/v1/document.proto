@@ -63,8 +63,20 @@ message ListDocumentReply {
   repeated Document document = 2;
 }
 
+message CreateDocumentItem{
+  string title = 1;
+  int64 attachment_id = 2;
+  int64 price = 3;
+}
+
+message CreateDocumentRequest {
+  bool overwrite = 1;
+  repeated int64 category_id = 2;
+  repeated CreateDocumentItem document = 3;
+}
+
 service DocumentAPI {
-  rpc CreateDocument(Document) returns (google.protobuf.Empty) {
+  rpc CreateDocument(CreateDocumentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post : '/api/v1/document',
       body : '*',

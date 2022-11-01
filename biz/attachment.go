@@ -178,40 +178,36 @@ func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
 		return
 	}
 
-	form, err := ctx.MultipartForm()
+	name := "file"
+	fileheader, err := ctx.FormFile(name)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: err.Error(), Error: err.Error()})
 		return
 	}
 
-	var attachments []*model.Attachment
-
-	name := "file"
-	fileheaders := form.File[name]
-	for _, fileheader := range fileheaders {
-		ext := strings.ToLower(filepath.Ext(fileheader.Filename))
-		if !filetil.IsDocument(ext) {
-			ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: "不支持的文件类型", Error: "不支持的文件类型"})
-			return
-		}
-		attachment, err := s.saveFile(ctx, fileheader)
-		if err != nil {
-			os.Remove("." + attachment.Path)
-			ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
-			return
-		}
-		attachment.UserId = userCliams.UserId
-		attachment.Type = model.AttachmentTypeDocument
-		attachments = append(attachments, attachment)
+	ext := strings.ToLower(filepath.Ext(fileheader.Filename))
+	if !filetil.IsDocument(ext) {
+		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: "不支持的文件类型", Error: "不支持的文件类型"})
+		return
 	}
 
-	err = s.dbModel.CreateAttachments(attachments)
+	attachment, err := s.saveFile(ctx, fileheader)
+	if err != nil {
+		os.Remove("." + attachment.Path)
+		ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
+		return
+	}
+	attachment.UserId = userCliams.UserId
+	attachment.Type = model.AttachmentTypeDocument
+
+	err = s.dbModel.CreateAttachment(attachment)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, ginResponse{Code: http.StatusOK, Message: "ok", Data: attachments})
+	// ctx.JSON(http.StatusOK, ginResponse{Code: http.StatusOK, Message: "ok", Data: attachment})
+	ctx.JSON(http.StatusOK, ginResponse{Code: http.StatusOK, Message: "ok", Data: map[string]interface{}{"id": attachment.Id}})
 }
 
 // UploadAvatar 上传头像

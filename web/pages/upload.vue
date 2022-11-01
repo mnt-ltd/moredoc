@@ -29,6 +29,7 @@
                     v-model="document.category_id"
                     :options="categoryTrees"
                     :filterable="true"
+                    :disabled="loading"
                     :props="{
                       checkStrictly: true,
                       expandTrigger: 'hover',
@@ -43,6 +44,7 @@
                     v-model="document.price"
                     :min="0"
                     :step="1"
+                    :disabled="loading"
                   ></el-input-number>
                 </el-form-item>
                 <el-form-item label="同名覆盖">
@@ -52,30 +54,100 @@
                     inactive-color="#ff4949"
                     active-text="是"
                     inactive-text="否"
+                    :disabled="loading"
                   >
                   </el-switch>
                 </el-form-item>
 
                 <el-form-item>
                   <el-upload
+                    ref="upload"
                     class="upload-demo"
                     drag
-                    action="https://jsonplaceholder.typicode.com/posts/"
+                    :action="'/api/v1/upload/document'"
+                    :headers="{ authorization: `bearer ${token}` }"
+                    :show-file-list="false"
+                    :on-success="onSuccess"
+                    :on-error="onError"
                     multiple
+                    :disabled="loading"
+                    :auto-upload="false"
+                    :on-change="handleChange"
+                    :file-list="fileList"
                   >
                     <i class="el-icon-upload"></i>
                     <div class="el-upload__text">
                       将文件拖到此处，或<em>点击上传</em>
                     </div>
-                    <!-- <div slot="tip" class="el-upload__tip">
-                    只能上传jpg/png文件，且不超过500kb
-                  </div> -->
                   </el-upload>
+                  <el-table
+                    v-if="fileList.length > 0"
+                    :data="fileList"
+                    style="width: 100%"
+                    max-height="360"
+                  >
+                    <el-table-column prop="title" label="文件" min-width="180">
+                      <template slot-scope="scope">
+                        <el-input v-model="scope.row.title" :disabled="loading">
+                          <template slot="append">{{
+                            scope.row.ext
+                          }}</template></el-input
+                        >
+                      </template>
+                    </el-table-column>
+                    <el-table-column prop="size" label="大小" width="100">
+                      <template slot-scope="scope">
+                        {{ formatBytes(scope.row.size) }}
+                      </template>
+                    </el-table-column>
+                    <el-table-column
+                      prop="price"
+                      label="售价(魔豆)"
+                      width="130"
+                    >
+                      <template slot-scope="scope">
+                        <el-input-number
+                          v-model="scope.row.price"
+                          :min="0"
+                          :step="1"
+                          :disabled="loading"
+                          controls-position="right"
+                        ></el-input-number>
+                      </template>
+                    </el-table-column>
+                    <el-table-column label="操作" width="70" fixed="right">
+                      <template slot-scope="scope">
+                        <el-button
+                          size="mini"
+                          type="text"
+                          icon="el-icon-delete"
+                          :disabled="loading"
+                          @click="handleRemove(scope.$index)"
+                        >
+                          移除
+                        </el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
                 </el-form-item>
                 <el-form-item style="margin-bottom: 0">
-                  <el-button type="primary" class="btn-block"
-                    >确定上传</el-button
+                  <el-progress
+                    v-if="loading"
+                    :percentage="percentAge"
+                    :text-inside="true"
+                    :stroke-width="12"
+                    status="success"
+                  ></el-progress>
+                  <div v-if="loading" class="mgt-20px"></div>
+                  <el-button
+                    type="primary"
+                    class="btn-block"
+                    :loading="loading"
+                    @click="onSubmit"
                   >
+                    <span v-if="loading">上传中...</span>
+                    <span v-else>确定上传</span>
+                  </el-button>
                 </el-form-item>
               </el-form>
             </el-col>
@@ -160,6 +232,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { formatBytes } from '~/utils/utils'
 export default {
   name: 'PageUpload',
   data() {
@@ -169,6 +242,33 @@ export default {
         price: 0,
         overwrite: false,
       },
+      loading: false,
+      percentAge: 0,
+      fileList: [],
+      allowExt: [
+        '.doc',
+        '.docx',
+        '.rtf',
+        '.wps',
+        '.odt',
+        '.ppt',
+        '.pptx',
+        '.pps',
+        '.ppsx',
+        '.dps',
+        '.odp',
+        '.pot',
+        '.xls',
+        '.xlsx',
+        '.et',
+        '.ods',
+        '.epub',
+        '.umd',
+        '.chm',
+        '.mobi',
+        '.txt',
+        '.pdf',
+      ],
     }
   },
   head() {
@@ -178,13 +278,73 @@ export default {
   },
   computed: {
     ...mapGetters('category', ['categoryTrees']),
+    ...mapGetters('user', ['token']),
   },
   async created() {},
-  methods: {},
+  methods: {
+    formatBytes,
+    handleChange(file, files) {
+      const filesMap = {}
+      const filesList = []
+      files.forEach((item) => {
+        const name = item.name.toLowerCase()
+        item.price = this.document.price || 0
+        item.title = item.name.substring(0, item.name.lastIndexOf('.'))
+        item.ext = item.name.substring(item.name.lastIndexOf('.')).toLowerCase()
+        if (!filesMap[name] && this.allowExt.includes(item.ext)) {
+          filesMap[name] = item
+          filesList.push(item)
+        }
+      })
+      this.fileList = filesList
+    },
+    handleRemove(index) {
+      this.fileList.splice(index, 1)
+    },
+    onSubmit() {
+      this.$refs.form.validate((valid) => {
+        if (valid) {
+          // 1. 验证文件是否存在
+          if (this.fileList.length === 0) {
+            this.$message.error('请先选择要上传的文档')
+            return
+          }
+          this.loading = true
+          this.$refs.upload.submit()
+        }
+      })
+    },
+    onError(err) {
+      console.log(err)
+      this.$message.error(err.message)
+    },
+    onSuccess(res, file, fileList) {
+      const length = fileList.length
+      const successItems = fileList.filter(
+        (item) => item.response && item.response.code === 200
+      )
+      const percentAge = parseInt((successItems.length / length) * 100)
+      if (percentAge === 100) {
+        // 上传成功100%之后，提交表单数据
+        this.$message.success('上传成功')
+        this.loading = false
+        this.percentAge = 0
+        // this.fileList = []
+        // this.$refs.upload.clearFiles()
+      } else {
+        this.percentAge = percentAge
+      }
+    },
+  },
 }
 </script>
 <style lang="scss">
 .page-upload {
+  .el-table {
+    .el-input-number {
+      width: 120px;
+    }
+  }
   .upload-tips {
     line-height: 180%;
     border-left: 1px dashed rgb(252, 155, 91);
