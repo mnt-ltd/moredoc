@@ -25,6 +25,7 @@ export default {
     '~assets/font-awesome-4.7.0/css/font-awesome.min.css',
     '~assets/css/var.scss',
     '~assets/css/app.scss',
+    '~assets/css/github-markdown-light.css',
   ],
   styleResources: {
     scss: ['~/assets/css/*.scss'],

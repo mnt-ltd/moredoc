@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
 	"time"
@@ -11,7 +12,7 @@ import (
 )
 
 type Article struct {
-	Id          int       `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
+	Id          int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Identifier  string    `form:"identifier" json:"identifier,omitempty" gorm:"column:identifier;type:varchar(64);size:64;index:identifier,unique;comment:文章标识，唯一;"`
 	Author      string    `form:"author" json:"author,omitempty" gorm:"column:author;type:varchar(64);size:64;comment:作者;"`
 	ViewCount   int       `form:"view_count" json:"view_count,omitempty" gorm:"column:view_count;type:int(11);size:11;default:0;comment:阅读;"`
@@ -57,6 +58,16 @@ func (m *DBModel) UpdateArticle(article *Article, updateFields ...string) (err e
 	}
 
 	m.checkArticleFile(article)
+	return
+}
+
+// UpdateArticleViewCount 更新浏览量
+func (m *DBModel) UpdateArticleViewCount(id int64, viewCount int) (err error) {
+	sql := fmt.Sprintf("update %s set view_count=? where id=?", Article{}.TableName())
+	err = m.db.Exec(sql, viewCount, id).Error
+	if err != nil {
+		m.logger.Error("UpdateArticleViewCount", zap.Error(err))
+	}
 	return
 }
 

@@ -67,7 +67,7 @@
         />
         <Editor
           v-model="article.content"
-          style="height: 500px; overflow-y: hidden"
+          style="height: 800px; overflow-y: hidden"
           :default-config="editorConfig"
           :mode="mode"
           @onCreated="onCreated"

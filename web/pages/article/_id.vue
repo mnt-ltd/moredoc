@@ -3,40 +3,24 @@
     <el-row :gutter="20">
       <el-col :span="18">
         <el-card shadow="never">
-          <div slot="header"><h1>关于我们</h1></div>
-          <div class="help-block text-muted article-info">
-            <span><i class="el-icon-user"></i> 文库之家</span>
-            <span><i class="el-icon-view"></i> 32 阅读</span>
-            <span class="float-right"
-              ><i class="el-icon-time"></i> 2022-01-02</span
-            >
+          <div slot="header">
+            <h1>{{ article.title }}</h1>
           </div>
-          <article class="mgt-20px">
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
-            <p>文章内容123254234234234</p>
+          <div class="help-block text-muted article-info">
+            <!-- 如果没有作者，则默认显示网站名称 -->
+            <span><i class="el-icon-user"></i> {{ article.author }}</span>
+            <span
+              ><i class="el-icon-view"></i>
+              {{ article.view_count || 0 }} 阅读</span
+            >
+            <span class="float-right"
+              ><i class="el-icon-time"></i> 最后更新:
+              {{ formatDate(article.updated_at) }}
+            </span>
+          </div>
+          <article class="mgt-20px markdown-body">
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <div data-slate-editor v-html="article.content"></div>
           </article>
         </el-card>
       </el-col>
@@ -68,25 +52,61 @@
 </template>
 
 <script>
+import { getArticle } from '~/api/article'
+import { formatDate } from '~/utils/utils'
 export default {
-  name: 'IndexPage',
+  name: 'PageArticle',
+  components: {},
   data() {
-    return {}
+    return {
+      id: this.$route.params.id,
+      article: {},
+      editor: null,
+      editorConfig: {
+        readOnly: true,
+      },
+    }
   },
   head() {
     return {
       title: 'MOREDOC · 魔刀文库，开源文库系统',
     }
   },
-  async created() {},
-  methods: {},
+  async created() {
+    const res = await getArticle({ identifier: this.$route.params.id })
+    if (res.status === 200) {
+      this.article = res.data
+    } else {
+      this.$message.error(res.data.message || '查询失败')
+      this.$router.push('/404')
+    }
+  },
+  methods: {
+    formatDate,
+    onCreated(editor) {
+      this.editor = Object.seal(editor) // 一定要用 Object.seal() ，否则会报错
+      this.editor.on('fullScreen', () => {
+        this.isEditorFullScreen = true
+      })
+      this.editor.on('unFullScreen', () => {
+        this.isEditorFullScreen = false
+      })
+    },
+  },
 }
 </script>
 <style lang="scss">
 .page-article {
-  h1 {
-    margin: 0;
-    font-size: 16px;
+  .el-card__header {
+    h1 {
+      font-size: 16px;
+      margin: 0;
+    }
+  }
+  [data-w-e-type='todo'] {
+    input {
+      margin-right: 5px;
+    }
   }
   .article-info {
     span {
@@ -105,6 +125,21 @@ export default {
       height: 40px;
       line-height: 40px;
       border-bottom: 1px dashed #efefef;
+    }
+  }
+  article {
+    img {
+      max-width: 100%;
+    }
+    .w-e-text-container [data-slate-editor] blockquote {
+      border-left-width: 4px !important;
+    }
+    line-height: 180%;
+    blockquote {
+      padding: 10px;
+      color: #777;
+      font-size: 0.95em;
+      background-color: #f6f8fa;
     }
   }
 }

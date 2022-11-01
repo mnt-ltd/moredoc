@@ -115,6 +115,8 @@ func (s *ArticleAPIService) GetArticle(ctx context.Context, req *pb.GetArticleRe
 			s.logger.Error("GetArticle", zap.Error(err))
 			return nil, status.Errorf(codes.Internal, "获取文章失败")
 		}
+		article.ViewCount += 1
+		s.dbModel.UpdateArticleViewCount(article.Id, article.ViewCount)
 	}
 
 	if article.Id == 0 {

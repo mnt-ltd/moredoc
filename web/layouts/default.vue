@@ -207,9 +207,9 @@ export default {
     }
   }
   padding-top: 60px;
-  a {
-    color: #303133;
-  }
+  // a {
+  //   color: #303133;
+  // }
   .el-card {
     border-radius: 5px;
     border: 0;
