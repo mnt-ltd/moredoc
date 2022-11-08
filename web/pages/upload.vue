@@ -47,7 +47,7 @@
                     :disabled="loading"
                   ></el-input-number>
                 </el-form-item>
-                <el-form-item label="同名覆盖">
+                <!-- <el-form-item label="同名覆盖">
                   <el-switch
                     v-model="document.overwrite"
                     active-color="#13ce66"
@@ -57,7 +57,7 @@
                     :disabled="loading"
                   >
                   </el-switch>
-                </el-form-item>
+                </el-form-item> -->
 
                 <el-form-item>
                   <el-upload
@@ -84,7 +84,7 @@
                     v-if="fileList.length > 0"
                     :data="fileList"
                     style="width: 100%"
-                    max-height="360"
+                    max-height="480"
                   >
                     <el-table-column prop="title" label="文件" min-width="180">
                       <template slot-scope="scope">
@@ -145,7 +145,7 @@
                     :loading="loading"
                     @click="onSubmit"
                   >
-                    <span v-if="loading">上传中...</span>
+                    <span v-if="loading">请勿刷新页面，文档上传中...</span>
                     <span v-else>确定上传</span>
                   </el-button>
                 </el-form-item>
@@ -168,13 +168,13 @@
                     。
                   </li>
                   <li>3. 支持批量上传</li>
-                  <li>
+                  <!-- <li>
                     4.
                     <span class="el-link el-link--danger">同名覆盖</span>
-                    表示相同名称的文档（含扩展名），直接用新文档覆盖替换
-                  </li>
+                    表示相同名称的文档（含扩展名），直接用新文档文件替换，以达到更新文档文件的目的。
+                  </li> -->
                   <li>
-                    3. 目前支持的文档类型：
+                    4. 目前支持的文档类型：
                     <div>
                       <img src="/static/images/word_24.png" alt="Word文档" />
                       doc，docx，rtf，wps，odt
@@ -200,7 +200,7 @@
                     </div>
                   </li>
                   <li>
-                    4. 上传遇到问题需要帮助？请查看
+                    5. 上传遇到问题需要帮助？请查看
                     <nuxt-link
                       to="/article/help"
                       class="el-link el-link--default"
@@ -214,10 +214,10 @@
                     >
                   </li>
                   <li>
-                    5. 为营造绿色网络环境，严禁上传含有淫秽色情及低俗信息等文档
+                    6. 为营造绿色网络环境，严禁上传含有淫秽色情及低俗信息等文档
                   </li>
                   <li>
-                    6.
+                    7.
                     对于涉嫌侵权和违法违规的文档，本站有权在不提前通知的情况下对文档进行删除，您在本站上传文档，表示认同该条款
                   </li>
                 </ul>
@@ -233,6 +233,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { formatBytes } from '~/utils/utils'
+import { createDocument } from '~/api/document'
 export default {
   name: 'PageUpload',
   data() {
@@ -318,19 +319,41 @@ export default {
       console.log(err)
       this.$message.error(err.message)
     },
-    onSuccess(res, file, fileList) {
+    // TODO: 优化：因网络问题失败或者没有权限等情况，可以正常重试
+    async onSuccess(res, file, fileList) {
       const length = fileList.length
       const successItems = fileList.filter(
         (item) => item.response && item.response.code === 200
       )
       const percentAge = parseInt((successItems.length / length) * 100)
       if (percentAge === 100) {
-        // 上传成功100%之后，提交表单数据
-        this.$message.success('上传成功')
-        this.loading = false
-        this.percentAge = 0
-        // this.fileList = []
-        // this.$refs.upload.clearFiles()
+        const createDocumentRequest = {
+          overwrite: this.document.overwrite,
+          category_id: this.document.category_id,
+          document: successItems.map((item) => {
+            return {
+              title: item.title,
+              price: item.price,
+              attachment_id: item.response.data.id,
+            }
+          }),
+        }
+
+        const res = await createDocument(createDocumentRequest)
+        if (res.status === 200) {
+          this.$message.success('上传成功')
+          this.loading = false
+          this.percentAge = 0
+          this.fileList = []
+          this.document = {
+            category_id: [],
+            price: 0,
+            overwrite: false,
+          }
+          this.$refs.upload.clearFiles()
+        } else {
+          this.$message.err(res.data.message || '上传失败')
+        }
       } else {
         this.percentAge = percentAge
       }

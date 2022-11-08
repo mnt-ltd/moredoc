@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"go.uber.org/zap"
@@ -43,6 +44,7 @@ type Document struct {
 	ScoreCount    int             `form:"score_count" json:"score_count,omitempty" gorm:"column:score_count;type:int(11);size:11;default:0;comment:评分数量;"`
 	Price         int             `form:"price" json:"price,omitempty" gorm:"column:price;type:int(11);size:11;default:0;comment:价格，0表示免费;"`
 	Size          int64           `form:"size" json:"size,omitempty" gorm:"column:size;type:bigint(20);size:20;default:0;comment:文件大小;"`
+	Ext           string          `form:"ext" json:"ext,omitempty" gorm:"column:ext;type:varchar(16);size:16;comment:文件扩展名"`
 	Status        int             `form:"status" json:"status,omitempty" gorm:"column:status;type:smallint(6);size:6;default:0;index:status;comment:文档状态：0 待转换，1 转换中，2 转换完成，3 转换失败，4 禁用;"`
 	CreatedAt     *time.Time      `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt     *time.Time      `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
@@ -386,5 +388,77 @@ func (m *DBModel) ClearRecycleDocument() (err error) {
 		m.logger.Error("DeleteDocument", zap.Error(err))
 	}
 
+	return
+}
+
+// 批量创建文档
+func (m *DBModel) CreateDocuments(documents []Document, categoryIds []int64) (docs []Document, err error) {
+	sess := m.db.Begin()
+	defer func() {
+		if err != nil {
+			sess.Rollback()
+		} else {
+			sess.Commit()
+		}
+	}()
+
+	// 1. 分类下的文档数增加
+	err = sess.Model(&Category{}).
+		Where("id in ?", categoryIds).
+		Update("doc_count", gorm.Expr("doc_count + ?", len(documents))).Error
+	if err != nil {
+		m.logger.Error("CreateDocuments", zap.Error(err))
+		return
+	}
+
+	// 2. 批量创建文档
+	err = sess.Create(documents).Error
+	if err != nil {
+		m.logger.Error("CreateDocuments", zap.Error(err))
+		return
+	}
+	docs = documents
+
+	// 3. 文档与分类关联
+	var docCates []DocumentCategory
+	for _, doc := range documents {
+		for _, cateId := range categoryIds {
+			docCates = append(docCates, DocumentCategory{
+				DocumentId: doc.Id,
+				CategoryId: cateId,
+			})
+		}
+	}
+	err = sess.Create(docCates).Error
+	if err != nil {
+		m.logger.Error("CreateDocuments", zap.Error(err))
+		return
+	}
+	return
+}
+
+// 根据文档hash，查询已转换了的文档状态
+func (m *DBModel) GetDocumentStatusConvertedByHash(hash []string) (statusMap map[string]int) {
+	var (
+		tableDocument   = Document{}.TableName()
+		tableAttachment = Attachment{}.TableName()
+	)
+
+	statusMap = make(map[string]int)
+	sql := fmt.Sprintf(
+		"select a.hash from %s a left join %s d on a.type_id = d.id where a.hash in ? and d.status = ? group by a.hash",
+		tableAttachment, tableDocument,
+	)
+
+	var attachemnts []Attachment
+	err := m.db.Raw(sql, hash, DocumentStatusConverted).Find(&attachemnts).Error
+	if err != nil {
+		m.logger.Error("GetDocumentStatusConvertedByHash", zap.Error(err))
+		return
+	}
+
+	for _, attachment := range attachemnts {
+		statusMap[attachment.Hash] = DocumentStatusConverted
+	}
 	return
 }

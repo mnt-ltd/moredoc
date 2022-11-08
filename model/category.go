@@ -31,7 +31,7 @@ func (m *DBModel) CreateCategory(category *Category) (err error) {
 		return
 	}
 	if category.Cover != "" {
-		m.setAttachmentType(AttachmentTypeCategoryCover, category.Id, category.Cover)
+		m.setAttachmentType(AttachmentTypeCategoryCover, category.Id, []string{category.Cover})
 	}
 	return
 }
@@ -53,7 +53,7 @@ func (m *DBModel) UpdateCategory(category *Category, updateFields ...string) (er
 	}
 
 	if category.Cover != "" {
-		m.setAttachmentType(AttachmentTypeCategoryCover, category.Id, category.Cover)
+		m.setAttachmentType(AttachmentTypeCategoryCover, category.Id, []string{category.Cover})
 	}
 
 	return

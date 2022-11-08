@@ -8,6 +8,7 @@ import (
 	"moredoc/model"
 	"moredoc/util"
 
+	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -29,14 +30,74 @@ func (s *DocumentAPIService) checkPermission(ctx context.Context) (userClaims *a
 }
 
 // CreateDocument 创建文档
-// 判断是否有权限
+// 0. 判断是否有权限
+// 1. 同名覆盖：找到该作者上传的相同title和ext的文档，然后用新文件覆盖，同时文档状态改为待转换
+// 2. 相同hash的文档如果已经被转换了，则该文档的状态直接改为已转换
+// 3. 判断附件ID是否与用户ID匹配，不匹配则跳过该文档
 func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateDocumentRequest) (*emptypb.Empty, error) {
-	_, err := s.checkPermission(ctx)
+	userCliams, err := s.checkPermission(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: 批量创建文档。注意：判断附件id是否与用户id匹配
+	var (
+		attachmentIds []interface{}
+		attachmentMap = make(map[int64]model.Attachment)
+	)
+
+	for _, item := range req.Document {
+		attachmentIds = append(attachmentIds, item.AttachmentId)
+	}
+
+	attachments, _, _ := s.dbModel.GetAttachmentList(&model.OptionGetAttachmentList{
+		Ids:     attachmentIds,
+		QueryIn: map[string][]interface{}{"user_id": {userCliams.UserId}},
+	})
+	if len(attachments) == 0 {
+		return nil, status.Error(codes.InvalidArgument, "文档文件参数attachment_id不正确")
+	}
+
+	for _, attachment := range attachments {
+		attachmentMap[attachment.Id] = attachment
+	}
+
+	var (
+		documents           []model.Document
+		uuidAttachmentIdMap = make(map[string]int64)
+	)
+	for _, doc := range req.Document {
+		attachment, ok := attachmentMap[doc.AttachmentId]
+		if !ok {
+			continue
+		}
+
+		doc := model.Document{
+			Title:  doc.Title,
+			UserId: userCliams.UserId,
+			UUID:   uuid.Must(uuid.NewV4()).String(),
+			Score:  300,
+			Price:  int(doc.Price),
+			Size:   attachment.Size,
+			Ext:    attachment.Ext,
+			Status: model.DocumentStatusPending,
+		}
+		uuidAttachmentIdMap[doc.UUID] = attachment.Id
+		documents = append(documents, doc)
+	}
+
+	docs, err := s.dbModel.CreateDocuments(documents, req.CategoryId)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	attachIdTypeIdMap := make(map[int64]int64)
+	for _, doc := range docs {
+		if attachmentId, ok := uuidAttachmentIdMap[doc.UUID]; ok {
+			attachIdTypeIdMap[attachmentId] = doc.Id
+		}
+	}
+
+	s.dbModel.SetAttachmentTypeId(attachIdTypeIdMap)
 
 	return &emptypb.Empty{}, nil
 }
