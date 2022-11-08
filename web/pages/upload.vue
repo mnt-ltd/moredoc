@@ -39,7 +39,7 @@
                     placeholder="请选择文档分类"
                   ></el-cascader>
                 </el-form-item>
-                <el-form-item label="默认售价（魔豆）">
+                <el-form-item label="默认售价（魔豆）" prop="price">
                   <el-input-number
                     v-model="document.price"
                     :min="0"
@@ -47,18 +47,6 @@
                     :disabled="loading"
                   ></el-input-number>
                 </el-form-item>
-                <!-- <el-form-item label="同名覆盖">
-                  <el-switch
-                    v-model="document.overwrite"
-                    active-color="#13ce66"
-                    inactive-color="#ff4949"
-                    active-text="是"
-                    inactive-text="否"
-                    :disabled="loading"
-                  >
-                  </el-switch>
-                </el-form-item> -->
-
                 <el-form-item>
                   <el-upload
                     ref="upload"
@@ -81,7 +69,6 @@
                     </div>
                   </el-upload>
                   <el-table
-                    v-if="fileList.length > 0"
                     :data="fileList"
                     style="width: 100%"
                     max-height="480"
@@ -243,9 +230,10 @@ export default {
         price: 0,
         overwrite: false,
       },
+      fileList: [],
+      filesMap: {},
       loading: false,
       percentAge: 0,
-      fileList: [],
       allowExt: [
         '.doc',
         '.docx',
@@ -284,22 +272,22 @@ export default {
   async created() {},
   methods: {
     formatBytes,
-    handleChange(file, files) {
-      const filesMap = {}
-      const filesList = []
-      files.forEach((item) => {
-        const name = item.name.toLowerCase()
-        item.price = this.document.price || 0
-        item.title = item.name.substring(0, item.name.lastIndexOf('.'))
-        item.ext = item.name.substring(item.name.lastIndexOf('.')).toLowerCase()
-        if (!filesMap[name] && this.allowExt.includes(item.ext)) {
-          filesMap[name] = item
-          filesList.push(item)
+    handleChange(file) {
+      const name = file.name.toLowerCase()
+      const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
+      if (!this.filesMap[name] && this.allowExt.includes(ext)) {
+        const item = {
+          ...file,
+          title: file.name.substring(0, file.name.lastIndexOf('.')),
+          ext,
+          price: this.document.price || 0,
         }
-      })
-      this.fileList = filesList
+        this.filesMap[name] = item
+        this.fileList.push(item)
+      }
     },
     handleRemove(index) {
+      this.filesMap[this.fileList[index].name] = null
       this.fileList.splice(index, 1)
     },
     onSubmit() {
@@ -316,7 +304,6 @@ export default {
       })
     },
     onError(err) {
-      console.log(err)
       this.$message.error(err.message)
     },
     // TODO: 优化：因网络问题失败或者没有权限等情况，可以正常重试
@@ -345,6 +332,7 @@ export default {
           this.loading = false
           this.percentAge = 0
           this.fileList = []
+          this.filesMap = {}
           this.document = {
             category_id: [],
             price: 0,

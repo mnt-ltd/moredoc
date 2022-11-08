@@ -19,7 +19,7 @@
     "@wangeditor/editor-for-vue": "^1.0.2",
     "@wangeditor/plugin-md": "^1.0.0",
     "core-js": "^3.19.3",
-    "element-ui": "^2.15.6",
+    "element-ui": "^2.15.10",
     "hotkeys-js": "^3.10.0",
     "nuxt": "^2.15.8",
     "qs": "^6.11.0",
