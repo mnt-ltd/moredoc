@@ -18,6 +18,7 @@ var imagesExt = map[string]struct{}{
 	".jpeg": {},
 	".png":  {},
 	".gif":  {},
+	".ico":  {},
 	// ".bmp":  {},
 	// ".webp": {},
 }

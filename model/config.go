@@ -207,25 +207,29 @@ func (m *DBModel) GetConfigOfCaptcha() (config ConfigCaptcha) {
 }
 
 const (
-	ConfigSystemDomain      = "domain"
-	ConfigSystemTitle       = "title"
-	ConfigSystemDescription = "description"
-	ConfigSystemKeywords    = "keywords"
-	ConfigSystemLogo        = "logo"
-	ConfigSystemFavicon     = "favicon"
-	ConfigSystemIcp         = "icp"
-	ConfigSystemAnalytics   = "analytics"
+	ConfigSystemSitename           = "sitename"
+	ConfigSystemDomain             = "domain"
+	ConfigSystemTitle              = "title"
+	ConfigSystemDescription        = "description"
+	ConfigSystemKeywords           = "keywords"
+	ConfigSystemLogo               = "logo"
+	ConfigSystemFavicon            = "favicon"
+	ConfigSystemIcp                = "icp"
+	ConfigSystemAnalytics          = "analytics"
+	ConfigSystemCopyrightStartYear = "copyright_start_year"
 )
 
 type ConfigSystem struct {
-	Domain      string `json:"domain"`      // 站点域名，不带 HTTPS:// 和 HTTP://
-	Title       string `json:"title"`       // 系统名称
-	Keywords    string `json:"keywords"`    // 系统关键字
-	Description string `json:"description"` // 系统描述
-	Logo        string `json:"logo"`        // logo
-	Favicon     string `json:"favicon"`     // logo
-	ICP         string `json:"icp"`         // 网站备案
-	Analytics   string `json:"analytics"`   // 统计代码
+	Sitename           string `json:"sitename"`             // 网站名称
+	Domain             string `json:"domain"`               // 站点域名，不带 HTTPS:// 和 HTTP://
+	Title              string `json:"title"`                // 网站首页标题
+	Keywords           string `json:"keywords"`             // 系统关键字
+	Description        string `json:"description"`          // 系统描述
+	Logo               string `json:"logo"`                 // logo
+	Favicon            string `json:"favicon"`              // logo
+	ICP                string `json:"icp"`                  // 网站备案
+	Analytics          string `json:"analytics"`            // 统计代码
+	CopyrightStartYear string `json:"copyright_start_year"` // 版权年
 }
 
 // GetConfigOfSystem 获取系统配置
@@ -339,14 +343,16 @@ func (m *DBModel) initConfig() (err error) {
 	// 初始化配置项
 	cfgs := []Config{
 		// 系统配置项
-		{Category: ConfigCategorySystem, Name: ConfigSystemTitle, Label: "网站名称", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的名称", InputType: "text", Sort: 1, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemKeywords, Label: "网站关键字", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的关键字", InputType: "text", Sort: 2, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemDescription, Label: "网站描述", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的描述", InputType: "textarea", Sort: 3, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemLogo, Label: "网站Logo", Value: "", Placeholder: "请输入您网站的Logo路径", InputType: "image", Sort: 4, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemFavicon, Label: "网站Favicon", Value: "", Placeholder: "请输入您网站的Favicon路径", InputType: "image", Sort: 5, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemSitename, Label: "网站名称", Value: "魔刀文库", Placeholder: "请输入您网站的名称，如：魔刀文库", InputType: "text", Sort: 1, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemTitle, Label: "首页标题", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的首页标题，如：魔刀文库，强大、专业的文库系统", InputType: "text", Sort: 2, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemKeywords, Label: "网站关键字", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的关键字", InputType: "text", Sort: 3, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemDescription, Label: "网站描述", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的描述", InputType: "textarea", Sort: 4, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemLogo, Label: "网站Logo", Value: "", Placeholder: "请输入您网站的Logo路径", InputType: "image", Sort: 6, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemFavicon, Label: "网站Favicon", Value: "", Placeholder: "请输入您网站的Favicon路径", InputType: "image", Sort: 6, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemIcp, Label: "网站备案号", Value: "", Placeholder: "请输入您网站的备案号", InputType: "text", Sort: 6, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "", Placeholder: "请输入您网站的域名访问地址，如 https://moredoc.mnt.ltd，用以生成网站地图sitemap", InputType: "text", Sort: 7, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemAnalytics, Label: "网站统计代码", Value: "", Placeholder: "请输入您网站的统计代码", InputType: "textarea", Sort: 8, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemCopyrightStartYear, Label: "版权起始年", Value: "2019", Placeholder: "请输入您网站版权起始年，如：2019，则前台会显示如 ©2019 - 2022 的字样", InputType: "text", Sort: 8, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemAnalytics, Label: "网站统计代码", Value: "", Placeholder: "请输入您网站的统计代码", InputType: "textarea", Sort: 9, Options: ""},
 
 		// 验证码配置项
 		{Category: ConfigCategoryCaptcha, Name: ConfigCaptchaHeight, Label: "验证码高度", Value: "60", Placeholder: "请输入验证码高度，默认为60", InputType: "number", Sort: 13, Options: ""},

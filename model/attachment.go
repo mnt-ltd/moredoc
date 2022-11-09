@@ -19,6 +19,7 @@ const (
 	AttachmentTypeComment              // 评论
 	AttachmentTypeBanner               // 横幅
 	AttachmentTypeCategoryCover        // 分类封面
+	AttachmentTypeConfig               // 分类封面
 )
 
 var attachmentTypeName = map[int]string{

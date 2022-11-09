@@ -28,10 +28,6 @@ export default {
           label: '系统配置',
           value: 'system',
         },
-        // {
-        //   label: '用户配置',
-        //   value: 'user',
-        // },
         {
           label: '底链配置',
           value: 'footer',

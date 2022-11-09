@@ -16,4 +16,9 @@ export const listConfig = (params) => {
   })
 }
 
-
+export const getSettings = () => {
+  return service({
+    url: '/api/v1/settings',
+    method: 'get',
+  })
+}

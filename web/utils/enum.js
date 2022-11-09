@@ -14,6 +14,7 @@ export const attachmentTypeOptions = [
   { label: '评论', value: 4 },
   { label: '横幅', value: 5 },
   { label: '分类封面', value: 6 },
+  { label: '配置', value: 7 },
 ]
 
 export const documentStatusOptions = [

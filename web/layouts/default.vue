@@ -9,7 +9,10 @@
           :router="true"
         >
           <el-menu-item class="logo">
-            <img src="/static/images/logo.png" alt="魔刀文库" />
+            <img
+              :src="settings.system.logo || '/static/images/logo.png'"
+              :alt="settings.system.sitename"
+            />
           </el-menu-item>
           <el-menu-item index="/">
             <template slot="title">
@@ -72,43 +75,90 @@
       </div>
       <div class="footer-links">
         <div>
-          <el-link :underline="false" type="white" href="/article/about"
+          <el-link
+            v-if="settings.footer.about"
+            :underline="false"
+            type="white"
+            target="_blank"
+            :href="settings.footer.about"
             >关于我们</el-link
           >
-          <el-link :underline="false" type="white" href="/article/about"
+          <el-link
+            v-if="settings.footer.agreement"
+            :href="settings.footer.agreement"
+            :underline="false"
+            target="_blank"
+            type="white"
             >文库协议</el-link
           >
-          <el-link :underline="false" type="white" href="/article/about"
+          <el-link
+            v-if="settings.footer.contact"
+            :underline="false"
+            type="white"
+            target="_blank"
+            :href="settings.footer.contact"
             >联系我们</el-link
           >
-          <el-link :underline="false" type="white" href="/article/about"
+          <el-link
+            v-if="settings.footer.feedback"
+            :underline="false"
+            type="white"
+            :href="settings.footer.feedback"
+            target="_blank"
             >意见反馈</el-link
           >
-          <el-link :underline="false" type="white" href="/article/about"
+          <el-link
+            v-if="settings.footer.copyright"
+            :underline="false"
+            type="white"
+            :href="settings.footer.copyright"
+            target="_blank"
             >免责声明</el-link
           >
         </div>
         <div>
           <el-link
+            v-if="settings.system.domain"
             :underline="false"
             type="white"
             title="魔刀文库"
-            href="/article/about"
+            :href="settings.system.domain"
           >
-            魔刀文库 ©2022
+            {{ settings.system.sitename }}
+            <span v-if="settings.system.copyright_start_year == currentYear"
+              >©{{ currentYear }}</span
+            >
+            <span v-else>
+              ©{{ settings.system.copyright_start_year }} - {{ currentYear }}
+            </span>
           </el-link>
           <span>|</span>
-          <el-link :underline="false" type="white" href="/article/about"
+          <el-link
+            :underline="false"
+            type="white"
+            target="_blank"
+            title="站点地图"
+            href="sitemap.xml"
             >站点地图</el-link
           >
         </div>
-        <div>
-          <el-link :underline="false" type="white" href="/article/about"
-            >粤ICP备18004373号-4</el-link
+        <div v-if="settings.system.icp">
+          <el-link
+            :underline="false"
+            type="white"
+            target="_blank"
+            :title="settings.system.icp"
+            href="https://beian.miit.gov.cn/"
+            >{{ settings.system.icp }}</el-link
           >
         </div>
         <div>
-          <el-link :underline="false" type="primary" href="/article/about"
+          <el-link
+            :underline="false"
+            type="primary"
+            target="_blank"
+            href="https://mnt.ltd/?prod=moredoc"
+            title="MOREDOC"
             >Powered By
             <strong class="el-link--primary">MOREDOC</strong></el-link
           >
@@ -127,15 +177,31 @@ export default {
         wd: '',
       },
       friendlinks: [],
+      timeouter: null,
+      currentYear: new Date().getFullYear(),
     }
   },
   head() {
     return {
-      title: 'MOREDOC · 魔刀文库',
+      title:
+        this.settings.system.title ||
+        this.settings.system.sitename ||
+        '魔刀文库',
+      keywords: this.settings.system.keywords,
+      description: this.settings.system.description,
+      // favicon
+      link: [
+        {
+          rel: 'icon',
+          type: 'image/x-icon',
+          href: this.settings.system.favicon,
+        },
+      ],
     }
   },
   computed: {
     ...mapGetters('user', ['user', 'token']),
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     const [res] = await Promise.all([
@@ -144,14 +210,17 @@ export default {
         field: ['id', 'title', 'link'],
       }),
       this.getCategories(),
+      this.getSettings(),
     ])
     if (res.status === 200) {
       this.friendlinks = res.data.friendlink
     }
+    this.loopUpdate()
   },
   mounted() {},
   methods: {
     ...mapActions('category', ['getCategories']),
+    ...mapActions('setting', ['getSettings']),
     onSearch() {
       this.$router.push({
         path: '/search',
@@ -159,6 +228,17 @@ export default {
           wd: this.search.wd,
         },
       })
+    },
+    loopUpdate() {
+      clearTimeout(this.timeouter)
+      this.timeouter = setTimeout(() => {
+        // 更新系统配置信息
+        this.getSettings()
+        // 更新分类信息
+        this.getCategories()
+        // 递归
+        this.loopUpdate()
+      }, 1000 * 60) // 每分钟更新一次
     },
   },
 }
@@ -263,10 +343,9 @@ export default {
   }
   background-color: $background-grey-light;
   .logo {
-    padding-left: 0;
     img {
-      margin-top: -5px;
-      height: 50px;
+      margin-top: -4px;
+      height: 42px;
     }
   }
 }

@@ -48,6 +48,13 @@
           :inactive-value="'false'"
         >
         </el-switch>
+        <UploadImage
+          v-else-if="item.input_type === 'image'"
+          :action="'/api/v1/upload/config'"
+          :image="configs[index]['value']"
+          :width="'100px'"
+          @success="success($event, index)"
+        />
         <el-input
           v-else
           v-model="configs[index]['value']"
@@ -115,6 +122,10 @@ export default {
         this.$message.error('配置更新失败')
       }
       this.loading = false
+    },
+    success(res, index) {
+      console.log(res, index)
+      this.configs[index].value = res.data.path
     },
   },
 }

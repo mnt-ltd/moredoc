@@ -215,6 +215,11 @@ func (s *AttachmentAPIService) UploadAvatar(ctx *gin.Context) {
 	s.uploadImage(ctx, model.AttachmentTypeAvatar)
 }
 
+// UploadConfig 上传配置项中的相关图片
+func (s *AttachmentAPIService) UploadConfig(ctx *gin.Context) {
+	s.uploadImage(ctx, model.AttachmentTypeConfig)
+}
+
 //  UploadArticle 上传文章相关图片和视频。这里不验证文件格式。
 // 注意：当前适配了wangeditor的接口规范，如果需要适配其他编辑器，需要修改此接口或者增加其他接口
 func (s *AttachmentAPIService) UploadArticle(ctx *gin.Context) {
@@ -296,7 +301,7 @@ func (s *AttachmentAPIService) uploadImage(ctx *gin.Context, attachmentType int)
 
 	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
 	if !filetil.IsImage(ext) {
-		message := "请上传图片格式文件，支持.jpg、.jpeg和.png格式图片"
+		message := "请上传图片格式文件，支持.jpg、.jpeg、.png、.gif和.ico格式图片"
 		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: message, Error: message})
 		return
 	}

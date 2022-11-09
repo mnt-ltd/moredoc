@@ -22,6 +22,7 @@ func RegisterGinRouter(app *gin.Engine, dbModel *model.DBModel, logger *zap.Logg
 	checkPermissionGroup.Use(auth.AuthGin())
 	{
 		checkPermissionGroup.POST("avatar", attachmentAPIService.UploadAvatar)
+		checkPermissionGroup.POST("config", attachmentAPIService.UploadConfig)
 		checkPermissionGroup.POST("banner", attachmentAPIService.UploadBanner)
 		checkPermissionGroup.POST("document", attachmentAPIService.UploadDocument)
 		checkPermissionGroup.POST("category", attachmentAPIService.UploadCategory)
