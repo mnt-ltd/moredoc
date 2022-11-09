@@ -171,6 +171,11 @@ export default {
   head() {
     return {
       title: 'MOREDOC · 魔刀文库，开源文库系统',
+      script: [
+        {
+          src: 'https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js',
+        },
+      ],
     }
   },
   computed: {

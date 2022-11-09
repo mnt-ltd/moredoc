@@ -23,6 +23,8 @@ const (
 	ConfigCategoryCaptcha = "captcha"
 	// ConfigCategorySecurity 安全配置项
 	ConfigCategorySecurity = "security"
+	// ConfigCategoryFooter 底部链接
+	ConfigCategoryFooter = "footer"
 )
 
 type Config struct {
@@ -213,8 +215,6 @@ const (
 	ConfigSystemFavicon     = "favicon"
 	ConfigSystemIcp         = "icp"
 	ConfigSystemAnalytics   = "analytics"
-	ConfigSystemTheme       = "theme"
-	ConfigSystemCopyright   = "copyright"
 )
 
 type ConfigSystem struct {
@@ -224,8 +224,6 @@ type ConfigSystem struct {
 	Description string `json:"description"` // 系统描述
 	Logo        string `json:"logo"`        // logo
 	Favicon     string `json:"favicon"`     // logo
-	Theme       string `json:"theme"`       // 网站主题
-	Copyright   string `json:"copyright"`   // 版权信息
 	ICP         string `json:"icp"`         // 网站备案
 	Analytics   string `json:"analytics"`   // 统计代码
 }
@@ -241,11 +239,7 @@ func (m *DBModel) GetConfigOfSystem() (config ConfigSystem) {
 	var data = make(map[string]interface{})
 
 	for _, cfg := range confgis {
-		switch cfg.Name {
-		// 字符串类型的配置项
-		case "title", "description", "keywords", "logo", "favicon", "icp", "domain", "analytics", "theme", "copyright":
-			data[cfg.Name] = cfg.Value
-		}
+		data[cfg.Name] = cfg.Value
 	}
 
 	bytes, _ := json.Marshal(data)
@@ -256,6 +250,7 @@ func (m *DBModel) GetConfigOfSystem() (config ConfigSystem) {
 
 const (
 	ConfigSecurityIsClose                   = "is_close"                     // 是否关闭注册
+	ConfigSecurityCloseStatement            = "close_statement"              // 闭站说明
 	ConfigSecurityEnableRegister            = "enable_register"              // 是否允许注册
 	ConfigSecurityEnableCaptchaLogin        = "enable_captcha_login"         // 是否开启登录验证码
 	ConfigSecurityEnableCaptchaRegister     = "enable_captcha_register"      // 是否开启注册验证码
@@ -265,13 +260,14 @@ const (
 )
 
 type ConfigSecurity struct {
-	IsClose                   bool `json:"is_close"`                     // 是否闭站
-	EnableRegister            bool `json:"enable_register"`              // 是否启用注册
-	EnableCaptchaLogin        bool `json:"enable_captcha_login"`         // 是否启用登录验证码
-	EnableCaptchaRegister     bool `json:"enable_captcha_register"`      // 是否启用注册验证码
-	EnableCaptchaComment      bool `json:"enable_captcha_comment"`       // 是否启用评论验证码
-	EnableCaptchaFindPassword bool `json:"enable_captcha_find_password"` // 找回密码是否需要验证码
-	EnableCaptchaUpload       bool `json:"enable_captcha_upload"`        // 上传文档是否需要验证码
+	IsClose                   bool   `json:"is_close"`                     // 是否闭站
+	CloseStatement            string `json:"close_statement"`              // 闭站说明
+	EnableRegister            bool   `json:"enable_register"`              // 是否启用注册
+	EnableCaptchaLogin        bool   `json:"enable_captcha_login"`         // 是否启用登录验证码
+	EnableCaptchaRegister     bool   `json:"enable_captcha_register"`      // 是否启用注册验证码
+	EnableCaptchaComment      bool   `json:"enable_captcha_comment"`       // 是否启用评论验证码
+	EnableCaptchaFindPassword bool   `json:"enable_captcha_find_password"` // 找回密码是否需要验证码
+	EnableCaptchaUpload       bool   `json:"enable_captcha_upload"`        // 上传文档是否需要验证码
 }
 
 // GetConfigOfSecurity 获取安全配置
@@ -293,7 +289,44 @@ func (m *DBModel) GetConfigOfSecurity(name ...string) (config ConfigSecurity) {
 		case "is_close", "enable_register", "enable_captcha_login", "enable_captcha_register", "enable_captcha_comment", "enable_captcha_find_password", "enable_captcha_upload":
 			value, _ := strconv.ParseBool(cfg.Value)
 			data[cfg.Name] = value
+		default:
+			data[cfg.Name] = cfg.Value
 		}
+	}
+
+	bytes, _ := json.Marshal(data)
+	json.Unmarshal(bytes, &config)
+
+	return
+}
+
+const (
+	ConfigFooterAbout     = "about"     // 关于我们
+	ConfigFooterContact   = "contact"   // 联系我们
+	ConfigFooterAgreement = "agreement" // 用户协议
+	ConfigFooterCopyright = "copyright" // 版权信息
+	ConfigFooterFeedback  = "feedback"  // 反馈信息
+)
+
+type ConfigFooter struct {
+	About     string `json:"about"`     // 关于我们
+	Contact   string `json:"contact"`   // 联系我们
+	Agreement string `json:"agreement"` // 用户协议、文库协议
+	Copyright string `json:"copyright"` // 版权信息、免责声明
+	Feedback  string `json:"feedback"`  // 反馈
+}
+
+func (m *DBModel) GetConfigOfFooter() (config ConfigFooter) {
+	var configs []Config
+	err := m.db.Where("category = ?", ConfigCategoryFooter).Find(&configs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetConfigOfFooter", zap.Error(err))
+	}
+
+	var data = make(map[string]interface{})
+
+	for _, cfg := range configs {
+		data[cfg.Name] = cfg.Value
 	}
 
 	bytes, _ := json.Marshal(data)
@@ -307,15 +340,13 @@ func (m *DBModel) initConfig() (err error) {
 	cfgs := []Config{
 		// 系统配置项
 		{Category: ConfigCategorySystem, Name: ConfigSystemTitle, Label: "网站名称", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的名称", InputType: "text", Sort: 1, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemDescription, Label: "网站描述", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的描述", InputType: "textarea", Sort: 2, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemKeywords, Label: "网站关键字", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的关键字", InputType: "text", Sort: 3, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemLogo, Label: "网站Logo", Value: "", Placeholder: "请输入您网站的Logo路径", InputType: "text", Sort: 4, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemFavicon, Label: "网站Favicon", Value: "", Placeholder: "请输入您网站的Favicon路径", InputType: "text", Sort: 5, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemKeywords, Label: "网站关键字", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的关键字", InputType: "text", Sort: 2, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemDescription, Label: "网站描述", Value: "MOREDOC · 魔刀文库", Placeholder: "请输入您网站的描述", InputType: "textarea", Sort: 3, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemLogo, Label: "网站Logo", Value: "", Placeholder: "请输入您网站的Logo路径", InputType: "image", Sort: 4, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemFavicon, Label: "网站Favicon", Value: "", Placeholder: "请输入您网站的Favicon路径", InputType: "image", Sort: 5, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemIcp, Label: "网站备案号", Value: "", Placeholder: "请输入您网站的备案号", InputType: "text", Sort: 6, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "", Placeholder: "请输入您网站的域名访问地址，如 https://moredoc.mnt.ltd", InputType: "text", Sort: 7, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "", Placeholder: "请输入您网站的域名访问地址，如 https://moredoc.mnt.ltd，用以生成网站地图sitemap", InputType: "text", Sort: 7, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemAnalytics, Label: "网站统计代码", Value: "", Placeholder: "请输入您网站的统计代码", InputType: "textarea", Sort: 8, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemTheme, Label: "网站主题", Value: "default", Placeholder: "请输入您网站的主题", InputType: "text", Sort: 9, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemCopyright, Label: "网站版权信息", Value: "", Placeholder: "请输入您网站的版权信息", InputType: "text", Sort: 10, Options: ""},
 
 		// 验证码配置项
 		{Category: ConfigCategoryCaptcha, Name: ConfigCaptchaHeight, Label: "验证码高度", Value: "60", Placeholder: "请输入验证码高度，默认为60", InputType: "number", Sort: 13, Options: ""},
@@ -324,13 +355,21 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryCaptcha, Name: ConfigCaptchaType, Label: "验证码类型", Value: "digit", Placeholder: "请选择验证码类型，默认为数字", InputType: "select", Sort: 16, Options: captcha.CaptchaTypeOptions},
 
 		// 安全配置项
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityIsClose, Label: "是否关闭网站", Value: "false", Placeholder: "请选择是否关闭网站", InputType: "switch", Sort: 17, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityIsClose, Label: "是否关闭网站", Value: "false", Placeholder: "请选择是否关闭网站", InputType: "switch", Sort: 16, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityCloseStatement, Label: "闭站说明", Value: "false", Placeholder: "关闭网站后，页面提示的内容", InputType: "textarea", Sort: 17, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableRegister, Label: "是否允许注册", Value: "true", Placeholder: "请选择是否允许用户注册", InputType: "switch", Sort: 18, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaLogin, Label: "是否开启登录验证码", Value: "true", Placeholder: "请选择是否开启登录验证码", InputType: "switch", Sort: 19, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaRegister, Label: "是否开启注册验证码", Value: "true", Placeholder: "请选择是否开启注册验证码", InputType: "switch", Sort: 20, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaComment, Label: "是否开启评论验证码", Value: "true", Placeholder: "请选择是否开启评论验证码", InputType: "switch", Sort: 21, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaFindPassword, Label: "是否开启找回密码验证码", Value: "true", Placeholder: "请选择是否开启找回密码验证码", InputType: "switch", Sort: 22, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaUpload, Label: "是否开启文档上传验证码", Value: "true", Placeholder: "请选择是否开启文档上传验证码", InputType: "switch", Sort: 23, Options: ""},
+
+		// 底部链接
+		{Category: ConfigCategoryFooter, Name: ConfigFooterAbout, Label: "关于我们", Value: "", Placeholder: "请输入关于我们的链接地址，留空表示不显示", InputType: "text", Sort: 24, Options: ""},
+		{Category: ConfigCategoryFooter, Name: ConfigFooterContact, Label: "联系我们", Value: "", Placeholder: "请输入联系我们的链接地址，留空表示不显示", InputType: "text", Sort: 25, Options: ""},
+		{Category: ConfigCategoryFooter, Name: ConfigFooterAgreement, Label: "文库协议", Value: "", Placeholder: "请输入文库协议的链接地址，留空表示不显示", InputType: "text", Sort: 26, Options: ""},
+		{Category: ConfigCategoryFooter, Name: ConfigFooterCopyright, Label: "免责声明", Value: "", Placeholder: "请输入免责声明的链接地址，留空表示不显示", InputType: "text", Sort: 27, Options: ""},
+		{Category: ConfigCategoryFooter, Name: ConfigFooterFeedback, Label: "意见反馈", Value: "", Placeholder: "请输入意见反馈的链接地址，留空表示不显示", InputType: "text", Sort: 28, Options: ""},
 	}
 
 	for _, cfg := range cfgs {

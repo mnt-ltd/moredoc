@@ -69,6 +69,7 @@
                     </div>
                   </el-upload>
                   <el-table
+                    v-if="fileList.length > 0"
                     :data="fileList"
                     style="width: 100%"
                     max-height="480"
@@ -102,7 +103,12 @@
                         ></el-input-number>
                       </template>
                     </el-table-column>
-                    <el-table-column label="操作" width="70" fixed="right">
+                    <el-table-column label="操作" width="100" fixed="right">
+                      <template slot="header">
+                        操作 (<el-button type="text" @click="clearAllFiles"
+                          >清空</el-button
+                        >)
+                      </template>
                       <template slot-scope="scope">
                         <el-button
                           size="mini"
@@ -190,13 +196,13 @@
                     5. 上传遇到问题需要帮助？请查看
                     <nuxt-link
                       to="/article/help"
-                      class="el-link el-link--default"
+                      class="el-link el-link--primary"
                       >文库帮助</nuxt-link
                     >
                     和
                     <nuxt-link
                       to="/article/feedback"
-                      class="el-link el-link--default"
+                      class="el-link el-link--primary"
                       >意见反馈</nuxt-link
                     >
                   </li>
@@ -302,6 +308,11 @@ export default {
           this.$refs.upload.submit()
         }
       })
+    },
+    clearAllFiles() {
+      this.fileList = []
+      this.filesMap = {}
+      this.$refs.upload.clearFiles()
     },
     onError(err) {
       this.$message.error(err.message)

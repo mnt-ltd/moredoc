@@ -32,10 +32,10 @@ export default {
         //   label: '用户配置',
         //   value: 'user',
         // },
-        // {
-        //   label: '邮箱配置',
-        //   value: 'email',
-        // },
+        {
+          label: '底链配置',
+          value: 'footer',
+        },
         {
           label: '验证码配置',
           value: 'captcha',

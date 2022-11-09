@@ -74,3 +74,27 @@ func (s *ConfigAPIService) ListConfig(ctx context.Context, req *pb.ListConfigReq
 
 	return &pb.Configs{Config: pbConfigs}, nil
 }
+
+// GetSettings 获取公开配置
+func (s *ConfigAPIService) GetSettings(ctx context.Context, req *emptypb.Empty) (*pb.Settings, error) {
+	res := &pb.Settings{
+		// Captcha:  &pb.ConfigCaptcha{},
+		System:   &pb.ConfigSystem{},
+		Footer:   &pb.ConfigFooter{},
+		Security: &pb.ConfigSecurity{},
+	}
+
+	// captcha := s.dbModel.GetConfigOfCaptcha()
+	// util.CopyStruct(&captcha, res.Captcha)
+
+	system := s.dbModel.GetConfigOfSystem()
+	util.CopyStruct(&system, res.System)
+
+	footer := s.dbModel.GetConfigOfFooter()
+	util.CopyStruct(&footer, res.Footer)
+
+	security := s.dbModel.GetConfigOfSecurity()
+	util.CopyStruct(&security, res.Security)
+
+	return res, nil
+}

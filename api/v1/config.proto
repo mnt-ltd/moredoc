@@ -26,13 +26,66 @@ message Config {
   google.protobuf.Timestamp updated_at = 11 [ (gogoproto.stdtime) = true ];
 }
 
-message ListConfigRequest { 
-  repeated string category = 1; 
-}
+message ListConfigRequest { repeated string category = 1; }
 
 message Configs { repeated Config config = 1; }
 
+// 验证码配置
+message ConfigCaptcha {
+  int32 length = 1;
+  int32 width = 2;
+  int32 height = 3;
+  string type = 4;
+}
+
+// 系统配置项
+message ConfigSystem {
+  string domain = 1;
+  string title = 2;
+  string keywords = 3;
+  string description = 4;
+  string logo = 5;
+  string favicon = 6;
+  string icp = 7;
+  string analytics = 8;
+}
+
+// 底链配置项
+message ConfigFooter {
+  string about = 1;
+  string contact = 2;
+  string agreement = 3;
+  string copyright = 4;
+  string feedback = 5;
+}
+
+// 安全配置
+message ConfigSecurity {
+  bool is_close = 1;
+  string close_statement = 2;
+  bool enable_register = 3;
+  bool enable_captcha_login = 4;
+  bool enable_captcha_register = 5;
+  bool enable_captcha_comment = 6;
+  bool enable_captcha_find_password = 7;
+  bool enable_captcha_upload = 8;
+}
+
+message Settings {
+  ConfigSystem system = 1;
+  ConfigFooter footer = 2;
+  ConfigSecurity security = 3;
+  // ConfigCaptcha captcha = 4; 
+}
+
 service ConfigAPI {
+  // 获取系统配置（针对所有用户，只读）
+  rpc GetSettings(google.protobuf.Empty) returns (Settings) {
+    option (google.api.http) = {
+      get : "/api/v1/settings"
+    };
+  }
+
   // UpdateConfig 更新配置
   rpc UpdateConfig(Configs) returns (google.protobuf.Empty) {
     option (google.api.http) = {
