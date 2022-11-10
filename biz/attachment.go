@@ -52,6 +52,10 @@ func (s *AttachmentAPIService) checkGinPermission(ctx *gin.Context) (userClaims 
 	return checkGinPermission(s.dbModel, ctx)
 }
 
+func (s *AttachmentAPIService) checkLogin(ctx *gin.Context) (userClaims *auth.UserClaims, statusCode int, err error) {
+	return checkGinLogin(s.dbModel, ctx)
+}
+
 // UpdateAttachment 更新附件。只允许更新附件名称、是否合法以及描述字段
 func (s *AttachmentAPIService) UpdateAttachment(ctx context.Context, req *pb.Attachment) (*emptypb.Empty, error) {
 	_, err := s.checkPermission(ctx)
@@ -172,9 +176,17 @@ func (s *AttachmentAPIService) ListAttachment(ctx context.Context, req *pb.ListA
 
 // UploadDocument 上传文档
 func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
-	userCliams, statusCodes, err := s.checkGinPermission(ctx)
+	// 检查用户是否已登录
+	userClaims, statusCodes, err := s.checkLogin(ctx)
 	if err != nil {
+		s.logger.Debug("checkGinPermission", zap.Error(err), zap.Any("userClaims", userClaims), zap.Any("statusCodes", statusCodes))
 		ctx.JSON(statusCodes, ginResponse{Code: statusCodes, Message: err.Error(), Error: err.Error()})
+		return
+	}
+
+	// 检查用户是否有权限上传文档
+	if !s.dbModel.CanIUploadDocument(userClaims.UserId) {
+		ctx.JSON(http.StatusForbidden, ginResponse{Code: http.StatusForbidden, Message: "没有权限上传文档", Error: "没有权限上传文档"})
 		return
 	}
 
@@ -197,7 +209,7 @@ func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
 		return
 	}
-	attachment.UserId = userCliams.UserId
+	attachment.UserId = userClaims.UserId
 	attachment.Type = model.AttachmentTypeDocument
 
 	err = s.dbModel.CreateAttachment(attachment)

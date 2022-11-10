@@ -9,16 +9,17 @@ import (
 )
 
 type Group struct {
-	Id          int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:用户组 id;"`
-	Title       string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;index:title,unique;comment:用户组名称;"`
-	Color       string     `form:"color" json:"color,omitempty" gorm:"column:color;type:varchar(20);size:20;comment:颜色;"`
-	IsDefault   bool       `form:"is_default" json:"is_default,omitempty" gorm:"column:is_default;type:tinyint(3);default:0;index:is_default;comment:是否默认;"`
-	IsDisplay   bool       `form:"is_display" json:"is_display,omitempty" gorm:"column:is_display;type:tinyint(3);default:0;comment:是否显示在用户名后;"`
-	Description string     `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(255);size:255;comment:用户组描述;"`
-	UserCount   int        `form:"user_count" json:"user_count,omitempty" gorm:"column:user_count;type:int(11);size:11;default:0;comment:用户数量;"`
-	Sort        int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
-	CreatedAt   *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
-	UpdatedAt   *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	Id           int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:用户组 id;"`
+	Title        string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;index:title,unique;comment:用户组名称;"`
+	Color        string     `form:"color" json:"color,omitempty" gorm:"column:color;type:varchar(20);size:20;comment:颜色;"`
+	IsDefault    bool       `form:"is_default" json:"is_default,omitempty" gorm:"column:is_default;type:tinyint(3);default:0;index:is_default;comment:是否默认;"`
+	IsDisplay    bool       `form:"is_display" json:"is_display,omitempty" gorm:"column:is_display;type:tinyint(3);default:0;comment:是否显示在用户名后;"`
+	Description  string     `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(255);size:255;comment:用户组描述;"`
+	UserCount    int        `form:"user_count" json:"user_count,omitempty" gorm:"column:user_count;type:int(11);size:11;default:0;comment:用户数量;"`
+	Sort         int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
+	EnableUpload bool       `form:"enable_upload" json:"enable_upload,omitempty" gorm:"column:enable_upload;type:tinyint(3);default:0;comment:是否允许上传文档;"`
+	CreatedAt    *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	UpdatedAt    *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
 
 func (Group) TableName() string {
@@ -81,9 +82,8 @@ func (m *DBModel) UpdateGroup(group *Group, updateFields ...string) (err error) 
 	updateFields = m.FilterValidFields(Group{}.TableName(), updateFields...)
 	if len(updateFields) > 0 { // 更新指定字段
 		sess = sess.Select(updateFields)
-	} else {
-		// 不更新用户统计数据
-		sess = sess.Omit("id", "user_count")
+	} else { // 不更新用户统计数据
+		sess = sess.Select(m.GetTableFields(Group{}.TableName())).Omit("id", "user_count")
 	}
 
 	err = sess.Where("id = ?", group.Id).Updates(group).Error

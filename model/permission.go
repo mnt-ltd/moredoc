@@ -136,7 +136,7 @@ func (m *DBModel) CheckPermissionByUserId(userId int64, path string, httpMethod 
 	}
 
 	permission, yes = m.CheckPermissionByGroupId(groupId, method, path)
-	return permission, yes || userId == 1
+	return permission, yes
 }
 
 //  CheckPermissionByGroupId 根据用户所属用户组ID，检查用户是否有权限

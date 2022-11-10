@@ -16,11 +16,9 @@ import (
 var errorMessagePermissionDeniedFormat = "您没有权限访问【%s】"
 
 func checkGinPermission(dbModel *model.DBModel, ctx *gin.Context) (userClaims *auth.UserClaims, statusCode int, err error) {
-	var ok bool
-	userClaims, ok = ctx.Value(auth.CtxKeyUserClaims.String()).(*auth.UserClaims)
-	if !ok || dbModel.IsInvalidToken(userClaims.UUID) {
-		statusCode = http.StatusUnauthorized
-		return nil, statusCode, errors.New(ErrorMessageInvalidToken)
+	userClaims, statusCode, err = checkGinLogin(dbModel, ctx)
+	if err != nil {
+		return
 	}
 
 	if permission, yes := dbModel.CheckPermissionByUserId(userClaims.UserId, ctx.Request.URL.Path, ctx.Request.Method); !yes {
@@ -34,11 +32,20 @@ func checkGinPermission(dbModel *model.DBModel, ctx *gin.Context) (userClaims *a
 	return
 }
 
-func checkGRPCPermission(dbModel *model.DBModel, ctx context.Context) (userClaims *auth.UserClaims, err error) {
+func checkGinLogin(dbModel *model.DBModel, ctx *gin.Context) (userClaims *auth.UserClaims, statusCode int, err error) {
 	var ok bool
-	userClaims, ok = ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
+	userClaims, ok = ctx.Value(auth.CtxKeyUserClaims.String()).(*auth.UserClaims)
 	if !ok || dbModel.IsInvalidToken(userClaims.UUID) {
-		return nil, status.Errorf(codes.Unauthenticated, ErrorMessageInvalidToken)
+		statusCode = http.StatusUnauthorized
+		return nil, statusCode, errors.New(ErrorMessageInvalidToken)
+	}
+	return
+}
+
+func checkGRPCPermission(dbModel *model.DBModel, ctx context.Context) (userClaims *auth.UserClaims, err error) {
+	userClaims, err = checkGRPCLogin(dbModel, ctx)
+	if err != nil {
+		return
 	}
 
 	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
@@ -48,6 +55,15 @@ func checkGRPCPermission(dbModel *model.DBModel, ctx context.Context) (userClaim
 			item = permission.Path
 		}
 		return userClaims, fmt.Errorf(errorMessagePermissionDeniedFormat, item)
+	}
+	return
+}
+
+func checkGRPCLogin(dbModel *model.DBModel, ctx context.Context) (userClaims *auth.UserClaims, err error) {
+	var ok bool
+	userClaims, ok = ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
+	if !ok || dbModel.IsInvalidToken(userClaims.UUID) {
+		return nil, status.Errorf(codes.Unauthenticated, ErrorMessageInvalidToken)
 	}
 	return
 }

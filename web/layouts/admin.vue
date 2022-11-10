@@ -192,11 +192,22 @@ export default {
   },
   head() {
     return {
-      title: 'MOREDOC · 魔刀文库',
+      title:
+        this.settings.system.title ||
+        this.settings.system.sitename ||
+        '魔刀文库',
+      link: [
+        {
+          rel: 'icon',
+          type: 'image/x-icon',
+          href: this.settings.system.favicon,
+        },
+      ],
     }
   },
   computed: {
     ...mapGetters('user', ['user', 'token', 'permissions', 'allowPages']),
+    ...mapGetters('setting', ['settings']),
   },
   created() {
     this.getUserPermissions()

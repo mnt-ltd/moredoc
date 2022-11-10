@@ -58,7 +58,7 @@
                     :on-success="onSuccess"
                     :on-error="onError"
                     multiple
-                    :disabled="loading"
+                    :disabled="loading || !canIUploadDocument"
                     :auto-upload="false"
                     :on-change="handleChange"
                     :file-list="fileList"
@@ -105,7 +105,10 @@
                     </el-table-column>
                     <el-table-column label="操作" width="100" fixed="right">
                       <template slot="header">
-                        操作 (<el-button type="text" @click="clearAllFiles"
+                        操作 (<el-button
+                          type="text"
+                          :disabled="loading"
+                          @click="clearAllFiles"
                           >清空</el-button
                         >)
                       </template>
@@ -133,6 +136,7 @@
                   ></el-progress>
                   <div v-if="loading" class="mgt-20px"></div>
                   <el-button
+                    v-if="canIUploadDocument"
                     type="primary"
                     class="btn-block"
                     :loading="loading"
@@ -141,6 +145,14 @@
                     <span v-if="loading">请勿刷新页面，文档上传中...</span>
                     <span v-else>确定上传</span>
                   </el-button>
+                  <el-button
+                    v-else
+                    type="primary"
+                    icon="el-icon-hot-water"
+                    class="btn-block"
+                    disabled
+                    >您未登录或您暂无文档上传权限</el-button
+                  >
                 </el-form-item>
               </el-form>
             </el-col>
@@ -227,10 +239,12 @@
 import { mapGetters } from 'vuex'
 import { formatBytes } from '~/utils/utils'
 import { createDocument } from '~/api/document'
+import { canIUploadDocument } from '~/api/user'
 export default {
   name: 'PageUpload',
   data() {
     return {
+      canIUploadDocument: false,
       document: {
         category_id: [],
         price: 0,
@@ -273,9 +287,13 @@ export default {
   },
   computed: {
     ...mapGetters('category', ['categoryTrees']),
-    ...mapGetters('user', ['token']),
   },
-  async created() {},
+  async created() {
+    const res = await canIUploadDocument()
+    if (res.status === 200) {
+      this.canIUploadDocument = true
+    }
+  },
   methods: {
     formatBytes,
     handleChange(file) {
@@ -305,56 +323,73 @@ export default {
             return
           }
           this.loading = true
-          this.$refs.upload.submit()
+          console.log('onSubmit')
+          if (this.percentAge === 100) {
+            // 直接创建文档
+            this.createDocuments()
+          } else {
+            this.$refs.upload.submit()
+          }
         }
       })
     },
     clearAllFiles() {
+      if (this.loading) {
+        return
+      }
       this.fileList = []
       this.filesMap = {}
       this.$refs.upload.clearFiles()
     },
     onError(err) {
-      this.$message.error(err.message)
+      this.loading = false
+      try {
+        const message = JSON.parse(err.message)
+        this.$message.error(message.error)
+      } catch (error) {
+        this.$message.error(err.message)
+      }
     },
     // TODO: 优化：因网络问题失败或者没有权限等情况，可以正常重试
-    async onSuccess(res, file, fileList) {
+    onSuccess(res, file, fileList) {
       const length = fileList.length
       const successItems = fileList.filter(
         (item) => item.response && item.response.code === 200
       )
-      const percentAge = parseInt((successItems.length / length) * 100)
-      if (percentAge === 100) {
-        const createDocumentRequest = {
-          overwrite: this.document.overwrite,
-          category_id: this.document.category_id,
-          document: successItems.map((item) => {
-            return {
-              title: item.title,
-              price: item.price,
-              attachment_id: item.response.data.id,
-            }
-          }),
-        }
-
-        const res = await createDocument(createDocumentRequest)
-        if (res.status === 200) {
-          this.$message.success('上传成功')
-          this.loading = false
-          this.percentAge = 0
-          this.fileList = []
-          this.filesMap = {}
-          this.document = {
-            category_id: [],
-            price: 0,
-            overwrite: false,
+      this.percentAge = (successItems.length / length) * 100
+      if (this.percentAge === 100) {
+        this.createDocuments()
+      }
+    },
+    async createDocuments() {
+      const createDocumentRequest = {
+        overwrite: this.document.overwrite,
+        category_id: this.document.category_id,
+        document: this.fileList.map((item) => {
+          return {
+            title: item.title,
+            price: item.price,
+            attachment_id: item.response.data.id,
           }
-          this.$refs.upload.clearFiles()
-        } else {
-          this.$message.err(res.data.message || '上传失败')
+        }),
+      }
+      const res = await createDocument(createDocumentRequest)
+      if (res.status === 200) {
+        this.$message.success('上传成功')
+        this.loading = false
+        this.percentAge = 0
+        this.fileList = []
+        this.filesMap = {}
+        this.document = {
+          category_id: [],
+          price: 0,
+          overwrite: false,
         }
+        this.$refs.upload.clearFiles()
       } else {
-        this.percentAge = percentAge
+        console.log(res)
+        this.$message.error(res.data.message || '上传失败')
+        this.loading = false
       }
     },
   },

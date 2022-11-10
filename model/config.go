@@ -260,7 +260,6 @@ const (
 	ConfigSecurityEnableCaptchaRegister     = "enable_captcha_register"      // 是否开启注册验证码
 	ConfigSecurityEnableCaptchaComment      = "enable_captcha_comment"       // 是否开启注册验证码
 	ConfigSecurityEnableCaptchaFindPassword = "enable_captcha_find_password" // 是否开启注册验证码
-	ConfigSecurityEnableCaptchaUpload       = "enable_captcha_upload"        // 是否开启注册验证码
 )
 
 type ConfigSecurity struct {
@@ -271,7 +270,6 @@ type ConfigSecurity struct {
 	EnableCaptchaRegister     bool   `json:"enable_captcha_register"`      // 是否启用注册验证码
 	EnableCaptchaComment      bool   `json:"enable_captcha_comment"`       // 是否启用评论验证码
 	EnableCaptchaFindPassword bool   `json:"enable_captcha_find_password"` // 找回密码是否需要验证码
-	EnableCaptchaUpload       bool   `json:"enable_captcha_upload"`        // 上传文档是否需要验证码
 }
 
 // GetConfigOfSecurity 获取安全配置
@@ -368,7 +366,6 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaRegister, Label: "是否开启注册验证码", Value: "true", Placeholder: "请选择是否开启注册验证码", InputType: "switch", Sort: 20, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaComment, Label: "是否开启评论验证码", Value: "true", Placeholder: "请选择是否开启评论验证码", InputType: "switch", Sort: 21, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaFindPassword, Label: "是否开启找回密码验证码", Value: "true", Placeholder: "请选择是否开启找回密码验证码", InputType: "switch", Sort: 22, Options: ""},
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaUpload, Label: "是否开启文档上传验证码", Value: "true", Placeholder: "请选择是否开启文档上传验证码", InputType: "switch", Sort: 23, Options: ""},
 
 		// 底部链接
 		{Category: ConfigCategoryFooter, Name: ConfigFooterAbout, Label: "关于我们", Value: "", Placeholder: "请输入关于我们的链接地址，留空表示不显示", InputType: "text", Sort: 24, Options: ""},

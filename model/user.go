@@ -404,3 +404,20 @@ func (m *DBModel) SetUserGroupAndPassword(userId int64, groupId []int64, passwor
 
 	return
 }
+
+// CanIUploadDocument 判断用户是否有上传文档的权限
+func (m *DBModel) CanIUploadDocument(userId int64) (yes bool) {
+	var (
+		tableGroup     = Group{}.TableName()
+		tableUserGroup = UserGroup{}.TableName()
+		group          Group
+	)
+	err := m.db.Select("g.id").Table(tableGroup+" g").Joins(
+		"left join "+tableUserGroup+" ug on g.id=ug.group_id",
+	).Where("ug.user_id = ? and g.enable_upload = ?", userId, true).Find(&group).Error
+	if err != nil {
+		m.logger.Error("CanIUploadDocument", zap.Error(err))
+		return
+	}
+	return group.Id > 0
+}

@@ -226,6 +226,7 @@ export default {
         color: '#000000',
         title: '',
         is_display: true,
+        enable_upload: false,
         is_default: false,
       }
     },
@@ -247,6 +248,12 @@ export default {
         { prop: 'user_count', label: '用户数', width: 80, type: 'number' },
         { prop: 'color', label: '颜色', width: 120, type: 'color' },
         { prop: 'is_default', label: '是否默认', width: 80, type: 'bool' },
+        {
+          prop: 'enable_upload',
+          label: '允许上传文档',
+          width: 120,
+          type: 'bool',
+        },
         { prop: 'is_display', label: '是否展示', width: 80, type: 'bool' },
         { prop: 'description', label: '描述', width: 250 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },

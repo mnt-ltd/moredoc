@@ -29,15 +29,23 @@ func (s *DocumentAPIService) checkPermission(ctx context.Context) (userClaims *a
 	return checkGRPCPermission(s.dbModel, ctx)
 }
 
+func (s *DocumentAPIService) checkLogin(ctx context.Context) (userClaims *auth.UserClaims, err error) {
+	return checkGRPCLogin(s.dbModel, ctx)
+}
+
 // CreateDocument 创建文档
 // 0. 判断是否有权限
 // 1. 同名覆盖：找到该作者上传的相同title和ext的文档，然后用新文件覆盖，同时文档状态改为待转换
 // 2. 相同hash的文档如果已经被转换了，则该文档的状态直接改为已转换
 // 3. 判断附件ID是否与用户ID匹配，不匹配则跳过该文档
 func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateDocumentRequest) (*emptypb.Empty, error) {
-	userCliams, err := s.checkPermission(ctx)
+	userCliams, err := s.checkLogin(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	if !s.dbModel.CanIUploadDocument(userCliams.UserId) {
+		return nil, status.Error(codes.PermissionDenied, "没有权限上传文档")
 	}
 
 	var (

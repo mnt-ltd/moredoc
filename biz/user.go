@@ -410,8 +410,6 @@ func (s *UserAPIService) GetUserCaptcha(ctx context.Context, req *pb.GetUserCapt
 		res.Enable = cfgSecurity.EnableCaptchaRegister
 	case "login":
 		res.Enable = cfgSecurity.EnableCaptchaLogin
-	case "upload":
-		res.Enable = cfgSecurity.EnableCaptchaUpload
 	case "find_password":
 		res.Enable = cfgSecurity.EnableCaptchaFindPassword
 	case "comment":
@@ -476,6 +474,19 @@ func (s *UserAPIService) AddUser(ctx context.Context, req *pb.SetUserRequest) (*
 	err = s.dbModel.CreateUser(user, req.GroupId...)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s *UserAPIService) CanIUploadDocument(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	userClaims, err := checkGRPCLogin(s.dbModel, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if !s.dbModel.CanIUploadDocument(userClaims.UserId) {
+		return nil, status.Errorf(codes.PermissionDenied, "您没有上传文档的权限")
 	}
 
 	return &emptypb.Empty{}, nil

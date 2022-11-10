@@ -32,6 +32,13 @@ export const getUser = (params) => {
   })
 }
 
+export const canIUploadDocument = () => {
+  return service({
+    url: '/api/v1/user/caniuploaddocument',
+    method: 'get',
+  })
+}
+
 export const updateUserPassword = (data) => {
   return service({
     url: '/api/v1/user/password',

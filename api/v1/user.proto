@@ -192,6 +192,14 @@ service UserAPI {
     };
   }
 
+  // 用户是否可以上传文档
+  rpc CanIUploadDocument(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get : '/api/v1/user/caniuploaddocument',
+    };
+  }
+
   // 获取用户粉丝列表
   // rpc ListUserFans(ListUserFansRequest) returns (ListUserReply) {
   //   option (google.api.http) = {

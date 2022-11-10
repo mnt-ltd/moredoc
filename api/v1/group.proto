@@ -21,6 +21,7 @@ message Group {
   string description = 6;
   int32 user_count = 7;
   int32 sort = 8;
+  bool enable_upload = 11;
   google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
   google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
 }
