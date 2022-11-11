@@ -88,13 +88,19 @@ func (s *ConfigAPIService) GetSettings(ctx context.Context, req *emptypb.Empty) 
 	// util.CopyStruct(&captcha, res.Captcha)
 
 	system := s.dbModel.GetConfigOfSystem()
-	util.CopyStruct(&system, res.System)
+	if err := util.CopyStruct(&system, res.System); err != nil {
+		s.logger.Error("util.CopyStruct", zap.Any("system", system), zap.Any("res.System", res.System), zap.Error(err))
+	}
 
 	footer := s.dbModel.GetConfigOfFooter()
-	util.CopyStruct(&footer, res.Footer)
+	if err := util.CopyStruct(&footer, res.Footer); err != nil {
+		s.logger.Error("util.CopyStruct", zap.Any("footer", footer), zap.Any("res.Footer", res.Footer), zap.Error(err))
+	}
 
 	security := s.dbModel.GetConfigOfSecurity()
-	util.CopyStruct(&security, res.Security)
+	if err := util.CopyStruct(&security, res.Security); err != nil {
+		s.logger.Error("util.CopyStruct", zap.Any("security", security), zap.Any("res.Security", res.Security), zap.Error(err))
+	}
 
 	return res, nil
 }

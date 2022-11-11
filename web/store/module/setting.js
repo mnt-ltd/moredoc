@@ -2,7 +2,11 @@ import { getSettings } from '~/api/config'
 export const setting = {
   namespaced: true,
   state: {
-    settings: {},
+    settings: {
+      system: {},
+      footer: {},
+      security: {},
+    },
   },
   mutations: {
     setSettings(state, settings) {

@@ -168,7 +168,11 @@
                     <!-- 应该从管理后台的配置中查询 -->
                     2. 允许上传的最大单个文档大小为：<span
                       class="el-link el-link--primary"
-                      >50.00 MB</span
+                      >{{
+                        settings.security.max_document_size.toFixed(2) ||
+                        '50.00'
+                      }}
+                      MB</span
                     >
                     。
                   </li>
@@ -250,6 +254,7 @@ export default {
         price: 0,
         overwrite: false,
       },
+      maxDocumentSize: 50 * 1024 * 1024,
       fileList: [],
       filesMap: {},
       loading: false,
@@ -287,19 +292,27 @@ export default {
   },
   computed: {
     ...mapGetters('category', ['categoryTrees']),
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     const res = await canIUploadDocument()
     if (res.status === 200) {
       this.canIUploadDocument = true
     }
+    this.maxDocumentSize =
+      (this.settings.security.max_document_size || 50) * 1024 * 1024
   },
   methods: {
     formatBytes,
     handleChange(file) {
       const name = file.name.toLowerCase()
       const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
-      if (!this.filesMap[name] && this.allowExt.includes(ext)) {
+      // 文件不能大于指定的文件大小
+      if (
+        !this.filesMap[name] &&
+        this.allowExt.includes(ext) &&
+        file.size <= this.maxDocumentSize
+      ) {
         const item = {
           ...file,
           title: file.name.substring(0, file.name.lastIndexOf('.')),

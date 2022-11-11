@@ -1,5 +1,12 @@
 <template>
   <div class="com-form-group-permission">
+    <el-alert
+      title="风险提示：当前权限仅针对管理组，普通用户不需要设置此授权！"
+      show-icon
+      type="warning"
+      :closable="false"
+    >
+    </el-alert>
     <el-form label-position="top" label-width="80px" :model="groupPermission">
       <el-form-item>
         <el-checkbox

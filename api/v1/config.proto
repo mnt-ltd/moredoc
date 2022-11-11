@@ -71,6 +71,7 @@ message ConfigSecurity {
   bool enable_captcha_comment = 6;
   bool enable_captcha_find_password = 7;
   bool enable_captcha_upload = 8;
+  int32 max_document_size = 9;
 }
 
 message Settings {
