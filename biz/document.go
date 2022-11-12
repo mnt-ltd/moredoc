@@ -242,7 +242,7 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 			opt.QueryIn["status"] = util.Slice2Interface(req.Status)
 		}
 	} else {
-		opt.Size = util.LimitRange(opt.Size, 1, 100)
+		opt.Size = util.LimitRange(opt.Size, 1, 24)
 		opt.Page = util.LimitRange(opt.Page, 1, 100)
 		opt.QueryIn["status"] = []interface{}{
 			model.DocumentStatusPending, model.DocumentStatusConverting,

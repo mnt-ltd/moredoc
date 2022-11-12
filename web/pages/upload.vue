@@ -291,6 +291,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters('user', ['token']),
     ...mapGetters('category', ['categoryTrees']),
     ...mapGetters('setting', ['settings']),
   },

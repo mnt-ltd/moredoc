@@ -256,6 +256,7 @@ export default {
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
         { prop: 'title', label: '名称', minWidth: 200, fixed: 'left' },
+        { prop: 'ext', label: '扩展名', width: 70 },
         { prop: 'username', label: '上传者', width: 120 },
         {
           prop: 'status',

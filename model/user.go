@@ -316,6 +316,15 @@ func (m *DBModel) initUser() (err error) {
 
 // GetUserPermissinsByUserId 根据用户ID获取用户权限
 func (m *DBModel) GetUserPermissinsByUserId(userId int64) (permissions []*Permission, err error) {
+	if userId == 1 {
+		// id==1的用户，拥有所有权限
+		err = m.db.Find(&permissions).Error
+		if err != nil && err != gorm.ErrRecordNotFound {
+			m.logger.Error("GetUserPermissinsByUserId", zap.Error(err))
+		}
+		return
+	}
+
 	sql := `SELECT
 			p.*
 		FROM 

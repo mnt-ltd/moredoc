@@ -1,7 +1,7 @@
 <template>
   <div class="com-form-group-permission">
     <el-alert
-      title="风险提示：当前权限仅针对管理组，普通用户不需要设置此授权！"
+      title="风险提示：当前权限仅针对管理组，普通用户请不要设置此授权！"
       show-icon
       type="warning"
       :closable="false"
