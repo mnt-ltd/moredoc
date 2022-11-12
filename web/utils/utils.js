@@ -117,20 +117,25 @@ export function formatBytes(bytes, decimals = 2) {
 export function categoryToTrees(categories, withDisabled = true) {
   const result = []
   const map = {}
-  categories.forEach((item) => {
-    if (withDisabled) {
-      item.disabled = !item.enable
-    }
-    map[item.id] = item
-  })
-  categories.forEach((item) => {
-    const parent = map[item.parent_id]
-    if (parent) {
-      if (parent.disabled) item.disabled = true
-      ;(parent.children || (parent.children = [])).push(item)
-    } else {
-      result.push(item)
-    }
-  })
+  try {
+    categories.forEach((item) => {
+      if (withDisabled) {
+        item.disabled = !item.enable
+      }
+      map[item.id] = item
+    })
+    categories.forEach((item) => {
+      const parent = map[item.parent_id]
+      if (parent) {
+        if (parent.disabled) item.disabled = true
+        ;(parent.children || (parent.children = [])).push(item)
+      } else {
+        result.push(item)
+      }
+    })
+  } catch (error) {
+    console.log(error)
+  }
+
   return result
 }

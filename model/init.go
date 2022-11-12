@@ -27,7 +27,8 @@ type TableColumn struct {
 	Comment    string `gorm:"Comment"`
 }
 
-var tablePrefix string
+// 默认表前缀
+var tablePrefix string = "mnt_"
 
 type DBModel struct {
 	db             *gorm.DB
@@ -204,26 +205,27 @@ func (m *DBModel) showTableColumn(tableName string) (columns []TableColumn, err 
 
 // initialDatabase 初始化数据库相关数据
 func (m *DBModel) initDatabase() (err error) {
-	// if err = m.initPermission(); err != nil {
-	// 	m.logger.Error("initialDatabase", zap.Error(err))
-	// 	return
-	// }
-
 	// 初始化用户组及其权限
 	if err = m.initGroupAndPermission(); err != nil {
-		m.logger.Error("initialDatabase", zap.Error(err))
+		m.logger.Error("initGroupAndPermission", zap.Error(err))
 		return
 	}
 
 	// 初始化用户
 	if err = m.initUser(); err != nil {
-		m.logger.Error("initialDatabase", zap.Error(err))
+		m.logger.Error("initUser", zap.Error(err))
 		return
 	}
 
 	// 初始化配置
 	if err = m.initConfig(); err != nil {
-		m.logger.Error("initialDatabase", zap.Error(err))
+		m.logger.Error("initConfig", zap.Error(err))
+		return
+	}
+
+	// 初始化友情链接
+	if err = m.initFriendlink(); err != nil {
+		m.logger.Error("initFriendlink", zap.Error(err))
 		return
 	}
 	return
@@ -234,7 +236,6 @@ func (m *DBModel) initGroupAndPermission() (err error) {
 	groups := []Group{
 		{Id: 1, Title: "超级管理员", IsDisplay: true, Description: "系统超级管理员", UserCount: 0, Sort: 0},
 		{Id: 2, Title: "普通用户", IsDisplay: true, Description: "普通用户", UserCount: 0, Sort: 0, IsDefault: true},
-		{Id: 3, Title: "游客", IsDisplay: true, Description: "游客", UserCount: 0, Sort: 0},
 	}
 
 	// 如果没有任何用户组，则初始化
@@ -244,11 +245,50 @@ func (m *DBModel) initGroupAndPermission() (err error) {
 		return
 	}
 
-	err = m.db.Create(&groups).Error
+	sess := m.db.Begin()
+	defer func() {
+		if err != nil {
+			sess.Rollback()
+		} else {
+			sess.Commit()
+		}
+	}()
+
+	err = sess.Create(&groups).Error
 	if err != nil {
 		m.logger.Error("initGroup", zap.Error(err))
+		return
 	}
 
+	// 初始化权限
+	for _, permission := range getPermissions() {
+		err = sess.Where("method = ? and path = ?", permission.Method, permission.Path).FirstOrCreate(&permission).Error
+		if err != nil {
+			m.logger.Error("initPermission", zap.Error(err))
+			return
+		}
+	}
+
+	return
+}
+
+func (m *DBModel) initFriendlink() (err error) {
+	var friendlink Friendlink
+	m.db.Find(&friendlink)
+	if friendlink.Id > 0 {
+		return
+	}
+
+	// 默认友链
+	var friendlinks = []Friendlink{
+		{Title: "摩枫网络科技", Link: "https://mnt.ltd", Enable: true},
+		{Title: "书栈网", Link: "https://www.bookstack.cn", Enable: true},
+	}
+
+	err = m.db.Create(&friendlinks).Error
+	if err != nil {
+		m.logger.Error("initFriendlink", zap.Error(err))
+	}
 	return
 }
 

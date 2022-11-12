@@ -305,7 +305,7 @@ func (m *DBModel) initUser() (err error) {
 	}
 
 	// 初始化一个用户
-	user := &User{Username: "admin", Password: "123456"}
+	user := &User{Username: "admin", Password: "mnt.ltd"}
 	var groupId int64 = 1 // ID==1的用户组为管理员组
 	err = m.CreateUser(user, groupId)
 	if err != nil {

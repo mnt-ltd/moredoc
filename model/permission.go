@@ -119,10 +119,10 @@ func (m *DBModel) CheckPermissionByUserId(userId int64, path string, httpMethod 
 	)
 
 	// NOTE: ID为1的用户，拥有所有权限，可以理解为类似linux的root用户
-	// TODO: 后续应该直接打开这里的注释
-	// if userId == 1 {
-	// 	return true
-	// }
+	if userId == 1 {
+		yes = true
+		return
+	}
 
 	if len(httpMethod) > 0 {
 		method = httpMethod[0]

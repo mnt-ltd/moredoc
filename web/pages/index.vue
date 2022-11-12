@@ -1,7 +1,7 @@
 <template>
   <div class="page page-index">
     <el-row :gutter="20">
-      <el-col :span="6" :xs="24" class="float-right">
+      <el-col :span="6" class="float-right">
         <el-card class="text-center stat-info" shadow="never">
           <el-row>
             <el-col :span="12">
@@ -55,7 +55,7 @@
           </el-form>
         </el-card>
       </el-col>
-      <el-col :span="18" :xs="24" class="banners">
+      <el-col :span="18" class="banners">
         <el-carousel :interval="5000" arrow="always" :height="'323px'">
           <a
             v-for="banner in banners"
@@ -102,9 +102,7 @@
       <el-col
         v-for="category in categoryTrees"
         :key="'card-cate-' + category.id"
-        :md="12"
-        :sm="12"
-        :xs="24"
+        :span="12"
       >
         <el-card class="box-card mgt-20px" shadow="never">
           <div slot="header" class="clearfix">

@@ -352,7 +352,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySystem, Name: ConfigSystemLogo, Label: "网站Logo", Value: "", Placeholder: "请输入您网站的Logo路径", InputType: "image", Sort: 6, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemFavicon, Label: "网站Favicon", Value: "", Placeholder: "请输入您网站的Favicon路径", InputType: "image", Sort: 6, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemIcp, Label: "网站备案号", Value: "", Placeholder: "请输入您网站的备案号", InputType: "text", Sort: 6, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "", Placeholder: "请输入您网站的域名访问地址，如 https://moredoc.mnt.ltd，用以生成网站地图sitemap", InputType: "text", Sort: 7, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "https://moredoc.mnt.ltd", Placeholder: "请输入您网站的域名访问地址，如 https://moredoc.mnt.ltd，用以生成网站地图sitemap", InputType: "text", Sort: 7, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemCopyrightStartYear, Label: "版权起始年", Value: "2019", Placeholder: "请输入您网站版权起始年，如：2019，则前台会显示如 ©2019 - 2022 的字样", InputType: "text", Sort: 8, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemAnalytics, Label: "网站统计代码", Value: "", Placeholder: "请输入您网站的统计代码", InputType: "textarea", Sort: 9, Options: ""},
 
@@ -373,11 +373,11 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaFindPassword, Label: "是否开启找回密码验证码", Value: "true", Placeholder: "请选择是否开启找回密码验证码", InputType: "switch", Sort: 22, Options: ""},
 
 		// 底部链接
-		{Category: ConfigCategoryFooter, Name: ConfigFooterAbout, Label: "关于我们", Value: "", Placeholder: "请输入关于我们的链接地址，留空表示不显示", InputType: "text", Sort: 24, Options: ""},
-		{Category: ConfigCategoryFooter, Name: ConfigFooterContact, Label: "联系我们", Value: "", Placeholder: "请输入联系我们的链接地址，留空表示不显示", InputType: "text", Sort: 25, Options: ""},
-		{Category: ConfigCategoryFooter, Name: ConfigFooterAgreement, Label: "文库协议", Value: "", Placeholder: "请输入文库协议的链接地址，留空表示不显示", InputType: "text", Sort: 26, Options: ""},
-		{Category: ConfigCategoryFooter, Name: ConfigFooterCopyright, Label: "免责声明", Value: "", Placeholder: "请输入免责声明的链接地址，留空表示不显示", InputType: "text", Sort: 27, Options: ""},
-		{Category: ConfigCategoryFooter, Name: ConfigFooterFeedback, Label: "意见反馈", Value: "", Placeholder: "请输入意见反馈的链接地址，留空表示不显示", InputType: "text", Sort: 28, Options: ""},
+		{Category: ConfigCategoryFooter, Name: ConfigFooterAbout, Label: "关于我们", Value: "/article/about", Placeholder: "请输入关于我们的链接地址，留空表示不显示", InputType: "text", Sort: 24, Options: ""},
+		{Category: ConfigCategoryFooter, Name: ConfigFooterContact, Label: "联系我们", Value: "/article/contact", Placeholder: "请输入联系我们的链接地址，留空表示不显示", InputType: "text", Sort: 25, Options: ""},
+		{Category: ConfigCategoryFooter, Name: ConfigFooterAgreement, Label: "文库协议", Value: "/article/agreement", Placeholder: "请输入文库协议的链接地址，留空表示不显示", InputType: "text", Sort: 26, Options: ""},
+		{Category: ConfigCategoryFooter, Name: ConfigFooterCopyright, Label: "免责声明", Value: "/article/copyright", Placeholder: "请输入免责声明的链接地址，留空表示不显示", InputType: "text", Sort: 27, Options: ""},
+		{Category: ConfigCategoryFooter, Name: ConfigFooterFeedback, Label: "意见反馈", Value: "/article/feedback", Placeholder: "请输入意见反馈的链接地址，留空表示不显示", InputType: "text", Sort: 28, Options: ""},
 	}
 
 	for _, cfg := range cfgs {

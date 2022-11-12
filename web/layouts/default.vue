@@ -245,6 +245,7 @@ export default {
 </script>
 <style lang="scss">
 .layout-default {
+  min-width: 1000px !important;
   .el-table th {
     height: 45px;
     line-height: 45px;

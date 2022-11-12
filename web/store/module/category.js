@@ -7,7 +7,7 @@ export const category = {
   },
   mutations: {
     setCategories(state, categories) {
-      state.categories = categories
+      state.categories = categories || []
     },
   },
   actions: {
