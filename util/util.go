@@ -68,6 +68,18 @@ func CropImage(file string, width, height int) (err error) {
 	return imaging.Save(img, file)
 }
 
+// GetImageSize 获取图片宽高尺寸信息
+func GetImageSize(file string) (width, height int, err error) {
+	var img image.Image
+	img, err = imaging.Open(file)
+	if err != nil {
+		return
+	}
+	width = img.Bounds().Max.X
+	height = img.Bounds().Max.Y
+	return
+}
+
 // LimitMin 数字最小值限制
 func LimitMin(number int, minValue int) int {
 	if number >= minValue {
@@ -113,6 +125,12 @@ func CopyFile(src, dst string) error {
 	if err != nil {
 		return fmt.Errorf("couldn't open source file: %s", err)
 	}
+
+	dir := filepath.Dir(dst)
+	if _, e := os.Stat(dir); os.IsNotExist(e) {
+		os.MkdirAll(dir, os.ModePerm)
+	}
+
 	outputFile, err := os.Create(dst)
 	if err != nil {
 		inputFile.Close()
@@ -125,4 +143,25 @@ func CopyFile(src, dst string) error {
 		return fmt.Errorf("writing to output file failed: %s", err)
 	}
 	return nil
+}
+
+func Substr(str string, length int, start ...int) string {
+	s := 0
+	if len(start) > 0 {
+		s = start[0]
+	}
+
+	rs := []rune(str)
+	lth := len(rs)
+
+	if s >= lth {
+		s = lth
+	}
+
+	end := s + length
+	if end > lth {
+		end = lth
+	}
+
+	return string(rs[s:end])
 }

@@ -36,17 +36,23 @@ type Page struct {
 	PagePath string
 }
 
-func NewConverter(logger *zap.Logger, cachePath string, timeout ...time.Duration) *Converter {
+func NewConverter(logger *zap.Logger, timeout ...time.Duration) *Converter {
 	expire := 1 * time.Hour
 	if len(timeout) > 0 {
 		expire = timeout[0]
 	}
-	os.MkdirAll(cachePath, os.ModePerm)
+	defaultCachePath := "cache/convert"
+	os.MkdirAll(defaultCachePath, os.ModePerm)
 	return &Converter{
-		cachePath: cachePath,
+		cachePath: defaultCachePath,
 		timeout:   expire,
 		logger:    logger.Named("converter"),
 	}
+}
+
+func (c *Converter) SetCachePath(cachePath string) {
+	os.MkdirAll(cachePath, os.ModePerm)
+	c.cachePath = cachePath
 }
 
 // ConvertToPDF 将文件转为PDF。
@@ -64,6 +70,8 @@ func (c *Converter) ConvertToPDF(src string) (dst string, err error) {
 		return c.ConvertMOBIToPDF(src)
 	case ".chm":
 		return c.ConvertCHMToPDF(src)
+	case ".pdf":
+		return c.PDFToPDF(src)
 	// case ".doc", ".docx", ".rtf", ".wps", ".odt",
 	// 	".xls", ".xlsx", ".et", ".ods",
 	// 	".ppt", ".pptx", ".dps", ".odp", ".pps", ".ppsx", ".pot", ".potx":
@@ -112,6 +120,7 @@ func (c *Converter) ConvertPDFToTxt(src string) (dst string, err error) {
 	c.logger.Debug("convert pdf to txt", zap.String("cmd", mutool), zap.Strings("args", args))
 	_, err = util.ExecCommand(mutool, args, c.timeout)
 	if err != nil {
+		c.logger.Error("convert pdf to txt", zap.String("cmd", mutool), zap.Strings("args", args), zap.Error(err))
 		return
 	}
 	return dst, nil
@@ -138,10 +147,11 @@ func (c *Converter) ConvertPDFToSVG(src string, fromPage, toPage int, enableSVGO
 	}
 
 	if enableGZIP { // gzip 压缩
-		for _, page := range pages {
+		for idx, page := range pages {
 			if dst, errCompress := c.CompressSVGByGZIP(page.PagePath); errCompress == nil {
 				os.Remove(page.PagePath)
 				page.PagePath = dst
+				pages[idx] = page
 			}
 		}
 	}
@@ -153,10 +163,19 @@ func (c *Converter) ConvertPDFToPNG(src string, fromPage, toPage int) (pages []P
 	return c.convertPDFToPage(src, fromPage, toPage, ".png")
 }
 
+func (c *Converter) PDFToPDF(src string) (dst string, err error) {
+	dst = strings.ReplaceAll(filepath.Join(c.cachePath, time.Now().Format(dirDteFmt), filepath.Base(src)), "\\", "/")
+	err = util.CopyFile(src, dst)
+	if err != nil {
+		c.logger.Error("copy file error", zap.Error(err))
+	}
+	return
+}
+
 // ext 可选值： .png, .svg
 func (c *Converter) convertPDFToPage(src string, fromPage, toPage int, ext string) (pages []Page, err error) {
 	pageRange := fmt.Sprintf("%d-%d", fromPage, toPage)
-	cacheFile := strings.ReplaceAll(filepath.Join(c.cachePath, time.Now().Format(dirDteFmt), filepath.Base(src)+"/%d"+ext), "\\", "/")
+	cacheFile := strings.ReplaceAll(filepath.Join(c.cachePath, time.Now().Format(dirDteFmt), strings.TrimSuffix(filepath.Base(src), filepath.Ext(src))+"/%d"+ext), "\\", "/")
 	args := []string{
 		"convert",
 		"-o",
@@ -177,7 +196,7 @@ func (c *Converter) convertPDFToPage(src string, fromPage, toPage int, ext strin
 			break
 		}
 		pages = append(pages, Page{
-			PageNum:  fromPage + i + 1,
+			PageNum:  fromPage + i,
 			PagePath: pagePath,
 		})
 	}

@@ -2,10 +2,21 @@ package model
 
 import (
 	"fmt"
+	"moredoc/util"
+	"moredoc/util/converter"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+)
+
+const (
+	// 封面，按照A4纸的尺寸比例
+	DocumentCoverWidth  = 210
+	DocumentCoverHeight = 297
 )
 
 const (
@@ -437,16 +448,19 @@ func (m *DBModel) CreateDocuments(documents []Document, categoryIds []int64) (do
 	return
 }
 
-// 根据文档hash，查询已转换了的文档状态
-func (m *DBModel) GetDocumentStatusConvertedByHash(hash []string) (statusMap map[string]int) {
+// GetDocumentStatusConvertedByHash 根据文档hash，查询已转换了的文档状态
+func (m *DBModel) GetDocumentStatusConvertedByHash(hash []string) (hashMapDocuments map[string]Document) {
 	var (
 		tableDocument   = Document{}.TableName()
 		tableAttachment = Attachment{}.TableName()
+		attachMapIndex  = make(map[int64]int)
+		documentIds     []int64
+		docs            []Document
 	)
 
-	statusMap = make(map[string]int)
+	hashMapDocuments = make(map[string]Document)
 	sql := fmt.Sprintf(
-		"select a.hash from %s a left join %s d on a.type_id = d.id where a.hash in ? and d.status = ? group by a.hash",
+		"select a.hash,a.type_id from %s a left join %s d on a.type_id = d.id where a.hash in ? and d.status = ? group by a.hash",
 		tableAttachment, tableDocument,
 	)
 
@@ -457,13 +471,19 @@ func (m *DBModel) GetDocumentStatusConvertedByHash(hash []string) (statusMap map
 		return
 	}
 
-	for _, attachment := range attachemnts {
-		statusMap[attachment.Hash] = DocumentStatusConverted
+	for idx, attachment := range attachemnts {
+		attachMapIndex[attachment.TypeId] = idx
+		documentIds = append(documentIds, attachment.TypeId)
+	}
+
+	m.db.Where("id in ?", documentIds).Find(&docs)
+	for _, doc := range docs {
+		hashMapDocuments[attachemnts[attachMapIndex[doc.Id]].Hash] = doc
 	}
 	return
 }
 
-// ConvertDocument 文档转换
+// ConvertDocument 文档转换。如果err返回gorm.ErrRecordNotFound，表示已没有文档需要转换
 // 1. 查询待转换的文档
 // 2. 文档对应的md5 hash中，是否有已转换的文档，如果有，则直接关联和调整状态为已转换
 // 3. 文档转PDF
@@ -471,6 +491,125 @@ func (m *DBModel) GetDocumentStatusConvertedByHash(hash []string) (statusMap map
 // 5. 根据允许最大的预览页面，将PDF转为svg，同时转gzip压缩，如果有需要的话
 // 6. 提取PDF文本以及获取文档信息
 // 7. 更新文档状态
-func (m *DBModel) ConvertDocument() {
+func (m *DBModel) ConvertDocument() (err error) {
+	var document Document
+	err = m.db.Where("status = ?", DocumentStatusPending).First(&document).Error
+	if err != nil {
+		if err != gorm.ErrRecordNotFound {
+			m.logger.Error("ConvertDocument", zap.Error(err))
+		}
+		return
+	}
 
+	m.SetDocumentStatus(document.Id, DocumentStatusConverting)
+
+	attachment := m.GetAttachmentByTypeAndTypeId(AttachmentTypeDocument, document.Id)
+	if attachment.Id == 0 { // 附件不存在
+		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
+		if err != nil {
+			m.logger.Error("ConvertDocument", zap.Error(err))
+		}
+		return
+	}
+
+	// 文档hash
+	hashMapDocs := m.GetDocumentStatusConvertedByHash([]string{attachment.Hash})
+	if len(hashMapDocs) > 0 {
+		// 已有文档转换成功，将hash相同的文档相关数据迁移到当前文档
+		sql := " UPDATE `%s` SET `description`= ?, `cover` = ?, `width` = ?, `height`= ?, `preview`= ?, `pages` = ?, `status` = ? WHERE status in ? and id in (select type_id from `%s` where `hash` = ? and `type` = ?)"
+		sql = fmt.Sprintf(sql, Document{}.TableName(), Attachment{}.TableName())
+		for hash, doc := range hashMapDocs {
+			err = m.db.Exec(sql,
+				doc.Description, doc.Cover, doc.Width, doc.Height, doc.Preview, doc.Pages, DocumentStatusConverted, []int{DocumentStatusPending, DocumentStatusConverting, DocumentStatusFailed}, hash, AttachmentTypeDocument,
+			).Error
+			if err != nil {
+				m.logger.Error("ConvertDocument", zap.Error(err))
+				return
+			}
+		}
+		return
+	}
+
+	// 文档转为PDF
+	cfg := m.GetConfigOfConverter()
+	timeout := 30 * time.Minute
+	if cfg.Timeout > 0 {
+		timeout = time.Duration(cfg.Timeout) * time.Minute
+	}
+
+	localFile := strings.TrimLeft(attachment.Path, "./")
+
+	cvt := converter.NewConverter(m.logger, timeout)
+	dstPDF, err := cvt.ConvertToPDF(localFile)
+	if err != nil {
+		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
+		m.logger.Error("ConvertDocument", zap.Error(err))
+		return
+	}
+	defer os.Remove(dstPDF)
+	document.Pages, _ = cvt.CountPDFPages(dstPDF)
+	document.Preview = cfg.MaxPreview
+
+	// PDF截取第一章图片作为封面(封面不是最重要的，期间出现错误，不影响文档转换)
+	pages, err := cvt.ConvertPDFToPNG(dstPDF, 1, 1)
+	if err != nil {
+		m.logger.Error("get pdf cover", zap.Error(err))
+	}
+
+	var baseDir = strings.TrimSuffix(localFile, filepath.Ext(localFile))
+	if len(pages) > 0 {
+		coverBig := baseDir + "/cover.big.png"
+		cover := baseDir + "/cover.png"
+		util.CopyFile(pages[0].PagePath, coverBig)
+		util.CopyFile(pages[0].PagePath, cover)
+		util.CropImage(cover, DocumentCoverWidth, DocumentCoverHeight)
+		document.Width, document.Height, _ = util.GetImageSize(coverBig) // 页面宽高
+		document.Cover = "/" + cover
+	}
+
+	// PDF转为SVG
+	toPage := 100000
+	if cfg.MaxPreview > 0 {
+		toPage = cfg.MaxPreview
+	}
+	pages, err = cvt.ConvertPDFToSVG(dstPDF, 1, toPage, cfg.EnableSVGO, cfg.EnableGZIP)
+	if err != nil {
+		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
+		m.logger.Error("ConvertDocument", zap.Error(err))
+		return
+	}
+
+	for _, page := range pages {
+		util.CopyFile(page.PagePath, fmt.Sprintf(baseDir+"/%d%s", page.PageNum, filepath.Ext(page.PagePath)))
+		os.Remove(page.PagePath)
+	}
+
+	// 提取PDF文本以及获取文档信息
+	textFile, _ := cvt.ConvertPDFToTxt(dstPDF)
+	util.CopyFile(textFile, baseDir+"/content.txt")
+
+	// 读取文本内容，以提取关键字和摘要
+	if content, errRead := os.ReadFile(textFile); errRead == nil {
+		contentStr := string(content)
+		m.logger.Debug(textFile, zap.String("content", contentStr))
+		replacer := strings.NewReplacer(" ", "", "\r", " ", "\n", " ", "\t", " ")
+		document.Description = replacer.Replace(util.Substr(contentStr, 500))
+	}
+	os.Remove(textFile)
+
+	document.Status = DocumentStatusConverted
+	err = m.db.Select("description", "cover", "width", "height", "preview", "pages", "status").Where("id = ?", document.Id).Updates(document).Error
+	if err != nil {
+		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
+		m.logger.Error("ConvertDocument", zap.Error(err))
+	}
+	return
+}
+
+func (m *DBModel) SetDocumentStatus(documentId int64, status int) (err error) {
+	err = m.db.Model(&Document{}).Where("id = ?", documentId).Update("status", status).Error
+	if err != nil {
+		m.logger.Error("SetDocumentStatus", zap.Error(err))
+	}
+	return
 }

@@ -232,10 +232,10 @@ const (
 
 // ConfigConverter 转换配置
 type ConfigConverter struct {
-	MaxPreview int32 `json:"max_preview"` // 文档所允许的最大预览页数，0 表示不限制，全部转换
-	Timeout    int32 `json:"timeout"`     // 转换超时时间，单位为分钟，默认30分钟
-	EnableSVGO bool  `json:"enable_svgo"` // 是否对svg启用SVGO压缩。转换效率会有所下降。相对直接的svg文件，可以节省1/2的存储空间
-	EnableGZIP bool  `json:"enable_gzip"` // 是否对svg启用GZIP压缩。转换效率会有所下降。相对直接的svg文件，可以节省3/4的存储空间
+	MaxPreview int  `json:"max_preview"` // 文档所允许的最大预览页数，0 表示不限制，全部转换
+	Timeout    int  `json:"timeout"`     // 转换超时时间，单位为分钟，默认30分钟
+	EnableSVGO bool `json:"enable_svgo"` // 是否对svg启用SVGO压缩。转换效率会有所下降。相对直接的svg文件，可以节省1/2的存储空间
+	EnableGZIP bool `json:"enable_gzip"` // 是否对svg启用GZIP压缩。转换效率会有所下降。相对直接的svg文件，可以节省3/4的存储空间
 	// GZIP和svgo都开启，转换效率会有所下降，可以综合节省约85%的存储空间
 }
 

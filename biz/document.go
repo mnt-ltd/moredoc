@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"strings"
 
 	pb "moredoc/api/v1"
 	"moredoc/middleware/auth"
@@ -72,6 +73,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 	var (
 		documents           []model.Document
 		uuidAttachmentIdMap = make(map[string]int64)
+		jieba               = util.NewJieba()
 	)
 	for _, doc := range req.Document {
 		attachment, ok := attachmentMap[doc.AttachmentId]
@@ -80,14 +82,15 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 		}
 
 		doc := model.Document{
-			Title:  doc.Title,
-			UserId: userCliams.UserId,
-			UUID:   uuid.Must(uuid.NewV4()).String(),
-			Score:  300,
-			Price:  int(doc.Price),
-			Size:   attachment.Size,
-			Ext:    attachment.Ext,
-			Status: model.DocumentStatusPending,
+			Title:    doc.Title,
+			Keywords: strings.Join(jieba.SegWords(doc.Title, 10), ","),
+			UserId:   userCliams.UserId,
+			UUID:     uuid.Must(uuid.NewV4()).String(),
+			Score:    300,
+			Price:    int(doc.Price),
+			Size:     attachment.Size,
+			Ext:      attachment.Ext,
+			Status:   model.DocumentStatusPending,
 		}
 		uuidAttachmentIdMap[doc.UUID] = attachment.Id
 		documents = append(documents, doc)

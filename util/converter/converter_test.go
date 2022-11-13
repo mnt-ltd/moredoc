@@ -2,6 +2,7 @@ package converter
 
 import (
 	"os/exec"
+	"strings"
 	"testing"
 	"time"
 
@@ -19,7 +20,8 @@ var (
 
 func init() {
 	logger, _ := zap.NewDevelopment()
-	converter = NewConverter(logger, "../../cache/convert")
+	converter = NewConverter(logger)
+	converter.SetCachePath("../../cache/convert")
 }
 
 func TestConvertToPDF(t *testing.T) {
@@ -238,6 +240,8 @@ func TestCountPDFPages(t *testing.T) {
 }
 
 func TestExistCommand(t *testing.T) {
+	s := "我是中国人"
+	t.Log(strings.Count(s, "") - 1)
 	t.Logf("calibre= %v", converter.ExistCalibre())
 	t.Logf("svgo= %v", converter.ExistSVGO())
 	t.Logf("mupdf= %v", converter.ExistMupdf())
