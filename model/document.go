@@ -546,7 +546,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 		m.logger.Error("ConvertDocument", zap.Error(err))
 		return
 	}
-	defer os.Remove(dstPDF)
+	defer cvt.Clean()
 	document.Pages, _ = cvt.CountPDFPages(dstPDF)
 	document.Preview = cfg.MaxPreview
 
@@ -591,8 +591,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 	// 读取文本内容，以提取关键字和摘要
 	if content, errRead := os.ReadFile(textFile); errRead == nil {
 		contentStr := string(content)
-		m.logger.Debug(textFile, zap.String("content", contentStr))
-		replacer := strings.NewReplacer(" ", "", "\r", " ", "\n", " ", "\t", " ")
+		replacer := strings.NewReplacer("\r", " ", "\n", " ", "\t", " ")
 		document.Description = replacer.Replace(util.Substr(contentStr, 500))
 	}
 	os.Remove(textFile)

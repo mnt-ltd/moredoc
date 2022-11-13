@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"net/http"
-	"strings"
 
 	"moredoc/conf"
 	"moredoc/middleware/auth"
@@ -98,7 +97,8 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 // See: https://github.com/philips/grpc-gateway-example/issues/22
 func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
 	return h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
+		// if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
+		if r.ProtoMajor == 2 {
 			grpcServer.ServeHTTP(w, r)
 		} else {
 			otherHandler.ServeHTTP(w, r)

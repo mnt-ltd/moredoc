@@ -7,6 +7,7 @@ import (
 	"moredoc/conf"
 	"strings"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
@@ -28,7 +29,10 @@ type TableColumn struct {
 }
 
 // 默认表前缀
-var tablePrefix string = "mnt_"
+var (
+	tablePrefix            string = "mnt_"
+	convertDocumentRunning        = false
+)
 
 type DBModel struct {
 	db             *gorm.DB
@@ -126,7 +130,26 @@ func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
 		}
 		m.tableFieldsMap[table] = filedsMap
 	}
+	go m.loopCovertDocument()
 	return
+}
+
+func (m *DBModel) loopCovertDocument() {
+	if convertDocumentRunning {
+		return
+	}
+	convertDocumentRunning = true
+	sleep := 1 * time.Minute
+	m.db.Model(&Document{}).Where("status = ?", DocumentStatusConverting).Update("status", DocumentStatusPending)
+	for {
+		now := time.Now()
+		m.logger.Info("loopCovertDocument，start...")
+		err := m.ConvertDocument()
+		m.logger.Info("loopCovertDocument，end...", zap.Error(err), zap.String("cost", time.Since(now).String()))
+		if err == gorm.ErrRecordNotFound {
+			time.Sleep(sleep)
+		}
+	}
 }
 
 func (m *DBModel) SyncDB() (err error) {

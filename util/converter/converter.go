@@ -20,7 +20,7 @@ const (
 	ebookConvert = "ebook-convert"
 	svgo         = "svgo"
 	mutool       = "mutool"
-	dirDteFmt    = "2006/01/02/15"
+	dirDteFmt    = "2006/01/02"
 )
 
 type ConvertCallback func(page int, pagePath string, err error)
@@ -29,6 +29,7 @@ type Converter struct {
 	cachePath string
 	timeout   time.Duration
 	logger    *zap.Logger
+	workspace string
 }
 
 type Page struct {
@@ -36,6 +37,8 @@ type Page struct {
 	PagePath string
 }
 
+// NewConverter 创建一个新的转换器。每个不同的原始文档，都需要一个新的转换器。
+// 因为最后可以清空该原始文档及其衍生文件的临时目录，用节省磁盘空间。
 func NewConverter(logger *zap.Logger, timeout ...time.Duration) *Converter {
 	expire := 1 * time.Hour
 	if len(timeout) > 0 {
@@ -109,14 +112,14 @@ func (c *Converter) ConvertMOBIToPDF(src string) (dst string, err error) {
 
 // ConvertPDFToTxt 将PDF转为TXT
 func (c *Converter) ConvertPDFToTxt(src string) (dst string, err error) {
-	dst = strings.ReplaceAll(filepath.Join(c.cachePath, time.Now().Format(dirDteFmt), filepath.Base(src)+".txt"), "\\", "/")
+	workspace := c.makeWorkspace(src)
+	dst = workspace + "/dst.txt"
 	args := []string{
 		"convert",
 		"-o",
 		dst,
 		src,
 	}
-	os.MkdirAll(filepath.Dir(dst), os.ModePerm)
 	c.logger.Debug("convert pdf to txt", zap.String("cmd", mutool), zap.Strings("args", args))
 	_, err = util.ExecCommand(mutool, args, c.timeout)
 	if err != nil {
@@ -164,7 +167,8 @@ func (c *Converter) ConvertPDFToPNG(src string, fromPage, toPage int) (pages []P
 }
 
 func (c *Converter) PDFToPDF(src string) (dst string, err error) {
-	dst = strings.ReplaceAll(filepath.Join(c.cachePath, time.Now().Format(dirDteFmt), filepath.Base(src)), "\\", "/")
+	workspace := c.makeWorkspace(src)
+	dst = workspace + "/dst.pdf"
 	err = util.CopyFile(src, dst)
 	if err != nil {
 		c.logger.Error("copy file error", zap.Error(err))
@@ -175,15 +179,15 @@ func (c *Converter) PDFToPDF(src string) (dst string, err error) {
 // ext 可选值： .png, .svg
 func (c *Converter) convertPDFToPage(src string, fromPage, toPage int, ext string) (pages []Page, err error) {
 	pageRange := fmt.Sprintf("%d-%d", fromPage, toPage)
-	cacheFile := strings.ReplaceAll(filepath.Join(c.cachePath, time.Now().Format(dirDteFmt), strings.TrimSuffix(filepath.Base(src), filepath.Ext(src))+"/%d"+ext), "\\", "/")
+	workspace := c.makeWorkspace(src)
+	cacheFileFormat := workspace + "/%d" + ext
 	args := []string{
 		"convert",
 		"-o",
-		cacheFile,
+		cacheFileFormat,
 		src,
 		pageRange,
 	}
-	os.MkdirAll(filepath.Dir(cacheFile), os.ModePerm)
 	c.logger.Debug("convert pdf to page", zap.String("cmd", mutool), zap.Strings("args", args))
 	_, err = util.ExecCommand(mutool, args, c.timeout)
 	if err != nil {
@@ -191,7 +195,7 @@ func (c *Converter) convertPDFToPage(src string, fromPage, toPage int, ext strin
 	}
 
 	for i := 0; i <= toPage-fromPage; i++ {
-		pagePath := fmt.Sprintf(cacheFile, i+1)
+		pagePath := fmt.Sprintf(cacheFileFormat, i+1)
 		if _, errPage := os.Stat(pagePath); errPage != nil {
 			break
 		}
@@ -204,17 +208,16 @@ func (c *Converter) convertPDFToPage(src string, fromPage, toPage int, ext strin
 }
 
 func (c *Converter) convertToPDFBySoffice(src string) (dst string, err error) {
-	basename := filepath.Base(src)
-	dst = strings.ReplaceAll(filepath.Join(c.cachePath, time.Now().Format(dirDteFmt), basename, strings.TrimSuffix(basename, filepath.Ext(src))+".pdf"), "\\", "/")
+	workspace := c.makeWorkspace(src)
+	dst = workspace + "/" + strings.TrimSuffix(filepath.Base(src), filepath.Ext(src)) + ".pdf"
 	args := []string{
 		"--headless",
 		"--convert-to",
 		"pdf",
 		"--outdir",
-		filepath.Dir(dst),
+		workspace,
 	}
 	args = append(args, src)
-	os.MkdirAll(filepath.Dir(dst), os.ModePerm)
 	c.logger.Debug("convert to pdf by soffice", zap.String("cmd", soffice), zap.Strings("args", args))
 	_, err = util.ExecCommand(soffice, args, c.timeout)
 	if err != nil {
@@ -224,8 +227,8 @@ func (c *Converter) convertToPDFBySoffice(src string) (dst string, err error) {
 }
 
 func (c *Converter) convertToPDFByCalibre(src string) (dst string, err error) {
-	basename := filepath.Base(src)
-	dst = strings.ReplaceAll(filepath.Join(c.cachePath, time.Now().Format(dirDteFmt), basename, basename+".pdf"), "\\", "/")
+	workspace := c.makeWorkspace(src)
+	dst = workspace + "/dst.pdf"
 	args := []string{
 		src,
 		dst,
@@ -310,7 +313,7 @@ func (c *Converter) CompressSVGBySVGO(svgFolder string) (err error) {
 }
 
 // CompressSVGByGZIP 将SVG文件压缩为GZIP格式
-func (c Converter) CompressSVGByGZIP(svgFile string) (dst string, err error) {
+func (c *Converter) CompressSVGByGZIP(svgFile string) (dst string, err error) {
 	var svgBytes []byte
 	ext := filepath.Ext(svgFile)
 	dst = strings.TrimSuffix(svgFile, ext) + ".gzip.svg"
@@ -327,6 +330,29 @@ func (c Converter) CompressSVGByGZIP(svgFile string) (dst string, err error) {
 	err = os.WriteFile(dst, buf.Bytes(), os.ModePerm)
 	if err != nil {
 		c.logger.Error("write svgz file", zap.String("svgzFile", dst), zap.Error(err))
+	}
+	return
+}
+
+func (c *Converter) makeWorkspace(src string) (workspaceDir string) {
+	if c.workspace != "" {
+		workspaceDir = c.workspace
+		return
+	}
+	c.workspace = strings.ReplaceAll(filepath.Join(c.cachePath, time.Now().Format(dirDteFmt), strings.TrimSuffix(filepath.Base(src), filepath.Ext(src))), "\\", "/")
+	return c.workspace
+}
+
+func (c *Converter) Clean() (err error) {
+	if c.workspace != "" {
+		c.logger.Info("clean workspace", zap.String("workspace", c.workspace))
+		err = os.RemoveAll(c.workspace)
+		if err != nil {
+			c.logger.Error("clean workspace", zap.String("workspace", c.workspace), zap.Error(err))
+		} else {
+			c.logger.Info("clean workspace success", zap.String("workspace", c.workspace))
+		}
+		c.workspace = ""
 	}
 	return
 }
