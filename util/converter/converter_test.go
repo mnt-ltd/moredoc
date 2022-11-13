@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"os/exec"
 	"testing"
 	"time"
 
@@ -196,7 +197,7 @@ func TestConvertCHMToPDF(t *testing.T) {
 
 func TestConvertPDFToSVG(t *testing.T) {
 	for _, file := range pdfFiles {
-		pages, err := converter.ConvertPDFToSVG(file, 0, 10000)
+		pages, err := converter.ConvertPDFToSVG(file, 0, 10000, false, true)
 		if err != nil {
 			t.Errorf("ConvertPDFToTxt() error = %v， source file = %s", err, file)
 			return
@@ -220,4 +221,26 @@ func TestConvertPDFToPNG(t *testing.T) {
 			t.Log(file, page, pagePath)
 		}
 	}
+}
+
+func TestCountPDFPages(t *testing.T) {
+	for _, file := range pdfFiles {
+		now := time.Now()
+		pages, err := converter.CountPDFPages(file)
+		t.Log(time.Since(now))
+		if err != nil {
+			t.Errorf("CountPDFPages() error = %v， source file = %s", err, file)
+			return
+		}
+
+		t.Logf("file = %s，pages = %d", file, pages)
+	}
+}
+
+func TestExistCommand(t *testing.T) {
+	t.Logf("calibre= %v", converter.ExistCalibre())
+	t.Logf("svgo= %v", converter.ExistSVGO())
+	t.Logf("mupdf= %v", converter.ExistMupdf())
+	t.Logf("soffice= %v", converter.ExistSoffice())
+	t.Log(exec.LookPath("soffice1"))
 }

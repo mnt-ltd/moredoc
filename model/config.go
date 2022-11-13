@@ -25,6 +25,8 @@ const (
 	ConfigCategorySecurity = "security"
 	// ConfigCategoryFooter 底部链接
 	ConfigCategoryFooter = "footer"
+	// ConfigCategoryConverter 转换配置项
+	ConfigCategoryConverter = "converter"
 )
 
 type Config struct {
@@ -173,6 +175,105 @@ type ConfigCaptcha struct {
 	Type   string `json:"type"` // 验证码类型
 }
 
+const (
+	ConfigSystemSitename           = "sitename"
+	ConfigSystemDomain             = "domain"
+	ConfigSystemTitle              = "title"
+	ConfigSystemDescription        = "description"
+	ConfigSystemKeywords           = "keywords"
+	ConfigSystemLogo               = "logo"
+	ConfigSystemFavicon            = "favicon"
+	ConfigSystemIcp                = "icp"
+	ConfigSystemAnalytics          = "analytics"
+	ConfigSystemCopyrightStartYear = "copyright_start_year"
+)
+
+type ConfigSystem struct {
+	Sitename           string `json:"sitename"`             // 网站名称
+	Domain             string `json:"domain"`               // 站点域名，不带 HTTPS:// 和 HTTP://
+	Title              string `json:"title"`                // 网站首页标题
+	Keywords           string `json:"keywords"`             // 系统关键字
+	Description        string `json:"description"`          // 系统描述
+	Logo               string `json:"logo"`                 // logo
+	Favicon            string `json:"favicon"`              // logo
+	ICP                string `json:"icp"`                  // 网站备案
+	Analytics          string `json:"analytics"`            // 统计代码
+	CopyrightStartYear string `json:"copyright_start_year"` // 版权年
+}
+
+const (
+	ConfigSecurityMaxDocumentSize           = "max_document_size"            // 是否关闭注册
+	ConfigSecurityIsClose                   = "is_close"                     // 是否关闭注册
+	ConfigSecurityCloseStatement            = "close_statement"              // 闭站说明
+	ConfigSecurityEnableRegister            = "enable_register"              // 是否允许注册
+	ConfigSecurityEnableCaptchaLogin        = "enable_captcha_login"         // 是否开启登录验证码
+	ConfigSecurityEnableCaptchaRegister     = "enable_captcha_register"      // 是否开启注册验证码
+	ConfigSecurityEnableCaptchaComment      = "enable_captcha_comment"       // 是否开启注册验证码
+	ConfigSecurityEnableCaptchaFindPassword = "enable_captcha_find_password" // 是否开启注册验证码
+)
+
+type ConfigSecurity struct {
+	MaxDocumentSize           int32  `json:"max_document_size"`            // 允许上传的最大文档大小
+	IsClose                   bool   `json:"is_close"`                     // 是否闭站
+	CloseStatement            string `json:"close_statement"`              // 闭站说明
+	EnableRegister            bool   `json:"enable_register"`              // 是否启用注册
+	EnableCaptchaLogin        bool   `json:"enable_captcha_login"`         // 是否启用登录验证码
+	EnableCaptchaRegister     bool   `json:"enable_captcha_register"`      // 是否启用注册验证码
+	EnableCaptchaComment      bool   `json:"enable_captcha_comment"`       // 是否启用评论验证码
+	EnableCaptchaFindPassword bool   `json:"enable_captcha_find_password"` // 找回密码是否需要验证码
+}
+
+const (
+	ConfigConverterMaxPreview = "max_preview" // 最大预览页数
+	ConfigConverterTimeout    = "timeout"     // 转换超时时间
+	ConfigConverterEnableSVGO = "enable_svgo" // 是否启用 SVGO
+	ConfigConverterEnableGZIP = "enable_gzip" // 是否启用 GZIP
+)
+
+// ConfigConverter 转换配置
+type ConfigConverter struct {
+	MaxPreview int32 `json:"max_preview"` // 文档所允许的最大预览页数，0 表示不限制，全部转换
+	Timeout    int32 `json:"timeout"`     // 转换超时时间，单位为分钟，默认30分钟
+	EnableSVGO bool  `json:"enable_svgo"` // 是否对svg启用SVGO压缩。转换效率会有所下降。相对直接的svg文件，可以节省1/2的存储空间
+	EnableGZIP bool  `json:"enable_gzip"` // 是否对svg启用GZIP压缩。转换效率会有所下降。相对直接的svg文件，可以节省3/4的存储空间
+	// GZIP和svgo都开启，转换效率会有所下降，可以综合节省约85%的存储空间
+}
+
+const (
+	ConfigFooterAbout     = "about"     // 关于我们
+	ConfigFooterContact   = "contact"   // 联系我们
+	ConfigFooterAgreement = "agreement" // 用户协议
+	ConfigFooterCopyright = "copyright" // 版权信息
+	ConfigFooterFeedback  = "feedback"  // 反馈信息
+)
+
+type ConfigFooter struct {
+	About     string `json:"about"`     // 关于我们
+	Contact   string `json:"contact"`   // 联系我们
+	Agreement string `json:"agreement"` // 用户协议、文库协议
+	Copyright string `json:"copyright"` // 版权信息、免责声明
+	Feedback  string `json:"feedback"`  // 反馈
+}
+
+func (m *DBModel) GetConfigOfFooter() (config ConfigFooter) {
+	var configs []Config
+	err := m.db.Where("category = ?", ConfigCategoryFooter).Find(&configs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetConfigOfFooter", zap.Error(err))
+	}
+
+	var data = make(map[string]interface{})
+
+	for _, cfg := range configs {
+		data[cfg.Name] = cfg.Value
+	}
+
+	bytes, _ := json.Marshal(data)
+	json.Unmarshal(bytes, &config)
+
+	return
+}
+
 // GetConfigOfCaptcha 获取验证码配置
 func (m *DBModel) GetConfigOfCaptcha() (config ConfigCaptcha) {
 	var configs []Config
@@ -206,32 +307,6 @@ func (m *DBModel) GetConfigOfCaptcha() (config ConfigCaptcha) {
 	return
 }
 
-const (
-	ConfigSystemSitename           = "sitename"
-	ConfigSystemDomain             = "domain"
-	ConfigSystemTitle              = "title"
-	ConfigSystemDescription        = "description"
-	ConfigSystemKeywords           = "keywords"
-	ConfigSystemLogo               = "logo"
-	ConfigSystemFavicon            = "favicon"
-	ConfigSystemIcp                = "icp"
-	ConfigSystemAnalytics          = "analytics"
-	ConfigSystemCopyrightStartYear = "copyright_start_year"
-)
-
-type ConfigSystem struct {
-	Sitename           string `json:"sitename"`             // 网站名称
-	Domain             string `json:"domain"`               // 站点域名，不带 HTTPS:// 和 HTTP://
-	Title              string `json:"title"`                // 网站首页标题
-	Keywords           string `json:"keywords"`             // 系统关键字
-	Description        string `json:"description"`          // 系统描述
-	Logo               string `json:"logo"`                 // logo
-	Favicon            string `json:"favicon"`              // logo
-	ICP                string `json:"icp"`                  // 网站备案
-	Analytics          string `json:"analytics"`            // 统计代码
-	CopyrightStartYear string `json:"copyright_start_year"` // 版权年
-}
-
 // GetConfigOfSystem 获取系统配置
 func (m *DBModel) GetConfigOfSystem() (config ConfigSystem) {
 	var confgis []Config
@@ -250,28 +325,6 @@ func (m *DBModel) GetConfigOfSystem() (config ConfigSystem) {
 	json.Unmarshal(bytes, &config)
 
 	return
-}
-
-const (
-	ConfigSecurityMaxDocumentSize           = "max_document_size"            // 是否关闭注册
-	ConfigSecurityIsClose                   = "is_close"                     // 是否关闭注册
-	ConfigSecurityCloseStatement            = "close_statement"              // 闭站说明
-	ConfigSecurityEnableRegister            = "enable_register"              // 是否允许注册
-	ConfigSecurityEnableCaptchaLogin        = "enable_captcha_login"         // 是否开启登录验证码
-	ConfigSecurityEnableCaptchaRegister     = "enable_captcha_register"      // 是否开启注册验证码
-	ConfigSecurityEnableCaptchaComment      = "enable_captcha_comment"       // 是否开启注册验证码
-	ConfigSecurityEnableCaptchaFindPassword = "enable_captcha_find_password" // 是否开启注册验证码
-)
-
-type ConfigSecurity struct {
-	MaxDocumentSize           int32  `json:"max_document_size"`            // 允许上传的最大文档大小
-	IsClose                   bool   `json:"is_close"`                     // 是否闭站
-	CloseStatement            string `json:"close_statement"`              // 闭站说明
-	EnableRegister            bool   `json:"enable_register"`              // 是否启用注册
-	EnableCaptchaLogin        bool   `json:"enable_captcha_login"`         // 是否启用登录验证码
-	EnableCaptchaRegister     bool   `json:"enable_captcha_register"`      // 是否启用注册验证码
-	EnableCaptchaComment      bool   `json:"enable_captcha_comment"`       // 是否启用评论验证码
-	EnableCaptchaFindPassword bool   `json:"enable_captcha_find_password"` // 找回密码是否需要验证码
 }
 
 // GetConfigOfSecurity 获取安全配置
@@ -306,33 +359,25 @@ func (m *DBModel) GetConfigOfSecurity(name ...string) (config ConfigSecurity) {
 	return
 }
 
-const (
-	ConfigFooterAbout     = "about"     // 关于我们
-	ConfigFooterContact   = "contact"   // 联系我们
-	ConfigFooterAgreement = "agreement" // 用户协议
-	ConfigFooterCopyright = "copyright" // 版权信息
-	ConfigFooterFeedback  = "feedback"  // 反馈信息
-)
-
-type ConfigFooter struct {
-	About     string `json:"about"`     // 关于我们
-	Contact   string `json:"contact"`   // 联系我们
-	Agreement string `json:"agreement"` // 用户协议、文库协议
-	Copyright string `json:"copyright"` // 版权信息、免责声明
-	Feedback  string `json:"feedback"`  // 反馈
-}
-
-func (m *DBModel) GetConfigOfFooter() (config ConfigFooter) {
+func (m *DBModel) GetConfigOfConverter() (config ConfigConverter) {
 	var configs []Config
-	err := m.db.Where("category = ?", ConfigCategoryFooter).Find(&configs).Error
+	err := m.db.Where("category = ?", ConfigCategoryConverter).Find(&configs).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
-		m.logger.Error("GetConfigOfFooter", zap.Error(err))
+		m.logger.Error("GetConfigOfConverter", zap.Error(err))
 	}
 
 	var data = make(map[string]interface{})
 
 	for _, cfg := range configs {
-		data[cfg.Name] = cfg.Value
+		switch cfg.Name {
+		case "max_preview", "timeout":
+			data[cfg.Name], _ = strconv.Atoi(cfg.Value)
+		case "enable_svgo", "enable_gzip":
+			value, _ := strconv.ParseBool(cfg.Value)
+			data[cfg.Name] = value
+		default:
+			data[cfg.Name] = cfg.Value
+		}
 	}
 
 	bytes, _ := json.Marshal(data)
@@ -378,6 +423,12 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryFooter, Name: ConfigFooterAgreement, Label: "文库协议", Value: "/article/agreement", Placeholder: "请输入文库协议的链接地址，留空表示不显示", InputType: "text", Sort: 26, Options: ""},
 		{Category: ConfigCategoryFooter, Name: ConfigFooterCopyright, Label: "免责声明", Value: "/article/copyright", Placeholder: "请输入免责声明的链接地址，留空表示不显示", InputType: "text", Sort: 27, Options: ""},
 		{Category: ConfigCategoryFooter, Name: ConfigFooterFeedback, Label: "意见反馈", Value: "/article/feedback", Placeholder: "请输入意见反馈的链接地址，留空表示不显示", InputType: "text", Sort: 28, Options: ""},
+
+		// 转换配置项
+		{Category: ConfigCategoryConverter, Name: ConfigConverterMaxPreview, Label: "最大预览页数", Value: "0", Placeholder: "文档允许的最大预览页数，0表示不限制", InputType: "number", Sort: 15, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterTimeout, Label: "转换超时(分钟)", Value: "30", Placeholder: "文档转换超时时间，默认为30分钟", InputType: "number", Sort: 16, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableGZIP, Label: "是否启用GZIP压缩", Value: "true", Placeholder: "是否对文档SVG预览文件启用GZIP压缩，启用后转换效率会【稍微】下降，但相对直接的SVG文件减少75%的存储空间", InputType: "switch", Sort: 17, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableSVGO, Label: "是否启用SVGO", Value: "false", Placeholder: "是否对文档SVG预览文件启用SVGO压缩，启用后转换效率会【明显】下降，但相对直接的SVG文件减少50%左右的存储空间", InputType: "switch", Sort: 18, Options: ""},
 	}
 
 	for _, cfg := range cfgs {

@@ -462,3 +462,15 @@ func (m *DBModel) GetDocumentStatusConvertedByHash(hash []string) (statusMap map
 	}
 	return
 }
+
+// ConvertDocument 文档转换
+// 1. 查询待转换的文档
+// 2. 文档对应的md5 hash中，是否有已转换的文档，如果有，则直接关联和调整状态为已转换
+// 3. 文档转PDF
+// 4. PDF截取第一章图片作为封面
+// 5. 根据允许最大的预览页面，将PDF转为svg，同时转gzip压缩，如果有需要的话
+// 6. 提取PDF文本以及获取文档信息
+// 7. 更新文档状态
+func (m *DBModel) ConvertDocument() {
+
+}

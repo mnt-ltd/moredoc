@@ -10,6 +10,14 @@
       </el-tab-pane>
     </el-tabs>
     <FormConfig :init-configs="configs" />
+    <el-alert
+      v-if="activeName == 'converter'"
+      title="同时启用GZIP和SVGO，相对直接的SVG文件，总体可以节省85%左右的存储空间。（启用SVGO，需要全局安装node.js的SVGO模块）"
+      type="info"
+      :closable="false"
+      show-icon
+    >
+    </el-alert>
   </el-card>
 </template>
 
@@ -39,6 +47,10 @@ export default {
         {
           label: '安全配置',
           value: 'security',
+        },
+        {
+          label: '转换配置',
+          value: 'converter',
         },
       ],
     }
