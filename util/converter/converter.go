@@ -315,18 +315,21 @@ func (c *Converter) CompressSVGBySVGO(svgFolder string) (err error) {
 // CompressSVGByGZIP 将SVG文件压缩为GZIP格式
 func (c *Converter) CompressSVGByGZIP(svgFile string) (dst string, err error) {
 	var svgBytes []byte
-	ext := filepath.Ext(svgFile)
-	dst = strings.TrimSuffix(svgFile, ext) + ".gzip.svg"
+	dst = strings.TrimSuffix(svgFile, filepath.Ext(svgFile)) + ".gzip.svg"
 	svgBytes, err = os.ReadFile(svgFile)
 	if err != nil {
 		c.logger.Error("read svg file", zap.String("svgFile", svgFile), zap.Error(err))
 		return
 	}
+
 	var buf bytes.Buffer
-	w := gzip.NewWriter(&buf)
-	defer w.Close()
-	w.Write(svgBytes)
-	w.Flush()
+	gzw, err := gzip.NewWriterLevel(&buf, gzip.BestCompression)
+	if err != nil {
+		return "", err
+	}
+	defer gzw.Close()
+	gzw.Write(svgBytes)
+	gzw.Flush()
 	err = os.WriteFile(dst, buf.Bytes(), os.ModePerm)
 	if err != nil {
 		c.logger.Error("write svgz file", zap.String("svgzFile", dst), zap.Error(err))

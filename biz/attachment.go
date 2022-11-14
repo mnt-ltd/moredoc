@@ -203,7 +203,7 @@ func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
 		return
 	}
 
-	attachment, err := s.saveFile(ctx, fileheader)
+	attachment, err := s.saveFile(ctx, fileheader, true)
 	if err != nil {
 		os.Remove("." + attachment.Path)
 		ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
@@ -230,6 +230,30 @@ func (s *AttachmentAPIService) UploadAvatar(ctx *gin.Context) {
 // UploadConfig 上传配置项中的相关图片
 func (s *AttachmentAPIService) UploadConfig(ctx *gin.Context) {
 	s.uploadImage(ctx, model.AttachmentTypeConfig)
+}
+
+// ViewDocumentPages 浏览文档页面
+func (s *AttachmentAPIService) ViewDocumentPages(ctx *gin.Context) {
+	hash := ctx.Param("hash")
+	if len(hash) != 32 {
+		ctx.JSON(http.StatusNotFound, nil)
+		return
+	}
+	page := strings.TrimLeft(ctx.Param("page"), "./")
+	if strings.HasSuffix(page, ".gzip.svg") {
+		ctx.Header("Content-Encoding", "gzip")
+	}
+	ctx.Header("Content-Type", "image/svg+xml")
+	ctx.File(fmt.Sprintf("documents/%s/%s/%s", strings.Join(strings.Split(hash, "")[:5], "/"), hash, page))
+}
+
+func (s *AttachmentAPIService) ViewDocumentCover(ctx *gin.Context) {
+	hash := ctx.Param("hash")
+	if len(hash) != 32 {
+		ctx.JSON(http.StatusNotFound, nil)
+		return
+	}
+	ctx.File(fmt.Sprintf("documents/%s/%s/cover.png", strings.Join(strings.Split(hash, "")[:5], "/"), hash))
 }
 
 //  UploadArticle 上传文章相关图片和视频。这里不验证文件格式。
@@ -346,7 +370,7 @@ func (s *AttachmentAPIService) uploadImage(ctx *gin.Context, attachmentType int)
 
 // saveFile 保存文件。文件以md5值命名以及存储
 // 同时，返回附件信息
-func (s *AttachmentAPIService) saveFile(ctx *gin.Context, fileHeader *multipart.FileHeader) (attachment *model.Attachment, err error) {
+func (s *AttachmentAPIService) saveFile(ctx *gin.Context, fileHeader *multipart.FileHeader, isDocument ...bool) (attachment *model.Attachment, err error) {
 	cacheDir := fmt.Sprintf("cache/uploads/%s", time.Now().Format("2006/01/02"))
 	os.MkdirAll(cacheDir, os.ModePerm)
 	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
@@ -369,7 +393,11 @@ func (s *AttachmentAPIService) saveFile(ctx *gin.Context, fileHeader *multipart.
 		return
 	}
 
-	savePath := fmt.Sprintf("uploads/%s/%s%s", strings.Join(strings.Split(md5hash, "")[0:5], "/"), md5hash, ext)
+	savePathFormat := "uploads/%s/%s%s"
+	if len(isDocument) > 0 && isDocument[0] {
+		savePathFormat = "documents/%s/%s%s"
+	}
+	savePath := fmt.Sprintf(savePathFormat, strings.Join(strings.Split(md5hash, "")[0:5], "/"), md5hash, ext)
 	os.MkdirAll(filepath.Dir(savePath), os.ModePerm)
 	err = util.CopyFile(cachePath, savePath)
 	if err != nil {

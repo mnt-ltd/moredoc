@@ -17,6 +17,8 @@ func RegisterGinRouter(app *gin.Engine, dbModel *model.DBModel, logger *zap.Logg
 	app.GET("/helloworld", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, "hello world")
 	})
+	app.GET("/document/page/:hash/:page", attachmentAPIService.ViewDocumentPages)
+	app.GET("/document/cover/:hash", attachmentAPIService.ViewDocumentCover)
 
 	checkPermissionGroup := app.Group("/api/v1/upload")
 	checkPermissionGroup.Use(auth.AuthGin())

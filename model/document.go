@@ -38,15 +38,13 @@ var DocumentStatusMap = map[int]struct{}{
 type Document struct {
 	Id            int64           `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Title         string          `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;comment:文档名称;"`
-	Keywords      string          `form:"keywords" json:"keywords,omitempty" gorm:"column:keywords;type:varchar(255);size:255;comment:文档关键字;"`
-	Description   string          `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(512);size:512;comment:文档描述;"`
+	Keywords      string          `form:"keywords" json:"keywords,omitempty" gorm:"column:keywords;type:varchar(128);size:128;comment:文档关键字;"`
+	Description   string          `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(255);size:255;comment:文档描述;"`
 	UserId        int64           `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);size:20;default:0;index:user_id;comment:文档所属用户ID;"`
-	Cover         string          `form:"cover" json:"cover,omitempty" gorm:"column:cover;type:varchar(255);size:255;comment:文档封面;"`
 	Width         int             `form:"width" json:"width,omitempty" gorm:"column:width;type:int(11);size:11;default:0;comment:宽;"`
 	Height        int             `form:"height" json:"height,omitempty" gorm:"column:height;type:int(11);size:11;default:0;comment:高;"`
 	Preview       int             `form:"preview" json:"preview,omitempty" gorm:"column:preview;type:int(11);size:11;default:0;comment:允许预览页数;"`
 	Pages         int             `form:"pages" json:"pages,omitempty" gorm:"column:pages;type:int(11);size:11;default:0;comment:文档页数;"`
-	UUID          string          `form:"uuid" json:"uuid,omitempty" gorm:"column:uuid;type:varchar(36);size:36;index:idx_uuid,unique;comment:文档UUID，用于隐藏文档真实路径;"`
 	DownloadCount int             `form:"download_count" json:"download_count,omitempty" gorm:"column:download_count;type:int(11);size:11;default:0;comment:下载人次;"`
 	ViewCount     int             `form:"view_count" json:"view_count,omitempty" gorm:"column:view_count;type:int(11);size:11;default:0;comment:浏览人次;"`
 	FavoriteCount int             `form:"favorite_count" json:"favorite_count,omitempty" gorm:"column:favorite_count;type:int(11);size:11;default:0;comment:收藏人次;"`
@@ -61,6 +59,7 @@ type Document struct {
 	UpdatedAt     *time.Time      `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 	DeletedAt     *gorm.DeletedAt `form:"deleted_at" json:"deleted_at,omitempty" gorm:"column:deleted_at;type:datetime;index:idx_deleted_at;comment:删除时间;"`
 	DeletedUserId int64           `form:"deleted_user_id" json:"deleted_user_id,omitempty" gorm:"column:deleted_user_id;type:bigint(20);size:20;default:0;comment:删除用户ID;"`
+	EnableGZIP    bool            `form:"enable_gzip" json:"enable_gzip,omitempty" gorm:"column:enable_gzip;type:tinyint(1);size:1;default:0;comment:是否启用GZIP压缩;"`
 }
 
 func (Document) TableName() string {
@@ -516,11 +515,11 @@ func (m *DBModel) ConvertDocument() (err error) {
 	hashMapDocs := m.GetDocumentStatusConvertedByHash([]string{attachment.Hash})
 	if len(hashMapDocs) > 0 {
 		// 已有文档转换成功，将hash相同的文档相关数据迁移到当前文档
-		sql := " UPDATE `%s` SET `description`= ?, `cover` = ?, `width` = ?, `height`= ?, `preview`= ?, `pages` = ?, `status` = ? WHERE status in ? and id in (select type_id from `%s` where `hash` = ? and `type` = ?)"
+		sql := " UPDATE `%s` SET `description`= ? , `enable_gzip`, `width` = ?, `height`= ?, `preview`= ?, `pages` = ?, `status` = ? WHERE status in ? and id in (select type_id from `%s` where `hash` = ? and `type` = ?)"
 		sql = fmt.Sprintf(sql, Document{}.TableName(), Attachment{}.TableName())
 		for hash, doc := range hashMapDocs {
 			err = m.db.Exec(sql,
-				doc.Description, doc.Cover, doc.Width, doc.Height, doc.Preview, doc.Pages, DocumentStatusConverted, []int{DocumentStatusPending, DocumentStatusConverting, DocumentStatusFailed}, hash, AttachmentTypeDocument,
+				doc.Description, doc.EnableGZIP, doc.Width, doc.Height, doc.Preview, doc.Pages, DocumentStatusConverted, []int{DocumentStatusPending, DocumentStatusConverting, DocumentStatusFailed}, hash, AttachmentTypeDocument,
 			).Error
 			if err != nil {
 				m.logger.Error("ConvertDocument", zap.Error(err))
@@ -564,7 +563,6 @@ func (m *DBModel) ConvertDocument() (err error) {
 		util.CopyFile(pages[0].PagePath, cover)
 		util.CropImage(cover, DocumentCoverWidth, DocumentCoverHeight)
 		document.Width, document.Height, _ = util.GetImageSize(coverBig) // 页面宽高
-		document.Cover = "/" + cover
 	}
 
 	// PDF转为SVG
@@ -580,7 +578,16 @@ func (m *DBModel) ConvertDocument() (err error) {
 	}
 
 	for _, page := range pages {
-		util.CopyFile(page.PagePath, fmt.Sprintf(baseDir+"/%d%s", page.PageNum, filepath.Ext(page.PagePath)))
+		ext := ".svg"
+		if strings.HasSuffix(page.PagePath, ".gzip.svg") {
+			ext = ".gzip.svg"
+		}
+		dst := fmt.Sprintf(baseDir+"/%d%s", page.PageNum, ext)
+		m.logger.Debug("ConvertDocument CopyFile", zap.String("src", page.PagePath), zap.String("dst", dst))
+		errCopy := util.CopyFile(page.PagePath, dst)
+		if errCopy != nil {
+			m.logger.Error("ConvertDocument CopyFile", zap.Error(errCopy))
+		}
 		os.Remove(page.PagePath)
 	}
 
@@ -592,12 +599,13 @@ func (m *DBModel) ConvertDocument() (err error) {
 	if content, errRead := os.ReadFile(textFile); errRead == nil {
 		contentStr := string(content)
 		replacer := strings.NewReplacer("\r", " ", "\n", " ", "\t", " ")
-		document.Description = replacer.Replace(util.Substr(contentStr, 500))
+		document.Description = strings.TrimSpace(replacer.Replace(util.Substr(contentStr, 255)))
 	}
 	os.Remove(textFile)
 
 	document.Status = DocumentStatusConverted
-	err = m.db.Select("description", "cover", "width", "height", "preview", "pages", "status").Where("id = ?", document.Id).Updates(document).Error
+	document.EnableGZIP = cfg.EnableGZIP
+	err = m.db.Select("description", "cover", "width", "height", "preview", "pages", "status", "enable_gzip").Where("id = ?", document.Id).Updates(document).Error
 	if err != nil {
 		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
 		m.logger.Error("ConvertDocument", zap.Error(err))

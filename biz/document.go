@@ -9,7 +9,6 @@ import (
 	"moredoc/model"
 	"moredoc/util"
 
-	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -71,11 +70,11 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 	}
 
 	var (
-		documents           []model.Document
-		uuidAttachmentIdMap = make(map[string]int64)
-		jieba               = util.NewJieba()
+		documents        []model.Document
+		docMapAttachment = make(map[int]int64)
+		jieba            = util.NewJieba()
 	)
-	for _, doc := range req.Document {
+	for idx, doc := range req.Document {
 		attachment, ok := attachmentMap[doc.AttachmentId]
 		if !ok {
 			continue
@@ -85,14 +84,14 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 			Title:    doc.Title,
 			Keywords: strings.Join(jieba.SegWords(doc.Title, 10), ","),
 			UserId:   userCliams.UserId,
-			UUID:     uuid.Must(uuid.NewV4()).String(),
-			Score:    300,
-			Price:    int(doc.Price),
-			Size:     attachment.Size,
-			Ext:      attachment.Ext,
-			Status:   model.DocumentStatusPending,
+			// UUID:     uuid.Must(uuid.NewV4()).String(),
+			Score:  300,
+			Price:  int(doc.Price),
+			Size:   attachment.Size,
+			Ext:    attachment.Ext,
+			Status: model.DocumentStatusPending,
 		}
-		uuidAttachmentIdMap[doc.UUID] = attachment.Id
+		docMapAttachment[idx] = attachment.Id
 		documents = append(documents, doc)
 	}
 
@@ -102,8 +101,8 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 	}
 
 	attachIdTypeIdMap := make(map[int64]int64)
-	for _, doc := range docs {
-		if attachmentId, ok := uuidAttachmentIdMap[doc.UUID]; ok {
+	for idx, doc := range docs {
+		if attachmentId, ok := docMapAttachment[idx]; ok {
 			attachIdTypeIdMap[attachmentId] = doc.Id
 		}
 	}

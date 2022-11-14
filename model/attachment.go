@@ -177,7 +177,7 @@ func (m *DBModel) DeleteAttachment(ids []int64) (err error) {
 }
 
 func (m *DBModel) GetAttachmentByTypeAndTypeId(typ int, typeId int64) (attachment Attachment) {
-	err := m.db.Where("type = ? and type_id = ?", typ, typeId).First(&attachment).Error
+	err := m.db.Where("type = ? and type_id = ?", typ, typeId).Last(&attachment).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetAttachmentByTypeAndTypeId", zap.Error(err))
 	}

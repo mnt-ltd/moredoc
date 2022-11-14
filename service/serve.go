@@ -61,9 +61,9 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 	}
 	app := gin.New()
 	app.Use(
-		gzip.Gzip(gzip.DefaultCompression), // gzip
-		gin.Recovery(),                     // recovery
-		cors.Default(),                     // allows all origins
+		gzip.Gzip(gzip.BestCompression, gzip.WithExcludedExtensions([]string{".svg", ".png", ".gif", ".jpeg", ".jpg", ".ico"})), // gzip
+		gin.Recovery(), // recovery
+		cors.Default(), // allows all origins
 	)
 
 	endpoint := fmt.Sprintf("localhost:%v", cfg.Port)
