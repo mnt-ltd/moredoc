@@ -15,6 +15,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
+	github.com/yanyiwu/gojieba v1.2.0
 	go.uber.org/zap v1.21.0
 	golang.org/x/net v0.1.0
 	google.golang.org/genproto v0.0.0-20220228195345-15d65a4533f7
@@ -29,7 +30,6 @@ require (
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
-	github.com/yanyiwu/gojieba v1.2.0 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 )
 

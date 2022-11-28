@@ -118,19 +118,25 @@ export function categoryToTrees(categories, withDisabled = true) {
   const result = []
   const map = {}
   try {
-    categories.forEach((item) => {
+    // 避免修改原对象。比如第一次调用，categories加了children属性，第二次，同样继续追加children属性的值
+    const cates = JSON.parse(JSON.stringify(categories))
+    cates.forEach((item) => {
       if (withDisabled) {
         item.disabled = !item.enable
       }
       map[item.id] = item
     })
-    categories.forEach((item) => {
+    cates.forEach((item) => {
       const parent = map[item.parent_id]
       if (parent) {
         if (parent.disabled) item.disabled = true
         ;(parent.children || (parent.children = [])).push(item)
       } else {
-        result.push(item)
+        // 如果父级ID不存在，不能直接判断为根节点，还要确认下其父级ID是否存在，存在父级ID的不是根节点
+        // eslint-disable-next-line no-lonely-if
+        if (!item.parent_id) {
+          result.push(item)
+        }
       }
     })
   } catch (error) {
