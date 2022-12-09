@@ -27,11 +27,6 @@
           <el-menu-item index="/login" class="float-right">
             <nuxt-link to="/login"><i class="el-icon-user"></i> 登录</nuxt-link>
           </el-menu-item>
-          <el-menu-item index="/upload" class="float-right">
-            <nuxt-link to="/upload"
-              ><i class="el-icon-upload2"></i>上传</nuxt-link
-            >
-          </el-menu-item>
         </el-menu>
       </div>
     </el-header>
@@ -152,6 +147,7 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
 import { listFriendlink } from '~/api/friendlink'
+import { categoryToTrees } from '~/utils/utils'
 export default {
   data() {
     return {
@@ -161,6 +157,7 @@ export default {
       friendlinks: [],
       timeouter: null,
       currentYear: new Date().getFullYear(),
+      categoryTrees: [],
     }
   },
   head() {
@@ -184,7 +181,7 @@ export default {
   computed: {
     ...mapGetters('user', ['user', 'token']),
     ...mapGetters('setting', ['settings']),
-    ...mapGetters('category', ['categoryTrees']),
+    ...mapGetters('category', ['categories']),
   },
   async created() {
     const [res] = await Promise.all([
@@ -198,6 +195,9 @@ export default {
     if (res.status === 200) {
       this.friendlinks = res.data.friendlink
     }
+    this.categoryTrees = categoryToTrees(this.categories).filter(
+      (item) => item.enable
+    )
     this.loopUpdate()
   },
   mounted() {},
@@ -279,6 +279,7 @@ export default {
     width: 100%;
     top: 0;
     z-index: 100;
+    overflow: hidden;
     & > div {
       margin: 0 auto;
       width: $default-width;
@@ -298,7 +299,6 @@ export default {
     }
     a {
       text-decoration: none;
-      font-size: 16px;
       height: 60px;
       line-height: 60px;
       display: inline-block;
@@ -307,7 +307,7 @@ export default {
     .el-menu-item {
       padding: 0;
       [class^='el-icon-'] {
-        font-size: 16px;
+        font-size: 15px;
         margin-right: 2px;
       }
     }
