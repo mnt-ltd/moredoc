@@ -7,7 +7,6 @@ go.sum
 *.pb.go
 *.pb.gw.go
 *.pb.validate.go
-.vscode
 ginrpc*
 dist
 output

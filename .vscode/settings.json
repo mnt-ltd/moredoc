@@ -1,0 +1,43 @@
+{
+  // tab 大小为4个空格
+  "editor.tabSize": 4,
+  // 100 列后换行
+  "editor.wordWrapColumn": 100,
+  // 保存时格式化
+  "editor.formatOnSave": true,
+  // 开启 vscode 文件路径导航
+  "breadcrumbs.enabled": true,
+  // prettier 设置语句末尾不加分号
+  "prettier.semi": false,
+  // prettier 设置强制单引号
+  "prettier.singleQuote": true,
+  // 选择 vue 文件中 template 的格式化工具
+  "vetur.format.defaultFormatter.html": "prettyhtml",
+  // 显示 markdown 中英文切换时产生的特殊字符
+  "editor.renderControlCharacters": true,
+  // 设置 eslint 保存时自动修复
+  "eslint.autoFixOnSave": true,
+  // eslint 检测文件类型
+  "eslint.validate": [
+    "vue",
+    "html",
+    "javascript",
+    "typescript",
+    "javascriptreact",
+    "typescriptreact"
+  ],
+  // vetur 的自定义设置
+  "vetur.format.defaultFormatterOptions": {
+    "prettier": {
+      "singleQuote": true,
+      "semi": false
+    }
+  },
+  // vue 扩展的文件默认使用 prettier 进行格式化
+  "[vue]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
+}
