@@ -6,51 +6,33 @@
           :default-active="$route.path"
           class="float-left"
           mode="horizontal"
-          :router="true"
         >
-          <el-menu-item class="logo">
-            <img
-              :src="settings.system.logo || '/static/images/logo.png'"
-              :alt="settings.system.sitename"
-            />
+          <el-menu-item class="logo" index="/">
+            <nuxt-link to="/"
+              ><img
+                :src="settings.system.logo || '/static/images/logo.png'"
+                :alt="settings.system.sitename"
+            /></nuxt-link>
           </el-menu-item>
           <el-menu-item index="/">
-            <template slot="title">
-              <!-- <i class="el-icon-s-home"></i> -->
-              <span>首页</span>
-            </template>
+            <nuxt-link to="/">首页</nuxt-link>
           </el-menu-item>
-          <el-menu-item index="/category"> 分类 </el-menu-item>
-          <!-- <el-submenu index="/category">
-            <template slot="title">分类</template>
-            <el-menu-item index="/category/1">选项1</el-menu-item>
-            <el-menu-item index="/category/2">选项2</el-menu-item>
-            <el-menu-item index="/category/3">选项3</el-menu-item>
-            <el-submenu index="/category/4">
-              <template slot="title">选项4</template>
-              <el-menu-item index="/category/5">选项1</el-menu-item>
-              <el-menu-item index="/category/6">选项2</el-menu-item>
-              <el-menu-item index="/category/7">选项3</el-menu-item>
-            </el-submenu>
-          </el-submenu> -->
-          <el-menu-item index="/upload">上传</el-menu-item>
-          <el-menu-item index="/user">我的</el-menu-item>
+          <el-menu-item
+            v-for="item in categoryTrees"
+            :key="'c-' + item.id"
+            :index="`/category/${item.id}`"
+          >
+            <nuxt-link :to="`/category/${item.id}`">{{ item.title }}</nuxt-link>
+          </el-menu-item>
+          <el-menu-item index="/login" class="float-right">
+            <nuxt-link to="/login"><i class="el-icon-user"></i> 登录</nuxt-link>
+          </el-menu-item>
+          <el-menu-item index="/upload" class="float-right">
+            <nuxt-link to="/upload"
+              ><i class="el-icon-upload2"></i>上传</nuxt-link
+            >
+          </el-menu-item>
         </el-menu>
-        <el-form
-          :inline="true"
-          :model="search"
-          class="float-right nav-search-form"
-          @submit.native.prevent
-        >
-          <el-form-item>
-            <el-input
-              v-model="search.wd"
-              placeholder="Search..."
-              suffix-icon="el-icon-search"
-              @keydown.native.enter="onSearch"
-            ></el-input>
-          </el-form-item>
-        </el-form>
       </div>
     </el-header>
     <el-main>
@@ -202,6 +184,7 @@ export default {
   computed: {
     ...mapGetters('user', ['user', 'token']),
     ...mapGetters('setting', ['settings']),
+    ...mapGetters('category', ['categoryTrees']),
   },
   async created() {
     const [res] = await Promise.all([
@@ -245,7 +228,7 @@ export default {
 </script>
 <style lang="scss">
 .layout-default {
-  min-width: 1000px !important;
+  min-width: $min-width !important;
   .el-table th {
     height: 45px;
     line-height: 45px;
@@ -275,9 +258,6 @@ export default {
   .el-link {
     font-size: 15px;
   }
-  // font-family: Lato, Helvetica, Arial, sans-serif;
-  // font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-  //   Roboto, 'Helvetica Neue', Arial, sans-serif;
   .el-rate {
     display: inline-block;
     .el-rate__icon {
@@ -288,9 +268,6 @@ export default {
     }
   }
   padding-top: 60px;
-  // a {
-  //   color: #303133;
-  // }
   .el-card {
     border-radius: 5px;
     border: 0;
@@ -309,6 +286,30 @@ export default {
     }
     .el-menu.el-menu--horizontal {
       border-bottom: 0;
+      width: $default-width;
+      max-width: $max-width;
+      min-width: $min-width;
+      .float-right {
+        float: right;
+        a {
+          padding: 0 15px;
+        }
+      }
+    }
+    a {
+      text-decoration: none;
+      font-size: 16px;
+      height: 60px;
+      line-height: 60px;
+      display: inline-block;
+      padding: 0 20px;
+    }
+    .el-menu-item {
+      padding: 0;
+      [class^='el-icon-'] {
+        font-size: 16px;
+        margin-right: 2px;
+      }
     }
   }
   .el-footer {
@@ -344,6 +345,9 @@ export default {
   }
   background-color: $background-grey-light;
   .logo {
+    &.is-active {
+      border-color: transparent !important;
+    }
     img {
       margin-top: -4px;
       height: 42px;
