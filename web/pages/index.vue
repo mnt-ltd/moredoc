@@ -1,6 +1,48 @@
 <template>
   <div class="page page-index">
-    <el-row :gutter="20">
+    <div class="searchbox">
+      <el-carousel :interval="3000" arrow="always" :height="'360px'">
+        <a
+          v-for="banner in banners"
+          :key="'banner-' + banner.id"
+          :href="banner.url"
+          target="_blank"
+          :title="banner.title"
+        >
+          <el-carousel-item
+            :style="
+              'background: url(' + banner.path + ') center center no-repeat;'
+            "
+          >
+          </el-carousel-item>
+        </a>
+      </el-carousel>
+      <el-form :model="search" class="search-form" @submit.native.prevent>
+        <el-form-item>
+          <el-input
+            v-model="search.wd"
+            size="large"
+            placeholder="搜索文档..."
+            @keydown.native.enter="onSearch"
+          >
+            <el-button
+              slot="append"
+              icon="el-icon-search"
+              @click="onSearch"
+            ></el-button>
+          </el-input>
+        </el-form-item>
+        <el-form-item>
+          <span>大家在搜:</span>
+          <a href="#"><el-tag size="small">Java教程</el-tag></a>
+          <a href="#"><el-tag size="small">PHP教程</el-tag></a>
+          <a href="#"><el-tag size="small">GPTChat</el-tag></a>
+          <a href="#"><el-tag size="small">开源中国</el-tag></a>
+          <a href="#"><el-tag size="small">小学语文</el-tag></a>
+        </el-form-item>
+      </el-form>
+    </div>
+    <el-row :gutter="20" class="mgt-20px">
       <el-col :span="6" class="float-right">
         <el-card class="text-center stat-info" shadow="never">
           <el-row>
@@ -55,24 +97,136 @@
           </el-form>
         </el-card>
       </el-col>
-      <el-col :span="18" class="banners">
-        <el-carousel :interval="5000" arrow="always" :height="'323px'">
-          <a
-            v-for="banner in banners"
-            :key="'banner-' + banner.id"
-            :href="banner.url"
-            target="_blank"
-            :title="banner.title"
-          >
-            <el-carousel-item
-              :style="
-                'background: url(' + banner.path + ') center center no-repeat;'
-              "
-            >
-              <!-- <h3>{{ banner.title }}</h3> -->
-            </el-carousel-item>
-          </a>
-        </el-carousel>
+      <el-col :span="18" class="latest-recommend">
+        <el-card shadow="never">
+          <div slot="header">最新推荐</div>
+          <el-row :gutter="20">
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/entgo-0.11-zh/uploads/202210/171f825ac77e9e82.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">
+                  Kong Gateway v3.0.x Documentation
+                </div>
+              </nuxt-link>
+            </el-col>
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/istio-1.16-zh/uploads/202212/172cb1a7fc49b727.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">Istio v1.16 中文文档</div>
+              </nuxt-link>
+            </el-col>
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/traefik-2.9-en/uploads/202211/172b2cf6a8b5eb8b.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">
+                  Traefik v2.9 Documentation
+                </div>
+              </nuxt-link>
+            </el-col>
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/kubevela-1.6-zh/uploads/202212/172cb4a60512d3c9.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">
+                  KubeVela v1.6 中文文档
+                </div>
+              </nuxt-link>
+            </el-col>
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/explore-python/uploads/201812/1573e6514b85abb3.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">Python 之旅</div>
+              </nuxt-link>
+            </el-col>
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/python-3.11.0-zh/uploads/202211/17285eb115212b0b.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">
+                  Python 3.11.0 官方文档(全)
+                </div>
+              </nuxt-link>
+            </el-col>
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/entgo-0.11-zh/uploads/202210/171f825ac77e9e82.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">
+                  Kong Gateway v3.0.x Documentation
+                </div>
+              </nuxt-link>
+            </el-col>
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/istio-1.16-zh/uploads/202212/172cb1a7fc49b727.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">Istio v1.16 中文文档</div>
+              </nuxt-link>
+            </el-col>
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/traefik-2.9-en/uploads/202211/172b2cf6a8b5eb8b.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">
+                  Traefik v2.9 Documentation
+                </div>
+              </nuxt-link>
+            </el-col>
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/kubevela-1.6-zh/uploads/202212/172cb4a60512d3c9.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">
+                  KubeVela v1.6 中文文档
+                </div>
+              </nuxt-link>
+            </el-col>
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/explore-python/uploads/201812/1573e6514b85abb3.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">Python 之旅</div>
+              </nuxt-link>
+            </el-col>
+            <el-col :span="4">
+              <nuxt-link to="/">
+                <img
+                  src="https://static.sitestack.cn/projects/python-3.11.0-zh/uploads/202211/17285eb115212b0b.png/cover"
+                  alt=""
+                />
+                <div class="el-link el-link--default">
+                  Python 3.11.0 官方文档(全)
+                </div>
+              </nuxt-link>
+            </el-col>
+          </el-row>
+        </el-card>
       </el-col>
     </el-row>
     <div class="categories mgt-20px">
@@ -164,6 +318,9 @@ export default {
         password: '',
       },
       banners: [],
+      search: {
+        wd: '',
+      },
     }
   },
   head() {
@@ -191,6 +348,13 @@ export default {
         console.log(res)
       }
     },
+    onSearch() {
+      if (this.search.wd) {
+        const wd = this.search.wd
+        this.search.wd = ''
+        this.$router.push({ path: '/search', query: { wd } })
+      }
+    },
     login() {
       // 跳转到登录页面，先串通页面
       this.$router.push('/login')
@@ -202,8 +366,48 @@ export default {
 .page-index {
   width: 100%;
   max-width: 100%;
-  .el-carousel--horizontal {
-    border-radius: 5px;
+  margin-top: -20px;
+  .searchbox {
+    position: relative;
+    margin-bottom: 20px;
+    a {
+      display: inline-block;
+    }
+    .el-carousel__item {
+      background-size: cover !important;
+    }
+    // 搜索表单垂直居中显示
+    .search-form {
+      position: absolute;
+      z-index: 99;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 640px;
+      color: #fff;
+      .el-form-item {
+        margin-bottom: 0;
+      }
+      .el-tag {
+        margin-left: 5px;
+      }
+      .el-input__icon {
+        color: #666;
+      }
+      .el-input__inner {
+        border-right: 0;
+        height: 45px;
+        line-height: 45px;
+        font-size: 15px;
+        &:focus {
+          border-color: #dcdfe6;
+        }
+      }
+      .el-input-group__append {
+        background-color: #fff;
+        border-left: 0;
+      }
+    }
   }
   & > .el-row {
     width: $default-width;
@@ -254,17 +458,33 @@ export default {
     padding-bottom: 0;
   }
 
-  .banners {
-    .el-carousel__item {
-      background-size: cover !important;
-      h3 {
-        font-size: 18px;
-        color: #fff;
-        opacity: 0.5;
-        text-align: center;
-        position: absolute;
-        bottom: 5px;
+  .latest-recommend {
+    .el-card__body {
+      padding-bottom: 0;
+    }
+    a {
+      text-decoration: none;
+      display: block;
+      margin-bottom: 20px;
+      &:hover {
+        color: #409eff;
+      }
+      img {
         width: 100%;
+        border: 1px solid #efefef;
+        border-radius: 5px;
+      }
+      div {
+        height: 40px;
+        overflow: hidden;
+        margin-bottom: 0px;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        word-break: break-word;
+        font-size: 13px;
+        line-height: 20px;
       }
     }
   }
