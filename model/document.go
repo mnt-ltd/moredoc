@@ -525,7 +525,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 	hashMapDocs := m.GetDocumentStatusConvertedByHash([]string{attachment.Hash})
 	if len(hashMapDocs) > 0 {
 		// 已有文档转换成功，将hash相同的文档相关数据迁移到当前文档
-		sql := " UPDATE `%s` SET `description`= ? , `enable_gzip`, `width` = ?, `height`= ?, `preview`= ?, `pages` = ?, `status` = ? WHERE status in ? and id in (select type_id from `%s` where `hash` = ? and `type` = ?)"
+		sql := " UPDATE `%s` SET `description`= ? , `enable_gzip` = ?, `width` = ?, `height`= ?, `preview`= ?, `pages` = ?, `status` = ? WHERE status in ? and id in (select type_id from `%s` where `hash` = ? and `type` = ?)"
 		sql = fmt.Sprintf(sql, Document{}.TableName(), Attachment{}.TableName())
 		for hash, doc := range hashMapDocs {
 			err = m.db.Exec(sql,
