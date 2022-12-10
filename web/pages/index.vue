@@ -58,50 +58,66 @@
             </el-col>
           </el-row>
         </el-card>
+        <el-card class="text-center mgt-20px" shadow="never">
+          <nuxt-link to="/upload">
+            <el-button type="warning" class="btn-block" icon="el-icon-upload"
+              >上传文档</el-button
+            >
+          </nuxt-link>
+        </el-card>
         <el-card
           class="box-card mgt-20px hidden-xs-only login-form"
           shadow="never"
         >
-          <el-form ref="form" :model="user">
-            <el-form-item>
-              <el-input
-                v-model="user.username"
-                placeholder="请输入登录用户名"
-              ></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-input
-                v-model="user.password"
-                placeholder="请输入登录密码"
-              ></el-input>
-            </el-form-item>
-            <el-form-item style="margin-bottom: 0">
-              <el-button class="btn-block" type="primary" @click="login"
-                >立即登录</el-button
-              >
-            </el-form-item>
-            <el-form-item style="margin-bottom: 5px">
-              <nuxt-link
-                to="/findpassword"
-                title="找回密码"
-                class="el-link el-link--info"
-                ><small>忘记密码？</small></nuxt-link
-              >
-              <nuxt-link
-                to="/register"
-                title="注册用户"
-                class="float-right el-link el-link--info"
-                ><small>注册用户</small></nuxt-link
-              >
-            </el-form-item>
-          </el-form>
+          <el-row>
+            <el-col :span="8">
+              <el-avatar
+                :size="64"
+                src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
+              ></el-avatar>
+            </el-col>
+            <el-col :span="16">
+              <h3>欢迎您，游客</h3>
+              <div class="help-block login-tips">登录可体验更多功能</div>
+            </el-col>
+          </el-row>
+          <div class="line"></div>
+          <div>
+            <ul>
+              <li>分享知识，获取收益</li>
+              <li>发表点评，抒发见解</li>
+              <li>收藏文档，畅享文化</li>
+              <li>身份认证，彰显尊贵</li>
+            </ul>
+          </div>
+          <div class="btn-login">
+            <nuxt-link to="/login"
+              ><el-button class="btn-block" type="primary"
+                >马上登录</el-button
+              ></nuxt-link
+            >
+          </div>
+          <div class="help-block">
+            <el-row>
+              <el-col :span="12">
+                <nuxt-link to="/findpassword" class="el-link el-link--default"
+                  ><small>找回密码</small></nuxt-link
+                >
+              </el-col>
+              <el-col :span="12" class="text-right">
+                <nuxt-link to="/register" class="el-link el-link--default"
+                  ><small>注册账户</small></nuxt-link
+                >
+              </el-col>
+            </el-row>
+          </div>
         </el-card>
       </el-col>
       <el-col :span="18" class="latest-recommend">
         <el-card shadow="never">
           <div slot="header">最新推荐</div>
           <el-row :gutter="20">
-            <el-col :span="4">
+            <el-col v-for="i in 12" :key="'i' + i" :span="4">
               <nuxt-link to="/">
                 <img
                   src="https://static.sitestack.cn/projects/entgo-0.11-zh/uploads/202210/171f825ac77e9e82.png/cover"
@@ -109,119 +125,6 @@
                 />
                 <div class="el-link el-link--default">
                   Kong Gateway v3.0.x Documentation
-                </div>
-              </nuxt-link>
-            </el-col>
-            <el-col :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/istio-1.16-zh/uploads/202212/172cb1a7fc49b727.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">Istio v1.16 中文文档</div>
-              </nuxt-link>
-            </el-col>
-            <el-col :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/traefik-2.9-en/uploads/202211/172b2cf6a8b5eb8b.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">
-                  Traefik v2.9 Documentation
-                </div>
-              </nuxt-link>
-            </el-col>
-            <el-col :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/kubevela-1.6-zh/uploads/202212/172cb4a60512d3c9.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">
-                  KubeVela v1.6 中文文档
-                </div>
-              </nuxt-link>
-            </el-col>
-            <el-col :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/explore-python/uploads/201812/1573e6514b85abb3.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">Python 之旅</div>
-              </nuxt-link>
-            </el-col>
-            <el-col :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/python-3.11.0-zh/uploads/202211/17285eb115212b0b.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">
-                  Python 3.11.0 官方文档(全)
-                </div>
-              </nuxt-link>
-            </el-col>
-            <el-col :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/entgo-0.11-zh/uploads/202210/171f825ac77e9e82.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">
-                  Kong Gateway v3.0.x Documentation
-                </div>
-              </nuxt-link>
-            </el-col>
-            <el-col :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/istio-1.16-zh/uploads/202212/172cb1a7fc49b727.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">Istio v1.16 中文文档</div>
-              </nuxt-link>
-            </el-col>
-            <el-col :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/traefik-2.9-en/uploads/202211/172b2cf6a8b5eb8b.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">
-                  Traefik v2.9 Documentation
-                </div>
-              </nuxt-link>
-            </el-col>
-            <el-col :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/kubevela-1.6-zh/uploads/202212/172cb4a60512d3c9.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">
-                  KubeVela v1.6 中文文档
-                </div>
-              </nuxt-link>
-            </el-col>
-            <el-col :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/explore-python/uploads/201812/1573e6514b85abb3.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">Python 之旅</div>
-              </nuxt-link>
-            </el-col>
-            <el-col :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/python-3.11.0-zh/uploads/202211/17285eb115212b0b.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">
-                  Python 3.11.0 官方文档(全)
                 </div>
               </nuxt-link>
             </el-col>
@@ -454,8 +357,35 @@ export default {
     }
   }
 
-  .login-form .el-card__body {
-    padding-bottom: 0;
+  .login-form {
+    h3 {
+      margin-top: 8px;
+    }
+    .line {
+      border-top: 1px solid #efefef;
+      margin: 15px 0;
+    }
+    ul,
+    li {
+      margin: 0;
+      padding: 0;
+    }
+    ul {
+      margin: 10px 0;
+    }
+    li {
+      margin-left: 20px;
+      line-height: 200%;
+      color: #555;
+      font-size: 15px;
+    }
+    .btn-login {
+      margin: 15px 0 5px;
+    }
+    .login-tips {
+      margin-top: -10px;
+      font-size: 14px;
+    }
   }
 
   .latest-recommend {
