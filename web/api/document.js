@@ -16,6 +16,14 @@ export const updateDocument = (data) => {
   })
 }
 
+export const setDocumentRecommend = (data) => {
+  return service({
+    url: '/api/v1/document/recommend',
+    method: 'put',
+    data,
+  })
+}
+
 export const deleteDocument = (params) => {
   return service({
     url: '/api/v1/document',

@@ -218,6 +218,7 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 		SelectFields: req.Field,
 		QueryIn:      make(map[string][]interface{}),
 		QueryLike:    make(map[string][]interface{}),
+		IsRecommend:  req.IsRecommend,
 	}
 
 	if len(req.Order) > 0 {
@@ -412,4 +413,19 @@ func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList) (*pb
 		Total:    total,
 		Document: pbDocs,
 	}, nil
+}
+
+// SetDocumentRecommend 推荐文档
+func (s *DocumentAPIService) SetDocumentRecommend(ctx context.Context, req *pb.SetDocumentRecommendRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, status.Error(codes.PermissionDenied, err.Error())
+	}
+
+	err = s.dbModel.SetDocumentRecommend(req.Id, req.Type)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
 }

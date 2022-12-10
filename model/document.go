@@ -60,6 +60,7 @@ type Document struct {
 	DeletedAt     *gorm.DeletedAt `form:"deleted_at" json:"deleted_at,omitempty" gorm:"column:deleted_at;type:datetime;index:idx_deleted_at;comment:删除时间;"`
 	DeletedUserId int64           `form:"deleted_user_id" json:"deleted_user_id,omitempty" gorm:"column:deleted_user_id;type:bigint(20);size:20;default:0;comment:删除用户ID;"`
 	EnableGZIP    bool            `form:"enable_gzip" json:"enable_gzip,omitempty" gorm:"column:enable_gzip;type:tinyint(1);size:1;default:0;comment:是否启用GZIP压缩;"`
+	RecommendAt   *time.Time      `form:"recommend_at" json:"recommend_at,omitempty" gorm:"column:recommend_at;type:datetime;comment:推荐时间;index:idx_recommend_at;"`
 }
 
 func (Document) TableName() string {
@@ -185,6 +186,7 @@ type OptionGetDocumentList struct {
 	QueryLike    map[string][]interface{}  // map[field][]{value1,value2,...}
 	Sort         []string
 	IsRecycle    bool // 是否是回收站模式查询
+	IsRecommend  []bool
 }
 
 // GetDocumentList 获取Document列表
@@ -206,6 +208,14 @@ func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Do
 	if categoryIds, ok := opt.QueryIn["category_id"]; ok && len(categoryIds) > 0 {
 		tableCategory := DocumentCategory{}.TableName()
 		db = db.Joins("left join "+tableCategory+" dc on dc.document_id = "+tableName+".id").Where("dc.category_id in (?)", categoryIds)
+	}
+
+	if l := len(opt.IsRecommend); l == 1 {
+		if opt.IsRecommend[0] {
+			db = db.Where("`recommend_at` IS NOT NULL")
+		} else {
+			db = db.Where("`recommend_at` IS NULL")
+		}
 	}
 
 	if opt.WithCount {
@@ -617,6 +627,23 @@ func (m *DBModel) SetDocumentStatus(documentId int64, status int) (err error) {
 	err = m.db.Model(&Document{}).Where("id = ?", documentId).Update("status", status).Error
 	if err != nil {
 		m.logger.Error("SetDocumentStatus", zap.Error(err))
+	}
+	return
+}
+
+// 设置文章推荐状态
+func (m *DBModel) SetDocumentRecommend(documentIds []int64, typ int32) (err error) {
+	db := m.db.Model(&Document{}).Where("id in (?)", documentIds)
+	switch typ {
+	case 0: // 取消推荐
+		err = db.Update("recommend_at", nil).Error
+	case 1: // 推荐
+		err = db.Where("recommend_at IS NULL").Update("recommend_at", time.Now()).Error
+	case 2: // 置顶
+		err = db.Update("recommend_at", time.Now()).Error
+	}
+	if err != nil {
+		m.logger.Error("SetDocumentRecommend", zap.Error(err))
 	}
 	return
 }

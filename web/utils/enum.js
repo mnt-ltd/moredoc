@@ -32,6 +32,11 @@ export const bannerTypeOptions = [
   { label: 'APP横幅', value: 2, type: 'warning' },
 ]
 
+export const boolOptions = [
+  { label: '是', value: true, type: 'success' },
+  { label: '否', value: false, type: 'danger' },
+]
+
 export const methodOptions = [
   {
     label: 'GET',

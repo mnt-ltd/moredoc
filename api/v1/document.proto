@@ -36,6 +36,7 @@ message Document {
   google.protobuf.Timestamp created_at = 21 [ (gogoproto.stdtime) = true ];
   google.protobuf.Timestamp updated_at = 22 [ (gogoproto.stdtime) = true ];
   google.protobuf.Timestamp deleted_at = 23 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp recommend_at = 29 [ (gogoproto.stdtime) = true ];
   int64 deleted_user_id = 24;
   string username = 25;
   repeated int64 category_id = 26;
@@ -46,7 +47,10 @@ message Document {
 message DeleteDocumentRequest { repeated int64 id = 1; }
 message RecoverRecycleDocumentRequest { repeated int64 id = 1; }
 
-message GetDocumentRequest { int64 id = 1; }
+message GetDocumentRequest { 
+  int64 id = 1; 
+  bool with_author = 2;
+}
 
 message ListDocumentRequest {
   int64 page = 1;
@@ -57,6 +61,7 @@ message ListDocumentRequest {
   repeated int64 category_id = 6;
   repeated int64 user_id = 7;
   repeated int32 status = 8;
+  repeated bool is_recommend = 9;
 }
 
 message ListDocumentReply {
@@ -76,7 +81,21 @@ message CreateDocumentRequest {
   repeated CreateDocumentItem document = 3;
 }
 
+
+message SetDocumentRecommendRequest{
+  repeated int64 id = 1;
+  int32 type = 2; // 0, 取消推荐，1:推荐 2:重新推荐
+}
+
+
 service DocumentAPI {
+  rpc SetDocumentRecommend(SetDocumentRecommendRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/document/recommend',
+      body : '*',
+    };
+  }
+  
   rpc CreateDocument(CreateDocumentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post : '/api/v1/document',

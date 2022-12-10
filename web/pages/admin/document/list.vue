@@ -22,11 +22,21 @@
         :show-edit="true"
         :show-delete="true"
         :show-select="true"
+        :actions-min-width="160"
         @editRow="editRow"
         @viewRow="viewRow"
         @selectRow="selectRow"
         @deleteRow="deleteRow"
-      />
+      >
+        <template slot="actions" slot-scope="scope">
+          <el-button
+            type="text"
+            icon="el-icon-s-check"
+            @click="recommendDocument(scope.row)"
+            >推荐</el-button
+          >
+        </template>
+      </TableList>
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <div class="text-right">
@@ -51,6 +61,13 @@
         @success="formSuccess"
       />
     </el-dialog>
+    <el-dialog
+      title="推荐设置"
+      :visible.sync="formDocumentRecommendVisible"
+      width="640px"
+    >
+      <FormDocumentRecommend :init-document="document" @success="formSuccess" />
+    </el-dialog>
   </div>
 </template>
 
@@ -60,7 +77,7 @@ import { deleteDocument, getDocument, listDocument } from '~/api/document'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import { categoryToTrees } from '~/utils/utils'
-import { documentStatusOptions } from '~/utils/enum'
+import { documentStatusOptions, boolOptions } from '~/utils/enum'
 import FormUpdateDocument from '~/components/FormUpdateDocument.vue'
 export default {
   components: { TableList, FormSearch, FormUpdateDocument },
@@ -69,6 +86,7 @@ export default {
     return {
       loading: false,
       formVisible: false,
+      formDocumentRecommendVisible: false,
       search: {
         page: 1,
         size: 10,
@@ -81,6 +99,7 @@ export default {
       tableListFields: [],
       selectedRow: [],
       documentStatusOptions,
+      boolOptions,
       document: { id: 0 },
     }
   },
@@ -172,8 +191,18 @@ export default {
         this.$message.error(res.data.message)
       }
     },
+    async recommendDocument(row) {
+      const res = await getDocument({ id: row.id })
+      if (res.status === 200) {
+        this.document = res.data
+        this.formDocumentRecommendVisible = true
+      } else {
+        this.$message.error(res.data.message)
+      }
+    },
     formSuccess() {
       this.formVisible = false
+      this.formDocumentRecommendVisible = false
       this.listDocument()
     },
     batchDelete() {
@@ -238,6 +267,14 @@ export default {
           multiple: true,
           options: documentStatusOptions,
         },
+        {
+          type: 'select',
+          label: '推荐',
+          name: 'is_recommend',
+          placeholder: '请选择推荐状态',
+          multiple: true,
+          options: boolOptions,
+        },
         // 级联
         {
           type: 'cascader',
@@ -278,9 +315,15 @@ export default {
         { prop: 'favorite_count', label: '收藏', width: 80, type: 'number' },
         { prop: 'comment_count', label: '评论', width: 80, type: 'number' },
         { prop: 'keywords', label: '关键字', minWidth: 200 },
-        { prop: 'description', label: '摘要', minWidth: 200 },
+        // { prop: 'description', label: '摘要', minWidth: 200 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
+        {
+          prop: 'recommend_at',
+          label: '推荐时间',
+          width: 160,
+          type: 'datetime',
+        },
       ]
     },
   },

@@ -301,7 +301,7 @@ export default {
         { prop: 'favorite_count', label: '收藏', width: 80, type: 'number' },
         { prop: 'comment_count', label: '评论', width: 80, type: 'number' },
         { prop: 'keywords', label: '关键字', minWidth: 200 },
-        { prop: 'description', label: '摘要', minWidth: 200 },
+        // { prop: 'description', label: '摘要', minWidth: 200 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
       ]
