@@ -117,15 +117,25 @@
         <el-card shadow="never">
           <div slot="header">最新推荐</div>
           <el-row :gutter="20">
-            <el-col v-for="i in 12" :key="'i' + i" :span="4">
-              <nuxt-link to="/">
-                <img
-                  src="https://static.sitestack.cn/projects/entgo-0.11-zh/uploads/202210/171f825ac77e9e82.png/cover"
-                  alt=""
-                />
-                <div class="el-link el-link--default">
-                  Kong Gateway v3.0.x Documentation
-                </div>
+            <el-col
+              v-for="item in recommends"
+              :key="'recommend' + item.id"
+              :span="4"
+            >
+              <nuxt-link :to="`/document/${item.id}`">
+                <el-image
+                  :src="
+                    item.attachment && item.attachment.hash
+                      ? `/view/cover/${item.attachment.hash}`
+                      : ''
+                  "
+                  :alt="item.title"
+                >
+                  <div slot="error" class="image-slot">
+                    <img src="/static/images/default-cover.png" />
+                  </div>
+                </el-image>
+                <div class="el-link el-link--default">{{ item.title }}</div>
               </nuxt-link>
             </el-col>
           </el-row>
@@ -212,6 +222,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { listBanner } from '~/api/banner'
+import { listDocument } from '~/api/document'
 export default {
   name: 'IndexPage',
   data() {
@@ -221,6 +232,7 @@ export default {
         password: '',
       },
       banners: [],
+      recommends: [],
       search: {
         wd: '',
       },
@@ -236,7 +248,7 @@ export default {
     ...mapGetters('category', ['categoryTrees']),
   },
   async created() {
-    await this.listBanner()
+    await Promise.all([this.getRecommendDocuments(), this.listBanner()])
   },
   methods: {
     async listBanner() {
@@ -256,6 +268,17 @@ export default {
         const wd = this.search.wd
         this.search.wd = ''
         this.$router.push({ path: '/search', query: { wd } })
+      }
+    },
+    async getRecommendDocuments() {
+      const res = await listDocument({
+        field: ['id', 'title'],
+        is_recommend: true,
+        order: 'recommend_at desc',
+        limit: 12,
+      })
+      if (res.status === 200) {
+        this.recommends = res.data.document || []
       }
     },
     login() {
@@ -399,12 +422,20 @@ export default {
       &:hover {
         color: #409eff;
       }
-      img {
-        width: 100%;
-        border: 1px solid #efefef;
+      .el-image {
+        border: 2px solid #efefef;
         border-radius: 5px;
+        height: 160px;
+        img {
+          width: 100%;
+          transition: transform 0.3s ease 0s;
+          &:hover {
+            transform: scale(1.2);
+          }
+        }
       }
-      div {
+
+      div.el-link {
         height: 40px;
         overflow: hidden;
         margin-bottom: 0px;

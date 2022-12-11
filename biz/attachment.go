@@ -249,14 +249,16 @@ func (s *AttachmentAPIService) ViewDocumentPages(ctx *gin.Context) {
 
 func (s *AttachmentAPIService) ViewDocumentCover(ctx *gin.Context) {
 	hash := ctx.Param("hash")
+	file := fmt.Sprintf("documents/%s/%s/cover.png", strings.Join(strings.Split(hash, "")[:5], "/"), hash)
 	if len(hash) != 32 {
-		ctx.JSON(http.StatusNotFound, nil)
+		ctx.JSON(http.StatusNotFound, map[string]interface{}{"code": http.StatusNotFound, "message": "文件不存在"})
 		return
 	}
-	ctx.File(fmt.Sprintf("documents/%s/%s/cover.png", strings.Join(strings.Split(hash, "")[:5], "/"), hash))
+	ctx.File(file)
 }
 
-//  UploadArticle 上传文章相关图片和视频。这里不验证文件格式。
+//	UploadArticle 上传文章相关图片和视频。这里不验证文件格式。
+//
 // 注意：当前适配了wangeditor的接口规范，如果需要适配其他编辑器，需要修改此接口或者增加其他接口
 func (s *AttachmentAPIService) UploadArticle(ctx *gin.Context) {
 	typ := ctx.Query("type")

@@ -212,7 +212,7 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 // 2. 对于管理员，可以查询所有文档，可以根据关键字进行查询
 func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocumentRequest) (*pb.ListDocumentReply, error) {
 	opt := &model.OptionGetDocumentList{
-		WithCount:    true,
+		WithCount:    req.Limit <= 0,
 		Page:         int(req.Page),
 		Size:         int(req.Size_),
 		SelectFields: req.Field,
@@ -251,6 +251,11 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 			model.DocumentStatusPending, model.DocumentStatusConverting,
 			model.DocumentStatusConverted, model.DocumentStatusFailed,
 		}
+	}
+
+	if req.Limit > 0 {
+		opt.Size = int(req.Limit)
+		opt.Page = 1
 	}
 
 	s.logger.Debug("ListDocument", zap.Any("opt", opt))
@@ -373,7 +378,9 @@ func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList) (*pb
 		docIndexMap[doc.Id] = i
 		userIndexesMap[doc.UserId] = append(userIndexesMap[doc.UserId], i)
 		docIds = append(docIds, doc.Id)
-		userIds = append(userIds, doc.UserId)
+		if doc.UserId > 0 {
+			userIds = append(userIds, doc.UserId)
+		}
 		if doc.DeletedUserId > 0 {
 			userIds = append(userIds, doc.DeletedUserId)
 			deletedUserIndexMap[doc.DeletedUserId] = append(deletedUserIndexMap[doc.DeletedUserId], i)
@@ -395,6 +402,23 @@ func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList) (*pb
 			SelectFields: []string{"id", "username"},
 			QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(userIds)},
 		})
+
+		// 查找文档相关联的附件。对于列表，只返回hash和id，不返回其他字段
+		attachments, _, _ := s.dbModel.GetAttachmentList(&model.OptionGetAttachmentList{
+			WithCount:    false,
+			SelectFields: []string{"hash", "id", "type_id"},
+			QueryIn: map[string][]interface{}{
+				"type_id": util.Slice2Interface(docIds),
+				"type":    {model.AttachmentTypeDocument},
+			},
+		})
+
+		for _, attachment := range attachments {
+			index := docIndexMap[attachment.TypeId]
+			pbDocs[index].Attachment = &pb.Attachment{
+				Hash: attachment.Hash,
+			}
+		}
 
 		for _, docUser := range docUsers {
 			indexes := userIndexesMap[docUser.Id]

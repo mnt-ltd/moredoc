@@ -70,6 +70,10 @@ export default {
       target: 'http://127.0.0.1:8880', // 目标服务器
       changeOrigin: true,
     },
+    '/view': {
+      target: 'http://127.0.0.1:8880', // 目标服务器
+      changeOrigin: true,
+    },
     '/uploads': {
       target: 'http://127.0.0.1:8880', // 目标服务器
       changeOrigin: true,
