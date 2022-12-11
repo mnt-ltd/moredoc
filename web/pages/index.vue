@@ -113,7 +113,7 @@
           </div>
         </el-card>
       </el-col>
-      <el-col :span="18" class="latest-recommend">
+      <el-col :span="18" class="latest-recommend" keep-alive>
         <el-card shadow="never">
           <div slot="header">最新推荐</div>
           <el-row :gutter="20">
@@ -157,7 +157,7 @@
                 v-for="child in category.children"
                 :key="'child-' + child.id"
                 class="el-link el-link--default"
-                :to="{ path: '/category', query: { id: child.id } }"
+                :to="`/category/${child.id}`"
                 >{{ child.title }}</nuxt-link
               >
             </el-card>
@@ -167,14 +167,14 @@
     </div>
     <el-row :gutter="20" class="category-item">
       <el-col
-        v-for="category in categoryTrees"
-        :key="'card-cate-' + category.id"
+        v-for="item in documents"
+        :key="'card-cate-' + item.category_id"
         :span="12"
       >
         <el-card class="box-card mgt-20px" shadow="never">
           <div slot="header" class="clearfix">
-            <strong>{{ category.title }}</strong>
-            <nuxt-link :to="{ path: '/category', query: { id: category.id } }"
+            <strong>{{ item.category_name }}</strong>
+            <nuxt-link :to="`/category/${item.category_id}`"
               ><el-button style="float: right; padding: 3px 0" type="text"
                 >更多</el-button
               ></nuxt-link
@@ -182,35 +182,25 @@
           </div>
           <div>
             <div class="card-body-left hidden-xs-only">
-              <nuxt-link
-                :to="{ path: '/category', query: { id: category.id } }"
-              >
-                <el-image :src="category.cover">
+              <nuxt-link :to="`/category/${item.category_id}`">
+                <el-image :src="item.category_cover">
                   <div slot="error" class="image-slot">
                     <img
                       src="/static/images/cover-news.png"
-                      :alt="category.title"
+                      :alt="item.category_name"
                     />
                   </div>
                 </el-image>
               </nuxt-link>
             </div>
             <div class="card-body-right">
-              <nuxt-link class="el-link el-link--default" to="/document/"
-                >Docker — 从入门到实战-BookStack.CN</nuxt-link
+              <nuxt-link
+                v-for="doc in item.document"
+                :key="'c-' + item.category_id + 'd' + doc.id"
+                class="el-link el-link--default"
+                :to="`/document/${doc.id}`"
+                >{{ doc.title }}</nuxt-link
               >
-              <nuxt-link class="el-link el-link--default" to="/document/"
-                >MongoDB简明教程</nuxt-link
-              >
-              <nuxt-link class="el-link el-link--default" to="/document/"
-                >TypeScript 官方文档</nuxt-link
-              >
-              <nuxt-link class="el-link el-link--default" to="/document/"
-                >DolphinPHP1.3.0完全开发手册-基于ThinkPHP5.0.20的快速开发框架-05221135</nuxt-link
-              >
-              <nuxt-link class="el-link el-link--default" to="/document/">
-                ThinkPHP5.1完全开发手册-09081747
-              </nuxt-link>
             </div>
           </div>
         </el-card>
@@ -222,17 +212,14 @@
 <script>
 import { mapGetters } from 'vuex'
 import { listBanner } from '~/api/banner'
-import { listDocument } from '~/api/document'
+import { listDocument, listDocumentForHome } from '~/api/document'
 export default {
   name: 'IndexPage',
   data() {
     return {
-      user: {
-        username: '',
-        password: '',
-      },
       banners: [],
       recommends: [],
+      documents: [],
       search: {
         wd: '',
       },
@@ -248,7 +235,11 @@ export default {
     ...mapGetters('category', ['categoryTrees']),
   },
   async created() {
-    await Promise.all([this.getRecommendDocuments(), this.listBanner()])
+    await Promise.all([
+      this.getRecommendDocuments(),
+      this.listBanner(),
+      this.getDocuments(),
+    ])
   },
   methods: {
     async listBanner() {
@@ -279,6 +270,16 @@ export default {
       })
       if (res.status === 200) {
         this.recommends = res.data.document || []
+      }
+    },
+    async getDocuments() {
+      const res = await listDocumentForHome({
+        limit: 5,
+      })
+      if (res.status === 200) {
+        this.documents = res.data.document || []
+      } else {
+        console.log(res)
       }
     },
     login() {

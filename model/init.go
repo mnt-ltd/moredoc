@@ -195,12 +195,18 @@ func (m *DBModel) ShowTables() (tables []string, err error) {
 
 // FilterValidFields 过滤掉不存在的字段
 func (m *DBModel) FilterValidFields(tableName string, fields ...string) (validFields []string) {
+	alias := ""
+	slice := strings.Split(tableName, " ")
+	if len(slice) == 2 {
+		alias = slice[1] + "."
+		tableName = slice[0]
+	}
 	fieldsMap, ok := m.tableFieldsMap[tableName]
 	if ok {
 		for _, field := range fields {
 			field = strings.ToLower(strings.TrimSpace(field))
 			if _, ok := fieldsMap[field]; ok {
-				validFields = append(validFields, field)
+				validFields = append(validFields, fmt.Sprintf("%s`%s`", alias, field))
 			}
 		}
 	}
@@ -317,6 +323,13 @@ func (m *DBModel) initFriendlink() (err error) {
 
 // generateQueryLike 生成like查询。Like 查询比较特殊，统一用or来拼接查询的字段
 func (m *DBModel) generateQueryLike(db *gorm.DB, tableName string, queryLike map[string][]interface{}) *gorm.DB {
+	alias := ""
+	slice := strings.Split(tableName, " ")
+	if len(slice) == 2 {
+		tableName = slice[0]
+		alias = slice[1] + "."
+	}
+
 	if len(queryLike) > 0 {
 		var likeQuery []string
 		var likeValues []interface{}
@@ -327,7 +340,7 @@ func (m *DBModel) generateQueryLike(db *gorm.DB, tableName string, queryLike map
 			}
 			for _, value := range values {
 				valueStr := fmt.Sprintf("%v", value)
-				likeQuery = append(likeQuery, fmt.Sprintf("%s like ?", field))
+				likeQuery = append(likeQuery, fmt.Sprintf("%s%s like ?", alias, field))
 				likeValues = append(likeValues, "%"+valueStr+"%")
 			}
 		}
@@ -339,34 +352,53 @@ func (m *DBModel) generateQueryLike(db *gorm.DB, tableName string, queryLike map
 }
 
 func (m *DBModel) generateQueryRange(db *gorm.DB, tableName string, queryRange map[string][2]interface{}) *gorm.DB {
+	alias := ""
+	slice := strings.Split(tableName, " ")
+	if len(slice) == 2 {
+		tableName = slice[0]
+		alias = slice[1] + "."
+	}
+
 	for field, rangeValue := range queryRange {
 		fields := m.FilterValidFields(tableName, field)
 		if len(fields) == 0 {
 			continue
 		}
 		if rangeValue[0] != nil {
-			db = db.Where(fmt.Sprintf("%s >= ?", field), rangeValue[0])
+			db = db.Where(fmt.Sprintf("%s%s >= ?", alias, field), rangeValue[0])
 		}
 		if rangeValue[1] != nil {
-			db = db.Where(fmt.Sprintf("%s <= ?", field), rangeValue[1])
+			db = db.Where(fmt.Sprintf("%s%s <= ?", alias, field), rangeValue[1])
 		}
 	}
 	return db
 }
 
 func (m *DBModel) generateQueryIn(db *gorm.DB, tableName string, queryIn map[string][]interface{}) *gorm.DB {
+	alias := ""
+	slice := strings.Split(tableName, " ")
+	if len(slice) == 2 {
+		tableName = slice[0]
+		alias = slice[1] + "."
+	}
 	for field, values := range queryIn {
 		fields := m.FilterValidFields(tableName, field)
 		if len(fields) == 0 {
 			continue
 		}
-		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
+		db = db.Where(fmt.Sprintf("%s%s in (?)", alias, field), values)
 	}
 	return db
 }
 
 func (m *DBModel) generateQuerySort(db *gorm.DB, tableName string, querySort []string) *gorm.DB {
 	var sorts []string
+	alias := ""
+	slice := strings.Split(tableName, " ")
+	if len(slice) == 2 {
+		tableName = slice[0]
+		alias = slice[1] + "."
+	}
 	for _, sort := range querySort {
 		slice := strings.Split(sort, " ")
 		if len(m.FilterValidFields(tableName, slice[0])) == 0 {
@@ -376,14 +408,16 @@ func (m *DBModel) generateQuerySort(db *gorm.DB, tableName string, querySort []s
 		if len(slice) == 2 {
 			item := strings.ToLower(slice[1])
 			if item == "asc" || item == "desc" {
-				sorts = append(sorts, fmt.Sprintf("%s %s", slice[0], item))
+				sorts = append(sorts, fmt.Sprintf("%s%s %s", alias, slice[0], item))
 			}
 		} else {
-			sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
+			sorts = append(sorts, fmt.Sprintf("%s%s desc", alias, slice[0]))
 		}
 	}
 	if len(sorts) > 0 {
 		db = db.Order(strings.Join(sorts, ","))
+	} else {
+		db = db.Order(fmt.Sprintf("%sid desc", alias))
 	}
 	return db
 }

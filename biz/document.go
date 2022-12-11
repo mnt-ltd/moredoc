@@ -453,3 +453,48 @@ func (s *DocumentAPIService) SetDocumentRecommend(ctx context.Context, req *pb.S
 
 	return &emptypb.Empty{}, nil
 }
+
+func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.ListDocumentForHomeRequest) (*pb.ListDocumentForHomeResponse, error) {
+	// 1. 查询启用了的分类
+	categories, _, _ := s.dbModel.GetCategoryList(&model.OptionGetCategoryList{
+		WithCount: false,
+		QueryIn: map[string][]interface{}{
+			"enable":    {true},
+			"parent_id": {0},
+		},
+	})
+
+	if len(categories) == 0 {
+		return &pb.ListDocumentForHomeResponse{}, nil
+	}
+
+	limit := 5
+	if req.Limit > 0 && req.Limit <= 100 {
+		limit = int(req.Limit)
+	}
+
+	resp := &pb.ListDocumentForHomeResponse{}
+	for _, category := range categories {
+		docs, _, _ := s.dbModel.GetDocumentList(&model.OptionGetDocumentList{
+			WithCount: false,
+			QueryIn: map[string][]interface{}{
+				"category_id": {category.Id},
+			},
+			Page:         1,
+			Size:         limit,
+			Sort:         []string{"id desc"},
+			SelectFields: []string{"id", "title"},
+		})
+
+		var pbDocs []*pb.Document
+		util.CopyStruct(&docs, &pbDocs)
+		resp.Document = append(resp.Document, &pb.ListDocumentForHomeItem{
+			CategoryId:    category.Id,
+			CategoryName:  category.Title,
+			CategoryCover: category.Cover,
+			Document:      pbDocs,
+		})
+	}
+
+	return resp, nil
+}

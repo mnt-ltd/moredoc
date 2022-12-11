@@ -191,30 +191,32 @@ type OptionGetDocumentList struct {
 
 // GetDocumentList 获取Document列表
 func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Document, total int64, err error) {
-	tableName := Document{}.TableName()
-	db := m.db.Model(&Document{})
+	tableDocument := Document{}.TableName() + " d"
+	db := m.db.Unscoped().Table(tableDocument)
 	if opt.IsRecycle {
 		// 回收站模式，只根据删除的倒序排序
-		opt.Sort = []string{"deleted_at desc"}
-		db = db.Unscoped().Where("deleted_at IS NOT NULL")
+		opt.Sort = []string{"d.deleted_at desc"}
+		db = db.Where("d.deleted_at IS NOT NULL")
+	} else {
+		db = db.Where("d.deleted_at IS NULL")
 	}
 
-	db = m.generateQueryIn(db, tableName, opt.QueryIn)
-	db = m.generateQueryLike(db, tableName, opt.QueryLike)
+	db = m.generateQueryIn(db, tableDocument, opt.QueryIn)
+	db = m.generateQueryLike(db, tableDocument, opt.QueryLike)
 	if len(opt.Ids) > 0 {
 		db = db.Where("id in (?)", opt.Ids)
 	}
 
 	if categoryIds, ok := opt.QueryIn["category_id"]; ok && len(categoryIds) > 0 {
 		tableCategory := DocumentCategory{}.TableName()
-		db = db.Joins("left join "+tableCategory+" dc on dc.document_id = "+tableName+".id").Where("dc.category_id in (?)", categoryIds)
+		db = db.Joins("left join "+tableCategory+" dc on dc.document_id = d.id").Where("dc.category_id in (?)", categoryIds)
 	}
 
 	if l := len(opt.IsRecommend); l == 1 {
 		if opt.IsRecommend[0] {
-			db = db.Where("`recommend_at` IS NOT NULL")
+			db = db.Where("d.`recommend_at` IS NOT NULL")
 		} else {
-			db = db.Where("`recommend_at` IS NULL")
+			db = db.Where("d.`recommend_at` IS NULL")
 		}
 	}
 
@@ -226,15 +228,15 @@ func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Do
 		}
 	}
 
-	opt.SelectFields = m.FilterValidFields(tableName, opt.SelectFields...)
+	opt.SelectFields = m.FilterValidFields(tableDocument, opt.SelectFields...)
 	if len(opt.SelectFields) > 0 {
 		db = db.Select(opt.SelectFields)
 	}
 
 	if len(opt.Sort) > 0 {
-		db = m.generateQuerySort(db, tableName, opt.Sort)
+		db = m.generateQuerySort(db, tableDocument, opt.Sort)
 	} else {
-		db = db.Order("id desc")
+		db = db.Order("d.id desc")
 	}
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)

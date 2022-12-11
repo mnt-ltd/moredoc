@@ -90,8 +90,28 @@ message SetDocumentRecommendRequest{
   int32 type = 2; // 0, 取消推荐，1:推荐 2:重新推荐
 }
 
+message ListDocumentForHomeRequest {
+  int64 limit = 1;
+}
+
+message ListDocumentForHomeItem{
+  int64 category_id = 1;
+  string category_cover = 2;
+  string category_name = 3;
+  repeated Document document = 4;
+}
+
+message ListDocumentForHomeResponse {
+  repeated ListDocumentForHomeItem document = 1;
+}
 
 service DocumentAPI {
+  rpc ListDocumentForHome(ListDocumentForHomeRequest) returns ( ListDocumentForHomeResponse) {
+    option (google.api.http) = {
+      get : '/api/v1/document/home',
+    };
+  }
+
   rpc SetDocumentRecommend(SetDocumentRecommendRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/document/recommend',

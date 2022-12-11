@@ -40,6 +40,14 @@ export const getDocument = (params) => {
   })
 }
 
+export const listDocumentForHome = (params) => {
+  return service({
+    url: '/api/v1/document/home',
+    method: 'get',
+    params,
+  })
+}
+
 export const listDocument = (params) => {
   return service({
     url: '/api/v1/document/list',
