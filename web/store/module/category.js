@@ -28,5 +28,12 @@ export const category = {
     categoryTrees(state) {
       return categoryToTrees(state.categories)
     },
+    categoryMap(state) {
+      const map = {}
+      state.categories.forEach((item) => {
+        map[item.id] = item
+      })
+      return map
+    },
   },
 }
