@@ -300,6 +300,11 @@ export default {
     .el-tree-node__content {
       height: 35px;
     }
+    [role='treeitem'][aria-expanded='true'] > .el-tree-node__content {
+      background-color: #f5f7fa;
+      color: #409eff;
+      font-weight: bold;
+    }
   }
   .doc-list {
     .el-card__header {
