@@ -46,27 +46,30 @@
               ></span>
             </div>
           </div>
-          <div class="doc-pages">
-            <div
-              v-for="(page, index) in pages"
-              :key="'page' + index"
+          <div ref="docPages" class="doc-pages">
+            <el-image
+              v-for="page in pages"
+              :key="page.src"
+              :src="page.src"
+              :alt="page.alt"
+              lazy
               class="doc-page"
-            >
-              <img
-                :src="page"
-                :style="`min-height: ${document.height}px`"
-                alt=""
-              />
-            </div>
+              :style="{
+                width: pageWidth + 'px',
+                height: pageHeight + 'px',
+              }"
+            ></el-image>
           </div>
           <div class="doc-page-more text-center">
             <div>下载文档到电脑，方便使用</div>
             <el-button type="primary" icon="el-icon-download">
               下载文档</el-button
             >
-            <div>
-              还有 10 页可预览，
-              <span class="el-link el-link--primary">继续阅读</span>
+            <div v-if="document.preview - pages.length > 0">
+              还有 {{ document.preview - pages.length }} 页可预览，
+              <span class="el-link el-link--primary" @click="continueRead"
+                >继续阅读</span
+              >
             </div>
           </div>
           <div>
@@ -129,7 +132,7 @@
                 <el-button icon="el-icon-arrow-up"></el-button>
               </el-tooltip>
               <el-tooltip content="当前页数/总页数">
-                <el-button>5/12</el-button>
+                <el-button>{{ currentPage }}/{{ document.pages }}</el-button>
               </el-tooltip>
               <el-tooltip content="下一页">
                 <el-button icon="el-icon-arrow-down"></el-button>
@@ -140,7 +143,7 @@
             >
             <el-button-group class="float-right">
               <el-button type="primary" icon="el-icon-coin" class="btn-coin"
-                >0个金币</el-button
+                >{{ document.price || 0 }} 个魔豆</el-button
               >
               <el-button type="primary" icon="el-icon-download"
                 >下载文档(12.23MB)</el-button
@@ -182,6 +185,9 @@ export default {
       },
       documentId: parseInt(this.$route.params.id) || 0,
       pages: [],
+      pageHeight: 0,
+      pageWidth: 0,
+      currentPage: 1,
     }
   },
   head() {
@@ -191,6 +197,9 @@ export default {
   },
   created() {
     this.getDocument()
+  },
+  mounted() {
+    window.addEventListener('scroll', this.handleScroll)
   },
   methods: {
     async getDocument() {
@@ -206,17 +215,47 @@ export default {
           doc.preview = doc.pages
         }
 
+        // 限定每次预览页数
+        let preview = 2
+        if (doc.preview < preview) {
+          preview = doc.preview
+        }
+
         // 限定预览页数，拼装图片链接
         const pages = []
-        for (let i = 1; i <= doc.preview; i++) {
-          pages.push(`/view/page/${doc.attachment.hash}/${i}.gzip.svg`)
+        for (let i = 1; i <= preview; i++) {
+          pages.push({
+            src: `/view/page/${doc.attachment.hash}/${i}.gzip.svg`,
+            alt: `${doc.title} 第${i + 1}页`,
+          })
         }
         this.pages = pages
         this.document = doc
+        this.pageWidth = this.$refs.docPages.offsetWidth
+        this.pageHeight =
+          (this.$refs.docPages.offsetWidth / doc.width) * doc.height
       } else {
         console.log(res)
         this.$message.error(res.data.message)
       }
+    },
+    handleScroll() {
+      const scrollTop =
+        document.documentElement.scrollTop || document.body.scrollTop
+      // const clientHeight =
+      //   document.documentElement.clientHeight || document.body.clientHeight
+      // const scrollHeight =
+      //   document.documentElement.scrollHeight || document.body.scrollHeight
+      // if (scrollTop + clientHeight >= scrollHeight) {
+      //   // 滚动到底部
+      //   console.log('滚动到底部')
+      // }
+
+      let currentPage = Math.round(scrollTop / this.pageHeight) + 1
+      if (currentPage > this.pages.length) {
+        currentPage = this.pages.length
+      }
+      this.currentPage = currentPage
     },
     scrollTop() {
       this.scrollToTop(300)
@@ -242,6 +281,18 @@ export default {
         window.requestAnimationFrame(step)
       }
       window.requestAnimationFrame(step)
+    },
+    continueRead() {
+      let end = this.pages.length + 5
+      if (end > this.document.preview) {
+        end = this.document.preview
+      }
+      for (let i = this.pages.length + 1; i <= end; i++) {
+        this.pages.push({
+          src: `/view/page/${this.document.attachment.hash}/${i}.gzip.svg`,
+          alt: `${this.document.title} 第${i + 1}页`,
+        })
+      }
     },
   },
 }
@@ -291,13 +342,18 @@ export default {
   }
   .doc-pages {
     .doc-page {
+      display: block;
+      width: 100%;
+      box-sizing: border-box;
       border: 5px solid $background-grey-light;
       border-bottom: 0;
+      min-height: 500px;
       &:last-child {
         border-bottom: 5px solid $background-grey-light;
       }
       img {
         width: 100%;
+        background-color: #fff;
       }
     }
   }
