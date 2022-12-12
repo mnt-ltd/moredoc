@@ -231,6 +231,8 @@ func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Do
 	opt.SelectFields = m.FilterValidFields(tableDocument, opt.SelectFields...)
 	if len(opt.SelectFields) > 0 {
 		db = db.Select(opt.SelectFields)
+	} else {
+		db = db.Select(m.GetTableFields(tableDocument))
 	}
 
 	if len(opt.Sort) > 0 {

@@ -215,10 +215,16 @@ func (m *DBModel) FilterValidFields(tableName string, fields ...string) (validFi
 
 // GetTableFields 查询指定表的所有字段
 func (m *DBModel) GetTableFields(tableName string) (fields []string) {
+	slice := strings.Split(tableName, " ")
+	alias := ""
+	if len(slice) == 2 {
+		tableName = slice[0]
+		alias = slice[1] + "."
+	}
 	fieldsMap, ok := m.tableFieldsMap[tableName]
 	if ok {
 		for field := range fieldsMap {
-			fields = append(fields, field)
+			fields = append(fields, fmt.Sprintf("%s`%s`", alias, field))
 		}
 	}
 	return
