@@ -375,10 +375,6 @@ export default {
       margin: 10px 0;
       font-size: 13px;
       color: #bbb;
-      .float-right {
-        position: relative;
-        top: 16px;
-      }
     }
     .doc-desc {
       font-size: 15px;
