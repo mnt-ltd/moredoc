@@ -204,6 +204,15 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 		pbDoc.CategoryId = append(pbDoc.CategoryId, dc.CategoryId)
 	}
 
+	if req.WithAuthor {
+		user, _ := s.dbModel.GetUser(doc.UserId, model.UserPublicFields...)
+		pbDoc.User = &pb.User{}
+		util.CopyStruct(&user, pbDoc.User)
+	}
+
+	// 查找文档相关联的附件。对于列表，只返回hash和id，不返回其他字段
+	attchment := s.dbModel.GetAttachmentByTypeAndTypeId(model.AttachmentTypeDocument, doc.Id, "hash")
+	pbDoc.Attachment = &pb.Attachment{Hash: attchment.Hash}
 	return pbDoc, nil
 }
 

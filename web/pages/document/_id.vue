@@ -14,14 +14,29 @@
               <el-breadcrumb-item>活动详情</el-breadcrumb-item>
             </el-breadcrumb>
             <div class="float-right doc-info">
-              <span><i class="el-icon-files"></i> 12 页</span>
-              <span><i class="el-icon-download"></i> 12 下载</span>
-              <span><i class="el-icon-view"></i> 12 浏览</span>
-              <span><i class="el-icon-chat-dot-square"></i> 12 评论</span>
-              <span><i class="el-icon-star-off"></i> 12 收藏</span>
+              <span
+                ><i class="el-icon-files"></i>
+                {{ document.pages || '-' }} 页</span
+              >
+              <span
+                ><i class="el-icon-download"></i>
+                {{ document.download_count || 0 }} 下载</span
+              >
+              <span
+                ><i class="el-icon-view"></i>
+                {{ document.view_count || 0 }} 浏览</span
+              >
+              <span
+                ><i class="el-icon-chat-dot-square"></i>
+                {{ document.comment_count || 0 }} 评论</span
+              >
+              <span
+                ><i class="el-icon-star-off"></i>
+                {{ document.favorite_count || 0 }} 收藏</span
+              >
               <span
                 ><el-rate
-                  v-model="score"
+                  v-model="document.score"
                   disabled
                   show-score
                   text-color="#ff9900"
@@ -32,9 +47,14 @@
             </div>
           </div>
           <div class="doc-pages">
-            <div v-for="i in 5" :key="'i' + i" class="doc-page">
+            <div
+              v-for="(page, index) in pages"
+              :key="'page' + index"
+              class="doc-page"
+            >
               <img
-                src="https://static.wenkuzhijia.cn/d3c93cb8c8d59ea776a48e9a4822adda/2.svg"
+                :src="page"
+                :style="`min-height: ${document.height}px`"
                 alt=""
               />
             </div>
@@ -99,10 +119,10 @@
               <el-tooltip content="收藏/取消收藏文档">
                 <el-button icon="el-icon-star-off"></el-button>
               </el-tooltip>
-              <el-tooltip content="放大">
+              <el-tooltip content="缩小">
                 <el-button icon="el-icon-zoom-out"></el-button>
               </el-tooltip>
-              <el-tooltip content="缩小">
+              <el-tooltip content="放大">
                 <el-button icon="el-icon-zoom-in"></el-button>
               </el-tooltip>
               <el-tooltip content="上一页">
@@ -128,7 +148,9 @@
             </el-button-group>
           </el-col>
           <el-col :span="6" class="text-right">
-            <el-button icon="el-icon-top">回到顶部</el-button>
+            <el-button icon="el-icon-top" @click="scrollTop"
+              >回到顶部</el-button
+            >
           </el-col>
         </el-row>
       </el-card>
@@ -138,70 +160,28 @@
 
 <script>
 import DocumentSimpleList from '~/components/DocumentSimpleList.vue'
+import { getDocument } from '~/api/document'
 export default {
   name: 'PageDocument',
   components: { DocumentSimpleList },
   data() {
     return {
-      docs: [
-        {
-          id: 1,
-          title: '厦门才茂工业级CM520-82系列技术参数1',
-          type: 'pdf',
-        },
-        {
-          id: 2,
-          title: '厦门才茂高考试卷押运车安装无线视频监控1',
-          type: 'excel',
-        },
-        {
-          id: 3,
-          title: '城市排水远程无线监控监测指挥调度系统',
-          type: 'ppt',
-        },
-        {
-          id: 4,
-          title: 'GPRS DTU 网络的环境保护实时监控系统方案',
-          type: 'pdf',
-        },
-        {
-          id: 5,
-          title: '如何查看WIFI模块在工业级4G路由器中的IP',
-          type: 'text',
-        },
-        {
-          id: 6,
-          title: '如何安装工业级4G路由器',
-          type: 'chm',
-        },
-        {
-          id: 7,
-          title: '汽车4S店无线远程视频监控方案',
-          type: 'text',
-        },
-        {
-          id: 8,
-          title: '基于工业路由器的自行车租赁系统解决方案',
-          type: 'text',
-        },
-        {
-          id: 9,
-          title: '基于工业级4G路由器数字城市解决方案',
-          type: 'pdf',
-        },
-        {
-          id: 10,
-          title: '工业级4G路由器在智能生产质量',
-          type: 'pdf',
-        },
-      ],
-      score: '4.0',
+      docs: [],
       user: {
         id: 0,
-        username: 'Hello World',
-        avatar: '',
-        doc_count: 10,
       },
+      document: {
+        id: 0,
+        score: 4.0,
+        user: {
+          id: 0,
+        },
+        attachment: {
+          hash: '',
+        },
+      },
+      documentId: parseInt(this.$route.params.id) || 0,
+      pages: [],
     }
   },
   head() {
@@ -209,8 +189,61 @@ export default {
       title: 'MOREDOC · 魔刀文库，开源文库系统',
     }
   },
-  async created() {},
-  methods: {},
+  created() {
+    this.getDocument()
+  },
+  methods: {
+    async getDocument() {
+      const res = await getDocument({
+        id: this.documentId,
+        with_author: true,
+      })
+      if (res.status === 200) {
+        const doc = res.data || {}
+        doc.score = parseFloat(doc.score) / 100 || 4.0
+
+        if (!doc.preview) {
+          doc.preview = doc.pages
+        }
+
+        // 限定预览页数，拼装图片链接
+        const pages = []
+        for (let i = 1; i <= doc.preview; i++) {
+          pages.push(`/view/page/${doc.attachment.hash}/${i}.gzip.svg`)
+        }
+        this.pages = pages
+        this.document = doc
+      } else {
+        console.log(res)
+        this.$message.error(res.data.message)
+      }
+    },
+    scrollTop() {
+      this.scrollToTop(300)
+    },
+    scrollToTop(duration) {
+      // cancel if already on top
+      if (document.scrollingElement.scrollTop === 0) return
+
+      const cosParameter = document.scrollingElement.scrollTop / 2
+      let scrollCount = 0
+      let oldTimestamp = null
+
+      function step(newTimestamp) {
+        if (oldTimestamp !== null) {
+          // if duration is 0 scrollCount will be Infinity
+          scrollCount += (Math.PI * (newTimestamp - oldTimestamp)) / duration
+          if (scrollCount >= Math.PI)
+            return (document.scrollingElement.scrollTop = 0)
+          document.scrollingElement.scrollTop =
+            cosParameter + cosParameter * Math.cos(scrollCount)
+        }
+        oldTimestamp = newTimestamp
+        window.requestAnimationFrame(step)
+      }
+      window.requestAnimationFrame(step)
+    },
+  },
 }
 </script>
 <style lang="scss">

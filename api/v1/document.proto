@@ -6,6 +6,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "api/v1/attachment.proto";
+import "api/v1/user.proto";
 
 package api.v1;
 
@@ -44,6 +45,7 @@ message Document {
   string deleted_username = 27;
   string ext = 28;
   Attachment attachment = 30;
+  User user = 31;
 }
 
 message DeleteDocumentRequest { repeated int64 id = 1; }

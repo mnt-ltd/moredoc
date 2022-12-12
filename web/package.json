@@ -25,6 +25,7 @@
     "qs": "^6.11.0",
     "vue": "^2.6.14",
     "vue-color": "^2.8.1",
+    "vue-lazyload": "^3.0.0-rc.2",
     "vue-marquee-text-component": "^1.2.0",
     "vue-server-renderer": "^2.6.14",
     "vue-template-compiler": "^2.6.14",

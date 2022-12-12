@@ -100,7 +100,7 @@ func (m *DBModel) UpdateAttachment(attachment *Attachment, updateFields ...strin
 }
 
 // GetAttachment 根据id获取Attachment
-func (m *DBModel) GetAttachment(id interface{}, fields ...string) (attachment Attachment, err error) {
+func (m *DBModel) GetAttachment(id int64, fields ...string) (attachment Attachment, err error) {
 	db := m.db
 
 	fields = m.FilterValidFields(Attachment{}.TableName(), fields...)
@@ -176,8 +176,12 @@ func (m *DBModel) DeleteAttachment(ids []int64) (err error) {
 	return
 }
 
-func (m *DBModel) GetAttachmentByTypeAndTypeId(typ int, typeId int64) (attachment Attachment) {
-	err := m.db.Where("type = ? and type_id = ?", typ, typeId).Last(&attachment).Error
+func (m *DBModel) GetAttachmentByTypeAndTypeId(typ int, typeId int64, fields ...string) (attachment Attachment) {
+	db := m.db
+	if len(fields) > 0 {
+		db = db.Select(fields)
+	}
+	err := db.Where("type = ? and type_id = ?", typ, typeId).Last(&attachment).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetAttachmentByTypeAndTypeId", zap.Error(err))
 	}
