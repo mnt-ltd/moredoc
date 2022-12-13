@@ -112,5 +112,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 收藏服务
+	favoriteAPIService := biz.NewFavoriteAPIService(dbModel, logger)
+	v1.RegisterFavoriteAPIServer(grpcServer, favoriteAPIService)
+	err = v1.RegisterFavoriteAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterFavoriteAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }

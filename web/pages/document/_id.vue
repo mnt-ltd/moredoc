@@ -74,7 +74,7 @@
           <div class="doc-page-more text-center">
             <div>下载文档到电脑，方便使用</div>
             <el-button type="primary" icon="el-icon-download">
-              下载文档</el-button
+              下载文档({{ formatBytes(document.size) }})</el-button
             >
             <div v-if="document.preview - pages.length > 0">
               还有 {{ document.preview - pages.length }} 页可预览，
@@ -86,10 +86,16 @@
           <div>
             <div class="share-info">
               本文档由
-              <nuxt-link to="/" class="el-link el-link--primary"
-                >皇虫</nuxt-link
+              <nuxt-link
+                :to="`/user/${document.user_id}`"
+                class="el-link el-link--primary"
+                >{{ document.user.username || '匿名用户' }}</nuxt-link
               >
-              于 <span class="text-muted">2020-01-17 09:47:50</span> 上传分享
+              于
+              <span class="text-muted">{{
+                formatDatetime(document.created_at)
+              }}</span>
+              上传分享
             </div>
             <div class="btn-actions">
               <el-button type="primary" plain icon="el-icon-warning-outline"
@@ -99,12 +105,23 @@
                 type="primary"
                 icon="el-icon-download"
                 class="float-right"
-                >下载文档(12.23MB)</el-button
+                >下载文档({{ formatBytes(document.size) }})</el-button
               >
               <el-button
+                v-if="favorite.id > 0"
+                type="primary"
+                plain
+                class="float-right"
+                icon="el-icon-star-on"
+                @click="deleteFavorite"
+                >取消收藏</el-button
+              >
+              <el-button
+                v-else
                 type="primary"
                 class="float-right"
                 icon="el-icon-star-off"
+                @click="createFavorite"
                 >收藏</el-button
               >
             </div>
@@ -130,8 +147,17 @@
               <el-tooltip content="全屏阅读">
                 <el-button icon="el-icon-full-screen"></el-button>
               </el-tooltip>
-              <el-tooltip content="收藏/取消收藏文档">
-                <el-button icon="el-icon-star-off"></el-button>
+              <el-tooltip :content="favorite.id > 0 ? '取消收藏' : '收藏文档'">
+                <el-button
+                  v-if="favorite.id > 0"
+                  icon="el-icon-star-on"
+                  @click="deleteFavorite"
+                ></el-button>
+                <el-button
+                  v-else
+                  icon="el-icon-star-off"
+                  @click="createFavorite"
+                ></el-button>
               </el-tooltip>
               <el-tooltip content="缩小">
                 <el-button icon="el-icon-zoom-out"></el-button>
@@ -163,7 +189,7 @@
                 >{{ document.price || 0 }} 个魔豆</el-button
               >
               <el-button type="primary" icon="el-icon-download"
-                >下载文档(12.23MB)</el-button
+                >下载文档({{ formatBytes(document.size) }})</el-button
               >
             </el-button-group>
           </el-col>
@@ -182,6 +208,8 @@
 import { mapGetters } from 'vuex'
 import DocumentSimpleList from '~/components/DocumentSimpleList.vue'
 import { getDocument } from '~/api/document'
+import { getFavorite, createFavorite, deleteFavorite } from '~/api/favorite'
+import { formatDatetime, formatBytes } from '~/utils/utils'
 export default {
   name: 'PageDocument',
   components: { DocumentSimpleList },
@@ -207,6 +235,9 @@ export default {
       pageWidth: 0,
       currentPage: 1,
       breadcrumbs: [],
+      favorite: {
+        id: 0,
+      },
     }
   },
   head() {
@@ -218,7 +249,7 @@ export default {
     ...mapGetters('category', ['categoryMap']),
   },
   created() {
-    this.getDocument()
+    Promise.all([this.getDocument(), this.getFavorite()])
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll)
@@ -227,6 +258,8 @@ export default {
     window.removeEventListener('scroll', this.handleScroll)
   },
   methods: {
+    formatDatetime,
+    formatBytes,
     async getDocument() {
       const res = await getDocument({
         id: this.documentId,
@@ -285,17 +318,17 @@ export default {
     },
     prevPage() {
       if (this.currentPage > 1) {
-        this.currentPage--
-        this.scrollToPage(this.currentPage)
+        const currentPage = this.currentPage - 1
+        this.scrollToPage(currentPage)
       }
     },
     nextPage() {
       if (this.currentPage < this.document.preview) {
-        this.currentPage++
-        if (this.currentPage > this.pages.length) {
+        const currentPage = this.currentPage + 1
+        if (currentPage > this.pages.length) {
           this.continueRead()
         }
-        this.scrollToPage(this.currentPage)
+        this.scrollToPage(currentPage)
       }
     },
     scrollToPage(page) {
@@ -307,6 +340,36 @@ export default {
         top: position,
         behavior: 'smooth',
       })
+    },
+    async getFavorite() {
+      const res = await getFavorite({
+        document_id: this.documentId,
+      })
+      if (res.status === 200) {
+        this.favorite = res.data || { id: 0 }
+      }
+    },
+    // 取消收藏
+    async deleteFavorite() {
+      const res = await deleteFavorite({ id: this.favorite.id })
+      if (res.status === 200) {
+        this.$message.success('取消收藏成功')
+        this.favorite = { id: 0 }
+      } else {
+        this.$message.error(res.data.message)
+      }
+    },
+    // 添加收藏
+    async createFavorite() {
+      const res = await createFavorite({
+        document_id: this.documentId,
+      })
+      if (res.status === 200) {
+        this.$message.success('收藏成功')
+        this.favorite = res.data
+      } else {
+        this.$message.error(res.data.message)
+      }
     },
     continueRead() {
       let end = this.pages.length + 5

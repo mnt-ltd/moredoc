@@ -1,0 +1,72 @@
+syntax="proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Favorite{
+    int64 id = 1;
+    int64 user_id = 2;
+    int64 document_id = 3;
+    string title = 6;
+    google.protobuf.Timestamp created_at = 4 [ (gogoproto.stdtime) = true ];
+    google.protobuf.Timestamp updated_at = 5 [ (gogoproto.stdtime) = true ];
+}
+
+message DeleteFavoriteRequest {
+    repeated	int64       id        = 1;
+}
+
+message ListFavoriteRequest {
+    int64          page      = 1;
+    int64          size       = 2;   
+    int64 user_id = 3;   
+}
+
+message ListFavoriteReply {
+    int64            total      = 1;
+    repeated Favorite    favorite  = 2;
+}
+
+message GetFavoriteRequest{
+    int64 document_id = 1;
+}
+
+service FavoriteAPI{
+    // 添加收藏
+    rpc CreateFavorite (Favorite) returns (Favorite){
+        option (google.api.http) = {
+            post: '/api/v1/favorite',
+            body: '*',
+        };
+    }
+
+    // 取消收藏
+    rpc DeleteFavorite (DeleteFavoriteRequest) returns (google.protobuf.Empty){
+        option (google.api.http) = {
+            delete: '/api/v1/favorite',
+        };
+    }
+
+    // 根据文章id，查询用户是否有收藏某篇文档
+    rpc GetFavorite (GetFavoriteRequest) returns (Favorite){
+        option (google.api.http) = {
+            get: '/api/v1/favorite',
+        };
+    }
+
+    // 查询用户的收藏
+    rpc ListFavorite (ListFavoriteRequest) returns (ListFavoriteReply){
+        option (google.api.http) = {
+            get: '/api/v1/favorite/list',
+        };
+    }
+}
