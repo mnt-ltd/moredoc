@@ -322,6 +322,14 @@ func (c *Converter) CompressSVGByGZIP(svgFile string) (dst string, err error) {
 		return
 	}
 
+	var replaces = map[string]string{
+		"data-text=\"<\"": "data-text=\"&lt;\"",
+		"data-text=\">\"": "data-text=\"&gt;\"",
+	}
+	for k, v := range replaces {
+		svgBytes = bytes.ReplaceAll(svgBytes, []byte(k), []byte(v))
+	}
+
 	var buf bytes.Buffer
 	gzw, err := gzip.NewWriterLevel(&buf, gzip.BestCompression)
 	if err != nil {
