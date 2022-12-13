@@ -1,8 +1,8 @@
 <template>
   <div class="page page-document">
     <el-row :gutter="20">
-      <el-col :span="18">
-        <el-card shadow="never">
+      <el-col :span="scaleSpan">
+        <el-card ref="docMain" shadow="never" class="doc-main">
           <div slot="header" class="clearfix">
             <h1>
               <img :src="`/static/images/${document.ext}_24.png`" alt="" />
@@ -59,8 +59,8 @@
           </div>
           <div ref="docPages" class="doc-pages">
             <el-image
-              v-for="page in pages"
-              :key="page.src"
+              v-for="(page, index) in pages"
+              :key="index + page.src"
               :src="page.src"
               :alt="page.alt"
               lazy
@@ -69,7 +69,8 @@
                 width: pageWidth + 'px',
                 height: pageHeight + 'px',
               }"
-            ></el-image>
+            >
+            </el-image>
           </div>
           <div class="doc-page-more text-center">
             <div>下载文档到电脑，方便使用</div>
@@ -137,7 +138,7 @@
           <comment-list ref="commentList" :document-id="document.id" />
         </el-card>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="24 - scaleSpan">
         <el-card shadow="never">
           <div slot="header">分享用户</div>
           <user-card :hide-actions="true" :user="document.user" />
@@ -154,7 +155,10 @@
           <el-col :span="18">
             <el-button-group class="btn-actions">
               <el-tooltip content="全屏阅读">
-                <el-button icon="el-icon-full-screen"></el-button>
+                <el-button
+                  icon="el-icon-full-screen"
+                  @click="fullscreen"
+                ></el-button>
               </el-tooltip>
               <el-tooltip :content="favorite.id > 0 ? '取消收藏' : '收藏文档'">
                 <el-button
@@ -169,14 +173,23 @@
                 ></el-button>
               </el-tooltip>
               <el-tooltip content="缩小">
-                <el-button icon="el-icon-zoom-out"></el-button>
+                <el-button
+                  icon="el-icon-zoom-out"
+                  :disabled="scaleSpan === 18"
+                  @click="zoomOut"
+                ></el-button>
               </el-tooltip>
               <el-tooltip content="放大">
-                <el-button icon="el-icon-zoom-in"></el-button>
+                <el-button
+                  icon="el-icon-zoom-in"
+                  :disabled="scaleSpan === 24"
+                  @click="zoomIn"
+                ></el-button>
               </el-tooltip>
               <el-tooltip content="上一页">
                 <el-button
                   icon="el-icon-arrow-up"
+                  :disabled="currentPage === 1"
                   @click="prevPage"
                 ></el-button>
               </el-tooltip>
@@ -186,6 +199,7 @@
               <el-tooltip content="下一页">
                 <el-button
                   icon="el-icon-arrow-down"
+                  :disabled="currentPage === document.preview"
                   @click="nextPage"
                 ></el-button>
               </el-tooltip>
@@ -252,6 +266,8 @@ export default {
       favorite: {
         id: 0,
       },
+      scaleSpan: 18,
+      loadingImage: '/static/images/loading.svg',
     }
   },
   head() {
@@ -267,9 +283,10 @@ export default {
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll)
+    window.addEventListener('fullscreenchange', this.fullscreenchange)
   },
   destroyed() {
-    window.removeEventListener('scroll', this.handleScroll)
+    window.removeEventListener('fullscreenchange', this.fullscreenchange)
   },
   methods: {
     formatDatetime,
@@ -297,6 +314,7 @@ export default {
         const pages = []
         for (let i = 1; i <= preview; i++) {
           pages.push({
+            lazySrc: `/view/page/${doc.attachment.hash}/${i}.gzip.svg`,
             src: `/view/page/${doc.attachment.hash}/${i}.gzip.svg`,
             alt: `${doc.title} 第${i + 1}页`,
           })
@@ -326,6 +344,7 @@ export default {
         currentPage = this.pages.length
       }
       this.currentPage = currentPage
+      this.pages[currentPage - 1].src = this.pages[currentPage - 1].lazySrc
     },
     scrollTop() {
       this.scrollTo(0)
@@ -365,6 +384,66 @@ export default {
         behavior: 'smooth',
       })
     },
+    getDocMainWidth() {
+      return this.$refs.docMain.$el.offsetWidth
+    },
+    // 缩小
+    zoomOut() {
+      if (this.scaleSpan > 18) {
+        const currentPage = this.currentPage
+        this.scaleSpan -= 3
+        this.$nextTick(() => {
+          this.zoomSetPage(currentPage)
+        })
+      }
+    },
+    // 放大
+    zoomIn() {
+      if (this.scaleSpan < 24) {
+        const currentPage = this.currentPage
+        this.scaleSpan += 3
+        this.$nextTick(() => {
+          this.zoomSetPage(currentPage)
+        })
+      }
+    },
+    zoomSetPage(page) {
+      const newPageWidth = this.getDocMainWidth() - 20 * 2 // 减去两个内边距（因为设置了border-box，所以两个border的宽度不计）
+      const newPageHeight = (newPageWidth / this.pageWidth) * this.pageHeight
+      this.pageWidth = newPageWidth
+      this.pageHeight = newPageHeight
+      this.scrollToPage(page)
+    },
+    // 全屏
+    fullscreen() {
+      const docPages = this.$refs.docMain.$el
+      if (docPages.requestFullscreen) {
+        docPages.requestFullscreen()
+      } else if (docPages.mozRequestFullScreen) {
+        docPages.mozRequestFullScreen()
+      } else if (docPages.webkitRequestFullscreen) {
+        docPages.webkitRequestFullscreen()
+      } else if (docPages.msRequestFullscreen) {
+        docPages.msRequestFullscreen()
+      }
+    },
+    fullscreenchange(e) {
+      const currentPage = this.currentPage
+      if (document.fullscreenElement) {
+        // 全屏
+        this.scaleSpan = 24
+        this.pages.map((page) => {
+          page.src = page.lazySrc
+          return page
+        })
+      } else {
+        // 退出全屏
+        this.scaleSpan = 18
+      }
+      this.$nextTick(() => {
+        this.zoomSetPage(currentPage)
+      })
+    },
     async getFavorite() {
       const res = await getFavorite({
         document_id: this.documentId,
@@ -400,9 +479,16 @@ export default {
       if (end > this.document.preview) {
         end = this.document.preview
       }
+      let j = 0
+      let startLazyLoad = 2
+      if (document.fullscreenElement) startLazyLoad = 5
       for (let i = this.pages.length + 1; i <= end; i++) {
+        j += 1
+        const src = `/view/page/${this.document.attachment.hash}/${i}.gzip.svg`
         this.pages.push({
-          src: `/view/page/${this.document.attachment.hash}/${i}.gzip.svg`,
+          // 前两页，直接不要懒加载，如果非全屏
+          src: j <= startLazyLoad ? src : this.loadingImage,
+          lazySrc: src,
           alt: `${this.document.title} 第${i + 1}页`,
         })
       }
@@ -412,6 +498,9 @@ export default {
 </script>
 <style lang="scss">
 .page-document {
+  .doc-main {
+    overflow: auto;
+  }
   .relate-docs {
     .el-card__body {
       padding-top: 10px;
@@ -460,7 +549,6 @@ export default {
       box-sizing: border-box;
       border: 5px solid $background-grey-light;
       border-bottom: 0;
-      min-height: 500px;
       &:last-child {
         border-bottom: 5px solid $background-grey-light;
       }
