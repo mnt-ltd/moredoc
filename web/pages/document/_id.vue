@@ -5,13 +5,24 @@
         <el-card shadow="never">
           <div slot="header" class="clearfix">
             <h1>
-              <img src="/static/images/pdf_24.png" alt="" />
-              厦门才茂工业级CM520-82系列技术参数1
+              <img :src="`/static/images/${document.ext}_24.png`" alt="" />
+              {{ document.title }}
             </h1>
             <el-breadcrumb separator-class="el-icon-arrow-right">
-              <el-breadcrumb-item>活动管理</el-breadcrumb-item>
-              <el-breadcrumb-item>活动列表</el-breadcrumb-item>
-              <el-breadcrumb-item>活动详情</el-breadcrumb-item>
+              <el-breadcrumb-item>
+                <nuxt-link to="/"
+                  ><i class="el-icon-s-home"></i> 首页</nuxt-link
+                >
+              </el-breadcrumb-item>
+              <el-breadcrumb-item
+                v-for="breadcrumb in breadcrumbs"
+                :key="'bread-' + breadcrumb.id"
+              >
+                <nuxt-link :to="`/category/${breadcrumb.id}`">{{
+                  breadcrumb.title
+                }}</nuxt-link>
+              </el-breadcrumb-item>
+              <el-breadcrumb-item>文档阅览</el-breadcrumb-item>
             </el-breadcrumb>
             <div class="float-right doc-info">
               <span
@@ -103,7 +114,7 @@
       <el-col :span="6">
         <el-card shadow="never">
           <div slot="header">分享用户</div>
-          <user-card :hide-actions="true" :user="user" />
+          <user-card :hide-actions="true" :user="document.user" />
         </el-card>
         <el-card shadow="never" class="mgt-20px relate-docs">
           <div slot="header">相关文档</div>
@@ -129,13 +140,19 @@
                 <el-button icon="el-icon-zoom-in"></el-button>
               </el-tooltip>
               <el-tooltip content="上一页">
-                <el-button icon="el-icon-arrow-up"></el-button>
+                <el-button
+                  icon="el-icon-arrow-up"
+                  @click="prevPage"
+                ></el-button>
               </el-tooltip>
               <el-tooltip content="当前页数/总页数">
                 <el-button>{{ currentPage }}/{{ document.pages }}</el-button>
               </el-tooltip>
               <el-tooltip content="下一页">
-                <el-button icon="el-icon-arrow-down"></el-button>
+                <el-button
+                  icon="el-icon-arrow-down"
+                  @click="nextPage"
+                ></el-button>
               </el-tooltip>
             </el-button-group>
             <el-button class="btn-comment" icon="el-icon-chat-dot-square"
@@ -162,6 +179,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import DocumentSimpleList from '~/components/DocumentSimpleList.vue'
 import { getDocument } from '~/api/document'
 export default {
@@ -188,6 +206,7 @@ export default {
       pageHeight: 0,
       pageWidth: 0,
       currentPage: 1,
+      breadcrumbs: [],
     }
   },
   head() {
@@ -195,11 +214,17 @@ export default {
       title: 'MOREDOC · 魔刀文库，开源文库系统',
     }
   },
+  computed: {
+    ...mapGetters('category', ['categoryMap']),
+  },
   created() {
     this.getDocument()
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll)
+  },
+  destroyed() {
+    window.removeEventListener('scroll', this.handleScroll)
   },
   methods: {
     async getDocument() {
@@ -229,6 +254,12 @@ export default {
             alt: `${doc.title} 第${i + 1}页`,
           })
         }
+
+        this.breadcrumbs = (doc.category_id || []).map((id) => {
+          return this.categoryMap[id]
+        })
+
+        doc.ext = doc.ext.replace('.', '')
         this.pages = pages
         this.document = doc
         this.pageWidth = this.$refs.docPages.offsetWidth
@@ -242,45 +273,40 @@ export default {
     handleScroll() {
       const scrollTop =
         document.documentElement.scrollTop || document.body.scrollTop
-      // const clientHeight =
-      //   document.documentElement.clientHeight || document.body.clientHeight
-      // const scrollHeight =
-      //   document.documentElement.scrollHeight || document.body.scrollHeight
-      // if (scrollTop + clientHeight >= scrollHeight) {
-      //   // 滚动到底部
-      //   console.log('滚动到底部')
-      // }
-
-      let currentPage = Math.round(scrollTop / this.pageHeight) + 1
+      // 还有5像素的border
+      let currentPage = Math.round(scrollTop / (this.pageHeight + 5)) + 1
       if (currentPage > this.pages.length) {
         currentPage = this.pages.length
       }
       this.currentPage = currentPage
     },
     scrollTop() {
-      this.scrollToTop(300)
+      this.scrollTo(0)
     },
-    scrollToTop(duration) {
-      // cancel if already on top
-      if (document.scrollingElement.scrollTop === 0) return
-
-      const cosParameter = document.scrollingElement.scrollTop / 2
-      let scrollCount = 0
-      let oldTimestamp = null
-
-      function step(newTimestamp) {
-        if (oldTimestamp !== null) {
-          // if duration is 0 scrollCount will be Infinity
-          scrollCount += (Math.PI * (newTimestamp - oldTimestamp)) / duration
-          if (scrollCount >= Math.PI)
-            return (document.scrollingElement.scrollTop = 0)
-          document.scrollingElement.scrollTop =
-            cosParameter + cosParameter * Math.cos(scrollCount)
-        }
-        oldTimestamp = newTimestamp
-        window.requestAnimationFrame(step)
+    prevPage() {
+      if (this.currentPage > 1) {
+        this.currentPage--
+        this.scrollToPage(this.currentPage)
       }
-      window.requestAnimationFrame(step)
+    },
+    nextPage() {
+      if (this.currentPage < this.document.preview) {
+        this.currentPage++
+        if (this.currentPage > this.pages.length) {
+          this.continueRead()
+        }
+        this.scrollToPage(this.currentPage)
+      }
+    },
+    scrollToPage(page) {
+      const scrollTop = (page - 1) * this.pageHeight
+      this.scrollTo(scrollTop)
+    },
+    scrollTo(position) {
+      document.scrollingElement.scrollTo({
+        top: position,
+        behavior: 'smooth',
+      })
     },
     continueRead() {
       let end = this.pages.length + 5
