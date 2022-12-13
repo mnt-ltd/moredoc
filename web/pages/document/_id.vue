@@ -262,6 +262,7 @@ export default {
       pageHeight: 0,
       pageWidth: 0,
       currentPage: 1,
+      currentPageFullscreen: 1,
       breadcrumbs: [],
       favorite: {
         id: 0,
@@ -283,9 +284,12 @@ export default {
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll)
+    this.$refs.docMain.$el.addEventListener('scroll', this.handleScroll)
     window.addEventListener('fullscreenchange', this.fullscreenchange)
   },
   destroyed() {
+    window.removeEventListener('scroll', this.handleScroll)
+    this.$refs.docMain.$el.removeEventListener('scroll', this.handleScroll)
     window.removeEventListener('fullscreenchange', this.fullscreenchange)
   },
   methods: {
@@ -336,6 +340,7 @@ export default {
       }
     },
     handleScroll() {
+      console.log('handleScroll')
       const scrollTop =
         document.documentElement.scrollTop || document.body.scrollTop
       // 还有5像素的border
@@ -383,6 +388,10 @@ export default {
         top: position,
         behavior: 'smooth',
       })
+      this.$refs.docMain.$el.scrollTo({
+        top: position,
+        behavior: 'smooth',
+      })
     },
     getDocMainWidth() {
       return this.$refs.docMain.$el.offsetWidth
@@ -412,10 +421,13 @@ export default {
       const newPageHeight = (newPageWidth / this.pageWidth) * this.pageHeight
       this.pageWidth = newPageWidth
       this.pageHeight = newPageHeight
-      this.scrollToPage(page)
+      this.$nextTick(() => {
+        this.scrollToPage(page)
+      })
     },
     // 全屏
     fullscreen() {
+      this.currentPageFullscreen = this.currentPage
       const docPages = this.$refs.docMain.$el
       if (docPages.requestFullscreen) {
         docPages.requestFullscreen()
@@ -428,7 +440,7 @@ export default {
       }
     },
     fullscreenchange(e) {
-      const currentPage = this.currentPage
+      let currentPage = this.currentPageFullscreen
       if (document.fullscreenElement) {
         // 全屏
         this.scaleSpan = 24
@@ -438,6 +450,7 @@ export default {
         })
       } else {
         // 退出全屏
+        currentPage = this.currentPage
         this.scaleSpan = 18
       }
       this.$nextTick(() => {
