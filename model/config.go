@@ -75,7 +75,6 @@ func (m *DBModel) UpdateConfig(config *Config, updateFields ...string) (err erro
 }
 
 // UpdateConfigs 配置项批量更新
-// TODO: value值为6个*的，需要特殊处理
 func (m *DBModel) UpdateConfigs(configs []*Config, updateFields ...string) (err error) {
 	sess := m.db.Begin()
 	defer func() {
@@ -93,7 +92,8 @@ func (m *DBModel) UpdateConfigs(configs []*Config, updateFields ...string) (err 
 	}
 
 	for _, config := range configs {
-		if err = sess.Select(updateFields).Save(config).Error; err != nil {
+		m.logger.Debug("UpdateConfigs", zap.Any("config", config), zap.Any("updateFields", updateFields))
+		if err = sess.Select(updateFields).Updates(config).Error; err != nil {
 			m.logger.Error("UpdateConfigs", zap.Error(err))
 			return
 		}

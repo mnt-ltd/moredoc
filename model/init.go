@@ -207,7 +207,7 @@ func (m *DBModel) FilterValidFields(tableName string, fields ...string) (validFi
 		for _, field := range fields {
 			field = strings.ToLower(strings.TrimSpace(field))
 			if _, ok := fieldsMap[field]; ok {
-				validFields = append(validFields, fmt.Sprintf("%s`%s`", alias, field))
+				validFields = append(validFields, fmt.Sprintf("%s%s", alias, field))
 			}
 		}
 	}
@@ -225,7 +225,7 @@ func (m *DBModel) GetTableFields(tableName string) (fields []string) {
 	fieldsMap, ok := m.tableFieldsMap[tableName]
 	if ok {
 		for field := range fieldsMap {
-			fields = append(fields, fmt.Sprintf("%s`%s`", alias, field))
+			fields = append(fields, fmt.Sprintf("%s%s", alias, field))
 		}
 	}
 	return
