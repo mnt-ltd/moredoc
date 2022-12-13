@@ -25,10 +25,10 @@
               :content="formatDatetime(comment.created_at)"
               placement="right"
             >
-              <span class="text-muted">
+              <small class="text-muted">
                 <i class="el-icon-time"></i>
                 {{ formatRelativeTime(comment.created_at) }}
-              </span>
+              </small>
             </el-tooltip>
           </el-col>
           <el-col :span="12" class="text-right">
@@ -44,7 +44,7 @@
       </div>
       <form-comment
         v-if="replyComment"
-        :article-id="comment.article_id"
+        :document-id="comment.document_id"
         :parent-id="comment.id"
         :placeholder="`回复 ${comment.user.username}`"
         @success="commentSuccess"
@@ -119,7 +119,7 @@ export default {
   }
   .username a {
     font-weight: 400;
-    color: #222;
+    font-size: 1.2em;
   }
 }
 .com-comment-item-small {

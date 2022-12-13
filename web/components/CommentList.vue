@@ -9,6 +9,7 @@
       <comment-item
         v-for="child in comment.children"
         :key="'comment-' + child.id"
+        class="comment-child"
         :comment="child"
         :size="'small'"
         @success="commentSuccess"
@@ -25,7 +26,7 @@ export default {
   name: 'CommentList',
   components: { CommentItem },
   props: {
-    articleId: {
+    documentId: {
       type: Number,
       default: 0,
     },
@@ -38,7 +39,7 @@ export default {
     return {
       comments: [],
       req: {
-        article_id: this.articleId,
+        document_id: this.documentId,
         parent_id: this.parentId,
       },
     }
@@ -47,9 +48,9 @@ export default {
     ...mapGetters('user', ['user']),
   },
   watch: {
-    articleId: {
+    documentId: {
       handler(val) {
-        this.req.article_id = val
+        this.req.document_id = val
       },
       immediate: true,
     },
@@ -66,9 +67,9 @@ export default {
   methods: {
     //  获取文章评论列表
     async getComments() {
-      if (!this.req.article_id) return
+      if (!this.req.document_id) return
       const res = await listComment({
-        article_id: this.articleId,
+        document_id: this.documentId,
         order: 'id asc',
       })
       if (res.status === 200) {
@@ -108,7 +109,7 @@ export default {
   },
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .com-comment-list {
   & > .el-row {
     margin-top: 20px;

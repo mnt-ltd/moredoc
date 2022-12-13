@@ -29,6 +29,7 @@ var attachmentTypeName = map[int]string{
 	AttachmentTypeCategoryCover: "分类封面",
 	AttachmentTypeComment:       "评论",
 	AttachmentTypeDocument:      "文档",
+	AttachmentTypeConfig:        "配置",
 }
 
 type Attachment struct {

@@ -127,6 +127,15 @@
             </div>
           </div>
         </el-card>
+        <el-card
+          v-if="document.id > 0"
+          ref="commentBox"
+          shadow="never"
+          class="mgt-20px"
+        >
+          <FormComment :document-id="document.id" @success="commentSuccess" />
+          <comment-list ref="commentList" :document-id="document.id" />
+        </el-card>
       </el-col>
       <el-col :span="6">
         <el-card shadow="never">
@@ -181,7 +190,10 @@
                 ></el-button>
               </el-tooltip>
             </el-button-group>
-            <el-button class="btn-comment" icon="el-icon-chat-dot-square"
+            <el-button
+              class="btn-comment"
+              icon="el-icon-chat-dot-square"
+              @click="gotoComment"
               >文档点评</el-button
             >
             <el-button-group class="float-right">
@@ -210,9 +222,11 @@ import DocumentSimpleList from '~/components/DocumentSimpleList.vue'
 import { getDocument } from '~/api/document'
 import { getFavorite, createFavorite, deleteFavorite } from '~/api/favorite'
 import { formatDatetime, formatBytes } from '~/utils/utils'
+import FormComment from '~/components/FormComment.vue'
+import CommentList from '~/components/CommentList.vue'
 export default {
   name: 'PageDocument',
-  components: { DocumentSimpleList },
+  components: { DocumentSimpleList, FormComment, CommentList },
   data() {
     return {
       docs: [],
@@ -315,6 +329,16 @@ export default {
     },
     scrollTop() {
       this.scrollTo(0)
+    },
+    gotoComment() {
+      try {
+        this.scrollTo(this.$refs.commentBox.$el.offsetTop)
+      } catch (error) {
+        console.log('gotoComment', error)
+      }
+    },
+    commentSuccess() {
+      this.$refs.commentList.getComments()
     },
     prevPage() {
       if (this.currentPage > 1) {

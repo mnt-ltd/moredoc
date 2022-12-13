@@ -84,7 +84,7 @@ import { createComment } from '~/api/comment'
 export default {
   name: 'FormComment',
   props: {
-    articleId: {
+    documentId: {
       type: Number,
       default: 0,
     },
@@ -100,7 +100,7 @@ export default {
   data() {
     return {
       comment: {
-        article_id: this.articleId,
+        document_id: this.documentId,
         parent_id: this.parentId,
         content: '',
         captcha: '',
@@ -117,9 +117,9 @@ export default {
     }
   },
   watch: {
-    articleId: {
+    documentId: {
       handler(val) {
-        this.comment.article_id = val
+        this.comment.document_id = val
       },
       immediate: true,
     },
