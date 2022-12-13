@@ -227,6 +227,7 @@ export default {
         title: '',
         is_display: true,
         enable_upload: false,
+        enable_comment_approval: false,
         is_default: false,
       }
     },
@@ -251,6 +252,12 @@ export default {
         {
           prop: 'enable_upload',
           label: '允许上传文档',
+          width: 120,
+          type: 'bool',
+        },
+        {
+          prop: 'enable_comment_approval',
+          label: '评论需审核',
           width: 120,
           type: 'bool',
         },

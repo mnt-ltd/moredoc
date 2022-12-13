@@ -50,6 +50,17 @@
             >
             </el-switch>
           </el-form-item>
+          <el-form-item label="评论需审核">
+            <el-switch
+              v-model="group.enable_comment_approval"
+              style="display: block"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              active-text="是"
+              inactive-text="否"
+            >
+            </el-switch>
+          </el-form-item>
           <el-form-item label="是否在用户名后展示">
             <el-switch
               v-model="group.is_display"

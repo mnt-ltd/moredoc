@@ -1,0 +1,113 @@
+syntax="proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "api/v1/user.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Comment{
+    google.protobuf.Timestamp created_at = 1 [ (gogoproto.stdtime) = true ];
+    google.protobuf.Timestamp updated_at = 2 [ (gogoproto.stdtime) = true ];
+    int64 id = 3;
+    int64 parent_id = 4;
+    string content = 5;
+    int64 document_id = 6;
+    int32 status = 7;
+    int32 comment_count = 8;
+    int64 user_id = 9;
+    User user = 10;
+    string document_title=11;
+}
+
+message CheckCommentRequest {
+    repeated int64 id = 1;
+    int32 status = 2;
+}
+
+message DeleteCommentRequest {
+    repeated	int64       id        = 1;
+}
+
+message GetCommentRequest {
+    int64    id        = 1;
+}
+
+message ListCommentRequest {
+    int64          page      = 1;
+    int64          size       = 2;      
+	string	wd = 3;
+	repeated string field = 4;    
+	string order = 5;   
+    repeated int32 status = 6;
+    int64 document_id = 7;
+    int64 user_id = 8;
+    repeated int64 parent_id = 9;
+    bool with_document_title = 10;
+}
+
+message ListCommentReply {
+    int64            total      = 1;
+    repeated Comment    comment  = 2;
+}
+
+message CreateCommentRequest{
+    int64 document_id = 1;
+    int64 parent_id = 2;
+    string content = 3;
+    string captcha_id = 4;
+    string captcha = 5;
+}
+
+service CommentAPI{
+    rpc CreateComment (CreateCommentRequest) returns (google.protobuf.Empty) {
+        option (google.api.http) = {
+            post: '/api/v1/comment',
+            body: '*',
+        };
+    }
+
+    // 更新评论，仅限管理员操作
+    rpc UpdateComment (Comment) returns (google.protobuf.Empty){
+        option (google.api.http) = {
+            put: '/api/v1/comment',
+            body: '*',
+        };
+    }
+
+    // 管理员或用户自己删除自己的评论
+    rpc DeleteComment (DeleteCommentRequest) returns (google.protobuf.Empty){
+        option (google.api.http) = {
+            delete: '/api/v1/comment',
+        };
+    }
+
+    // 获取单个评论
+    rpc GetComment (GetCommentRequest) returns (Comment){
+        option (google.api.http) = {
+            get: '/api/v1/comment',
+        };
+    }
+
+    // 获取评论列表
+    rpc ListComment (ListCommentRequest) returns (ListCommentReply){
+        option (google.api.http) = {
+            get: '/api/v1/comment/list',
+        };
+    }
+
+    // 审核评论
+    rpc CheckComment (CheckCommentRequest) returns (google.protobuf.Empty){
+        option (google.api.http) = {
+            post: '/api/v1/comment/check',
+            body: '*',
+        };
+    }
+}

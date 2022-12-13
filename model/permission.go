@@ -110,19 +110,13 @@ func (m *DBModel) DeletePermission(ids []interface{}) (err error) {
 	return
 }
 
-//  CheckPermissionByUserId 根据用户ID，检查用户是否有权限
+// CheckPermissionByUserId 根据用户ID，检查用户是否有权限
 func (m *DBModel) CheckPermissionByUserId(userId int64, path string, httpMethod ...string) (permission Permission, yes bool) {
 	var (
 		userGroups []UserGroup
 		groupId    []int64
 		method     string
 	)
-
-	// NOTE: ID为1的用户，拥有所有权限，可以理解为类似linux的root用户
-	if userId == 1 {
-		yes = true
-		return
-	}
 
 	if len(httpMethod) > 0 {
 		method = httpMethod[0]
@@ -136,10 +130,16 @@ func (m *DBModel) CheckPermissionByUserId(userId int64, path string, httpMethod 
 	}
 
 	permission, yes = m.CheckPermissionByGroupId(groupId, method, path)
+	// NOTE: ID为1的用户，拥有所有权限，可以理解为类似linux的root用户
+	if !yes && userId == 1 {
+		yes = true
+		return
+	}
+
 	return permission, yes
 }
 
-//  CheckPermissionByGroupId 根据用户所属用户组ID，检查用户是否有权限
+// CheckPermissionByGroupId 根据用户所属用户组ID，检查用户是否有权限
 func (m *DBModel) CheckPermissionByGroupId(groupId []int64, method, path string) (permission Permission, yes bool) {
 	var err error
 	fields := []string{"id", "method", "path", "title"}

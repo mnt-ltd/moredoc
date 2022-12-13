@@ -67,6 +67,12 @@ const cumstomPermissionMap = {
     children: [],
     pages: ['/admin/article'],
   },
+  'api.v1.CommentAPI': {
+    label: '评论管理',
+    path: 'ListComment',
+    children: [],
+    pages: ['/admin/comment'],
+  },
   upload: {
     id: 0,
     label: '上传管理',

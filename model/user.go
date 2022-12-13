@@ -430,3 +430,48 @@ func (m *DBModel) CanIUploadDocument(userId int64) (yes bool) {
 	}
 	return group.Id > 0
 }
+
+// 用户是否发表评论
+func (m *DBModel) CanIPublishComment(userId int64) (defaultCommentStatus int8, err error) {
+	if userId <= 0 {
+		return
+	}
+
+	var (
+		group     Group
+		userGroup UserGroup
+		comment   Comment
+	)
+
+	m.db.Select("g.id").Table(group.TableName()+" g").Joins(
+		"left join "+userGroup.TableName()+" ug on g.id=ug.group_id",
+	).Where("ug.user_id = ? and g.enable_comment_approval = ?", userId, false).Find(&group)
+
+	// 评论不需要审核
+	if group.Id > 0 {
+		defaultCommentStatus = CommentStatusApproved
+	} else {
+		defaultCommentStatus = CommentStatusPending
+	}
+
+	// 评论时间间隔
+	commentInterval := m.GetConfigOfSecurity(ConfigSecurityCommentInterval).CommentInterval
+	if commentInterval <= 0 {
+		return
+	}
+
+	// 获取用户最新的一条评论信息
+	m.db.Select("id", "created_at").Where("user_id = ?", userId).Order("id desc").Find(&comment)
+	if comment.Id <= 0 {
+		return
+	}
+
+	seconds := int32(time.Since(*comment.CreatedAt).Seconds())
+	left := commentInterval - seconds
+	if left > 0 {
+		err = fmt.Errorf("您的评论太快了，请等待 %d 秒后再试", left)
+		return
+	}
+
+	return
+}

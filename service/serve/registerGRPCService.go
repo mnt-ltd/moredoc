@@ -121,5 +121,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 评论服务
+	commentAPIService := biz.NewCommentAPIService(dbModel, logger)
+	v1.RegisterCommentAPIServer(grpcServer, commentAPIService)
+	err = v1.RegisterCommentAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterCommentAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }

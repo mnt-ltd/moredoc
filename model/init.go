@@ -171,6 +171,7 @@ func (m *DBModel) SyncDB() (err error) {
 		&Logout{},
 		&Article{},
 		&Favorite{},
+		&Comment{},
 	}
 	if err = m.db.AutoMigrate(tableModels...); err != nil {
 		m.logger.Fatal("SyncDB", zap.Error(err))
@@ -277,9 +278,6 @@ func (m *DBModel) initGroupAndPermission() (err error) {
 	// 如果没有任何用户组，则初始化
 	var existGroup Group
 	m.db.First(&existGroup)
-	if existGroup.Id > 0 {
-		return
-	}
 
 	sess := m.db.Begin()
 	defer func() {
@@ -290,10 +288,13 @@ func (m *DBModel) initGroupAndPermission() (err error) {
 		}
 	}()
 
-	err = sess.Create(&groups).Error
-	if err != nil {
-		m.logger.Error("initGroup", zap.Error(err))
-		return
+	if existGroup.Id == 0 {
+		// 用户组还不存在，则创建初始用户组
+		err = sess.Create(&groups).Error
+		if err != nil {
+			m.logger.Error("initGroup", zap.Error(err))
+			return
+		}
 	}
 
 	// 初始化权限

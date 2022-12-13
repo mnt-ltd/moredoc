@@ -203,6 +203,7 @@ type ConfigSystem struct {
 
 const (
 	ConfigSecurityMaxDocumentSize           = "max_document_size"            // 是否关闭注册
+	ConfigSecurityCommentInterval           = "comment_interval"             // 评论时间间隔
 	ConfigSecurityIsClose                   = "is_close"                     // 是否关闭注册
 	ConfigSecurityCloseStatement            = "close_statement"              // 闭站说明
 	ConfigSecurityEnableRegister            = "enable_register"              // 是否允许注册
@@ -214,6 +215,7 @@ const (
 
 type ConfigSecurity struct {
 	MaxDocumentSize           int32  `json:"max_document_size"`            // 允许上传的最大文档大小
+	CommentInterval           int32  `json:"comment_interval"`             // 评论时间间隔, 单位秒
 	IsClose                   bool   `json:"is_close"`                     // 是否闭站
 	CloseStatement            string `json:"close_statement"`              // 闭站说明
 	EnableRegister            bool   `json:"enable_register"`              // 是否启用注册
@@ -346,7 +348,7 @@ func (m *DBModel) GetConfigOfSecurity(name ...string) (config ConfigSecurity) {
 		case "is_close", "enable_register", "enable_captcha_login", "enable_captcha_register", "enable_captcha_comment", "enable_captcha_find_password", "enable_captcha_upload":
 			value, _ := strconv.ParseBool(cfg.Value)
 			data[cfg.Name] = value
-		case "max_document_size":
+		case "max_document_size", "comment_interval":
 			data[cfg.Name], _ = strconv.Atoi(cfg.Value)
 		default:
 			data[cfg.Name] = cfg.Value
@@ -409,6 +411,7 @@ func (m *DBModel) initConfig() (err error) {
 
 		// 安全配置项
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityMaxDocumentSize, Label: "最大文档大小(MB)", Value: "50", Placeholder: "允许用户上传的最大文档大小，默认为50，即50MB", InputType: "number", Sort: 15, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityCommentInterval, Label: "评论时间间隔", Value: "10", Placeholder: "用户评论时间间隔，单位为秒。0表示不限制。", InputType: "number", Sort: 15, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityIsClose, Label: "是否关闭网站", Value: "false", Placeholder: "请选择是否关闭网站", InputType: "switch", Sort: 16, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityCloseStatement, Label: "闭站说明", Value: "false", Placeholder: "关闭网站后，页面提示的内容", InputType: "textarea", Sort: 17, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableRegister, Label: "是否允许注册", Value: "true", Placeholder: "请选择是否允许用户注册", InputType: "switch", Sort: 18, Options: ""},

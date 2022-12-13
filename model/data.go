@@ -1,3 +1,4 @@
+
 package model
 
 func getPermissions() (permissions []Permission) {
@@ -54,6 +55,11 @@ func getPermissions() (permissions []Permission) {
 		{Title: "上传文章图片和音视频", Description: "", Method: "POST", Path: "/api/v1/upload/article"},
 		{Title: "上传文档分类封面", Description: "", Method: "POST", Path: "/api/v1/upload/category"},
 		{Title: "上传配置图片文件", Description: "", Method: "POST", Path: "/api/v1/upload/config"},
+		{Title: "获取评论列表", Description: "", Method: "GRPC", Path: "/api.v1.CommentAPI/ListComment"},
+		{Title: "获取单个评论", Description: "", Method: "GRPC", Path: "/api.v1.CommentAPI/GetComment"},
+		{Title: "批量审核评论", Description: "", Method: "GRPC", Path: "/api.v1.CommentAPI/CheckComment"},
+		{Title: "删除评论", Description: "", Method: "GRPC", Path: "/api.v1.CommentAPI/DeleteComment"},
+		
 	}
 	return
 }

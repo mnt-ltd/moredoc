@@ -3,10 +3,7 @@
     <div class="user-card-avatar">
       <!-- 如果是用户自己，则点击头像可以更换头像 -->
       <nuxt-link :to="'/user/' + user.id">
-        <el-avatar :src="user.avatar">
-          <!-- 默认 -->
-          <img src="/static/images/avatar.png" alt="" />
-        </el-avatar>
+        <UserAvatar :user="user" />
       </nuxt-link>
     </div>
     <div class="user-card-username">
@@ -46,7 +43,7 @@
       </el-row>
     </div>
     <div v-if="!hideSignature" class="user-card-signature">
-      <div>个性签名</div>
+      <div><small>个性签名</small></div>
       <div class="help-block">
         {{ user.signature || '暂无个性签名' }}
       </div>
@@ -93,7 +90,7 @@ export default {
   methods: {},
 }
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .com-user-card {
   text-align: center;
   .el-avatar {
