@@ -24,7 +24,34 @@
           >
             <nuxt-link :to="`/category/${item.id}`">{{ item.title }}</nuxt-link>
           </el-menu-item>
-          <el-menu-item index="/login" class="float-right">
+          <el-menu-item
+            v-if="user.id > 0"
+            index="ucenter"
+            class="float-right nav-ucenter"
+          >
+            <el-dropdown trigger="hover" @command="handleDropdown">
+              <span class="el-dropdown-link">
+                <user-avatar class="nav-user-avatar" :user="user" :size="42" />
+                <span>{{ user.username }}</span
+                ><i class="el-icon-arrow-down el-icon--right"></i>
+              </span>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="ucenter"
+                  ><i class="fa fa-user-o"></i> 个人中心</el-dropdown-item
+                >
+                <el-dropdown-item command="upload"
+                  ><i class="fa fa-cloud-upload"></i>上传文档</el-dropdown-item
+                >
+                <el-dropdown-item command="profile"
+                  ><i class="fa fa-edit"></i> 修改资料</el-dropdown-item
+                >
+                <el-dropdown-item command="logout"
+                  ><i class="fa fa-sign-out"></i> 退出登录</el-dropdown-item
+                >
+              </el-dropdown-menu>
+            </el-dropdown>
+          </el-menu-item>
+          <el-menu-item v-else index="/login" class="float-right">
             <nuxt-link to="/login"><i class="el-icon-user"></i> 登录</nuxt-link>
           </el-menu-item>
         </el-menu>
@@ -146,9 +173,11 @@
 </template>
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import UserAvatar from '../components/UserAvatar.vue'
 import { listFriendlink } from '~/api/friendlink'
 import { categoryToTrees } from '~/utils/utils'
 export default {
+  components: { UserAvatar },
   data() {
     return {
       search: {
@@ -204,6 +233,7 @@ export default {
   methods: {
     ...mapActions('category', ['getCategories']),
     ...mapActions('setting', ['getSettings']),
+    ...mapActions('user', ['logout']),
     onSearch() {
       this.$router.push({
         path: '/search',
@@ -222,6 +252,26 @@ export default {
         // 递归
         this.loopUpdate()
       }, 1000 * 60) // 每分钟更新一次
+    },
+    handleDropdown(command) {
+      console.log('handleDropdown', command)
+      switch (command) {
+        case 'logout':
+          this.logout()
+          break
+        case 'upload':
+          this.$router.push('/upload')
+          break
+        case 'ucenter':
+          this.$router.push(`/user/${this.user.id}`)
+          break
+        case 'profile':
+          // 修改个人资料
+          // TODO
+          break
+        default:
+          break
+      }
     },
   },
 }
@@ -351,6 +401,22 @@ export default {
     img {
       margin-top: -4px;
       height: 42px;
+    }
+  }
+  .nav-ucenter {
+    &.is-active {
+      border-color: transparent !important;
+    }
+    .el-dropdown-link {
+      line-height: 60px;
+      display: inline-block;
+      font-weight: 400;
+      font-size: 1.2em;
+      margin-top: -2px;
+      .nav-user-avatar {
+        position: relative;
+        top: -3px;
+      }
     }
   }
 }
