@@ -66,15 +66,67 @@
           </nuxt-link>
         </el-card>
         <el-card
+          v-if="user.id > 0"
           class="box-card mgt-20px hidden-xs-only login-form"
           shadow="never"
         >
           <el-row>
             <el-col :span="8">
-              <el-avatar
-                :size="64"
-                src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"
-              ></el-avatar>
+              <nuxt-link :to="`/user/${user.id}`">
+                <user-avatar :size="64" :user="user" />
+              </nuxt-link>
+            </el-col>
+            <el-col :span="16">
+              <nuxt-link
+                class="el-link el-link--default"
+                :to="`/user/${user.id}`"
+                ><h3>{{ user.username }}</h3></nuxt-link
+              >
+              <div class="help-block login-tips">
+                <span class="el-link el-link--default" @click="logout">
+                  <i class="fa fa-sign-out"></i> &nbsp;<small>退出登录</small>
+                </span>
+              </div>
+            </el-col>
+          </el-row>
+          <div class="line"></div>
+          <el-row class="text-center user-count">
+            <el-col :span="8">
+              <div><small>文档</small></div>
+              <span>22</span>
+            </el-col>
+            <el-col :span="8">
+              <div><small>收藏</small></div>
+              <span>32</span>
+            </el-col>
+            <el-col :span="8">
+              <div><small>财富</small></div>
+              <span>12</span>
+            </el-col>
+          </el-row>
+          <!-- <el-button class="btn-block" type="success">
+            <i class="fa fa-calendar-plus-o"></i>
+            每日签到</el-button
+          > -->
+          <el-button class="btn-block" type="success" disabled>
+            <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+            今日已签到
+          </el-button>
+          <div class="mgt-20px">
+            <div>个性签名</div>
+            <div class="help-block user-signature">
+              {{ user.signature || '暂无个性签名' }}
+            </div>
+          </div>
+        </el-card>
+        <el-card
+          v-else
+          class="box-card mgt-20px hidden-xs-only login-form"
+          shadow="never"
+        >
+          <el-row>
+            <el-col :span="8">
+              <user-avatar :size="64" :user="user" />
             </el-col>
             <el-col :span="16">
               <h3>欢迎您，游客</h3>
@@ -210,11 +262,13 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
+import UserAvatar from '~/components/UserAvatar.vue'
 import { listBanner } from '~/api/banner'
 import { listDocument, listDocumentForHome } from '~/api/document'
 export default {
   name: 'IndexPage',
+  components: { UserAvatar },
   data() {
     return {
       banners: [],
@@ -233,6 +287,7 @@ export default {
   },
   computed: {
     ...mapGetters('category', ['categoryTrees']),
+    ...mapGetters('user', ['user']),
   },
   async created() {
     await Promise.all([
@@ -242,6 +297,7 @@ export default {
     ])
   },
   methods: {
+    ...mapActions('user', ['logout']),
     async listBanner() {
       const res = await listBanner({
         enable: true,
@@ -383,7 +439,7 @@ export default {
 
   .login-form {
     h3 {
-      margin-top: 8px;
+      margin-top: 5px;
     }
     .line {
       border-top: 1px solid #efefef;
@@ -409,6 +465,37 @@ export default {
     .login-tips {
       margin-top: -10px;
       font-size: 14px;
+    }
+
+    .user-count {
+      margin: 20px 0;
+      font-size: 13px;
+      color: #999;
+      .el-col:nth-child(2) {
+        border-left: 1px solid #efefef;
+        border-right: 1px solid #efefef;
+      }
+      span {
+        display: block;
+        margin-top: 5px;
+        font-size: 16px;
+        color: #409eff;
+      }
+    }
+
+    .user-signature {
+      text-align: left;
+      text-indent: 2em;
+      margin-top: 10px;
+      height: 41px;
+      font-size: 14px;
+      line-height: 23px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      word-break: break-all;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
     }
   }
 
