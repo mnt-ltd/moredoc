@@ -284,12 +284,26 @@ export default {
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll)
-    this.$refs.docMain.$el.addEventListener('scroll', this.handleScroll)
+    try {
+      this.$refs.docMain.$el.addEventListener(
+        'scroll',
+        this.handleFullscreenScroll
+      )
+    } catch (error) {
+      console.log(error)
+    }
     window.addEventListener('fullscreenchange', this.fullscreenchange)
   },
-  destroyed() {
+  beforeDestroy() {
     window.removeEventListener('scroll', this.handleScroll)
-    this.$refs.docMain.$el.removeEventListener('scroll', this.handleScroll)
+    try {
+      this.$refs.docMain.$el.removeEventListener(
+        'scroll',
+        this.handleFullscreenScroll
+      )
+    } catch (error) {
+      console.log(error)
+    }
     window.removeEventListener('fullscreenchange', this.fullscreenchange)
   },
   methods: {
@@ -340,7 +354,6 @@ export default {
       }
     },
     handleScroll() {
-      console.log('handleScroll')
       const scrollTop =
         document.documentElement.scrollTop || document.body.scrollTop
       // 还有5像素的border
@@ -350,6 +363,22 @@ export default {
       }
       this.currentPage = currentPage
       this.pages[currentPage - 1].src = this.pages[currentPage - 1].lazySrc
+    },
+    handleFullscreenScroll() {
+      try {
+        const scrollTop = this.$refs.docMain.$el.scrollTop
+        if (scrollTop === 0) {
+          // 当退出全屏的时候，会触发这个事件，但是scrollTop为0，所以直接返回，避免直接将当前页码重置为1
+          return
+        }
+        let currentPage = Math.round(scrollTop / (this.pageHeight + 5)) + 1
+        if (currentPage > this.pages.length) {
+          currentPage = this.pages.length
+        }
+        this.currentPageFullscreen = currentPage
+      } catch (error) {
+        console.log(error)
+      }
     },
     scrollTop() {
       this.scrollTo(0)
@@ -427,6 +456,7 @@ export default {
     },
     // 全屏
     fullscreen() {
+      // 全屏前，将当前浏览的页码赋值到全屏时浏览的页码
       this.currentPageFullscreen = this.currentPage
       const docPages = this.$refs.docMain.$el
       if (docPages.requestFullscreen) {
@@ -440,7 +470,8 @@ export default {
       }
     },
     fullscreenchange(e) {
-      let currentPage = this.currentPageFullscreen
+      const currentPage = this.currentPageFullscreen
+      console.log('fullscreenchange currentPage', currentPage)
       if (document.fullscreenElement) {
         // 全屏
         this.scaleSpan = 24
@@ -449,8 +480,6 @@ export default {
           return page
         })
       } else {
-        // 退出全屏
-        currentPage = this.currentPage
         this.scaleSpan = 18
       }
       this.$nextTick(() => {
