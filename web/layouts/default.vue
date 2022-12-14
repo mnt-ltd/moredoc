@@ -39,11 +39,14 @@
                 <el-dropdown-item command="ucenter"
                   ><i class="fa fa-user-o"></i> 个人中心</el-dropdown-item
                 >
+                <el-dropdown-item command="profile"
+                  ><i class="fa fa-edit"></i> 修改资料</el-dropdown-item
+                >
                 <el-dropdown-item command="upload"
                   ><i class="fa fa-cloud-upload"></i>上传文档</el-dropdown-item
                 >
-                <el-dropdown-item command="profile"
-                  ><i class="fa fa-edit"></i> 修改资料</el-dropdown-item
+                <el-dropdown-item v-if="allowPages.length > 0" command="admin">
+                  <i class="el-icon-box"></i> 管理后台</el-dropdown-item
                 >
                 <el-dropdown-item command="logout"
                   ><i class="fa fa-sign-out"></i> 退出登录</el-dropdown-item
@@ -208,7 +211,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', ['user', 'token']),
+    ...mapGetters('user', ['user', 'token', 'allowPages']),
     ...mapGetters('setting', ['settings']),
     ...mapGetters('category', ['categories']),
   },
@@ -268,6 +271,9 @@ export default {
         case 'profile':
           // 修改个人资料
           // TODO
+          break
+        case 'admin':
+          this.$router.push('/admin')
           break
         default:
           break
