@@ -34,7 +34,7 @@
       <nuxt />
     </el-main>
     <el-footer>
-      <div class="footer-friendlink">
+      <div v-if="$route.path === '/'" class="footer-friendlink">
         <el-card class="box-card" shadow="never">
           <div slot="header" class="clearfix">
             <strong>友情链接</strong>
@@ -98,7 +98,7 @@
             v-if="settings.system.domain"
             :underline="false"
             type="white"
-            title="魔刀文库"
+            title="魔豆文库"
             :href="settings.system.domain"
           >
             {{ settings.system.sitename }}
@@ -165,7 +165,7 @@ export default {
       title:
         this.settings.system.title ||
         this.settings.system.sitename ||
-        '魔刀文库',
+        '魔豆文库',
       keywords: this.settings.system.keywords,
       description: this.settings.system.description,
       // favicon

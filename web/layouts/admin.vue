@@ -6,7 +6,7 @@
     >
       <div class="logo" @click="gohome">
         <img src="/static/images/default-logo-icon.png" alt="" />
-        <span>魔刀文库系统</span>
+        <span>魔豆文库系统</span>
       </div>
       <transition
         :duration="{ enter: 800, leave: 800 }"
@@ -195,7 +195,7 @@ export default {
       title:
         this.settings.system.title ||
         this.settings.system.sitename ||
-        '魔刀文库',
+        '魔豆文库',
       link: [
         {
           rel: 'icon',

@@ -19,7 +19,7 @@ export default {
   },
   head() {
     return {
-      title: '404 - Not Found - MOREDOC · 魔刀文库',
+      title: '404 - Not Found - MOREDOC · 魔豆文库',
       meta: [
         {
           hid: 'keywords',

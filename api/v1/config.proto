@@ -50,6 +50,8 @@ message ConfigSystem {
   string analytics = 8;
   string sitename  = 9;
   string copyright_start_year = 10;
+  string register_background = 11;
+  string login_background = 12;
 }
 
 // 底链配置项

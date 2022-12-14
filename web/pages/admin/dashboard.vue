@@ -9,7 +9,7 @@ export default {
   layout: 'admin',
   head() {
     return {
-      title: `面板 - MOREDOC · 魔刀文库`,
+      title: `面板 - MOREDOC · 魔豆文库`,
     }
   },
 }

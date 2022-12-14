@@ -1,6 +1,6 @@
-# moredoc - 魔刀文库
+# moredoc - 魔豆文库
 
-moredoc - 魔刀文库，由 深圳市摩枫网络科技(https://mnt.ltd) 基于golang开发的类似百度文库的开源文库系统，支持TXT、PDF、EPUB、office等格式文档的在线预览与管理，为 `dochub文库`( [github](https://github.com/truthhun/dochub), [gitee](https://gitee.com/truthhun/DocHub) )的重构版本。
+moredoc - 魔豆文库，由 深圳市摩枫网络科技(https://mnt.ltd) 基于golang开发的类似百度文库的开源文库系统，支持TXT、PDF、EPUB、office等格式文档的在线预览与管理，为 `dochub文库`( [github](https://github.com/truthhun/dochub), [gitee](https://gitee.com/truthhun/DocHub) )的重构版本。
 
 ## 特性
 

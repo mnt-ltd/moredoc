@@ -47,6 +47,18 @@
           @click="execLogin"
           >立即登录</el-button
         >
+        <nuxt-link
+          to="/findpassword"
+          title="找回密码"
+          class="el-link el-link--default"
+          >找回密码</nuxt-link
+        >
+        <nuxt-link
+          to="/register"
+          title="注册账户"
+          class="el-link el-link--default float-right"
+          >注册账户</nuxt-link
+        >
       </el-form-item>
     </el-form>
   </div>

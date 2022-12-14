@@ -157,7 +157,7 @@ export default {
   },
   head() {
     return {
-      title: 'MOREDOC · 魔刀文库，开源文库系统',
+      title: 'MOREDOC · 魔豆文库，开源文库系统',
     }
   },
   methods: {
