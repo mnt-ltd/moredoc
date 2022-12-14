@@ -5,6 +5,7 @@ import {
   updateUserProfile,
   logout,
   getUserPermissions,
+  register,
 } from '~/api/user'
 import { permissionsToTree } from '~/utils/permission'
 export const user = {
@@ -65,6 +66,21 @@ export const user = {
           message: res.data.message || '修改失败',
         })
       }
+      return res
+    },
+    async register({ commit, dispatch }, registerInfo) {
+      const res = await register(registerInfo)
+      if (res.status !== 200) {
+        Message({
+          type: 'error',
+          message: res.data.message || '注册失败',
+        })
+        return res
+      }
+      commit('setUser', res.data.user)
+      commit('setToken', res.data.token)
+      // 获取用户权限
+      await dispatch('getUserPermissions')
       return res
     },
     async login({ commit, dispatch }, loginInfo) {

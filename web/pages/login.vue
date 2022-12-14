@@ -23,6 +23,8 @@
 <script>
 import { mapGetters } from 'vuex'
 export default {
+  // 已登录用户，直接跳转到个人中心
+  middleware: ['checklogin'],
   head() {
     return {
       title: `用户登录 - ${this.settings.system.sitename}`,
@@ -42,13 +44,6 @@ export default {
   },
   computed: {
     ...mapGetters('setting', ['settings']),
-    ...mapGetters('user', ['user']),
-  },
-  created() {
-    // 已登录，回到个人中心
-    if (this.user.id && this.user.id > 0) {
-      this.$router.replace({ name: 'user-id', params: { id: this.user.id } })
-    }
   },
 }
 </script>

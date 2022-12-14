@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/disintegration/imaging"
@@ -164,4 +165,11 @@ func Substr(str string, length int, start ...int) string {
 	}
 
 	return string(rs[s:end])
+}
+
+// IsValidEmail 验证邮箱格式
+func IsValidEmail(email string) (yes bool) {
+	pattern := `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*` //匹配电子邮箱
+	reg := regexp.MustCompile(pattern)
+	return reg.MatchString(email)
 }

@@ -42,6 +42,7 @@ message RegisterAndLoginRequest {
   string password = 2 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
   string captcha = 3;
   string captcha_id = 4;
+  string email = 5; 
 }
 
 message GetUserCaptchaRequest {
@@ -98,7 +99,7 @@ message SetUserRequest {
 
 service UserAPI {
   // 用户注册
-  rpc Register(RegisterAndLoginRequest) returns (google.protobuf.Empty) {
+  rpc Register(RegisterAndLoginRequest) returns (LoginReply) {
     option (google.api.http) = {
       post : '/api/v1/user/register',
       body : '*',

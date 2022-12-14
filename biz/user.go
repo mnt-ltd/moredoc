@@ -49,10 +49,14 @@ func (s *UserAPIService) checkPermission(ctx context.Context) (*auth.UserClaims,
 }
 
 // Register 用户注册
-func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginRequest) (*emptypb.Empty, error) {
+func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginRequest) (*pb.LoginReply, error) {
 	err := validate.ValidateStruct(req, s.getValidFieldMap())
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	}
+
+	if yes := util.IsValidEmail(req.Email); !yes {
+		return nil, status.Errorf(codes.InvalidArgument, "邮箱格式不正确")
 	}
 
 	cfg := s.dbModel.GetConfigOfSecurity(
@@ -77,11 +81,18 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 	if exist.Id > 0 {
 		return nil, status.Errorf(codes.AlreadyExists, "用户名已存在")
 	}
+	exist, _ = s.dbModel.GetUserByEmail(req.Email, "id")
+	if exist.Id > 0 {
+		return nil, status.Errorf(codes.AlreadyExists, "邮箱已存在")
+	}
 
-	user := &model.User{Username: req.Username, Password: req.Password}
+	user := &model.User{Username: req.Username, Password: req.Password, Email: req.Email}
 	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
 		user.RegisterIp = ips[0]
+		user.LastLoginIp = user.RegisterIp
 	}
+	now := time.Now()
+	user.LoginAt = &now
 
 	group, _ := s.dbModel.GetDefaultUserGroup()
 	if group.Id <= 0 {
@@ -93,7 +104,15 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
-	return &emptypb.Empty{}, nil
+	token, err := s.auth.CreateJWTToken(user.Id)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	pbUser := &pb.User{}
+	util.CopyStruct(&user, pbUser)
+
+	return &pb.LoginReply{Token: token, User: pbUser}, nil
 }
 
 // Login 用户登录
@@ -397,7 +416,7 @@ func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) 
 	return &pb.ListUserReply{Total: total, User: pbUsers}, nil
 }
 
-//  GetUserCaptcha 获取用户验证码
+// GetUserCaptcha 获取用户验证码
 func (s *UserAPIService) GetUserCaptcha(ctx context.Context, req *pb.GetUserCaptchaRequest) (res *pb.GetUserCaptchaReply, err error) {
 	cfgCaptcha := s.dbModel.GetConfigOfCaptcha()
 	cfgSecurity := s.dbModel.GetConfigOfSecurity()

@@ -2,10 +2,31 @@
   <div class="com-form-register">
     <el-form
       ref="formRegister"
-      label-position="top"
+      label-position="left"
       label-width="80px"
       :model="user"
     >
+      <el-form-item
+        label="邮箱"
+        prop="email"
+        :rules="[
+          {
+            required: true,
+            message: '请输入您的邮箱地址，以便忘记密码时找回',
+            trigger: 'blur',
+          },
+          {
+            type: 'email',
+            message: '请输入正确的邮箱地址',
+            trigger: 'blur',
+          },
+        ]"
+      >
+        <el-input
+          v-model="user.email"
+          placeholder="请输入您的邮箱地址，以便忘记密码时找回"
+        ></el-input>
+      </el-form-item>
       <el-form-item
         label="用户名"
         prop="username"
@@ -15,15 +36,21 @@
             message: '请输入您用于登录的用户名',
             trigger: 'blur',
           },
+          {
+            min: 3,
+            max: 32,
+            message: '用户名长度在 3 到 32 个字符',
+            trigger: 'blur',
+          },
         ]"
       >
         <el-input
           v-model="user.username"
-          placeholder="请输入您用于登录的用户名"
+          placeholder="请输入您用于登录的用户名，限 3 ~ 32 个字符"
         ></el-input>
       </el-form-item>
       <el-form-item
-        label="密码"
+        label="登录密码"
         prop="password"
         :rules="[
           {
@@ -111,7 +138,7 @@
 </template>
 <script>
 import { mapActions } from 'vuex'
-import { getUserCaptcha, register } from '~/api/user'
+import { getUserCaptcha } from '~/api/user'
 export default {
   name: 'FormRegister',
   props: {
@@ -122,9 +149,8 @@ export default {
   },
   data() {
     return {
-      activeTab: 'student',
       user: {
-        group_id: 3,
+        email: '',
         username: '',
         password: '',
         repeat_password: '',
@@ -188,10 +214,15 @@ export default {
   },
 }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .com-form-register {
   .btn-audio-refresh {
     vertical-align: -webkit-baseline-middle;
+  }
+  .register {
+    .el-form-item__content {
+      margin-left: 0 !important;
+    }
   }
 }
 </style>
