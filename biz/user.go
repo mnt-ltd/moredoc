@@ -351,6 +351,11 @@ func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) 
 		Size:      int(req.Size_),
 		WithCount: true,
 	}
+	if req.Limit > 0 {
+		opt.Page = 1
+		opt.Size = int(req.Limit)
+		opt.WithCount = false
+	}
 
 	if len(req.Id) > 0 {
 		var ids []interface{}

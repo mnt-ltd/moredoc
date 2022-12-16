@@ -18,7 +18,9 @@
             >{{ user.username }}</nuxt-link
           >
           <div class="doc-info">
-            <span class="el-link el-link--primary">{{ user.doc_count }}</span>
+            <span class="el-link el-link--primary">{{
+              user.doc_count || 0
+            }}</span>
             <span class="text-muted">篇文档</span>
           </div>
         </div>
@@ -28,25 +30,46 @@
 </template>
 
 <script>
+import { listUser } from '~/api/user'
 export default {
   name: 'UserList',
   props: {
-    users: {
-      type: Array,
-      default: () => [
-        { id: 1, username: 'Admin', avatar: '', doc_count: 123 },
-        { id: 2, username: 'Hello Word', avatar: '', doc_count: 123 },
-        { id: 3, username: 'Admin', avatar: '', doc_count: 123 },
-        { id: 4, username: 'Hello Word', avatar: '', doc_count: 123 },
-        { id: 5, username: 'Admin', avatar: '', doc_count: 123 },
-      ],
+    limit: {
+      type: Number,
+      default: 5,
+    },
+    order: {
+      type: String,
+      default: 'doc_count desc',
     },
   },
   data() {
-    return {}
+    return {
+      users: [],
+    }
   },
-  created() {},
-  methods: {},
+  watch: {
+    limit() {
+      this.getUsers()
+    },
+    order() {
+      this.getUsers()
+    },
+  },
+  created() {
+    this.getUsers()
+  },
+  methods: {
+    async getUsers() {
+      const res = await listUser({
+        limit: this.limit,
+        order: this.order,
+      })
+      if (res.status === 200) {
+        this.users = res.data.user || []
+      }
+    },
+  },
 }
 </script>
 

@@ -90,19 +90,13 @@
 </template>
 
 <script>
+import { getUser } from '~/api/user'
 export default {
   name: 'PageUser',
   data() {
     return {
       user: {
-        id: 1,
-        username: 'admin',
-        avatar:
-          'https://static.wenkuzhijia.cn/56f606c672f57d7700d4e7fcd4bdc5d3.png',
-        signature: '',
-        doc_count: 102,
-        favorite_count: 12,
-        money: 100,
+        id: 0,
       },
       activeTab: this.$route.name,
     }
@@ -112,13 +106,25 @@ export default {
       title: 'MOREDOC · 魔豆文库，开源文库系统',
     }
   },
-  async created() {},
+  created() {
+    try {
+      const id = parseInt(this.$route.params.id)
+      this.user.id = id
+      this.getUser()
+    } catch (error) {}
+  },
   methods: {
     tabClick(e) {
       this.$router.push({
         name: e.name,
         params: { id: this.user.id },
       })
+    },
+    async getUser() {
+      const res = await getUser({ id: this.user.id })
+      if (res.status === 200) {
+        this.user = res.data || { id: 0 }
+      }
     },
   },
 }

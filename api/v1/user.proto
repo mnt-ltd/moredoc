@@ -67,6 +67,7 @@ message ListUserRequest {
   repeated int64 id = 5;
   repeated int64 group_id = 6;
   repeated int32 status = 7;
+  int64 limit = 8;
 }
 
 message ListUserReply {
