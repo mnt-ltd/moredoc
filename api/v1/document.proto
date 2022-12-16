@@ -107,6 +107,22 @@ message ListDocumentForHomeResponse {
   repeated ListDocumentForHomeItem document = 1;
 }
 
+message SearchDocumentRequest {
+  int32 page = 1;
+  int32 size = 2;
+  string wd = 3;
+  repeated int64 category_id = 4; // 分类
+  string sort = 5; // 排序
+  string ext = 7; // 类型
+
+}
+
+message SearchDocumentReply {
+  int64 total = 1;
+  string spend = 2; // 搜索耗时
+  repeated Document document = 3;
+}
+
 service DocumentAPI {
   rpc ListDocumentForHome(ListDocumentForHomeRequest) returns ( ListDocumentForHomeResponse) {
     option (google.api.http) = {
@@ -150,6 +166,12 @@ service DocumentAPI {
   rpc ListDocument(ListDocumentRequest) returns (ListDocumentReply) {
     option (google.api.http) = {
       get : '/api/v1/document/list',
+    };
+  }
+  
+  rpc SearchDocument(SearchDocumentRequest) returns (SearchDocumentReply) {
+    option (google.api.http) = {
+      get : '/api/v1/document/search',
     };
   }
 }

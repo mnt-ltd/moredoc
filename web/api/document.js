@@ -56,6 +56,14 @@ export const listDocument = (params) => {
   })
 }
 
+export const searchDocument = (params) => {
+  return service({
+    url: '/api/v1/document/search',
+    method: 'get',
+    params,
+  })
+}
+
 export const listRecycleDocument = (params) => {
   return service({
     url: '/api/v1/document/recycle',

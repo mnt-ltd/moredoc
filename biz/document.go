@@ -2,7 +2,9 @@ package biz
 
 import (
 	"context"
+	"fmt"
 	"strings"
+	"time"
 
 	pb "moredoc/api/v1"
 	"moredoc/middleware/auth"
@@ -506,4 +508,39 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 	}
 
 	return resp, nil
+}
+
+// 搜索文档
+func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchDocumentRequest) (res *pb.SearchDocumentReply, err error) {
+	res = &pb.SearchDocumentReply{}
+	now := time.Now()
+	opt := &model.OptionGetDocumentList{
+		WithCount: true,
+		Page:      int(req.Page),
+		Size:      int(req.Size_),
+	}
+	opt.Size = util.LimitRange(opt.Size, 10, 10)
+	opt.Page = util.LimitRange(opt.Page, 1, 100)
+	if req.Wd == "" {
+		return res, nil
+	}
+	opt.QueryLike = map[string][]interface{}{
+		"title":       util.Slice2Interface(strings.Split(req.Wd, " ")),
+		"keywords":    util.Slice2Interface(strings.Split(req.Wd, " ")),
+		"description": util.Slice2Interface(strings.Split(req.Wd, " ")),
+	}
+	if len(req.CategoryId) > 0 {
+		opt.QueryIn = map[string][]interface{}{
+			"category_id": util.Slice2Interface(req.CategoryId),
+		}
+	}
+
+	docs, total, err := s.dbModel.GetDocumentList(opt)
+	if err != nil {
+		return res, status.Errorf(codes.Internal, "搜索文档失败：%s", err)
+	}
+	util.CopyStruct(&docs, &res.Document)
+	res.Total = total
+	res.Spend = fmt.Sprintf("%.3f", time.Since(now).Seconds())
+	return res, nil
 }

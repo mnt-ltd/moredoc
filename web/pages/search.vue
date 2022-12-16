@@ -55,13 +55,13 @@
             <span>类型</span>
           </div>
           <nuxt-link
-            v-for="item in searchTypes"
+            v-for="item in searchExts"
             :key="'st-' + item.value"
             :to="{
               path: '/search',
               query: {
                 wd: query.wd,
-                type: item.value,
+                ext: item.value,
                 page: 1,
                 size: 10,
               },
@@ -69,7 +69,7 @@
             :class="[
               'el-link',
               'el-link--default',
-              item.value === query.type ? 'el-link-active' : '',
+              item.value === query.ext ? 'el-link-active' : '',
             ]"
             >{{ item.label }}</nuxt-link
           >
@@ -85,7 +85,7 @@
               path: '/search',
               query: {
                 wd: query.wd,
-                type: query.type,
+                ext: query.ext,
                 page: 1,
                 size: 10,
                 sort: item.value,
@@ -104,79 +104,32 @@
         <el-card shadow="never">
           <div slot="header">
             本次搜索耗时
-            <span class="el-link el-link--danger">0.001</span> 秒，在
+            <span class="el-link el-link--danger">{{ spend || '0.000' }}</span>
+            秒，在
             <span class="el-link el-link--primary">3235</span>
             篇文档中为您找到相关结果约
-            <span class="el-link el-link--danger">4</span> 个.
+            <span class="el-link el-link--danger">{{ total }}</span> 个.
           </div>
           <!-- <div class="search-result-none">没有搜索到内容...</div> -->
           <div class="search-result">
             <ul>
-              <li v-for="i in 10" :key="'i-' + i">
+              <li v-for="doc in docs" :key="'doc-' + doc.id">
                 <h3 class="doc-title">
-                  <a href="/document/" class="el-link el-link--primary">
+                  <a
+                    :href="`/document/${doc.id}`"
+                    class="el-link el-link--primary"
+                  >
                     <img
-                      v-if="i === 1"
-                      src="/static/images/pdf_24.png"
-                      alt=""
+                      :src="`/static/images/${doc.ext}_24.png`"
+                      :alt="`${doc.ext}文档`"
                     />
-                    <img
-                      v-if="i === 10"
-                      src="/static/images/epub_24.png"
-                      alt=""
-                    />
-                    <img
-                      v-if="i === 2"
-                      src="/static/images/umd_24.png"
-                      alt=""
-                    />
-                    <img
-                      v-if="i === 3"
-                      src="/static/images/mobi_24.png"
-                      alt=""
-                    />
-                    <img
-                      v-if="i === 4"
-                      src="/static/images/chm_24.png"
-                      alt=""
-                    />
-                    <img
-                      v-if="i === 5"
-                      src="/static/images/other_24.png"
-                      alt=""
-                    />
-                    <img
-                      v-if="i === 6"
-                      src="/static/images/ppt_24.png"
-                      alt=""
-                    />
-                    <img
-                      v-if="i === 7"
-                      src="/static/images/text_24.png"
-                      alt=""
-                    />
-                    <img
-                      v-if="i === 8"
-                      src="/static/images/word_24.png"
-                      alt=""
-                    />
-                    <img
-                      v-if="i === 9"
-                      src="/static/images/excel_24.png"
-                      alt=""
-                    />
-                    张孝祥正在整理Java就业面试题大全
+                    {{ doc.title }}
                   </a>
                 </h3>
-                <div class="doc-desc">
-                  传智播客 ——IT 就业培训专家 http://www.itcast.cn
-                  提示：本大全每半月更新一次，请持续保持关注！谢 谢！
-                  索取网址：www.itcast.cn
-                  从享受生活的角度上来说：“程序员并不是一种最好的职业，我认为两种人可以做
-                </div>
+                <div class="doc-desc">{{ doc.description }}</div>
                 <div class="doc-info">
                   <el-rate
-                    v-model="score"
+                    v-model="doc.score"
                     disabled
                     show-score
                     text-color="#ff9900"
@@ -184,7 +137,8 @@
                   >
                   </el-rate>
                   <span class="float-right"
-                    >5 金币 | 141 页 | 786.00 KB
+                    >{{ doc.price || 0 }} 魔豆 | {{ doc.pages || '-' }} 页 |
+                    {{ formatBytes(doc.size) }}
                     <span class="hidden-xs-only">| 2019-06-10 10:17</span></span
                   >
                 </div>
@@ -194,34 +148,33 @@
         </el-card>
         <el-card shadow="never">
           <el-pagination
-            :current-page="1"
-            :page-size="10"
+            :current-page="query.page"
+            :page-size="query.size"
             layout="total,  prev, pager, next, jumper"
-            :total="400"
+            :total="total"
+            @current-change="onPageChange"
           >
           </el-pagination>
         </el-card>
       </el-col>
-      <el-col :span="6" class="search-right">
+      <el-col v-if="keywords.length > 0" :span="6" class="search-right">
         <el-card shadow="never">
           <div slot="header" class="clearfix">
-            <span>大家在搜</span>
+            <span>相关搜索词</span>
           </div>
-          <nuxt-link to="/" class="el-link el-link--default"
-            >JAVA语言</nuxt-link
-          >
-          <nuxt-link to="/" class="el-link el-link--default"
-            >计算机图形学</nuxt-link
-          >
-          <nuxt-link to="/" class="el-link el-link--default"
-            >程序设计</nuxt-link
-          >
-          <nuxt-link to="/" class="el-link el-link--default"> 教材</nuxt-link>
-          <nuxt-link to="/" class="el-link el-link--default"
-            >面向对象</nuxt-link
-          >
-          <nuxt-link to="/" class="el-link el-link--default"
-            >语言网页制作</nuxt-link
+          <nuxt-link
+            v-for="keyword in keywords"
+            :key="'kw-' + keyword"
+            :to="{
+              path: '/search',
+              query: {
+                wd: keyword,
+                page: 1,
+                size: 10,
+              },
+            }"
+            class="el-link el-link--default"
+            >{{ keyword }}</nuxt-link
           >
         </el-card>
         <el-card shadow="never" class="mgt-20px">
@@ -237,7 +190,8 @@
 
 <script>
 import { mapGetters } from 'vuex'
-
+import { searchDocument } from '~/api/document'
+import { formatBytes } from '~/utils/utils'
 export default {
   name: 'IndexPage',
   data() {
@@ -247,10 +201,10 @@ export default {
         wd: this.$route.query.wd || '',
         page: 1,
         size: 10,
-        type: 'all', // 搜索类型
+        ext: 'all', // 搜索类型
         sort: 'sort', // 排序
       },
-      searchTypes: [
+      searchExts: [
         { label: '不限', value: 'all' },
         { label: 'PDF', value: 'pdf' },
         { label: 'DOC', value: 'doc' },
@@ -268,6 +222,10 @@ export default {
         { label: '浏览排序', value: 'view' },
         { label: '收藏排序', value: 'favorite' },
       ],
+      docs: [],
+      total: 0,
+      spend: '',
+      keywords: [],
     }
   },
   head() {
@@ -293,11 +251,11 @@ export default {
         this.execSearch()
       },
       immediate: true,
-      deep: true,
     },
   },
   async created() {},
   methods: {
+    formatBytes,
     onSearch() {
       this.$router.push({
         path: '/search',
@@ -306,12 +264,43 @@ export default {
           page: 1,
           size: 10,
           sort: 'default',
-          type: 'all',
+          ext: 'all',
         },
       })
     },
-    execSearch() {
-      console.log('execSearch')
+    async execSearch() {
+      const res = await searchDocument(this.query)
+      if (res.status === 200) {
+        this.total = res.data.total
+        this.spend = res.data.spend
+        const docs = res.data.document || []
+        const keywords = []
+        this.docs = docs.map((doc) => {
+          doc.score = doc.score || 300
+          doc.score = doc.score / 100
+          doc.ext = doc.ext.replace('.', '')
+          try {
+            doc.keywords.split(',').map((keyword) => {
+              keyword = keyword.trim()
+              if (keyword && !keywords.includes(keyword)) {
+                keywords.push(keyword)
+              }
+              return keyword
+            })
+          } catch (error) {}
+          this.keywords = keywords
+          return doc
+        })
+      }
+    },
+    onPageChange(page) {
+      this.$router.push({
+        path: '/search',
+        query: {
+          ...this.query,
+          page,
+        },
+      })
     },
   },
 }
