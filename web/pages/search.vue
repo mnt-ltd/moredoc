@@ -2,31 +2,48 @@
   <div class="page page-search">
     <el-row class="header-links">
       <el-col :span="24">
-        <nuxt-link to="/" class="el-link el-link--default">文档首页</nuxt-link>
-        <nuxt-link to="/" class="el-link el-link--default">文档首页</nuxt-link>
+        <nuxt-link to="/" class="el-link el-link--default">文库首页</nuxt-link>
+        <nuxt-link
+          v-for="category in categoryTrees"
+          v-show="category.enable"
+          :key="'cate-' + category.id"
+          :to="`/category/${category.id}`"
+          class="el-link el-link--default"
+          >{{ category.title }}</nuxt-link
+        >
         <span class="float-right">
-          <nuxt-link to="/" class="el-link el-link--default"
+          <nuxt-link to="/upload" class="el-link el-link--default"
             >上传文档</nuxt-link
           >
-          <nuxt-link to="/" class="el-link el-link--default"
+          <nuxt-link
+            v-if="user.id > 0"
+            :to="`/user/${user.id}`"
+            class="el-link el-link--default"
             >会员中心</nuxt-link
           >
+          <nuxt-link v-else to="/login">登录账户</nuxt-link>
         </span>
       </el-col>
     </el-row>
     <div class="search-box">
       <el-row :gutter="20">
         <el-col :span="4">
-          <img src="/static/images/logo.png" style="width: 100%" alt="" />
+          <nuxt-link to="/" :title="settings.system.sitename"
+            ><img
+              :src="settings.system.logo"
+              style="height: 56px; max-width: 100%"
+              :alt="settings.system.sitename"
+          /></nuxt-link>
         </el-col>
         <el-col :span="14">
           <el-input
-            v-model="keyword"
+            v-model="query.wd"
+            class="search-input"
             size="large"
             placeholder="请输入关键词"
-            @keyup.enter.native="search"
+            @keyup.enter.native="onSearch"
           >
-            <el-button slot="append" icon="el-icon-search" @click="search" />
+            <el-button slot="append" icon="el-icon-search" @click="onSearch" />
           </el-input>
         </el-col>
       </el-row>
@@ -37,47 +54,55 @@
           <div slot="header" class="clearfix">
             <span>类型</span>
           </div>
-          <nuxt-link to="/" class="el-link el-link--default el-link-active"
-            >不限</nuxt-link
+          <nuxt-link
+            v-for="item in searchTypes"
+            :key="'st-' + item.value"
+            :to="{
+              path: '/search',
+              query: {
+                wd: query.wd,
+                type: item.value,
+                page: 1,
+                size: 10,
+              },
+            }"
+            :class="[
+              'el-link',
+              'el-link--default',
+              item.value === query.type ? 'el-link-active' : '',
+            ]"
+            >{{ item.label }}</nuxt-link
           >
-          <nuxt-link to="/" class="el-link el-link--default">PDF</nuxt-link>
-          <nuxt-link to="/" class="el-link el-link--default">DOC</nuxt-link>
-          <nuxt-link to="/" class="el-link el-link--default">PPT</nuxt-link>
-          <nuxt-link to="/" class="el-link el-link--default">XLS</nuxt-link>
-          <nuxt-link to="/" class="el-link el-link--default">TXT</nuxt-link>
-          <nuxt-link to="/" class="el-link el-link--default">其它</nuxt-link>
         </el-card>
         <el-card shadow="never">
           <div slot="header" class="clearfix">
             <span>排序</span>
           </div>
-          <nuxt-link to="/" class="el-link el-link--default el-link-active"
-            >默认排序</nuxt-link
-          >
-          <nuxt-link to="/" class="el-link el-link--default"
-            >页数排序</nuxt-link
-          >
-          <nuxt-link to="/" class="el-link el-link--default"
-            >评分排序</nuxt-link
-          >
-          <nuxt-link to="/" class="el-link el-link--default"
-            >大小排序</nuxt-link
-          >
-          <nuxt-link to="/" class="el-link el-link--default"
-            >下载排序</nuxt-link
-          >
-          <nuxt-link to="/" class="el-link el-link--default"
-            >浏览排序</nuxt-link
-          >
-          <nuxt-link to="/" class="el-link el-link--default"
-            >收藏排序</nuxt-link
+          <nuxt-link
+            v-for="item in searchSorts"
+            :key="'ss-' + item.value"
+            :to="{
+              path: '/search',
+              query: {
+                wd: query.wd,
+                type: query.type,
+                page: 1,
+                size: 10,
+                sort: item.value,
+              },
+            }"
+            :class="[
+              'el-link',
+              'el-link--default',
+              item.value === query.sort ? 'el-link-active' : '',
+            ]"
+            >{{ item.label }}</nuxt-link
           >
         </el-card>
       </el-col>
       <el-col :span="14" class="search-main">
         <el-card shadow="never">
           <div slot="header">
-            <a href="" class="el-link el-link--default">文库之家</a>
             本次搜索耗时
             <span class="el-link el-link--danger">0.001</span> 秒，在
             <span class="el-link el-link--primary">3235</span>
@@ -211,11 +236,38 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   name: 'IndexPage',
   data() {
     return {
       score: 4.7,
+      query: {
+        wd: this.$route.query.wd || '',
+        page: 1,
+        size: 10,
+        type: 'all', // 搜索类型
+        sort: 'sort', // 排序
+      },
+      searchTypes: [
+        { label: '不限', value: 'all' },
+        { label: 'PDF', value: 'pdf' },
+        { label: 'DOC', value: 'doc' },
+        { label: 'PPT', value: 'ppt' },
+        { label: 'XLS', value: 'xls' },
+        { label: 'TXT', value: 'txt' },
+        { label: '其他', value: 'other' },
+      ],
+      searchSorts: [
+        { label: '默认排序', value: 'default' },
+        { label: '页数排序', value: 'pages' },
+        { label: '评分排序', value: 'score' },
+        { label: '大小排序', value: 'size' },
+        { label: '下载排序', value: 'download' },
+        { label: '浏览排序', value: 'view' },
+        { label: '收藏排序', value: 'favorite' },
+      ],
     }
   },
   head() {
@@ -226,8 +278,42 @@ export default {
       title: 'MOREDOC · 魔豆文库，开源文库系统',
     }
   },
+  computed: {
+    ...mapGetters('user', ['user']),
+    ...mapGetters('category', ['categoryTrees']),
+    ...mapGetters('setting', ['settings']),
+  },
+  watch: {
+    '$route.query': {
+      handler(val) {
+        const query = { ...this.query, ...val }
+        query.page = parseInt(query.page) || 1
+        query.size = parseInt(query.size) || 10
+        this.query = query
+        this.execSearch()
+      },
+      immediate: true,
+      deep: true,
+    },
+  },
   async created() {},
-  methods: {},
+  methods: {
+    onSearch() {
+      this.$router.push({
+        path: '/search',
+        query: {
+          ...this.query,
+          page: 1,
+          size: 10,
+          sort: 'default',
+          type: 'all',
+        },
+      })
+    },
+    execSearch() {
+      console.log('execSearch')
+    },
+  },
 }
 </script>
 <style lang="scss">
@@ -268,6 +354,9 @@ export default {
     }
     .el-input__inner {
       border-right: 0;
+    }
+    .search-input {
+      margin-top: 5px;
     }
   }
   .search-left {
