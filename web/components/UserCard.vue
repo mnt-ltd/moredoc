@@ -8,19 +8,6 @@
     </div>
     <div class="user-card-username">
       <strong>{{ user.username }}</strong>
-      <small v-if="!hideActions" class="text-muted"
-        >[
-        <el-tooltip content="设置" placement="top">
-          <a href="javascript:void(0);"><i class="el-icon-setting"></i></a>
-        </el-tooltip>
-        <span> | </span>
-        <el-tooltip content="退出登录" placement="top">
-          <a href="javascript:void(0);"
-            ><i class="el-icon-switch-button"></i
-          ></a>
-        </el-tooltip>
-        ]</small
-      >
     </div>
     <div class="user-card-stat">
       <el-row class="help-block">

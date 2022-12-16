@@ -18,26 +18,71 @@
           type="border-card"
           @tab-click="tabClick"
         >
-          <el-tab-pane name="doc">
-            <span slot="label"><i class="el-icon-document"></i> 文档</span>
-            <keep-alive>
-              <user-document />
-            </keep-alive>
+          <el-tab-pane name="user-id">
+            <span slot="label">
+              <nuxt-link
+                class="el-link el-link--default"
+                :to="{
+                  name: 'user-id',
+                  params: { id: user.id },
+                }"
+                ><i class="el-icon-magic-stick"></i>&nbsp;动态</nuxt-link
+              >
+            </span>
+            动态 动态
           </el-tab-pane>
-          <el-tab-pane name="favorite">
-            <span slot="label"><i class="el-icon-star-off"></i> 收藏</span>
-            <keep-alive> <user-favorite /></keep-alive>
+          <el-tab-pane name="user-id-document">
+            <span slot="label">
+              <nuxt-link
+                class="el-link el-link--default"
+                :to="{
+                  name: 'user-id-document',
+                  params: { id: user.id },
+                }"
+                ><i class="el-icon-document"></i>&nbsp;文档</nuxt-link
+              >
+            </span>
+            <nuxt-child />
           </el-tab-pane>
-          <el-tab-pane name="dynamic">
-            <span slot="label"><i class="el-icon-magic-stick"></i> 动态</span>
-            <keep-alive> <user-dynamic /></keep-alive>
+          <el-tab-pane name="user-id-favorite">
+            <span slot="label">
+              <nuxt-link
+                class="el-link el-link--default"
+                :to="{
+                  name: 'user-id-favorite',
+                  params: { id: user.id },
+                }"
+                ><i class="el-icon-star-off"></i>&nbsp;收藏</nuxt-link
+              >
+            </span>
+            <nuxt-child />
           </el-tab-pane>
-          <!-- <el-tab-pane name="follow">
-              <span slot="label"><i class="el-icon-user-solid"></i> 关注</span>
-            </el-tab-pane>
-            <el-tab-pane name="fans">
-              <span slot="label"><i class="el-icon-user"></i> 粉丝</span>
-            </el-tab-pane> -->
+          <!-- <el-tab-pane name="user-id-fans">
+            <span slot="label">
+              <nuxt-link
+                class="el-link el-link--default"
+                :to="{
+                  name: 'user-id-fans',
+                  params: { id: user.id },
+                }"
+                ><i class="fa fa-user-o"></i>&nbsp;粉丝</nuxt-link
+              >
+            </span>
+            <nuxt-child />
+          </el-tab-pane>
+          <el-tab-pane name="user-id-follow">
+            <span slot="label">
+              <nuxt-link
+                class="el-link el-link--default"
+                :to="{
+                  name: 'user-id-follow',
+                  params: { id: user.id },
+                }"
+                ><i class="fa fa-user"></i>&nbsp;关注</nuxt-link
+              >
+            </span>
+            <nuxt-child />
+          </el-tab-pane> -->
         </el-tabs>
       </el-col>
     </el-row>
@@ -59,7 +104,7 @@ export default {
         favorite_count: 12,
         money: 100,
       },
-      activeTab: 'doc',
+      activeTab: this.$route.name,
     }
   },
   head() {
@@ -70,7 +115,10 @@ export default {
   async created() {},
   methods: {
     tabClick(e) {
-      console.log(e)
+      this.$router.push({
+        name: e.name,
+        params: { id: this.user.id },
+      })
     },
   },
 }
