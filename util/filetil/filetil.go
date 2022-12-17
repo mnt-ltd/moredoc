@@ -23,25 +23,36 @@ var imagesExt = map[string]struct{}{
 	// ".webp": {},
 }
 
-var documentExt = map[string]struct{}{
-	// word
-	".doc": {}, ".docx": {}, ".rtf": {}, ".wps": {}, ".odt": {},
-	// PPT
-	".ppt": {}, ".pptx": {}, ".pps": {}, ".ppsx": {}, ".dps": {}, ".odp": {}, ".pot": {},
-	// XLS
-	".xls": {}, ".xlsx": {}, ".et": {}, ".ods": {},
-	// 其他
-	".epub": {}, ".umd": {}, ".chm": {}, ".mobi": {},
-	// TXT
-	".txt": {},
-	// PDF
-	".pdf": {},
+var documentExtMap = map[string][]string{
+	"pdf":   {".pdf"},
+	"doc":   {".doc", ".docx", ".rtf", ".wps", ".odt", ".dot"},
+	"ppt":   {".ppt", ".pptx", ".pps", ".ppsx", ".dps", ".odp", ".pot"},
+	"xls":   {".xls", ".xlsx", ".et", ".ods", ".csv", ".tsv"},
+	"txt":   {".txt"},
+	"other": {".epub", ".mobi", ".chm", ".umd"},
+}
+
+var documentExt = make(map[string]struct{})
+
+func init() {
+	for _, exts := range documentExtMap {
+		for _, ext := range exts {
+			documentExt[ext] = struct{}{}
+		}
+	}
 }
 
 // IsDocument 是否是文档
 func IsDocument(ext string) bool {
 	_, ok := documentExt[ext]
 	return ok
+}
+
+// GetExts 获取文档类型对应的扩展名
+func GetExts(extType string) (exts []string) {
+	ext := strings.TrimLeft(strings.ToLower(extType), ".")
+	exts, _ = documentExtMap[ext]
+	return
 }
 
 // IsImage 判断文件是否是图片

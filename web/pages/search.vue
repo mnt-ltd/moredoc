@@ -101,18 +101,21 @@
         </el-card>
       </el-col>
       <el-col :span="14" class="search-main">
-        <el-card shadow="never">
+        <el-card v-loading="loading" shadow="never">
           <div slot="header">
             本次搜索耗时
             <span class="el-link el-link--danger">{{ spend || '0.000' }}</span>
             秒，在
             <span class="el-link el-link--primary">3235</span>
             篇文档中为您找到相关结果约
-            <span class="el-link el-link--danger">{{ total }}</span> 个.
+            <span class="el-link el-link--danger">{{ total || 0 }}</span> 个.
           </div>
           <!-- <div class="search-result-none">没有搜索到内容...</div> -->
           <div class="search-result">
             <ul>
+              <li v-if="docs.length === 0">
+                <div class="noresult">暂无搜索结果</div>
+              </li>
               <li v-for="doc in docs" :key="'doc-' + doc.id">
                 <h3 class="doc-title">
                   <a
@@ -145,9 +148,8 @@
               </li>
             </ul>
           </div>
-        </el-card>
-        <el-card shadow="never">
           <el-pagination
+            v-if="total > 0"
             :current-page="query.page"
             :page-size="query.size"
             layout="total,  prev, pager, next, jumper"
@@ -196,7 +198,7 @@ export default {
   name: 'IndexPage',
   data() {
     return {
-      score: 4.7,
+      loading: false,
       query: {
         wd: this.$route.query.wd || '',
         page: 1,
@@ -218,9 +220,9 @@ export default {
         { label: '页数排序', value: 'pages' },
         { label: '评分排序', value: 'score' },
         { label: '大小排序', value: 'size' },
-        { label: '下载排序', value: 'download' },
-        { label: '浏览排序', value: 'view' },
-        { label: '收藏排序', value: 'favorite' },
+        { label: '下载排序', value: 'download_count' },
+        { label: '浏览排序', value: 'view_count' },
+        { label: '收藏排序', value: 'favorite_count' },
       ],
       docs: [],
       total: 0,
@@ -253,7 +255,12 @@ export default {
       immediate: true,
     },
   },
-  async created() {},
+  created() {
+    const query = { ...this.query, ...this.$route.query }
+    query.page = parseInt(query.page) || 1
+    query.size = parseInt(query.size) || 10
+    this.query = query
+  },
   methods: {
     formatBytes,
     onSearch() {
@@ -269,6 +276,7 @@ export default {
       })
     },
     async execSearch() {
+      this.loading = true
       const res = await searchDocument(this.query)
       if (res.status === 200) {
         this.total = res.data.total
@@ -292,6 +300,7 @@ export default {
           return doc
         })
       }
+      this.loading = false
     },
     onPageChange(page) {
       this.$router.push({
@@ -398,8 +407,8 @@ export default {
     .el-card__body {
       padding-top: 0;
       padding-bottom: 10px;
+      min-height: 540px;
     }
-
     .search-result {
       ul,
       li {
@@ -412,6 +421,12 @@ export default {
           padding-top: 0;
         }
       }
+      .noresult {
+        text-align: center;
+        font-size: 14px;
+        line-height: 200px;
+        color: #999;
+      }
     }
     h3 {
       margin-bottom: 10px;
@@ -421,7 +436,7 @@ export default {
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        display: block;
+        display: inline-block;
         width: 100%;
         img {
           height: 18px;

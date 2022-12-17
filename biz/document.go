@@ -10,6 +10,7 @@ import (
 	"moredoc/middleware/auth"
 	"moredoc/model"
 	"moredoc/util"
+	"moredoc/util/filetil"
 
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -518,6 +519,7 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 		WithCount: true,
 		Page:      int(req.Page),
 		Size:      int(req.Size_),
+		QueryIn:   make(map[string][]interface{}),
 	}
 	opt.Size = util.LimitRange(opt.Size, 10, 10)
 	opt.Page = util.LimitRange(opt.Page, 1, 100)
@@ -533,6 +535,17 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 		opt.QueryIn = map[string][]interface{}{
 			"category_id": util.Slice2Interface(req.CategoryId),
 		}
+	}
+
+	if req.Ext != "" {
+		exts := filetil.GetExts(req.Ext)
+		if len(exts) > 0 {
+			opt.QueryIn["ext"] = util.Slice2Interface(exts)
+		}
+	}
+
+	if req.Sort != "" {
+		opt.Sort = []string{req.Sort}
 	}
 
 	docs, total, err := s.dbModel.GetDocumentList(opt)
