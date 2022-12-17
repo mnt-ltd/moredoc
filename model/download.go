@@ -11,50 +11,56 @@ import (
 
 type Download struct {
 	Id         int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
-	UserId     int64      `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);size:20;default:0;index:user_id;comment:下载文档的用户ID;"`
-	DocumentId int64      `form:"document_id" json:"document_id,omitempty" gorm:"column:document_id;type:bigint(20);size:20;default:0;comment:被下载的文档ID;"`
+	UserId     int64      `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);size:20;default:0;index:idx_user_id;comment:下载文档的用户ID;"`
+	DocumentId int64      `form:"document_id" json:"document_id,omitempty" gorm:"column:document_id;type:bigint(20);size:20;index:idx_document_id;default:0;comment:被下载的文档ID;"`
 	Ip         string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(16);size:16;comment:下载文档的用户IP;"`
-	CreatedAt  *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	IsPay      bool       `form:"is_pay" json:"is_pay,omitempty" gorm:"column:is_pay;type:tinyint(1);size:1;default:0;comment:是否付费下载;"`
+	CreatedAt  *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;index:idx_created_at"`
 	UpdatedAt  *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
-
-// 这里是proto文件中的结构体，可以根据需要删除或者调整
-//message Download {
-// int64 id = 1;
-// int64 user_id = 2;
-// int64 document_id = 3;
-// string ip = 4;
-// google.protobuf.Timestamp created_at = 5 [ (gogoproto.stdtime) = true ];
-// google.protobuf.Timestamp updated_at = 6 [ (gogoproto.stdtime) = true ];
-//}
 
 func (Download) TableName() string {
 	return tablePrefix + "download"
 }
 
 // CreateDownload 创建Download
-// TODO: 创建成功之后，注意相关表统计字段数值的增减
 func (m *DBModel) CreateDownload(download *Download) (err error) {
-	err = m.db.Create(download).Error
+	tx := m.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	err = tx.Create(download).Error
 	if err != nil {
 		m.logger.Error("CreateDownload", zap.Error(err))
 		return
 	}
-	return
-}
 
-// UpdateDownload 更新Download，如果需要更新指定字段，则请指定updateFields参数
-func (m *DBModel) UpdateDownload(download *Download, updateFields ...string) (err error) {
-	db := m.db.Model(download)
-
-	updateFields = m.FilterValidFields(Download{}.TableName(), updateFields...)
-	if len(updateFields) > 0 { // 更新指定字段
-		db = db.Select(updateFields)
+	err = tx.Model(&Document{}).Where("id = ?", download.DocumentId).Update("download_count", gorm.Expr("download_count + ?", 1)).Error
+	if err != nil {
+		m.logger.Error("CreateDownload", zap.Error(err))
+		return
 	}
 
-	err = db.Where("id = ?", download.Id).Updates(download).Error
-	if err != nil {
-		m.logger.Error("UpdateDownload", zap.Error(err))
+	doc, _ := m.GetDocument(download.DocumentId, "id", "user_id", "price")
+	if download.IsPay && doc.Price > 0 && download.UserId > 0 {
+		// 下载该文档的用户扣除积分
+		err = tx.Model(&User{}).Where("id = ?", download.UserId).Update("credit_count", gorm.Expr("credit_count - ?", doc.Price)).Error
+		if err != nil {
+			m.logger.Error("CreateDownload", zap.Error(err))
+			return
+		}
+
+		// 文档的作者增加积分
+		err = tx.Model(&User{}).Where("id = ?", doc.UserId).Update("credit_count", gorm.Expr("credit_count + ?", doc.Price)).Error
+		if err != nil {
+			m.logger.Error("CreateDownload", zap.Error(err))
+			return
+		}
 	}
 	return
 }
@@ -162,12 +168,27 @@ func (m *DBModel) GetDownloadList(opt OptionGetDownloadList) (downloadList []Dow
 	return
 }
 
-// DeleteDownload 删除数据
-// TODO: 删除数据之后，存在 download_id 的关联表，需要删除对应数据，同时相关表的统计数值，也要随着减少
-func (m *DBModel) DeleteDownload(ids []interface{}) (err error) {
-	err = m.db.Where("id in (?)", ids).Delete(&Download{}).Error
+// CanIFreeDownload 判断用户是否可以免费下载
+// 最后一次付费下载时间 + 免费下载时长 > 当前时间
+func (m *DBModel) CanIFreeDownload(userId, documentId int64) (yes bool) {
+	var download Download
+	m.db.Where("user_id = ? and document_id = ? and is_pay = ?", userId, documentId, 1).Last(&download)
+	if download.Id == 0 {
+		return false
+	}
+
+	cfg := m.GetConfigOfDownload(ConfigDownloadFreeDownloadDuration)
+	return download.CreatedAt.Add(time.Duration(cfg.FreeDownloadDuration) * time.Hour * 24).After(time.Now())
+}
+
+// CountDownloadToday 统计今日下载次数
+func (m *DBModel) CountDownloadToday(userId int64) (total int64) {
+	if userId == 0 {
+		return
+	}
+	err := m.db.Model(&Download{}).Where("user_id = ?", userId).Where("created_at >= ?", time.Now().Format("2006-01-02")).Count(&total).Error
 	if err != nil {
-		m.logger.Error("DeleteDownload", zap.Error(err))
+		m.logger.Error("CountDownloadToday", zap.Error(err))
 	}
 	return
 }

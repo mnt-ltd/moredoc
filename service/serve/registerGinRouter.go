@@ -19,6 +19,7 @@ func RegisterGinRouter(app *gin.Engine, dbModel *model.DBModel, logger *zap.Logg
 	})
 	app.GET("/view/page/:hash/:page", attachmentAPIService.ViewDocumentPages)
 	app.GET("/view/cover/:hash", attachmentAPIService.ViewDocumentCover)
+	app.GET("/download/:jwt", attachmentAPIService.DownloadDocument)
 
 	checkPermissionGroup := app.Group("/api/v1/upload")
 	checkPermissionGroup.Use(auth.AuthGin())

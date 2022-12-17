@@ -18,6 +18,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gofrs/uuid"
+	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -255,6 +256,24 @@ func (s *AttachmentAPIService) ViewDocumentCover(ctx *gin.Context) {
 		return
 	}
 	ctx.File(file)
+}
+
+// DownloadDocument 下载文档
+func (s *AttachmentAPIService) DownloadDocument(ctx *gin.Context) {
+	claims := &jwt.StandardClaims{}
+	token := ctx.Param("jwt")
+	cfg := s.dbModel.GetConfigOfDownload(model.ConfigDownloadSecretKey)
+	// 验证JWT是否合法
+	jwtToken, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
+		return []byte(cfg.SecretKey), nil
+	})
+	if err != nil || !jwtToken.Valid {
+		ctx.String(http.StatusBadRequest, "下载链接已失效")
+		return
+	}
+	filename := ctx.Query("filename")
+	file := fmt.Sprintf("documents/%s/%s%s", strings.Join(strings.Split(claims.Id, "")[:5], "/"), claims.Id, filepath.Ext(filename))
+	ctx.FileAttachment(file, filename)
 }
 
 //	UploadArticle 上传文章相关图片和视频。这里不验证文件格式。

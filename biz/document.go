@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -12,6 +13,7 @@ import (
 	"moredoc/util"
 	"moredoc/util/filetil"
 
+	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -556,4 +558,91 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 	res.Total = total
 	res.Spend = fmt.Sprintf("%.3f", time.Since(now).Seconds())
 	return res, nil
+}
+
+// 下载文档
+// 0. 查询用户是否登录
+// 1. 查询文档是否存在
+// 2. 查询用户是否购买和下载过
+// 3. 查询文档是否免费
+func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Document) (res *pb.DownloadDocumentReply, err error) {
+	cfg := s.dbModel.GetConfigOfDownload()
+	userClaims, err := s.checkLogin(ctx)
+	if err != nil && !cfg.EnableGuestDownload {
+		// 未登录且不允许游客下载
+		return res, status.Errorf(codes.PermissionDenied, err.Error())
+	}
+
+	var userId int64
+	if userClaims != nil {
+		userId = userClaims.UserId
+	}
+
+	downloadToday := s.dbModel.CountDownloadToday(userId)
+	if downloadToday >= int64(cfg.TimesEveryDay) {
+		return res, status.Errorf(codes.PermissionDenied, "今日下载次数已达上限(%d)", cfg.TimesEveryDay)
+	}
+
+	// 查询文档存不存在
+	doc, err := s.dbModel.GetDocument(req.Id, "id", "price", "status", "title", "ext")
+	if err != nil || doc.Status == model.DocumentStatusDisabled {
+		return res, status.Errorf(codes.NotFound, "文档不存在")
+	}
+
+	// 文档不免费且未登录
+	if doc.Price > 0 && userId == 0 {
+		return res, status.Errorf(codes.PermissionDenied, "付费文档，请先登录再下载")
+	}
+
+	// 查询附件存不存在
+	attachment := s.dbModel.GetAttachmentByTypeAndTypeId(model.AttachmentTypeDocument, doc.Id, "id", "hash")
+	if attachment.Id == 0 {
+		return res, status.Errorf(codes.NotFound, "附件不存在")
+	}
+
+	ip := ""
+	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
+		ip = ips[0]
+	}
+
+	user, _ := s.dbModel.GetUser(userId)
+	if user.CreditCount < doc.Price {
+		return res, status.Errorf(codes.PermissionDenied, "魔豆不足，无法下载")
+	}
+
+	// 直接返回下载地址
+	err = s.dbModel.CreateDownload(&model.Download{
+		UserId:     userId,
+		DocumentId: doc.Id,
+		Ip:         ip,
+		IsPay:      s.dbModel.CanIFreeDownload(userId, doc.Id),
+	})
+	if err != nil {
+		return res, status.Errorf(codes.Internal, "创建下载失败：%s", err.Error())
+	}
+
+	link, err := s.generateDownloadURL(doc, cfg, attachment.Hash)
+	if err != nil {
+		return res, status.Errorf(codes.Internal, "生成下载地址失败：%s", err.Error())
+	}
+	res = &pb.DownloadDocumentReply{
+		Url: link,
+	}
+	// TODO: 添加用户的下载动态
+	return res, nil
+}
+
+// 通过JWT生成下载文档的URL
+func (s *DocumentAPIService) generateDownloadURL(document model.Document, cfg model.ConfigDownload, hash string) (link string, err error) {
+	expiredAt := time.Now().Add(time.Second * time.Duration(cfg.UrlDuration)).Unix()
+	claims := jwt.StandardClaims{
+		ExpiresAt: expiredAt,
+		Id:        hash,
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	tokenString, err := token.SignedString([]byte(cfg.SecretKey))
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("/download/%s?filename=%s", tokenString, url.QueryEscape(document.Title+document.Ext)), nil
 }

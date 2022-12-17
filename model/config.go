@@ -27,6 +27,8 @@ const (
 	ConfigCategoryFooter = "footer"
 	// ConfigCategoryConverter 转换配置项
 	ConfigCategoryConverter = "converter"
+	// 下载配置
+	ConfigCategoryDownload = "download"
 )
 
 type Config struct {
@@ -236,6 +238,27 @@ const (
 	ConfigConverterEnableGZIP = "enable_gzip" // 是否启用 GZIP
 )
 
+const (
+	// 是否允许游客下载
+	ConfigDownloadEnableGuestDownload = "enable_guest_download"
+	// 每天允许下载的次数
+	ConfigDownloadTimesEveryDay = "times_every_day"
+	// 下载链接地址签名密钥
+	ConfigDownloadSecretKey = "secret_key"
+	// 生成的下载链接有效期，单位为秒
+	ConfigDownloadUrlDuration = "url_duration"
+	// 购买文档后多少天内允许免费重复下载
+	ConfigDownloadFreeDownloadDuration = "free_download_duration"
+)
+
+type ConfigDownload struct {
+	EnableGuestDownload  bool   `json:"enable_guest_download"`  // 是否允许游客下载
+	TimesEveryDay        int32  `json:"times_every_day"`        // 每天允许下载的次数
+	SecretKey            string `json:"secret_key"`             // 下载链接地址签名密钥
+	UrlDuration          int32  `json:"url_duration"`           // 生成的下载链接有效期，单位为秒
+	FreeDownloadDuration int32  `json:"free_download_duration"` // 购买文档后多少天内允许免费重复下载
+}
+
 // ConfigConverter 转换配置
 type ConfigConverter struct {
 	MaxPreview int  `json:"max_preview"` // 文档所允许的最大预览页数，0 表示不限制，全部转换
@@ -280,6 +303,37 @@ func (m *DBModel) GetConfigOfFooter() (config ConfigFooter) {
 	return
 }
 
+func (m *DBModel) GetConfigOfDownload(name ...string) (config ConfigDownload) {
+	var configs []Config
+
+	db := m.db
+	if len(name) > 0 {
+		db = db.Where("name IN (?)", name)
+	}
+	err := db.Where("category = ?", ConfigCategoryDownload).Find(&configs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetConfigOfDownload", zap.Error(err))
+	}
+
+	var data = make(map[string]interface{})
+
+	for _, cfg := range configs {
+		switch cfg.Name {
+		case ConfigDownloadEnableGuestDownload:
+			data[cfg.Name], _ = strconv.ParseBool(cfg.Value)
+		case ConfigDownloadTimesEveryDay, ConfigDownloadUrlDuration, ConfigDownloadFreeDownloadDuration:
+			data[cfg.Name], _ = strconv.ParseInt(cfg.Value, 10, 32)
+		default:
+			data[cfg.Name] = cfg.Value
+		}
+	}
+
+	bytes, _ := json.Marshal(data)
+	json.Unmarshal(bytes, &config)
+
+	return
+}
+
 // GetConfigOfCaptcha 获取验证码配置
 func (m *DBModel) GetConfigOfCaptcha() (config ConfigCaptcha) {
 	var configs []Config
@@ -290,22 +344,22 @@ func (m *DBModel) GetConfigOfCaptcha() (config ConfigCaptcha) {
 
 	for _, cfg := range configs {
 		switch cfg.Name {
-		case "length":
+		case ConfigCaptchaLength:
 			config.Length, _ = strconv.Atoi(cfg.Value)
 			if config.Length <= 0 {
 				config.Length = 6
 			}
-		case "width":
+		case ConfigCaptchaWidth:
 			config.Width, _ = strconv.Atoi(cfg.Value)
 			if config.Width <= 0 {
 				config.Width = 240
 			}
-		case "height":
+		case ConfigCaptchaHeight:
 			config.Height, _ = strconv.Atoi(cfg.Value)
 			if config.Height <= 0 {
 				config.Height = 60
 			}
-		case "type":
+		case ConfigCaptchaType:
 			// 验证码类型
 			config.Type = cfg.Value
 		}
@@ -438,6 +492,13 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryConverter, Name: ConfigConverterTimeout, Label: "转换超时(分钟)", Value: "30", Placeholder: "文档转换超时时间，默认为30分钟", InputType: "number", Sort: 16, Options: ""},
 		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableGZIP, Label: "是否启用GZIP压缩", Value: "true", Placeholder: "是否对文档SVG预览文件启用GZIP压缩，启用后转换效率会【稍微】下降，但相对直接的SVG文件减少75%的存储空间", InputType: "switch", Sort: 17, Options: ""},
 		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableSVGO, Label: "是否启用SVGO", Value: "false", Placeholder: "是否对文档SVG预览文件启用SVGO压缩，启用后转换效率会【明显】下降，但相对直接的SVG文件减少50%左右的存储空间", InputType: "switch", Sort: 18, Options: ""},
+
+		// 下载配置
+		{Category: ConfigCategoryDownload, Name: ConfigDownloadEnableGuestDownload, Label: "是否允许游客下载", Value: "false", Placeholder: "是否允许游客下载。启用之后，未登录用户可以下载免费文档，且不受下载次数控制", InputType: "switch", Sort: 10, Options: ""},
+		{Category: ConfigCategoryDownload, Name: ConfigDownloadFreeDownloadDuration, Label: "购买文档后多少天内允许免费重复下载", Value: "0", Placeholder: "0表示不再次下载仍需购买，大于0表示指定多少天内有效", InputType: "number", Sort: 20, Options: ""},
+		{Category: ConfigCategoryDownload, Name: ConfigDownloadUrlDuration, Label: "下载链接有效时长(秒)", Value: "60", Placeholder: "生成文档下载链接后多少秒之后链接失效", InputType: "number", Sort: 30, Options: ""},
+		{Category: ConfigCategoryDownload, Name: ConfigDownloadTimesEveryDay, Label: "每天允许下载次数", Value: "0", Placeholder: "每天允许下载多少篇文档，0表示不限制", InputType: "number", Sort: 40, Options: ""},
+		{Category: ConfigCategoryDownload, Name: ConfigDownloadSecretKey, Label: "链接签名密钥", Value: "moredoc", Placeholder: "链接签名密钥，用于加密下载链接", InputType: "text", Sort: 50, Options: ""},
 	}
 
 	for _, cfg := range cfgs {

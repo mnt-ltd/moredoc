@@ -41,6 +41,7 @@ type User struct {
 	FansCount     int        `form:"fans_count" json:"fans_count,omitempty" gorm:"column:fans_count;type:int(10);default:0;comment:粉丝数;"`
 	FavoriteCount int        `form:"favorite_count" json:"favorite_count,omitempty" gorm:"column:favorite_count;type:int(10);default:0;comment:收藏数;"`
 	CommentCount  int        `form:"comment_count" json:"comment_count,omitempty" gorm:"column:comment_count;type:int(11);size:11;default:0;comment:评论数;"`
+	CreditCount   int        `form:"credit_count" json:"credit_count,omitempty" gorm:"column:credit_count;type:int(11);size:11;default:0;comment:积分数,魔豆;"`
 	Status        int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;index:status;comment:用户状态：0正常 1禁用 2审核中 3审核拒绝 4审核忽略;"`
 	Avatar        string     `form:"avatar" json:"avatar,omitempty" gorm:"column:avatar;type:varchar(255);size:255;comment:头像;"`
 	Identity      string     `form:"identity" json:"identity,omitempty" gorm:"column:identity;type:char(18);size:18;comment:身份证号码;"`
@@ -49,31 +50,6 @@ type User struct {
 	CreatedAt     *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt     *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
-
-// 这里是proto文件中的结构体，可以根据需要删除或者调整
-//message User {
-// int64 id = 1;
-// string username = 2;
-// string password = 3;
-// string mobile = 5;
-// string email = 6;
-// string address = 7;
-// string signature = 8;
-// string last_login_ip = 9;
-// string register_ip = 10;
-// int32 doc_count = 11;
-// int32 follow_count = 12;
-// int32 fans_count = 13;
-// int32 favorite_count = 14;
-// int32 comment_count = 15;
-// int32 status = 16;
-// string avatar = 17;
-// string identity = 18;
-// string realname = 19;
-// google.protobuf.Timestamp login_at = 20 [ (gogoproto.stdtime) = true ];
-// google.protobuf.Timestamp created_at = 21 [ (gogoproto.stdtime) = true ];
-// google.protobuf.Timestamp updated_at = 22 [ (gogoproto.stdtime) = true ];
-//}
 
 func (User) TableName() string {
 	return tablePrefix + "user"
@@ -160,9 +136,12 @@ func (m *DBModel) UpdateUser(user *User, updateFields ...string) (err error) {
 }
 
 // GetUser 根据id获取User
-func (m *DBModel) GetUser(id interface{}, fields ...string) (user User, err error) {
-	db := m.db
+func (m *DBModel) GetUser(id int64, fields ...string) (user User, err error) {
+	if id <= 0 {
+		return user, gorm.ErrRecordNotFound
+	}
 
+	db := m.db
 	fields = m.FilterValidFields(User{}.TableName(), fields...)
 	if len(fields) > 0 {
 		db = db.Select(fields)

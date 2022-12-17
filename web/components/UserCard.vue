@@ -24,7 +24,7 @@
         <el-col :span="8"
           ><div>财富</div>
           <div class="el-link el-link--primary">
-            {{ user.money || 0 }}
+            {{ user.credit_count || 0 }}
           </div>
         </el-col>
       </el-row>
@@ -52,7 +52,7 @@ export default {
           signature: '',
           doc_count: 0,
           favorite_count: 0,
-          money: 0,
+          credit_count: 0,
         }
       },
     },

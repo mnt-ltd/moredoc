@@ -52,6 +52,10 @@ export default {
           label: '转换配置',
           value: 'converter',
         },
+        {
+          label: '下载配置',
+          value: 'download',
+        },
       ],
     }
   },

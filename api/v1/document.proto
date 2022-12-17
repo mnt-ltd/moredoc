@@ -123,6 +123,10 @@ message SearchDocumentReply {
   repeated Document document = 3;
 }
 
+message DownloadDocumentReply {
+  string url = 1;
+}
+
 service DocumentAPI {
   rpc ListDocumentForHome(ListDocumentForHomeRequest) returns ( ListDocumentForHomeResponse) {
     option (google.api.http) = {
@@ -160,6 +164,12 @@ service DocumentAPI {
   rpc GetDocument(GetDocumentRequest) returns (Document) {
     option (google.api.http) = {
       get : '/api/v1/document',
+    };
+  }
+
+  rpc DownloadDocument(Document) returns (DownloadDocumentReply) {
+    option (google.api.http) = {
+      get : '/api/v1/document/download',
     };
   }
 

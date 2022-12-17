@@ -35,6 +35,7 @@ message User {
   string identity = 16;
   string realname = 17;
   repeated int64 group_id = 18;
+  int32 credit_count = 22;
 }
 
 message RegisterAndLoginRequest {
@@ -96,6 +97,27 @@ message SetUserRequest {
   string username = 2 [ (gogoproto.moretags) = "validate:\"min=3,max=32\"" ];
   string password = 3 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
   repeated int64 group_id = 4;
+}
+
+message Dynamic {
+  int64 id = 1;
+  int64 user_id = 2;
+  string content = 3;
+  int32 type = 4; // 类型
+  string username = 7;
+  google.protobuf.Timestamp created_at = 5 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 6 [ (gogoproto.stdtime) = true ];
+}
+
+message ListUserDynamicRequest {
+  int64 page = 1;
+  int64 size = 2;
+  int64 user_id = 3;
+}
+
+message ListUserDynamicReply {
+  int64 total = 1;
+  repeated Dynamic dynamic = 2;
 }
 
 service UserAPI {
@@ -199,6 +221,13 @@ service UserAPI {
       returns (google.protobuf.Empty) {
     option (google.api.http) = {
       get : '/api/v1/user/caniuploaddocument',
+    };
+  }
+
+  // 获取用户动态，包括获取关注的用户的动态
+  rpc ListUserDynamic(ListUserDynamicRequest) returns (ListUserDynamicReply) {
+    option (google.api.http) = {
+      get : '/api/v1/user/dynamic',
     };
   }
 
