@@ -52,7 +52,7 @@ export const user = {
     async getUser({ commit }) {
       const res = await getUser()
       if (res.status === 200) {
-        commit('setUser', res.data.user)
+        commit('setUser', res.data)
       }
       return res
     },

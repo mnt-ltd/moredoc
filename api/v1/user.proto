@@ -120,6 +120,14 @@ message ListUserDynamicReply {
   repeated Dynamic dynamic = 2;
 }
 
+message Sign{
+  int64 id = 1;
+  int64 user_id = 2;
+  int32 sign_at = 3;
+  string ip = 4;
+  google.protobuf.Timestamp created_at = 5 [ (gogoproto.stdtime) = true ];
+}
+
 service UserAPI {
   // 用户注册
   rpc Register(RegisterAndLoginRequest) returns (LoginReply) {
@@ -228,6 +236,20 @@ service UserAPI {
   rpc ListUserDynamic(ListUserDynamicRequest) returns (ListUserDynamicReply) {
     option (google.api.http) = {
       get : '/api/v1/user/dynamic',
+    };
+  }
+
+  // 每日签到
+  rpc SignToday(google.protobuf.Empty) returns (Sign) {
+    option (google.api.http) = {
+      put : '/api/v1/user/sign',
+    };
+  }
+
+  // 获取今日已签到记录
+  rpc GetSignedToday(google.protobuf.Empty) returns (Sign) {
+    option (google.api.http) = {
+      get : '/api/v1/user/sign',
     };
   }
 

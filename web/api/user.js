@@ -102,3 +102,17 @@ export const getUserPermissions = (params) => {
     params,
   })
 }
+
+export const getSignedToday = () => {
+  return service({
+    url: '/api/v1/user/sign',
+    method: 'get',
+  })
+}
+
+export const signToday = () => {
+  return service({
+    url: '/api/v1/user/sign',
+    method: 'put',
+  })
+}

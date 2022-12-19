@@ -104,14 +104,26 @@
               <span>{{ user.credit_count || 0 }}</span>
             </el-col>
           </el-row>
-          <!-- <el-button class="btn-block" type="success">
-            <i class="fa fa-calendar-plus-o"></i>
-            每日签到</el-button
-          > -->
-          <el-button class="btn-block" type="success" disabled>
+          <el-button
+            v-if="sign.id > 0"
+            :key="'sign-' + sign.id"
+            class="btn-block"
+            type="success"
+            disabled
+          >
             <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
             今日已签到
           </el-button>
+          <el-button
+            v-else
+            :key="'sign-0'"
+            class="btn-block"
+            type="success"
+            @click="signToday"
+          >
+            <i class="fa fa-calendar-plus-o"></i>
+            每日签到</el-button
+          >
           <div class="mgt-20px">
             <div>个性签名</div>
             <div class="help-block user-signature">
@@ -266,6 +278,7 @@ import { mapActions, mapGetters } from 'vuex'
 import UserAvatar from '~/components/UserAvatar.vue'
 import { listBanner } from '~/api/banner'
 import { listDocument, listDocumentForHome } from '~/api/document'
+import { getSignedToday, signToday } from '~/api/user'
 export default {
   name: 'IndexPage',
   components: { UserAvatar },
@@ -276,6 +289,9 @@ export default {
       documents: [],
       search: {
         wd: '',
+      },
+      sign: {
+        sign_at: 0,
       },
     }
   },
@@ -294,10 +310,11 @@ export default {
       this.getRecommendDocuments(),
       this.listBanner(),
       this.getDocuments(),
+      this.getSignedToday(),
     ])
   },
   methods: {
-    ...mapActions('user', ['logout']),
+    ...mapActions('user', ['logout', 'getUser']),
     async listBanner() {
       const res = await listBanner({
         enable: true,
@@ -315,6 +332,22 @@ export default {
         const wd = this.search.wd
         this.search.wd = ''
         this.$router.push({ path: '/search', query: { wd } })
+      }
+    },
+    async getSignedToday() {
+      const res = await getSignedToday()
+      if (res.status === 200) {
+        this.sign = res.data || { id: 0 }
+      }
+    },
+    async signToday() {
+      const res = await signToday()
+      if (res.status === 200) {
+        this.sign = res.data || { id: 1 }
+        this.getUser()
+        this.$message.success('签到成功')
+      } else {
+        this.$message.error(res.message || res.data.message)
       }
     },
     async getRecommendDocuments() {

@@ -16,16 +16,6 @@ type Dynamic struct {
 	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
 
-// 这里是proto文件中的结构体，可以根据需要删除或者调整
-//message Dynamic {
-// int64 id = 1;
-// int64 user_id = 2;
-// string content = 3;
-// int32 type = 4;
-//   = 0;
-//   = 0;
-//}
-
 const (
 	DynamicTypeComment  = 1  // 发表评论
 	DynamicTypeFavorite = 2  // 收藏文档

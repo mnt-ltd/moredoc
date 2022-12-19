@@ -6,6 +6,7 @@ import (
 	"time"
 
 	pb "moredoc/api/v1"
+	v1 "moredoc/api/v1"
 	"moredoc/middleware/auth"
 	"moredoc/model"
 	"moredoc/util"
@@ -172,23 +173,27 @@ func (s *UserAPIService) Logout(ctx context.Context, req *emptypb.Empty) (res *e
 // GetUser 根据ID获取用户信息
 // 对于非管理员，只能获取公开字段
 func (s *UserAPIService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*pb.User, error) {
-	if req.Id <= 0 {
-		return nil, status.Errorf(codes.InvalidArgument, "ID错误")
-	}
-
+	userId := req.Id
 	fields := s.dbModel.GetUserPublicFields()
-	_, err := s.checkPermission(ctx)
-	if err == nil {
+	userClaims, err := s.checkPermission(ctx)
+	if err == nil || (err != nil && userClaims != nil && userClaims.UserId == userId) {
+		// 有权限或者查的是用户自己的资料
 		fields = []string{}
 	}
 
-	user, err := s.dbModel.GetUser(req.Id, fields...)
+	if userId <= 0 {
+		if userClaims == nil {
+			return nil, status.Errorf(codes.InvalidArgument, "ID错误")
+		}
+		userId = userClaims.UserId
+	}
+
+	user, err := s.dbModel.GetUser(userId, fields...)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 	pbUser := &pb.User{}
 	util.CopyStruct(&user, pbUser)
-
 	return pbUser, nil
 }
 
@@ -514,4 +519,43 @@ func (s *UserAPIService) CanIUploadDocument(ctx context.Context, req *emptypb.Em
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+func (s *UserAPIService) GetSignedToday(ctx context.Context, req *emptypb.Empty) (*v1.Sign, error) {
+	userClaims, err := checkGRPCLogin(s.dbModel, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	sign := s.dbModel.GetSignedToday(userClaims.UserId)
+	if sign.Id == 0 {
+		return nil, status.Errorf(codes.NotFound, "您今天还没有签到")
+	}
+	pbSign := &v1.Sign{}
+	util.CopyStruct(&sign, pbSign)
+	return pbSign, nil
+}
+
+func (s *UserAPIService) SignToday(ctx context.Context, req *emptypb.Empty) (*v1.Sign, error) {
+	userClaims, err := checkGRPCLogin(s.dbModel, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if sign := s.dbModel.GetSignedToday(userClaims.UserId); sign.Id > 0 {
+		return nil, status.Errorf(codes.AlreadyExists, "您今天已经签到过了")
+	}
+	ip := ""
+	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
+		ip = ips[0]
+	}
+
+	sign, err := s.dbModel.CreateSign(userClaims.UserId, ip)
+	if err != nil {
+		s.logger.Error("签到失败", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+	pbSign := &v1.Sign{}
+	util.CopyStruct(sign, pbSign)
+	return pbSign, nil
 }

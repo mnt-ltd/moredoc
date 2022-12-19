@@ -239,7 +239,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import DocumentSimpleList from '~/components/DocumentSimpleList.vue'
 import { getDocument, downloadDocument } from '~/api/document'
 import { getFavorite, createFavorite, deleteFavorite } from '~/api/favorite'
@@ -317,6 +317,7 @@ export default {
   methods: {
     formatDatetime,
     formatBytes,
+    ...mapActions('user', ['getUser']),
     async getDocument() {
       const res = await getDocument({
         id: this.documentId,
@@ -406,6 +407,7 @@ export default {
         id: this.documentId,
       })
       if (res.status === 200) {
+        this.getUser()
         // 跳转下载
         window.location.href = res.data.url
         return
