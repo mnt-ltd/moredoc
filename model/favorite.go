@@ -13,7 +13,7 @@ type Favorite struct {
 	Id         int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:自增主键;"`
 	UserId     int64     `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);size:20;default:0;comment:用户id;index:idx_user_id;index:idx_user_document,unique"`
 	DocumentId int64     `form:"document_id" json:"document_id,omitempty" gorm:"column:document_id;type:bigint(20);size:20;default:0;comment:;index:idx_user_document,unique"`
-	CreatedAt  time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:;"`
+	CreatedAt  time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:;index:idx_created_at"`
 	UpdatedAt  time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:;"`
 }
 
@@ -51,6 +51,47 @@ func (m *DBModel) CreateFavorite(favorite *Favorite) (err error) {
 	if err != nil {
 		m.logger.Error("CreateFavorite", zap.Error(err))
 		return
+	}
+
+	doc, _ := m.GetDocument(favorite.DocumentId, "id", "user_id", "title")
+	if doc.Id == 0 {
+		return
+	}
+
+	err = tx.Create(&Dynamic{
+		UserId:  favorite.UserId,
+		Type:    DynamicTypeFavorite,
+		Content: fmt.Sprintf(`收藏了文档《<a href="/document/%d">%s</a>》`, doc.Id, doc.Title),
+	}).Error
+	if err != nil {
+		m.logger.Error("CreateFavorite", zap.Error(err))
+		return
+	}
+
+	cfgScore := m.GetConfigOfScore(ConfigScoreDocumentCollected, ConfigScoreDocumentCollectedLimit)
+	if cfgScore.DocumentCollected > 0 && cfgScore.DocumentCollectedLimit > 0 {
+		var todayFavoriteCount int64
+		tx.Model(&Favorite{}).Where("user_id = ? and created_at >= ?", favorite.UserId, time.Now().Format("2006-01-02")).Count(&todayFavoriteCount)
+		if int32(todayFavoriteCount) >= cfgScore.DocumentCollectedLimit {
+			return
+		}
+
+		// 文档分享者积分增加
+		err = tx.Model(&User{}).Where("id = ?", doc.UserId).Update("credit_count", gorm.Expr("credit_count + ?", cfgScore.DocumentCollected)).Error
+		if err != nil {
+			m.logger.Error("CreateFavorite", zap.Error(err))
+			return
+		}
+
+		err = tx.Create(&Dynamic{
+			UserId:  doc.UserId,
+			Type:    DynamicTypeFavorite,
+			Content: fmt.Sprintf(`分享的文档《<a href="/document/%d">%s</a>》被其他用户收藏，获得 %d 魔豆奖励`, doc.Id, doc.Title, cfgScore.DocumentCollected),
+		}).Error
+		if err != nil {
+			m.logger.Error("CreateFavorite", zap.Error(err))
+			return
+		}
 	}
 
 	return
