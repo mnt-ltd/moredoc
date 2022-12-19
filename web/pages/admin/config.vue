@@ -56,6 +56,10 @@ export default {
           label: '下载配置',
           value: 'download',
         },
+        {
+          label: '积分配置',
+          value: 'score',
+        },
       ],
     }
   },

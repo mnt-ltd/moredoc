@@ -15,7 +15,6 @@
           v-if="item.input_type === 'number'"
           v-model="configs[index]['value']"
           clearable
-          :min="0"
           :placeholder="item.placeholder"
           :step="1"
         ></el-input-number>

@@ -29,6 +29,8 @@ const (
 	ConfigCategoryConverter = "converter"
 	// 下载配置
 	ConfigCategoryDownload = "download"
+	// 积分规则
+	ConfigCategoryScore = "score"
 )
 
 type Config struct {
@@ -284,6 +286,39 @@ type ConfigFooter struct {
 	Feedback  string `json:"feedback"`  // 反馈
 }
 
+const (
+	// 注册积分
+	ConfigScoreRegister = "register"
+	// 签到积分
+	ConfigScoreSignIn = "sign_in"
+	// 上传文档积分
+	ConfigScoreUploadDocument = "upload_document"
+	// 每日上传文档积分次数限制
+	ConfigScoreUploadDocumentLimit = "upload_document_limit"
+	// 删除上传文档积分
+	ConfigScoreDeleteDocument = "delete_document"
+	// 文档被收藏获得积分
+	ConfigScoreDocumentCollected = "document_collected"
+	// 文档被收藏获得积分次数限制
+	ConfigScoreDocumentCollectedLimit = "document_collected_limit"
+	// 文档被评论获得积分
+	ConfigScoreDocumentCommented = "document_commented"
+	// 文档被评论获得积分次数限制
+	ConfigScoreDocumentCommentedLimit = "document_commented_limit"
+)
+
+type ConfigScore struct {
+	Register               int32 `json:"register"`                 // 注册积分
+	SignIn                 int32 `json:"sign_in"`                  // 签到积分
+	UploadDocument         int32 `json:"upload_document"`          // 上传文档积分
+	UploadDocumentLimit    int32 `json:"upload_document_limit"`    // 每日上传文档积分次数限制
+	DeleteDocument         int32 `json:"delete_document"`          // 删除上传文档积分
+	DocumentCollected      int32 `json:"document_collected"`       // 文档被收藏获得积分
+	DocumentCollectedLimit int32 `json:"document_collected_limit"` // 文档被收藏获得积分次数限制
+	DocumentCommented      int32 `json:"document_commented"`       // 文档被评论获得积分
+	DocumentCommentedLimit int32 `json:"document_commented_limit"` // 文档被评论获得积分次数限制
+}
+
 func (m *DBModel) GetConfigOfFooter() (config ConfigFooter) {
 	var configs []Config
 	err := m.db.Where("category = ?", ConfigCategoryFooter).Find(&configs).Error
@@ -446,6 +481,29 @@ func (m *DBModel) GetConfigOfConverter() (config ConfigConverter) {
 	return
 }
 
+func (m *DBModel) GetConfigOfScore(name ...string) (config ConfigScore) {
+	var configs []Config
+	db := m.db.Where("category = ?", ConfigCategoryScore)
+	if len(name) > 0 {
+		db = db.Where("name in (?)", name)
+	}
+	err := db.Find(&configs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetConfigOfScore", zap.Error(err))
+	}
+
+	var data = make(map[string]interface{})
+
+	for _, cfg := range configs {
+		data[cfg.Name], _ = strconv.Atoi(cfg.Value)
+	}
+
+	bytes, _ := json.Marshal(data)
+	json.Unmarshal(bytes, &config)
+
+	return
+}
+
 func (m *DBModel) initConfig() (err error) {
 	// 初始化配置项
 	cfgs := []Config{
@@ -499,6 +557,17 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryDownload, Name: ConfigDownloadUrlDuration, Label: "下载链接有效时长(秒)", Value: "60", Placeholder: "生成文档下载链接后多少秒之后链接失效", InputType: "number", Sort: 30, Options: ""},
 		{Category: ConfigCategoryDownload, Name: ConfigDownloadTimesEveryDay, Label: "每天允许下载次数", Value: "0", Placeholder: "每天允许下载多少篇文档，0表示不限制", InputType: "number", Sort: 40, Options: ""},
 		{Category: ConfigCategoryDownload, Name: ConfigDownloadSecretKey, Label: "链接签名密钥", Value: "moredoc", Placeholder: "链接签名密钥，用于加密下载链接", InputType: "text", Sort: 50, Options: ""},
+
+		// 积分规则配置
+		{Category: ConfigCategoryScore, Name: ConfigScoreRegister, Label: "注册", Value: "10", Placeholder: "注册时获得的魔豆", InputType: "number", Sort: 10, Options: ""},
+		{Category: ConfigCategoryScore, Name: ConfigScoreSignIn, Label: "签到", Value: "1", Placeholder: "每日签到获得的魔豆", InputType: "number", Sort: 20, Options: ""},
+		{Category: ConfigCategoryScore, Name: ConfigScoreDeleteDocument, Label: "删除文档", Value: "-10", Placeholder: "删除上传文档可获得的魔豆，负数表示扣除", InputType: "number", Sort: 25, Options: ""},
+		{Category: ConfigCategoryScore, Name: ConfigScoreUploadDocument, Label: "上传文档", Value: "5", Placeholder: "上传一篇文档可获得的魔豆", InputType: "number", Sort: 30, Options: ""},
+		{Category: ConfigCategoryScore, Name: ConfigScoreUploadDocumentLimit, Label: "每日上传文档奖励次数", Value: "1", Placeholder: "每天最多可以获得多少次文档上传奖励，0表示无奖励。", InputType: "number", Sort: 40, Options: ""},
+		{Category: ConfigCategoryScore, Name: ConfigScoreDocumentCollected, Label: "文档被收藏", Value: "1", Placeholder: "上传的文档被收藏后获得的魔豆", InputType: "number", Sort: 50, Options: ""},
+		{Category: ConfigCategoryScore, Name: ConfigScoreDocumentCollectedLimit, Label: "每日文档被收藏奖励次数", Value: "1", Placeholder: "每天最多可以获得多少次文档被收藏奖励，0表示无奖励。", InputType: "number", Sort: 60, Options: ""},
+		{Category: ConfigCategoryScore, Name: ConfigScoreDocumentCommented, Label: "文档被评论", Value: "1", Placeholder: "上传的文档被评论后获得的魔豆", InputType: "number", Sort: 70, Options: ""},
+		{Category: ConfigCategoryScore, Name: ConfigScoreDocumentCommentedLimit, Label: "每日文档被评论奖励次数", Value: "1", Placeholder: "每天最多可以获得多少次文档被评论奖励，0表示无奖励。", InputType: "number", Sort: 80, Options: ""},
 	}
 
 	for _, cfg := range cfgs {
