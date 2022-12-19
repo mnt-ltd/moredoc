@@ -63,7 +63,7 @@ export default {
     async getUsers() {
       const res = await listUser({
         limit: this.limit,
-        order: this.order,
+        sort: this.order,
       })
       if (res.status === 200) {
         this.users = res.data.user || []

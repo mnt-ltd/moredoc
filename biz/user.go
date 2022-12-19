@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -100,9 +101,21 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 		return nil, status.Errorf(codes.Internal, "请联系管理员设置系统默认用户组")
 	}
 
+	// 用户积分
+	cfgScore := s.dbModel.GetConfigOfScore(model.ConfigScoreRegister)
+	user.CreditCount = int(cfgScore.Register)
 	if err = s.dbModel.CreateUser(user, group.Id); err != nil {
 		s.logger.Error("CreateUser", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	if cfgScore.Register > 0 {
+		// 积分记录
+		s.dbModel.CreateDynamic(&model.Dynamic{
+			UserId:  user.Id,
+			Type:    model.DynamicTypeRegister,
+			Content: fmt.Sprintf("成功注册成网站会员，获得 %d 魔豆奖励", cfgScore.Register),
+		})
 	}
 
 	token, err := s.auth.CreateJWTToken(user.Id)
