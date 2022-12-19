@@ -584,7 +584,7 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 	}
 
 	// 查询文档存不存在
-	doc, err := s.dbModel.GetDocument(req.Id, "id", "price", "status", "title", "ext")
+	doc, err := s.dbModel.GetDocument(req.Id, "id", "price", "status", "title", "ext", "user_id")
 	if err != nil || doc.Status == model.DocumentStatusDisabled {
 		return res, status.Errorf(codes.NotFound, "文档不存在")
 	}
@@ -606,17 +606,23 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 	}
 
 	user, _ := s.dbModel.GetUser(userId)
-	if user.CreditCount < doc.Price {
+	if doc.UserId != userId && user.CreditCount < doc.Price {
 		return res, status.Errorf(codes.PermissionDenied, "魔豆不足，无法下载")
 	}
 
-	// 直接返回下载地址
-	err = s.dbModel.CreateDownload(&model.Download{
+	// 用户可以免费下载自己的文档
+	free := doc.UserId == userId || s.dbModel.CanIFreeDownload(userId, doc.Id)
+	down := &model.Download{
 		UserId:     userId,
 		DocumentId: doc.Id,
 		Ip:         ip,
-		IsPay:      s.dbModel.CanIFreeDownload(userId, doc.Id),
-	})
+		IsPay:      !free,
+	}
+
+	s.logger.Debug("下载文档", zap.Any("down", down), zap.Bool("canFreeDownload", free))
+
+	// 直接返回下载地址
+	err = s.dbModel.CreateDownload(down)
 	if err != nil {
 		return res, status.Errorf(codes.Internal, "创建下载失败：%s", err.Error())
 	}

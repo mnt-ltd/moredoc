@@ -22,7 +22,7 @@
           </div>
         </el-col>
         <el-col :span="8"
-          ><div>财富</div>
+          ><div>魔豆</div>
           <div class="el-link el-link--primary">
             {{ user.credit_count || 0 }}
           </div>

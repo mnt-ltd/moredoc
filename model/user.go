@@ -23,7 +23,7 @@ const (
 var UserPublicFields = []string{
 	"id", "username", "signature", "status", "avatar", "realname",
 	"doc_count", "follow_count", "fans_count", "favorite_count", "comment_count",
-	"created_at", "updated_at", "login_at",
+	"created_at", "updated_at", "login_at", "credit_count",
 }
 
 type User struct {

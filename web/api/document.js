@@ -64,6 +64,14 @@ export const searchDocument = (params) => {
   })
 }
 
+export const downloadDocument = (params) => {
+  return service({
+    url: '/api/v1/document/download',
+    method: 'get',
+    params,
+  })
+}
+
 export const listRecycleDocument = (params) => {
   return service({
     url: '/api/v1/document/recycle',

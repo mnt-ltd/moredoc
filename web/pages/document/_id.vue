@@ -74,7 +74,11 @@
           </div>
           <div class="doc-page-more text-center">
             <div>下载文档到电脑，方便使用</div>
-            <el-button type="primary" icon="el-icon-download">
+            <el-button
+              type="primary"
+              icon="el-icon-download"
+              @click="downloadDocument"
+            >
               下载文档({{ formatBytes(document.size) }})</el-button
             >
             <div v-if="document.preview - pages.length > 0">
@@ -106,6 +110,7 @@
                 type="primary"
                 icon="el-icon-download"
                 class="float-right"
+                @click="downloadDocument"
                 >下载文档({{ formatBytes(document.size) }})</el-button
               >
               <el-button
@@ -214,7 +219,10 @@
               <el-button type="primary" icon="el-icon-coin" class="btn-coin"
                 >{{ document.price || 0 }} 个魔豆</el-button
               >
-              <el-button type="primary" icon="el-icon-download"
+              <el-button
+                type="primary"
+                icon="el-icon-download"
+                @click="downloadDocument"
                 >下载文档({{ formatBytes(document.size) }})</el-button
               >
             </el-button-group>
@@ -233,7 +241,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import DocumentSimpleList from '~/components/DocumentSimpleList.vue'
-import { getDocument } from '~/api/document'
+import { getDocument, downloadDocument } from '~/api/document'
 import { getFavorite, createFavorite, deleteFavorite } from '~/api/favorite'
 import { formatDatetime, formatBytes } from '~/utils/utils'
 import FormComment from '~/components/FormComment.vue'
@@ -392,6 +400,17 @@ export default {
     },
     commentSuccess() {
       this.$refs.commentList.getComments()
+    },
+    async downloadDocument() {
+      const res = await downloadDocument({
+        id: this.documentId,
+      })
+      if (res.status === 200) {
+        // 跳转下载
+        window.location.href = res.data.url
+        return
+      }
+      this.$message.error(res.data.message || '下载失败')
     },
     prevPage() {
       if (this.currentPage > 1) {

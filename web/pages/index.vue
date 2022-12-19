@@ -93,15 +93,15 @@
           <el-row class="text-center user-count">
             <el-col :span="8">
               <div><small>文档</small></div>
-              <span>22</span>
+              <span>{{ user.doc_count || 0 }}</span>
             </el-col>
             <el-col :span="8">
               <div><small>收藏</small></div>
-              <span>32</span>
+              <span>{{ user.favorite_count || 0 }}</span>
             </el-col>
             <el-col :span="8">
-              <div><small>财富</small></div>
-              <span>12</span>
+              <div><small>魔豆</small></div>
+              <span>{{ user.credit_count || 0 }}</span>
             </el-col>
           </el-row>
           <!-- <el-button class="btn-block" type="success">

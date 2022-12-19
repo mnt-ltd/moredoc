@@ -170,14 +170,20 @@ func (m *DBModel) GetDownloadList(opt OptionGetDownloadList) (downloadList []Dow
 
 // CanIFreeDownload 判断用户是否可以免费下载
 // 最后一次付费下载时间 + 免费下载时长 > 当前时间
-func (m *DBModel) CanIFreeDownload(userId, documentId int64) (yes bool) {
+func (m *DBModel) CanIFreeDownload(userId, documentId int64) bool {
 	var download Download
 	m.db.Where("user_id = ? and document_id = ? and is_pay = ?", userId, documentId, 1).Last(&download)
+	m.logger.Debug("CanIFreeDownload", zap.Any("Last Download", download))
 	if download.Id == 0 {
 		return false
 	}
 
 	cfg := m.GetConfigOfDownload(ConfigDownloadFreeDownloadDuration)
+	m.logger.Debug("CanIFreeDownload", zap.Int32("FreeDownloadDuration", cfg.FreeDownloadDuration))
+	if cfg.FreeDownloadDuration <= 0 {
+		return true
+	}
+	m.logger.Debug("CanIFreeDownload", zap.Any("CreatedAt", download.CreatedAt), zap.Time("Now", time.Now()), zap.Time("After", download.CreatedAt.Add(time.Duration(cfg.FreeDownloadDuration)*time.Hour*24)))
 	return download.CreatedAt.Add(time.Duration(cfg.FreeDownloadDuration) * time.Hour * 24).After(time.Now())
 }
 
