@@ -59,7 +59,7 @@ func (m *DBModel) CreateSign(userId int64, ip string) (sign *Sign, err error) {
 			m.logger.Error("CreateSign Update", zap.Error(err))
 			return
 		}
-		content = fmt.Sprintf("签到获得 %d 个魔豆", cfg.SignIn)
+		content = fmt.Sprintf("签到成功，获得 %d 个魔豆奖励", cfg.SignIn)
 	}
 
 	dynamic := Dynamic{

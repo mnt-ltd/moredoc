@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"golang.org/x/net/html"
 	"gorm.io/gorm"
 )
 
@@ -55,7 +56,7 @@ type Document struct {
 	Size          int64           `form:"size" json:"size,omitempty" gorm:"column:size;type:bigint(20);size:20;default:0;comment:文件大小;"`
 	Ext           string          `form:"ext" json:"ext,omitempty" gorm:"column:ext;type:varchar(16);size:16;comment:文件扩展名"`
 	Status        int             `form:"status" json:"status,omitempty" gorm:"column:status;type:smallint(6);size:6;default:0;index:status;comment:文档状态：0 待转换，1 转换中，2 转换完成，3 转换失败，4 禁用;"`
-	CreatedAt     *time.Time      `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	CreatedAt     *time.Time      `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;index:idx_created_at;"`
 	UpdatedAt     *time.Time      `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 	DeletedAt     *gorm.DeletedAt `form:"deleted_at" json:"deleted_at,omitempty" gorm:"column:deleted_at;type:datetime;index:idx_deleted_at;comment:删除时间;"`
 	DeletedUserId int64           `form:"deleted_user_id" json:"deleted_user_id,omitempty" gorm:"column:deleted_user_id;type:bigint(20);size:20;default:0;comment:删除用户ID;"`
@@ -426,10 +427,12 @@ func (m *DBModel) CreateDocuments(documents []Document, categoryIds []int64) (do
 		}
 	}()
 
+	docCount := len(documents)
+
 	// 1. 分类下的文档数增加
 	err = sess.Model(&Category{}).
 		Where("id in ?", categoryIds).
-		Update("doc_count", gorm.Expr("doc_count + ?", len(documents))).Error
+		Update("doc_count", gorm.Expr("doc_count + ?", docCount)).Error
 	if err != nil {
 		m.logger.Error("CreateDocuments", zap.Error(err))
 		return
@@ -454,6 +457,60 @@ func (m *DBModel) CreateDocuments(documents []Document, categoryIds []int64) (do
 		}
 	}
 	err = sess.Create(docCates).Error
+	if err != nil {
+		m.logger.Error("CreateDocuments", zap.Error(err))
+		return
+	}
+
+	// 用户文档数增加
+	err = sess.Model(&User{}).Where("id = ?", documents[0].UserId).Update("doc_count", gorm.Expr("doc_count + ?", docCount)).Error
+	if err != nil {
+		m.logger.Error("CreateDocuments", zap.Error(err))
+		return
+	}
+
+	// 奖励的数量
+	awardCount := docCount
+	cfg := m.GetConfigOfScore()
+	m.logger.Debug("CreateDocuments", zap.Any("GetConfigOfScore", cfg))
+	if cfg.UploadDocumentLimit > 0 {
+		var todayUploadCount int64
+		sess.Model(&Document{}).Where("user_id = ? and created_at >= ?", documents[0].UserId, time.Now().Format("2006-01-02")).Count(&todayUploadCount)
+
+		// 默认获得的积分奖励
+		creditCount := cfg.UploadDocument * int32(docCount)
+		if todayUploadCount > int64(cfg.UploadDocumentLimit) {
+			awardCount = int(cfg.UploadDocumentLimit + int32(docCount) - int32(todayUploadCount))
+			creditCount = cfg.UploadDocument * int32(awardCount)
+		}
+		m.logger.Debug("CreateDocuments", zap.Int32("creditCount", creditCount))
+		if creditCount > 0 {
+			err = sess.Model(&User{}).Where("id = ?", documents[0].UserId).Update("credit_count", gorm.Expr("credit_count + ?", creditCount)).Error
+			if err != nil {
+				m.logger.Error("CreateDocuments", zap.Error(err))
+				return
+			}
+		}
+	}
+
+	// 添加动态
+	var dynamics []Dynamic
+	for idx, doc := range documents {
+		var award int32
+		if idx < awardCount {
+			award = cfg.UploadDocument
+		}
+		content := fmt.Sprintf(`上传了文档《<a href="/document/%d">%s</a>》`, doc.Id, html.EscapeString(doc.Title))
+		if award > 0 {
+			content += fmt.Sprintf(`，获得了 %d 个魔豆奖励`, award)
+		}
+		dynamics = append(dynamics, Dynamic{
+			UserId:  doc.UserId,
+			Type:    DynamicTypeUpload,
+			Content: content,
+		})
+	}
+	err = sess.Create(dynamics).Error
 	if err != nil {
 		m.logger.Error("CreateDocuments", zap.Error(err))
 		return
