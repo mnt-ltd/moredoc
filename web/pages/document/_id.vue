@@ -77,6 +77,7 @@
             <el-button
               type="primary"
               icon="el-icon-download"
+              :loading="downloading"
               @click="downloadDocument"
             >
               下载文档({{ formatBytes(document.size) }})</el-button
@@ -110,6 +111,7 @@
                 type="primary"
                 icon="el-icon-download"
                 class="float-right"
+                :loading="downloading"
                 @click="downloadDocument"
                 >下载文档({{ formatBytes(document.size) }})</el-button
               >
@@ -222,6 +224,7 @@
               <el-button
                 type="primary"
                 icon="el-icon-download"
+                :loading="downloading"
                 @click="downloadDocument"
                 >下载文档({{ formatBytes(document.size) }})</el-button
               >
@@ -265,6 +268,7 @@ export default {
           hash: '',
         },
       },
+      downloading: false,
       documentId: parseInt(this.$route.params.id) || 0,
       pages: [],
       pageHeight: 0,
@@ -403,6 +407,7 @@ export default {
       this.$refs.commentList.getComments()
     },
     async downloadDocument() {
+      this.downloading = true
       const res = await downloadDocument({
         id: this.documentId,
       })
@@ -410,9 +415,10 @@ export default {
         this.getUser()
         // 跳转下载
         window.location.href = res.data.url
-        return
+      } else {
+        this.$message.error(res.data.message || '下载失败')
       }
-      this.$message.error(res.data.message || '下载失败')
+      this.downloading = false
     },
     prevPage() {
       if (this.currentPage > 1) {
