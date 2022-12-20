@@ -189,6 +189,7 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 	if doc.Id == 0 {
 		return nil, status.Error(codes.NotFound, "文档不存在")
 	}
+	doc.ViewCount += 1
 
 	_, err := s.checkPermission(ctx)
 	if err != nil && doc.Status == model.DocumentStatusDisabled {
@@ -213,6 +214,7 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 		user, _ := s.dbModel.GetUser(doc.UserId, model.UserPublicFields...)
 		pbDoc.User = &pb.User{}
 		util.CopyStruct(&user, pbDoc.User)
+		s.dbModel.UpdateDocument(&model.Document{Id: doc.Id, ViewCount: doc.ViewCount}, nil, "view_count")
 	}
 
 	// 查找文档相关联的附件。对于列表，只返回hash和id，不返回其他字段

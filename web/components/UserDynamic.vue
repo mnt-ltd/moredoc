@@ -4,7 +4,10 @@
       <el-table v-loading="loading" :data="dynamics" style="width: 100%">
         <el-table-column prop="created_at" label="时间" width="160">
           <template slot-scope="scope">
-            <el-tooltip :content="formatDatetime(scope.row.created_at)">
+            <el-tooltip
+              :content="formatDatetime(scope.row.created_at)"
+              placement="top"
+            >
               <span>{{ formatRelativeTime(scope.row.created_at) }}</span>
             </el-tooltip>
           </template>
@@ -52,13 +55,6 @@ export default {
     }
   },
   watch: {
-    userId: {
-      handler(val) {
-        this.query.id = val
-        this.getDynamics()
-      },
-      immediate: true,
-    },
     '$route.query': {
       handler(val) {
         this.query.page = parseInt(val.page) || 1

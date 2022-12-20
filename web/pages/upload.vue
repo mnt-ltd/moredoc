@@ -194,7 +194,7 @@
                     </div>
                     <div>
                       <img src="/static/images/excel_24.png" alt="Excel文档" />
-                      xls，xlsx，et，ods
+                      xls，xlsx，et，ods，csv，tsv
                     </div>
                     <div>
                       <img src="/static/images/other_24.png" alt="其他文档" />
@@ -274,6 +274,8 @@ export default {
         '.pot',
         '.xls',
         '.xlsx',
+        '.csv',
+        '.tsv',
         '.et',
         '.ods',
         '.epub',

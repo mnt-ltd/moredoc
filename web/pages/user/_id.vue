@@ -29,7 +29,6 @@
                 ><i class="el-icon-magic-stick"></i>&nbsp;动态</nuxt-link
               >
             </span>
-            <user-dynamic v-if="user.id > 0" :user-id="user.id" />
           </el-tab-pane>
           <el-tab-pane name="user-id-document">
             <span slot="label">
@@ -42,7 +41,6 @@
                 ><i class="el-icon-document"></i>&nbsp;文档</nuxt-link
               >
             </span>
-            <nuxt-child />
           </el-tab-pane>
           <el-tab-pane name="user-id-favorite">
             <span slot="label">
@@ -55,34 +53,8 @@
                 ><i class="el-icon-star-off"></i>&nbsp;收藏</nuxt-link
               >
             </span>
-            <nuxt-child />
           </el-tab-pane>
-          <!-- <el-tab-pane name="user-id-fans">
-            <span slot="label">
-              <nuxt-link
-                class="el-link el-link--default"
-                :to="{
-                  name: 'user-id-fans',
-                  params: { id: user.id },
-                }"
-                ><i class="fa fa-user-o"></i>&nbsp;粉丝</nuxt-link
-              >
-            </span>
-            <nuxt-child />
-          </el-tab-pane>
-          <el-tab-pane name="user-id-follow">
-            <span slot="label">
-              <nuxt-link
-                class="el-link el-link--default"
-                :to="{
-                  name: 'user-id-follow',
-                  params: { id: user.id },
-                }"
-                ><i class="fa fa-user"></i>&nbsp;关注</nuxt-link
-              >
-            </span>
-            <nuxt-child />
-          </el-tab-pane> -->
+          <nuxt-child />
         </el-tabs>
       </el-col>
     </el-row>
@@ -90,11 +62,9 @@
 </template>
 
 <script>
-import UserDynamic from '~/components/UserDynamic.vue'
 import { getUser } from '~/api/user'
 export default {
   name: 'PageUser',
-  components: { UserDynamic },
   data() {
     return {
       user: {

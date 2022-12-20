@@ -1,26 +1,6 @@
 <template>
   <div class="com-user-document">
     <el-card shadow="never">
-      <div slot="header">
-        <span>文档列表</span>
-        <el-tabs class="float-right">
-          <el-tab-pane name="latest">
-            <span slot="label"><i class="el-icon-date"></i> 最新</span>
-          </el-tab-pane>
-          <el-tab-pane name="hot">
-            <span slot="label"><i class="el-icon-view"></i> 浏览</span>
-          </el-tab-pane>
-          <el-tab-pane name="favorite">
-            <span slot="label"><i class="el-icon-date"></i> 收藏</span>
-          </el-tab-pane>
-          <el-tab-pane name="download">
-            <span slot="label"><i class="el-icon-download"></i> 下载</span>
-          </el-tab-pane>
-          <el-tab-pane name="pages">
-            <span slot="label"><i class="el-icon-files"></i> 页数</span>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
       <el-table v-loading="loading" :data="docs" style="width: 100%">
         <el-table-column prop="title" label="名称" min-width="300">
           <template slot-scope="scope">
@@ -32,10 +12,7 @@
               }"
               class="el-link el-link--default doc-title"
             >
-              <img
-                :src="'/static/images/' + scope.row.type + '_24.png'"
-                alt=""
-              />
+              <img :src="`/static/images/${scope.row.ext}_24.png`" alt="" />
               {{ scope.row.title }}
             </nuxt-link>
           </template>
@@ -50,23 +27,44 @@
           </template>
         </el-table-column>
         <el-table-column prop="view_count" label="浏览" width="70">
+          <template slot-scope="scope">{{
+            scope.row.view_count || 0
+          }}</template>
         </el-table-column>
         <el-table-column prop="download_count" label="下载" width="70">
+          <template slot-scope="scope">{{
+            scope.row.download_count || 0
+          }}</template>
         </el-table-column>
         <el-table-column prop="favorite_count" label="收藏" width="70">
           <template slot-scope="scope">{{
-            scope.row.favorite_count || '-'
+            scope.row.favorite_count || 0
           }}</template>
         </el-table-column>
         <el-table-column prop="page" label="页数" width="70">
-          <template slot-scope="scope">{{ scope.row.page || '-' }}</template>
+          <template slot-scope="scope">{{ scope.row.pages || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="size" label="大小" width="70">
-          <template slot-scope="scope">{{ scope.row.size || '-' }}</template>
+        <el-table-column prop="size" label="大小" width="100">
+          <template slot-scope="scope">{{
+            formatBytes(scope.row.size)
+          }}</template>
         </el-table-column>
         <el-table-column prop="created_at" label="上传" width="100">
+          <template slot-scope="scope">
+            <el-tooltip
+              :content="formatDatetime(scope.row.created_at)"
+              placement="top"
+            >
+              <span>{{ formatRelativeTime(scope.row.created_at) }}</span>
+            </el-tooltip>
+          </template>
         </el-table-column>
-        <el-table-column label="操作" width="70" fixed="right">
+        <el-table-column
+          v-if="userId === user.id"
+          label="操作"
+          width="70"
+          fixed="right"
+        >
           <template slot-scope="scope">
             <el-tooltip content="编辑文档" placement="top">
               <el-button type="text" icon="el-icon-edit"></el-button>
@@ -79,157 +77,91 @@
       </el-table>
     </el-card>
     <el-pagination
-      :current-page="1"
-      :page-size="10"
+      v-if="total > 0"
+      :current-page="query.page"
+      :page-size="query.size"
       layout="total,  prev, pager, next, jumper"
-      :total="400"
+      :total="total"
+      @current-change="pageChange"
     >
     </el-pagination>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+import { listDocument } from '~/api/document'
+import { formatBytes, formatDatetime, formatRelativeTime } from '~/utils/utils'
+
 export default {
   name: 'UserDocument',
+  props: {
+    userId: {
+      type: Number,
+      required: true,
+    },
+  },
   data() {
     return {
-      docs: [
-        {
-          id: 1,
-          title: 'Docker — 从入门到实战-BookStack.CN',
-          type: 'pdf',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 3.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 2,
-          title: 'MongoDB简明教程',
-          type: 'word',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 1.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 3,
-          title: 'TypeScript 官方文档',
-          type: 'excel',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 4,
-          title:
-            'DolphinPHP1.3.0完全开发手册-基于ThinkPHP5.0.20的快速开发框架-05221135',
-          type: 'text',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 1,
-          title: 'Docker — 从入门到实战-BookStack.CN',
-          type: 'pdf',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 3.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 2,
-          title: 'MongoDB简明教程',
-          type: 'word',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 1.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 3,
-          title: 'TypeScript 官方文档',
-          type: 'excel',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 4,
-          title:
-            'DolphinPHP1.3.0完全开发手册-基于ThinkPHP5.0.20的快速开发框架-05221135',
-          type: 'text',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 1,
-          title: 'Docker — 从入门到实战-BookStack.CN',
-          type: 'pdf',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 3.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 2,
-          title: 'MongoDB简明教程',
-          type: 'word',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 1.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 3,
-          title: 'TypeScript 官方文档',
-          type: 'excel',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 4,
-          title:
-            'DolphinPHP1.3.0完全开发手册-基于ThinkPHP5.0.20的快速开发框架-05221135',
-          type: 'text',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4.5,
-          created_at: '2022-01-02',
-        },
-      ],
-      total: 100,
+      docs: [],
+      total: 0,
       loading: false,
+      query: {
+        page: parseInt(this.$route.query.page) || 1,
+        size: 15,
+      },
     }
   },
-  head() {
-    return {
-      title: 'MOREDOC · 魔豆文库，开源文库系统',
-    }
+  computed: {
+    ...mapGetters('user', ['user']),
+  },
+  watch: {
+    '$route.query': {
+      handler() {
+        this.query.page = parseInt(this.$route.query.page) || 1
+        this.getDocuments()
+      },
+      deep: true,
+    },
+  },
+  created() {
+    console.log('created')
+    this.getDocuments()
   },
   methods: {
+    formatBytes,
+    formatDatetime,
+    formatRelativeTime,
     tabClick(tab) {
       this.activeTab = tab.name
+    },
+    async getDocuments() {
+      if (this.userId === 0 || this.loading) return
+      this.loading = true
+      const res = await listDocument({
+        ...this.query,
+        user_id: this.userId,
+      })
+      if (res.status === 200) {
+        const docs = res.data.document || []
+        docs.map((item) => {
+          item.score = item.score / 100 || 0.0
+          try {
+            item.ext = item.ext.replace('.', '')
+          } catch (e) {
+            console.log(e)
+          }
+          return item
+        })
+        this.docs = docs
+        this.total = res.data.total || 0
+      }
+      this.loading = false
+    },
+    pageChange(page) {
+      this.$router.push({
+        query: { page },
+      })
     },
   },
 }
@@ -243,13 +175,12 @@ export default {
       font-weight: 400;
     }
     .el-card__body {
-      padding: 0;
-      padding-bottom: 20px;
+      padding: 15px 0 20px 0;
+      a {
+        line-height: 40px;
+        display: inline-block;
+      }
     }
-  }
-  .float-right {
-    position: relative;
-    top: -20px;
   }
   .el-tabs__header {
     margin-bottom: 0;
@@ -263,9 +194,6 @@ export default {
   }
   .el-tabs__item.is-active {
     border-top: 0 !important;
-  }
-  .el-table {
-    margin-top: -11px;
   }
   .doc-title {
     display: block;

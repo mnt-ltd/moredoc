@@ -1,9 +1,8 @@
 <template>
   <div>
-    <user-document :user-id="userId" />
+    <user-dynamic :user-id="userId" />
   </div>
 </template>
-
 <script>
 export default {
   data() {
@@ -13,5 +12,3 @@ export default {
   },
 }
 </script>
-
-<style></style>
