@@ -1,27 +1,7 @@
 <template>
   <div class="com-user-favorite">
     <el-card shadow="never">
-      <div slot="header">
-        <span>收藏列表</span>
-        <el-tabs class="float-right">
-          <el-tab-pane name="latest">
-            <span slot="label"><i class="el-icon-date"></i> 最新</span>
-          </el-tab-pane>
-          <el-tab-pane name="hot">
-            <span slot="label"><i class="el-icon-view"></i> 浏览</span>
-          </el-tab-pane>
-          <el-tab-pane name="favorite">
-            <span slot="label"><i class="el-icon-date"></i> 收藏</span>
-          </el-tab-pane>
-          <el-tab-pane name="download">
-            <span slot="label"><i class="el-icon-download"></i> 下载</span>
-          </el-tab-pane>
-          <el-tab-pane name="pages">
-            <span slot="label"><i class="el-icon-files"></i> 页数</span>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
-      <el-table v-loading="loading" :data="docs" style="width: 100%">
+      <el-table v-loading="loading" :data="favorites" style="width: 100%">
         <el-table-column prop="title" label="文档" min-width="300" fixed="left">
           <template slot-scope="scope">
             <nuxt-link
@@ -32,10 +12,7 @@
               }"
               class="el-link el-link--default doc-title"
             >
-              <img
-                :src="'/static/images/' + scope.row.type + '_24.png'"
-                alt=""
-              />
+              <img :src="`/static/images/${scope.row.ext}_24.png`" alt="" />
               {{ scope.row.title }}
             </nuxt-link>
           </template>
@@ -49,23 +26,23 @@
             ></el-rate>
           </template>
         </el-table-column>
-
-        <el-table-column prop="view_count" label="浏览" width="70">
+        <el-table-column prop="page" label="页数" width="70">
+          <template slot-scope="scope">{{ scope.row.pages || '-' }}</template>
         </el-table-column>
-        <el-table-column prop="download_count" label="下载" width="70">
-        </el-table-column>
-        <el-table-column prop="favorite_count" label="收藏" width="70">
+        <el-table-column prop="size" label="大小" width="100">
           <template slot-scope="scope">{{
-            scope.row.favorite_count || '-'
+            formatBytes(scope.row.size)
           }}</template>
         </el-table-column>
-        <el-table-column prop="page" label="页数" width="70">
-          <template slot-scope="scope">{{ scope.row.page || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="size" label="大小" width="70">
-          <template slot-scope="scope">{{ scope.row.size || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="created_at" label="上传" width="100">
+        <el-table-column prop="created_at" label="收藏时间" width="160">
+          <template slot-scope="scope">
+            <el-tooltip
+              :content="formatDatetime(scope.row.created_at)"
+              placement="top"
+            >
+              <span>{{ formatRelativeTime(scope.row.created_at) }}</span>
+            </el-tooltip>
+          </template>
         </el-table-column>
         <el-table-column label="操作" width="70" fixed="right">
           <template slot-scope="scope">
@@ -75,157 +52,74 @@
       </el-table>
     </el-card>
     <el-pagination
-      :current-page="1"
-      :page-size="10"
+      v-if="total > 0"
+      :current-page="query.page"
+      :page-size="query.size"
       layout="total,  prev, pager, next, jumper"
-      :total="400"
+      :total="total"
     >
     </el-pagination>
   </div>
 </template>
 
 <script>
+import { listFavorite } from '~/api/favorite'
+import { formatDatetime, formatRelativeTime, formatBytes } from '~/utils/utils'
 export default {
   name: 'UserFavorite',
+  props: {
+    userId: {
+      type: Number,
+      default: 0,
+    },
+  },
   data() {
     return {
-      docs: [
-        {
-          id: 1,
-          title: 'Docker — 从入门到实战-BookStack.CN',
-          type: 'pdf',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 3.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 2,
-          title: 'MongoDB简明教程',
-          type: 'word',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 1.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 3,
-          title: 'TypeScript 官方文档',
-          type: 'excel',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 4,
-          title:
-            'DolphinPHP1.3.0完全开发手册-基于ThinkPHP5.0.20的快速开发框架-05221135',
-          type: 'text',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 1,
-          title: 'Docker — 从入门到实战-BookStack.CN',
-          type: 'pdf',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 3.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 2,
-          title: 'MongoDB简明教程',
-          type: 'word',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 1.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 3,
-          title: 'TypeScript 官方文档',
-          type: 'excel',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 4,
-          title:
-            'DolphinPHP1.3.0完全开发手册-基于ThinkPHP5.0.20的快速开发框架-05221135',
-          type: 'text',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 1,
-          title: 'Docker — 从入门到实战-BookStack.CN',
-          type: 'pdf',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 3.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 2,
-          title: 'MongoDB简明教程',
-          type: 'word',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 1.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 3,
-          title: 'TypeScript 官方文档',
-          type: 'excel',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 4,
-          title:
-            'DolphinPHP1.3.0完全开发手册-基于ThinkPHP5.0.20的快速开发框架-05221135',
-          type: 'text',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4.5,
-          created_at: '2022-01-02',
-        },
-      ],
-      total: 100,
+      favorites: [],
+      total: 0,
       loading: false,
+      query: {
+        page: parseInt(this.$route.query.page) || 1,
+        size: 15,
+      },
     }
   },
-  head() {
-    return {
-      title: 'MOREDOC · 魔豆文库，开源文库系统',
-    }
+  watch: {
+    '$route.query.page': {
+      handler(val) {
+        this.query.page = parseInt(val) || 1
+        this.getFavorites()
+      },
+      immediate: true,
+    },
+  },
+  created() {
+    this.getFavorites()
   },
   methods: {
-    tabClick(tab) {
-      this.activeTab = tab.name
+    formatDatetime,
+    formatRelativeTime,
+    formatBytes,
+    async getFavorites() {
+      this.loading = true
+      const res = await listFavorite({
+        page: this.query.page,
+        size: 15,
+        user_id: this.userId,
+      })
+      if (res.status === 200) {
+        let favorites = res.data.favorite || []
+        favorites = favorites.map((item) => {
+          item.score = item.score / 100 || 3.0
+          try {
+            item.ext = item.ext.replace('.', '')
+          } catch (error) {}
+          return item
+        })
+        this.favorites = favorites
+        this.total = res.data.total || 0
+      }
+      this.loading = false
     },
   },
 }
@@ -239,8 +133,7 @@ export default {
       font-weight: 400;
     }
     .el-card__body {
-      padding: 0;
-      padding-bottom: 20px;
+      padding: 15px 0 20px 0;
     }
   }
   .float-right {

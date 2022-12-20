@@ -151,7 +151,8 @@ func (m *DBModel) GetFavoriteList(opt *OptionGetFavoriteList, documentStatus ...
 	}
 
 	db = db.Order("id desc").Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
-	err = db.Select("f.*, a.title").Find(&favoriteList).Error
+	// 注意：size字段要用size_ 才能映射到pb.Favorite
+	err = db.Select("f.*, a.title, a.ext, a.score, a.pages, a.size as size_").Find(&favoriteList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetFavoriteList", zap.Error(err))
 	}
