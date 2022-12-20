@@ -112,7 +112,7 @@ message Dynamic {
 message ListUserDynamicRequest {
   int64 page = 1;
   int64 size = 2;
-  int64 user_id = 3;
+  int64 id = 3;
 }
 
 message ListUserDynamicReply {

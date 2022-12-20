@@ -572,3 +572,36 @@ func (s *UserAPIService) SignToday(ctx context.Context, req *emptypb.Empty) (*v1
 	util.CopyStruct(sign, pbSign)
 	return pbSign, nil
 }
+
+func (s *UserAPIService) ListUserDynamic(ctx context.Context, req *v1.ListUserDynamicRequest) (*v1.ListUserDynamicReply, error) {
+	userId := req.Id
+	if userId == 0 {
+		userClaims, _ := checkGRPCLogin(s.dbModel, ctx)
+		if userClaims == nil {
+			return nil, status.Error(codes.Unauthenticated, "用户ID参数不正确")
+		}
+		userId = userClaims.UserId
+	}
+
+	opt := &model.OptionGetDynamicList{
+		WithCount: true,
+		Page:      int(req.Page),
+		Size:      int(req.Size_),
+		QueryIn: map[string][]interface{}{
+			"user_id": {userId},
+		},
+	}
+
+	opt.Size = util.LimitRange(opt.Size, 10, 100)
+	opt.Page = util.LimitMin(opt.Page, 1)
+
+	dynamics, total, err := s.dbModel.GetDynamicList(opt)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	var pbDynamics []*v1.Dynamic
+	util.CopyStruct(&dynamics, &pbDynamics)
+
+	return &v1.ListUserDynamicReply{Dynamic: pbDynamics, Total: total}, nil
+}

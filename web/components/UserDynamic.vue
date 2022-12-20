@@ -1,168 +1,100 @@
 <template>
   <div class="com-user-dynamic">
     <el-card shadow="never">
-      <el-table v-loading="loading" :data="docs" style="width: 100%">
-        <el-table-column prop="type" label="类型" width="100">
-        </el-table-column>
+      <el-table v-loading="loading" :data="dynamics" style="width: 100%">
         <el-table-column prop="created_at" label="时间" width="160">
+          <template slot-scope="scope">
+            <el-tooltip :content="formatDatetime(scope.row.created_at)">
+              <span>{{ formatRelativeTime(scope.row.created_at) }}</span>
+            </el-tooltip>
+          </template>
         </el-table-column>
         <el-table-column prop="title" label="内容">
-          <template slot-scope="scope">{{ scope.row.title || '-' }}</template>
+          <template slot-scope="scope">
+            <!-- eslint-disable-next-line vue/no-v-html -->
+            <span v-html="scope.row.content"></span>
+          </template>
         </el-table-column>
       </el-table>
     </el-card>
     <el-pagination
-      :current-page="1"
-      :page-size="10"
+      v-if="total > 0"
+      :current-page="query.page"
+      :page-size="query.size"
       layout="total,  prev, pager, next, jumper"
-      :total="400"
+      :total="total"
+      @current-change="pageChange"
     >
     </el-pagination>
   </div>
 </template>
 
 <script>
+import { getDynamics } from '~/api/user'
+import { formatRelativeTime, formatDatetime } from '~/utils/utils'
 export default {
   name: 'UserDynamic',
+  props: {
+    userId: {
+      type: Number,
+      default: 0,
+    },
+  },
   data() {
     return {
-      docs: [
-        {
-          id: 1,
-          title: 'Docker — 从入门到实战-BookStack.CN',
-          type: 'pdf',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 3.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 2,
-          title: 'MongoDB简明教程',
-          type: 'word',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 1.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 3,
-          title: 'TypeScript 官方文档',
-          type: 'excel',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 4,
-          title:
-            'DolphinPHP1.3.0完全开发手册-基于ThinkPHP5.0.20的快速开发框架-05221135',
-          type: 'text',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 1,
-          title: 'Docker — 从入门到实战-BookStack.CN',
-          type: 'pdf',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 3.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 2,
-          title: 'MongoDB简明教程',
-          type: 'word',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 1.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 3,
-          title: 'TypeScript 官方文档',
-          type: 'excel',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 4,
-          title:
-            'DolphinPHP1.3.0完全开发手册-基于ThinkPHP5.0.20的快速开发框架-05221135',
-          type: 'text',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 1,
-          title: 'Docker — 从入门到实战-BookStack.CN',
-          type: 'pdf',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 3.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 2,
-          title: 'MongoDB简明教程',
-          type: 'word',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 1.5,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 3,
-          title: 'TypeScript 官方文档',
-          type: 'excel',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4,
-          created_at: '2022-01-02',
-        },
-        {
-          id: 4,
-          title:
-            'DolphinPHP1.3.0完全开发手册-基于ThinkPHP5.0.20的快速开发框架-05221135',
-          type: 'text',
-          cover: '',
-          view_count: 0,
-          download_count: 1,
-          score: 4.5,
-          created_at: '2022-01-02',
-        },
-      ],
-      total: 100,
       loading: false,
+      query: {
+        page: parseInt(this.$route.query.page) || 1,
+        size: 20,
+      },
+      dynamics: [],
+      total: 0,
     }
   },
-  head() {
-    return {
-      title: 'MOREDOC · 魔豆文库，开源文库系统',
-    }
+  watch: {
+    userId: {
+      handler(val) {
+        this.query.id = val
+        this.getDynamics()
+      },
+      immediate: true,
+    },
+    '$route.query': {
+      handler(val) {
+        this.query.page = parseInt(val.page) || 1
+        this.getDynamics()
+      },
+      immediate: true,
+    },
   },
   methods: {
+    formatDatetime,
+    formatRelativeTime,
     tabClick(tab) {
       this.activeTab = tab.name
+    },
+    pageChange(page) {
+      this.query.page = page
+      this.$router.push({
+        name: 'user-id',
+        params: {
+          id: this.userId,
+        },
+        query: {
+          page,
+        },
+      })
+    },
+    async getDynamics() {
+      if (this.loading) return
+      this.loading = true
+      const res = await getDynamics({ ...this.query, id: this.userId })
+      if (res.status === 200) {
+        this.dynamics = res.data.dynamic || []
+        this.total = res.data.total || 0
+      }
+      console.log(res)
+      this.loading = false
     },
   },
 }

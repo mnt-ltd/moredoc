@@ -29,7 +29,7 @@
                 ><i class="el-icon-magic-stick"></i>&nbsp;动态</nuxt-link
               >
             </span>
-            动态 动态
+            <user-dynamic v-if="user.id > 0" :user-id="user.id" />
           </el-tab-pane>
           <el-tab-pane name="user-id-document">
             <span slot="label">
@@ -90,9 +90,11 @@
 </template>
 
 <script>
+import UserDynamic from '~/components/UserDynamic.vue'
 import { getUser } from '~/api/user'
 export default {
   name: 'PageUser',
+  components: { UserDynamic },
   data() {
     return {
       user: {
@@ -154,6 +156,7 @@ export default {
       }
       & > .el-tabs__content {
         padding-top: 5px;
+        min-height: 805px;
       }
     }
   }

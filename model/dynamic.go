@@ -113,9 +113,10 @@ func (m *DBModel) GetDynamicList(opt *OptionGetDynamicList) (dynamicList []Dynam
 	opt.SelectFields = m.FilterValidFields(tableName, opt.SelectFields...)
 	if len(opt.SelectFields) > 0 {
 		db = db.Select(opt.SelectFields)
+	} else {
+		db = db.Select(m.GetTableFields(tableName))
 	}
 
-	// TODO: 没有排序参数的话，可以自行指定排序字段
 	db = m.generateQuerySort(db, tableName, opt.Sort)
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)

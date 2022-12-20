@@ -95,6 +95,14 @@ export const getUserCaptcha = (params) => {
   })
 }
 
+export const getDynamics = (params) => {
+  return service({
+    url: '/api/v1/user/dynamic',
+    method: 'get',
+    params,
+  })
+}
+
 export const getUserPermissions = (params) => {
   return service({
     url: '/api/v1/user/permission',
