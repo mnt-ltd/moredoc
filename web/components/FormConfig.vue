@@ -4,7 +4,7 @@
       ref="formConfig"
       label-position="top"
       label-width="80px"
-      :model="{}"
+      :model="configs"
     >
       <el-form-item
         v-for="(item, index) in configs"
@@ -15,9 +15,9 @@
           v-if="item.input_type === 'number'"
           v-model="configs[index]['value']"
           clearable
+          :min="0"
           :placeholder="item.placeholder"
           :step="1"
-          :min="0"
         ></el-input-number>
         <el-input
           v-else-if="item.input_type === 'textarea'"
@@ -89,25 +89,26 @@ export default {
   data() {
     return {
       loading: false,
-      configs: [],
+      // 转成对象的方式来处理，解决采用数组方式，数据不响应的问题
+      configs: {},
     }
   },
   watch: {
     initConfigs: {
       handler(val) {
-        this.configs = val
+        this.configs = { ...val }
       },
       immediate: true,
     },
   },
   created() {
-    this.configs = this.initConfigs
+    this.configs = { ...this.initConfigs }
   },
   methods: {
     async onSubmit() {
       this.loading = true
       const configs = []
-      this.configs.forEach((item) => {
+      Object.values(this.configs).forEach((item) => {
         // 注意：value值类型全都是字符串，所以提交上去的value值也要转换成字符串
         let value = ''
         try {
@@ -125,7 +126,7 @@ export default {
     },
     success(res, index) {
       console.log(res, index)
-      this.configs[index].value = res.data.path
+      this.configs[index] = { ...this.configs[index], value: res.data.path }
     },
   },
 }
