@@ -561,7 +561,7 @@ func (m *DBModel) initConfig() (err error) {
 		// 积分规则配置
 		{Category: ConfigCategoryScore, Name: ConfigScoreRegister, Label: "注册", Value: "10", Placeholder: "注册时获得的魔豆", InputType: "number", Sort: 10, Options: ""},
 		{Category: ConfigCategoryScore, Name: ConfigScoreSignIn, Label: "签到", Value: "1", Placeholder: "每日签到获得的魔豆", InputType: "number", Sort: 20, Options: ""},
-		{Category: ConfigCategoryScore, Name: ConfigScoreDeleteDocument, Label: "删除文档", Value: "-10", Placeholder: "删除上传文档可获得的魔豆，负数表示扣除", InputType: "number", Sort: 25, Options: ""},
+		{Category: ConfigCategoryScore, Name: ConfigScoreDeleteDocument, Label: "删除文档", Value: "1", Placeholder: "删除上传文档扣除的魔豆，0表示不扣除", InputType: "number", Sort: 25, Options: ""},
 		{Category: ConfigCategoryScore, Name: ConfigScoreUploadDocument, Label: "上传文档", Value: "5", Placeholder: "上传一篇文档可获得的魔豆", InputType: "number", Sort: 30, Options: ""},
 		{Category: ConfigCategoryScore, Name: ConfigScoreUploadDocumentLimit, Label: "每日上传文档奖励次数", Value: "1", Placeholder: "每天最多可以获得多少次文档上传奖励，0表示无奖励。", InputType: "number", Sort: 40, Options: ""},
 		{Category: ConfigCategoryScore, Name: ConfigScoreDocumentCollected, Label: "文档被收藏", Value: "1", Placeholder: "上传的文档被收藏后获得的魔豆", InputType: "number", Sort: 50, Options: ""},

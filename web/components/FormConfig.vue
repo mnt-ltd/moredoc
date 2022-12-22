@@ -17,6 +17,7 @@
           clearable
           :placeholder="item.placeholder"
           :step="1"
+          :min="0"
         ></el-input-number>
         <el-input
           v-else-if="item.input_type === 'textarea'"

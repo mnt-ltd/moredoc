@@ -70,7 +70,11 @@
               <el-button type="text" icon="el-icon-edit"></el-button>
             </el-tooltip>
             <el-tooltip content="删除文档" placement="top">
-              <el-button type="text" icon="el-icon-delete"></el-button>
+              <el-button
+                type="text"
+                icon="el-icon-delete"
+                @click="deleteDocument(scope.row)"
+              ></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -90,7 +94,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { listDocument } from '~/api/document'
+import { deleteDocument, listDocument } from '~/api/document'
 import { formatBytes, formatDatetime, formatRelativeTime } from '~/utils/utils'
 
 export default {
@@ -163,6 +167,22 @@ export default {
         query: { page },
       })
     },
+    deleteDocument(row) {
+      this.$confirm(`您确定要删除文档《${row.title}》吗？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(async () => {
+        const res = await deleteDocument({ id: row.id })
+        if (res.status === 200) {
+          this.$message({
+            type: 'success',
+            message: '删除成功!',
+          })
+          this.getDocuments()
+        }
+      })
+    },
   },
 }
 </script>
@@ -179,6 +199,7 @@ export default {
       a {
         line-height: 40px;
         display: inline-block;
+        max-width: 100%;
       }
     }
   }

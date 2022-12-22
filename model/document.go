@@ -257,7 +257,7 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 	var (
 		docs                  []Document
 		docCates              []DocumentCategory
-		docFields             = []string{"id", "status", "user_id", "deleted_at", "deleted_user_id"}
+		docFields             = []string{"id", "status", "user_id", "deleted_at", "deleted_user_id", "title"}
 		docCateFields         = []string{"id", "document_id", "category_id"}
 		modelUser             = &User{}
 		modelDocument         = &Document{}
@@ -274,6 +274,8 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 		docCateMap[docCate.DocumentId] = append(docCateMap[docCate.DocumentId], docCate.CategoryId)
 	}
 
+	cfgScore := m.GetConfigOfScore(ConfigScoreDeleteDocument)
+
 	sess := m.db.Begin()
 	defer func() {
 		if err != nil {
@@ -282,6 +284,14 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 			sess.Commit()
 		}
 	}()
+
+	if len(deepDelete) > 0 && deepDelete[0] { // 彻底删除
+		err = sess.Model(&Attachment{}).Where("type = ? and type_id in (?)", AttachmentTypeDocument, ids).Update("type_id", 0).Error
+		if err != nil {
+			m.logger.Error("DeleteDocument", zap.Error(err))
+			return
+		}
+	}
 
 	for _, doc := range docs {
 		// 文档不是禁用状态，且未被逻辑删除，则需要减少用户、分类下的文档统计数量
@@ -315,21 +325,45 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 				m.logger.Error("DeleteDocument", zap.Error(err))
 				return
 			}
-		} else { // 逻辑删除
-			err = sess.Model(&doc).Where("id = ?", doc.Id).Updates(map[string]interface{}{
-				"deleted_at":      time.Now(),
-				"deleted_user_id": deletedUserId,
-			}).Error
+			continue
 		}
 
+		// 逻辑删除
+		err = sess.Model(&doc).Where("id = ?", doc.Id).Updates(map[string]interface{}{
+			"deleted_at":      time.Now(),
+			"deleted_user_id": deletedUserId,
+		}).Error
 		if err != nil {
 			m.logger.Error("DeleteDocument", zap.Error(err))
 			return
 		}
-	}
 
-	if len(deepDelete) > 0 && deepDelete[0] { // 彻底删除
-		err = sess.Model(&Attachment{}).Where("type = ? and type_id in (?)", AttachmentTypeDocument, ids).Update("type_id", 0).Error
+		// 扣除积分和添加动态
+		dynamic := &Dynamic{
+			UserId:  doc.UserId,
+			Type:    DynamicTypeDeleteDocument,
+			Content: fmt.Sprintf("删除了文档《%s》", doc.Title),
+		}
+
+		if cfgScore.DeleteDocument != 0 { // 小于0表示扣除积分
+			score := cfgScore.DeleteDocument
+			if score < 0 {
+				score = -score
+			}
+			dynamic.Content += fmt.Sprintf("，扣除了 %d 魔豆", score)
+			err = sess.Model(modelUser).Where("id = ?", doc.UserId).Update("credit_count", gorm.Expr("credit_count - ?", score)).Error
+			if err != nil {
+				m.logger.Error("DeleteDocument", zap.Error(err))
+				return
+			}
+		}
+
+		err = sess.Create(dynamic).Error
+		if err != nil {
+			m.logger.Error("DeleteDocument", zap.Error(err))
+			return
+		}
+
 		if err != nil {
 			m.logger.Error("DeleteDocument", zap.Error(err))
 			return

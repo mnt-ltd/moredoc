@@ -8,7 +8,7 @@
               target="_blank"
               :to="{
                 name: 'document-id',
-                params: { id: scope.row.id },
+                params: { id: scope.row.document_id },
               }"
               class="el-link el-link--default doc-title"
             >

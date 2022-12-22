@@ -364,6 +364,7 @@ export default {
       } else {
         console.log(res)
         this.$message.error(res.data.message)
+        this.$router.replace('/404')
       }
     },
     handleScroll() {
