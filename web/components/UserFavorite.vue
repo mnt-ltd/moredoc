@@ -100,9 +100,10 @@ export default {
       immediate: true,
     },
   },
-  created() {
-    this.getFavorites()
-  },
+  // created() {
+  //   console.log('created')
+  //   this.getFavorites()
+  // },
   methods: {
     formatDatetime,
     formatRelativeTime,

@@ -89,7 +89,6 @@ export default {
         this.dynamics = res.data.dynamic || []
         this.total = res.data.total || 0
       }
-      console.log(res)
       this.loading = false
     },
   },
