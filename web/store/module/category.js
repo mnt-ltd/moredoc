@@ -28,9 +28,9 @@ export const category = {
         field: ['id', 'title', 'parent_id', 'cover', 'doc_count', 'enable'],
       })
       if (res.status === 200) {
-        commit('setCategories', res.data.category)
-        commit('setCategoryMap', res.data.category)
-        commit('setCategoryTrees', res.data.category)
+        commit('setCategories', res.data.category || [])
+        commit('setCategoryMap', res.data.category || [])
+        commit('setCategoryTrees', res.data.category || [])
       }
       return res
     },
