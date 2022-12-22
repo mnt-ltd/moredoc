@@ -46,7 +46,14 @@
         </el-table-column>
         <el-table-column label="操作" width="70" fixed="right">
           <template slot-scope="scope">
-            <el-button type="text" icon="el-icon-delete">移除</el-button>
+            <el-tooltip content="移除收藏" placement="top">
+              <el-button
+                type="text"
+                icon="el-icon-delete"
+                @click="removeFavorite(scope.row)"
+                >移除</el-button
+              >
+            </el-tooltip>
           </template>
         </el-table-column>
       </el-table>
@@ -63,7 +70,7 @@
 </template>
 
 <script>
-import { listFavorite } from '~/api/favorite'
+import { deleteFavorite, listFavorite } from '~/api/favorite'
 import { formatDatetime, formatRelativeTime, formatBytes } from '~/utils/utils'
 export default {
   name: 'UserFavorite',
@@ -120,6 +127,21 @@ export default {
         this.total = res.data.total || 0
       }
       this.loading = false
+    },
+    removeFavorite(row) {
+      this.$confirm(`您确定要移除收藏的文档《${row.title}》吗？`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(async () => {
+          const res = await deleteFavorite({ id: row.id })
+          if (res.status === 200) {
+            this.$message.success('移除收藏成功')
+            this.getFavorites()
+          }
+        })
+        .catch(() => {})
     },
   },
 }
