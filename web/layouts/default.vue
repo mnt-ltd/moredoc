@@ -37,10 +37,10 @@
               </span>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="ucenter"
-                  ><i class="fa fa-user-o"></i> 个人中心</el-dropdown-item
+                  ><i class="fa fa-user-o"></i> 个人主页</el-dropdown-item
                 >
                 <el-dropdown-item command="profile"
-                  ><i class="fa fa-edit"></i> 修改资料</el-dropdown-item
+                  ><i class="fa fa-edit"></i> 个人资料</el-dropdown-item
                 >
                 <el-dropdown-item command="upload"
                   ><i class="fa fa-cloud-upload"></i>上传文档</el-dropdown-item
@@ -172,20 +172,29 @@
         </div>
       </div>
     </el-footer>
+    <el-dialog
+      title="个人资料"
+      :visible.sync="userinfoDialogVisible"
+      width="520px"
+    >
+      <form-userinfo v-if="userinfoDialogVisible" />
+    </el-dialog>
   </el-container>
 </template>
 <script>
 import { mapGetters, mapActions } from 'vuex'
-import UserAvatar from '../components/UserAvatar.vue'
+import UserAvatar from '~/components/UserAvatar.vue'
+import FormUserinfo from '~/components/FormUserinfo.vue'
 import { listFriendlink } from '~/api/friendlink'
 import { categoryToTrees } from '~/utils/utils'
 export default {
-  components: { UserAvatar },
+  components: { UserAvatar, FormUserinfo },
   data() {
     return {
       search: {
         wd: '',
       },
+      userinfoDialogVisible: false,
       friendlinks: [],
       timeouter: null,
       currentYear: new Date().getFullYear(),
@@ -269,8 +278,7 @@ export default {
           this.$router.push(`/user/${this.user.id}`)
           break
         case 'profile':
-          // 修改个人资料
-          // TODO
+          this.userinfoDialogVisible = true
           break
         case 'admin':
           this.$router.push('/admin')

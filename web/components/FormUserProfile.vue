@@ -1,4 +1,5 @@
 <template>
+  <!-- 更新指定用户的资料 -->
   <div class="com-form-user-profile">
     <el-form label-position="left" label-width="80px" :model="profile">
       <el-form-item label="用户名">
@@ -14,7 +15,14 @@
       <el-form-item label="身份证号">
         <el-input v-model="profile.identity" clearable></el-input>
       </el-form-item>
-      <el-form-item label="电子邮箱">
+      <el-form-item
+        label="电子邮箱"
+        prop="email"
+        :rules="[
+          { required: true, message: '请输入电子邮箱', trigger: 'blur' },
+          { type: 'email', message: '请输入正确的电子邮箱', trigger: 'blur' },
+        ]"
+      >
         <el-input v-model="profile.email" clearable></el-input>
       </el-form-item>
       <el-form-item label="联系电话">
