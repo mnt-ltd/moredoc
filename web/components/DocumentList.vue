@@ -101,7 +101,7 @@ export default {
   .doc-cover {
     .el-image {
       width: 100%;
-      border: 3px solid #efefef;
+      border: 2px solid #efefef;
       border-radius: 5px;
       &:hover img {
         transform: scale(1.2);

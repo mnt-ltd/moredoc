@@ -31,7 +31,7 @@
           <nuxt-link to="/" :title="settings.system.sitename"
             ><img
               :src="settings.system.logo"
-              style="height: 56px; max-width: 100%"
+              style="max-width: 100%"
               :alt="settings.system.sitename"
           /></nuxt-link>
         </el-col>

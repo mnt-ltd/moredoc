@@ -240,7 +240,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import { formatBytes } from '~/utils/utils'
 import { createDocument } from '~/api/document'
 import { canIUploadDocument } from '~/api/user'
@@ -307,6 +307,7 @@ export default {
   },
   methods: {
     formatBytes,
+    ...mapActions('user', ['getUser']),
     handleChange(file) {
       const name = file.name.toLowerCase()
       const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
@@ -402,6 +403,7 @@ export default {
           overwrite: false,
         }
         this.$refs.upload.clearFiles()
+        this.getUser()
       } else {
         console.log(res)
         this.$message.error(res.data.message || '上传失败')

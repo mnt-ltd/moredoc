@@ -3,6 +3,7 @@ package model
 import (
 	"moredoc/util/captcha"
 	"strconv"
+	"strings"
 	"time"
 
 	jsoniter "github.com/json-iterator/go"
@@ -52,7 +53,6 @@ func (Config) TableName() string {
 }
 
 // CreateConfig 创建Config
-// TODO: 创建成功之后，注意相关表统计字段数值的增减
 func (m *DBModel) CreateConfig(config *Config) (err error) {
 	err = m.db.Create(config).Error
 	if err != nil {
@@ -156,7 +156,6 @@ func (m *DBModel) GetConfigList(opt *OptionGetConfigList) (configList []Config, 
 }
 
 // DeleteConfig 删除数据
-// TODO: 删除数据之后，存在 config_id 的关联表，需要删除对应数据，同时相关表的统计数值，也要随着减少
 func (m *DBModel) DeleteConfig(ids []interface{}) (err error) {
 	err = m.db.Where("id in (?)", ids).Delete(&Config{}).Error
 	if err != nil {
@@ -185,6 +184,7 @@ const (
 	ConfigSystemTitle               = "title"
 	ConfigSystemDescription         = "description"
 	ConfigSystemKeywords            = "keywords"
+	ConfigSystemRecommendWords      = "recommend_words"
 	ConfigSystemLogo                = "logo"
 	ConfigSystemFavicon             = "favicon"
 	ConfigSystemLoginBackground     = "login_background"
@@ -195,18 +195,19 @@ const (
 )
 
 type ConfigSystem struct {
-	Sitename                        string `json:"sitename"`             // 网站名称
-	Domain                          string `json:"domain"`               // 站点域名，不带 HTTPS:// 和 HTTP://
-	Title                           string `json:"title"`                // 网站首页标题
-	Keywords                        string `json:"keywords"`             // 系统关键字
-	Description                     string `json:"description"`          // 系统描述
-	Logo                            string `json:"logo"`                 // logo
-	Favicon                         string `json:"favicon"`              // favicon
-	ConfigSystemRegistrerBackground string `json:"register_background"`  // 注册页面背景图
-	ConfigSystemLoginBackground     string `json:"login_background"`     // 登录页面背景图
-	ICP                             string `json:"icp"`                  // 网站备案
-	Analytics                       string `json:"analytics"`            // 统计代码
-	CopyrightStartYear              string `json:"copyright_start_year"` // 版权年
+	Sitename                        string   `json:"sitename"`             // 网站名称
+	Domain                          string   `json:"domain"`               // 站点域名，不带 HTTPS:// 和 HTTP://
+	Title                           string   `json:"title"`                // 网站首页标题
+	Keywords                        string   `json:"keywords"`             // 系统关键字
+	Description                     string   `json:"description"`          // 系统描述
+	Logo                            string   `json:"logo"`                 // logo
+	Favicon                         string   `json:"favicon"`              // favicon
+	ConfigSystemRegistrerBackground string   `json:"register_background"`  // 注册页面背景图
+	ConfigSystemLoginBackground     string   `json:"login_background"`     // 登录页面背景图
+	ICP                             string   `json:"icp"`                  // 网站备案
+	Analytics                       string   `json:"analytics"`            // 统计代码
+	CopyrightStartYear              string   `json:"copyright_start_year"` // 版权年
+	RecommendWords                  []string `json:"recommend_words"`      // 推荐词，首页收缩推荐词
 }
 
 const (
@@ -413,7 +414,19 @@ func (m *DBModel) GetConfigOfSystem() (config ConfigSystem) {
 	var data = make(map[string]interface{})
 
 	for _, cfg := range confgis {
-		data[cfg.Name] = cfg.Value
+		if cfg.Name == ConfigSystemRecommendWords {
+			words := strings.Split(cfg.Value, ",")
+			iwords := make([]string, 0)
+			for _, word := range words {
+				word = strings.TrimSpace(word)
+				if word != "" {
+					iwords = append(iwords, word)
+				}
+			}
+			data[cfg.Name] = iwords
+		} else {
+			data[cfg.Name] = cfg.Value
+		}
 	}
 
 	bytes, _ := json.Marshal(data)
@@ -512,6 +525,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySystem, Name: ConfigSystemTitle, Label: "首页标题", Value: "MOREDOC · 魔豆文库", Placeholder: "请输入您网站的首页标题，如：魔豆文库，强大、专业的文库系统", InputType: "text", Sort: 20, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemKeywords, Label: "网站关键字", Value: "MOREDOC · 魔豆文库", Placeholder: "请输入您网站的关键字", InputType: "text", Sort: 30, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemDescription, Label: "网站描述", Value: "MOREDOC · 魔豆文库", Placeholder: "请输入您网站的描述", InputType: "textarea", Sort: 40, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemRecommendWords, Label: "首页搜索推荐词", Value: "", Placeholder: "网站首页搜索推荐关键字，多个关键字用英文逗号分隔", InputType: "text", Sort: 50, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemLogo, Label: "网站Logo", Value: "", Placeholder: "请上传一张图片作为网站Logo", InputType: "image", Sort: 60, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemFavicon, Label: "网站Favicon", Value: "", Placeholder: "请上传一张 .ico 图标作为网站favicon", InputType: "image", Sort: 61, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemRegistrerBackground, Label: "注册页背景图", Value: "", Placeholder: "请上传一张图片作为注册页背景图", InputType: "image", Sort: 62, Options: ""},

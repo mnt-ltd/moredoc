@@ -32,13 +32,17 @@
             ></el-button>
           </el-input>
         </el-form-item>
-        <el-form-item>
+        <el-form-item v-if="settings.system.recommend_words">
           <span>大家在搜:</span>
-          <a href="#"><el-tag size="small">Java教程</el-tag></a>
-          <a href="#"><el-tag size="small">PHP教程</el-tag></a>
-          <a href="#"><el-tag size="small">GPTChat</el-tag></a>
-          <a href="#"><el-tag size="small">开源中国</el-tag></a>
-          <a href="#"><el-tag size="small">小学语文</el-tag></a>
+          <nuxt-link
+            v-for="word in settings.system.recommend_words"
+            :key="'kw-' + word"
+            :to="{
+              path: '/search',
+              query: { wd: word },
+            }"
+            ><el-tag size="small">{{ word }}</el-tag></nuxt-link
+          >
         </el-form-item>
       </el-form>
     </div>
@@ -304,6 +308,7 @@ export default {
   computed: {
     ...mapGetters('category', ['categoryTrees']),
     ...mapGetters('user', ['user']),
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     await Promise.all([
@@ -547,6 +552,7 @@ export default {
         border: 2px solid #efefef;
         border-radius: 5px;
         height: 160px;
+        width: 115px;
         img {
           width: 100%;
           transition: transform 0.3s ease 0s;
