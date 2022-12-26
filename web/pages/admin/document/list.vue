@@ -18,7 +18,7 @@
         :table-data="documents"
         :fields="tableListFields"
         :show-actions="true"
-        :show-view="true"
+        :show-view="false"
         :show-edit="true"
         :show-delete="true"
         :show-select="true"
@@ -31,9 +31,19 @@
         <template slot="actions" slot-scope="scope">
           <el-button
             type="text"
+            size="small"
             icon="el-icon-s-check"
             @click="recommendDocument(scope.row)"
             >推荐</el-button
+          >
+          <nuxt-link :to="`/document/${scope.row.id}`" target="_blank"
+            ><el-button
+              type="text"
+              icon="el-icon-view"
+              size="small"
+              @click="recommendDocument(scope.row)"
+              >查看</el-button
+            ></nuxt-link
           >
         </template>
       </TableList>

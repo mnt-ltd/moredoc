@@ -214,7 +214,7 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 		user, _ := s.dbModel.GetUser(doc.UserId, model.UserPublicFields...)
 		pbDoc.User = &pb.User{}
 		util.CopyStruct(&user, pbDoc.User)
-		s.dbModel.UpdateDocument(&model.Document{Id: doc.Id, ViewCount: doc.ViewCount}, nil, "view_count")
+		s.dbModel.UpdateDocumentField(doc.Id, map[string]interface{}{"view_count": doc.ViewCount})
 	}
 
 	// 查找文档相关联的附件。对于列表，只返回hash和id，不返回其他字段

@@ -155,11 +155,12 @@ func (m *DBModel) UpdateDocument(document *Document, categoryId []int64, updateF
 	return
 }
 
-// UpdateDocumentStatus 更新文档状态。如文档转换失败，重新更改为待转换等
-func (m *DBModel) UpdateDocumentStatus(status int, documentId []int64) (err error) {
-	// 1. 查询文档所属用户与所属分类
-	// 2. 如果是禁用文档或者由禁用状态变更为其他状态，用户文档数加减1，分类文档数加减1
-	// 3. 更新文档状态
+func (m *DBModel) UpdateDocumentField(id int64, fieldValue map[string]interface{}) (err error) {
+	err = m.db.Model(&Document{}).Where("id = ?", id).Updates(fieldValue).Error
+	if err != nil {
+		m.logger.Error("UpdateDocumentField", zap.Error(err))
+		return
+	}
 	return
 }
 
