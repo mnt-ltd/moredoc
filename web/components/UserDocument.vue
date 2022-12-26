@@ -44,6 +44,9 @@
         <el-table-column prop="page" label="页数" width="70">
           <template slot-scope="scope">{{ scope.row.pages || '-' }}</template>
         </el-table-column>
+        <el-table-column prop="page" label="价格" width="70">
+          <template slot-scope="scope">{{ scope.row.price || '0' }}</template>
+        </el-table-column>
         <el-table-column prop="size" label="大小" width="100">
           <template slot-scope="scope">{{
             formatBytes(scope.row.size)
@@ -67,7 +70,11 @@
         >
           <template slot-scope="scope">
             <el-tooltip content="编辑文档" placement="top">
-              <el-button type="text" icon="el-icon-edit"></el-button>
+              <el-button
+                type="text"
+                @click="updateDocument(scope.row)"
+                icon="el-icon-edit"
+              ></el-button>
             </el-tooltip>
             <el-tooltip content="删除文档" placement="top">
               <el-button
@@ -89,6 +96,14 @@
       @current-change="pageChange"
     >
     </el-pagination>
+    <el-dialog title="提示" :visible.sync="updateDocumentVisible" width="520px">
+      <FormUpdateDocument
+        :category-trees="categoryTrees"
+        :init-document="document"
+        :is-admin="false"
+        @success="updateDocumentSuccess"
+      />
+    </el-dialog>
   </div>
 </template>
 
@@ -114,10 +129,13 @@ export default {
         page: parseInt(this.$route.query.page) || 1,
         size: 15,
       },
+      updateDocumentVisible: false,
+      document: { id: 0 },
     }
   },
   computed: {
     ...mapGetters('user', ['user']),
+    ...mapGetters('category', ['categoryTrees']),
   },
   watch: {
     '$route.query': {
@@ -136,6 +154,14 @@ export default {
     formatBytes,
     formatDatetime,
     formatRelativeTime,
+    updateDocument(row) {
+      this.updateDocumentVisible = true
+      this.document = row
+    },
+    updateDocumentSuccess() {
+      this.updateDocumentVisible = false
+      this.getDocuments()
+    },
     tabClick(tab) {
       this.activeTab = tab.name
     },

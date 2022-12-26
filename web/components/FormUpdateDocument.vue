@@ -43,7 +43,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="价格" prop="price">
+          <el-form-item label="价格(魔豆)" prop="price">
             <el-input-number
               v-model.number="document.price"
               placeholder="文档价格"
