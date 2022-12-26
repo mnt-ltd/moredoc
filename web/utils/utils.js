@@ -145,3 +145,35 @@ export function categoryToTrees(categories, withDisabled = true) {
 
   return result
 }
+
+const extMapIcon = {
+  '.pdf': 'pdf',
+  '.doc': 'word',
+  '.docx': 'word',
+  '.rtf': 'word',
+  '.wps': 'word',
+  '.odt': 'word',
+  '.dot': 'word',
+  '.ppt': 'ppt',
+  '.pptx': 'ppt',
+  '.pps': 'ppt',
+  '.ppsx': 'ppt',
+  '.dps': 'ppt',
+  '.odp': 'ppt',
+  '.pot': 'ppt',
+  '.xls': 'excel',
+  '.xlsx': 'excel',
+  '.et': 'excel',
+  '.ods': 'excel',
+  '.csv': 'excel',
+  '.tsv': 'excel',
+  '.txt': 'text',
+  '.epub': 'epub',
+  '.mobi': 'mobi',
+  '.chm': 'chm',
+  '.umd': 'umd',
+}
+
+export function getIcon(ext) {
+  return extMapIcon[ext] || 'other'
+}

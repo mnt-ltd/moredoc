@@ -5,7 +5,7 @@
         <el-card ref="docMain" shadow="never" class="doc-main">
           <div slot="header" class="clearfix">
             <h1>
-              <img :src="`/static/images/${document.ext}_24.png`" alt="" />
+              <img :src="`/static/images/${document.icon}_24.png`" alt="" />
               {{ document.title }}
             </h1>
             <el-breadcrumb separator-class="el-icon-arrow-right">
@@ -246,7 +246,7 @@ import { mapActions, mapGetters } from 'vuex'
 import DocumentSimpleList from '~/components/DocumentSimpleList.vue'
 import { getDocument, downloadDocument } from '~/api/document'
 import { getFavorite, createFavorite, deleteFavorite } from '~/api/favorite'
-import { formatDatetime, formatBytes } from '~/utils/utils'
+import { formatDatetime, formatBytes, getIcon } from '~/utils/utils'
 import FormComment from '~/components/FormComment.vue'
 import CommentList from '~/components/CommentList.vue'
 export default {
@@ -355,7 +355,7 @@ export default {
           return this.categoryMap[id]
         })
 
-        doc.ext = doc.ext.replace('.', '')
+        doc.icon = getIcon(doc.ext)
         this.pages = pages
         this.document = doc
         this.pageWidth = this.$refs.docPages.offsetWidth

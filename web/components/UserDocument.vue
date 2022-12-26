@@ -12,7 +12,7 @@
               }"
               class="el-link el-link--default doc-title"
             >
-              <img :src="`/static/images/${scope.row.ext}_24.png`" alt="" />
+              <img :src="`/static/images/${scope.row.icon}_24.png`" alt="" />
               {{ scope.row.title }}
             </nuxt-link>
           </template>
@@ -110,7 +110,12 @@
 <script>
 import { mapGetters } from 'vuex'
 import { deleteDocument, listDocument } from '~/api/document'
-import { formatBytes, formatDatetime, formatRelativeTime } from '~/utils/utils'
+import {
+  formatBytes,
+  formatDatetime,
+  formatRelativeTime,
+  getIcon,
+} from '~/utils/utils'
 
 export default {
   name: 'UserDocument',
@@ -177,7 +182,7 @@ export default {
         docs.map((item) => {
           item.score = item.score / 100 || 0.0
           try {
-            item.ext = item.ext.replace('.', '')
+            item.icon = getIcon(item.ext)
           } catch (e) {
             console.log(e)
           }

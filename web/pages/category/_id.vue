@@ -109,6 +109,7 @@
 import { mapGetters } from 'vuex'
 import DocumentList from '~/components/DocumentList.vue'
 import { listDocument } from '~/api/document'
+import { getIcon } from '~/utils/utils'
 export default {
   name: 'PageCategory',
   components: { DocumentList },
@@ -279,7 +280,7 @@ export default {
         const documents = res.data.document || []
         const keywords = []
         this.documents = documents.map((x) => {
-          x.ext = x.ext.replace(/\./, '')
+          x.icon = getIcon(x.ext)
           if (x.keywords) {
             x.keywords.split(',').forEach((keyword) => {
               keyword = keyword.trim()

@@ -123,8 +123,8 @@
                     class="el-link el-link--primary"
                   >
                     <img
-                      :src="`/static/images/${doc.ext}_24.png`"
-                      :alt="`${doc.ext}文档`"
+                      :src="`/static/images/${doc.icon}_24.png`"
+                      :alt="`${doc.icon}文档`"
                     />
                     {{ doc.title }}
                   </a>
@@ -193,7 +193,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import { searchDocument } from '~/api/document'
-import { formatBytes } from '~/utils/utils'
+import { formatBytes, getIcon } from '~/utils/utils'
 export default {
   name: 'IndexPage',
   data() {
@@ -286,7 +286,7 @@ export default {
         this.docs = docs.map((doc) => {
           doc.score = doc.score || 300
           doc.score = doc.score / 100
-          doc.ext = doc.ext.replace('.', '')
+          doc.icon = getIcon(doc.ext)
           try {
             doc.keywords.split(',').map((keyword) => {
               keyword = keyword.trim()

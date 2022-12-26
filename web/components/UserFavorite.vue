@@ -12,7 +12,7 @@
               }"
               class="el-link el-link--default doc-title"
             >
-              <img :src="`/static/images/${scope.row.ext}_24.png`" alt="" />
+              <img :src="`/static/images/${scope.row.icon}_24.png`" alt="" />
               {{ scope.row.title }}
             </nuxt-link>
           </template>
@@ -71,7 +71,12 @@
 
 <script>
 import { deleteFavorite, listFavorite } from '~/api/favorite'
-import { formatDatetime, formatRelativeTime, formatBytes } from '~/utils/utils'
+import {
+  formatDatetime,
+  formatRelativeTime,
+  formatBytes,
+  getIcon,
+} from '~/utils/utils'
 export default {
   name: 'UserFavorite',
   props: {
@@ -120,7 +125,7 @@ export default {
         favorites = favorites.map((item) => {
           item.score = item.score / 100 || 3.0
           try {
-            item.ext = item.ext.replace('.', '')
+            item.icon = getIcon(item.ext)
           } catch (error) {}
           return item
         })

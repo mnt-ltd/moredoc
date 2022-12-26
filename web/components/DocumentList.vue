@@ -14,8 +14,8 @@
                 :to="`/document/${doc.id}`"
                 class="el-link el-link--primary"
                 ><img
-                  :src="`/static/images/${doc.ext}_24.png`"
-                  :alt="`${doc.ext} 文档`"
+                  :src="`/static/images/${getIcon(doc.ext)}_24.png`"
+                  :alt="`${getIcon(doc.ext)} 文档`"
                 />
                 {{ doc.title }}</nuxt-link
               >
@@ -50,7 +50,7 @@
 </template>
 <script>
 import DocumentCover from './DocumentCover.vue'
-import { formatBytes, formatDatetime } from '~/utils/utils'
+import { formatBytes, formatDatetime, getIcon } from '~/utils/utils'
 export default {
   name: 'DocumentList',
   components: { DocumentCover },
@@ -66,6 +66,7 @@ export default {
   methods: {
     formatBytes,
     formatDatetime,
+    getIcon,
   },
 }
 </script>
