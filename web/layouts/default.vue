@@ -1,6 +1,6 @@
 <template>
   <el-container class="layout-default">
-    <el-header v-if="$route.path !== '/search'">
+    <el-header v-if="$route.name !== 'search'">
       <div>
         <el-menu
           :default-active="$route.path"
@@ -246,14 +246,6 @@ export default {
     ...mapActions('category', ['getCategories']),
     ...mapActions('setting', ['getSettings']),
     ...mapActions('user', ['logout']),
-    onSearch() {
-      this.$router.push({
-        path: '/search',
-        query: {
-          wd: this.search.wd,
-        },
-      })
-    },
     loopUpdate() {
       clearTimeout(this.timeouter)
       this.timeouter = setTimeout(() => {

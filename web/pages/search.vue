@@ -21,7 +21,9 @@
             class="el-link el-link--default"
             >会员中心</nuxt-link
           >
-          <nuxt-link v-else to="/login">登录账户</nuxt-link>
+          <nuxt-link class="el-link el-link--default" v-else to="/login"
+            >登录账户</nuxt-link
+          >
         </span>
       </el-col>
     </el-row>
@@ -195,7 +197,6 @@ import { mapGetters } from 'vuex'
 import { searchDocument } from '~/api/document'
 import { formatBytes, getIcon } from '~/utils/utils'
 export default {
-  name: 'IndexPage',
   data() {
     return {
       loading: false,
@@ -204,7 +205,7 @@ export default {
         page: 1,
         size: 10,
         ext: 'all', // 搜索类型
-        sort: 'sort', // 排序
+        sort: 'default', // 排序
       },
       searchExts: [
         { label: '不限', value: 'all' },

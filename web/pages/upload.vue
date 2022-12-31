@@ -245,7 +245,6 @@ import { formatBytes } from '~/utils/utils'
 import { createDocument } from '~/api/document'
 import { canIUploadDocument } from '~/api/user'
 export default {
-  name: 'PageUpload',
   data() {
     return {
       canIUploadDocument: false,

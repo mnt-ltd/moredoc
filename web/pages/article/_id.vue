@@ -55,7 +55,6 @@
 import { getArticle } from '~/api/article'
 import { formatDate } from '~/utils/utils'
 export default {
-  name: 'PageArticle',
   components: {},
   data() {
     return {

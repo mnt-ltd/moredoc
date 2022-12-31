@@ -111,7 +111,6 @@ import DocumentList from '~/components/DocumentList.vue'
 import { listDocument } from '~/api/document'
 import { getIcon } from '~/utils/utils'
 export default {
-  name: 'PageCategory',
   components: { DocumentList },
   data() {
     return {

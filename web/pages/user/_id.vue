@@ -64,7 +64,6 @@
 <script>
 import { getUser } from '~/api/user'
 export default {
-  name: 'PageUser',
   data() {
     return {
       user: {

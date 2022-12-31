@@ -284,7 +284,6 @@ import { listBanner } from '~/api/banner'
 import { listDocument, listDocumentForHome } from '~/api/document'
 import { getSignedToday, signToday } from '~/api/user'
 export default {
-  name: 'IndexPage',
   components: { UserAvatar },
   data() {
     return {
@@ -334,9 +333,8 @@ export default {
     },
     onSearch() {
       if (this.search.wd) {
-        const wd = this.search.wd
-        this.search.wd = ''
-        this.$router.push({ path: '/search', query: { wd } })
+        location.href = '/search?wd=' + this.search.wd
+        return
       }
     },
     async getSignedToday() {

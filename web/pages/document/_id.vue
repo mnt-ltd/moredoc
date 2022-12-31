@@ -250,7 +250,6 @@ import { formatDatetime, formatBytes, getIcon } from '~/utils/utils'
 import FormComment from '~/components/FormComment.vue'
 import CommentList from '~/components/CommentList.vue'
 export default {
-  name: 'PageDocument',
   components: { DocumentSimpleList, FormComment, CommentList },
   data() {
     return {

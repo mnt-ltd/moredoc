@@ -23,7 +23,6 @@
 <script>
 import { mapGetters } from 'vuex'
 export default {
-  name: 'RegisterPage',
   // 已登录用户，直接跳转到个人中心
   middleware: ['checklogin'],
   data() {
