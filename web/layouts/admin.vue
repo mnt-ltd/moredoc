@@ -178,6 +178,11 @@ export default {
           icon: 'el-icon-chat-dot-square',
         },
         {
+          page: '/admin/report',
+          title: '举报管理',
+          icon: 'el-icon-warning-outline',
+        },
+        {
           page: '/admin/attachment',
           title: '附件管理',
           icon: 'el-icon-paperclip',

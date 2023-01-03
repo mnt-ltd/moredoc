@@ -37,6 +37,15 @@ export const boolOptions = [
   { label: '否', value: false, type: 'danger' },
 ]
 
+export const reportOptions = [
+  { label: '垃圾广告', value: 1 },
+  { label: '淫秽色情', value: 2 },
+  { label: '虚假中奖', value: 3 },
+  { label: '敏感信息', value: 4 },
+  { label: '人身攻击', value: 5 },
+  { label: '骚扰他人', value: 6 },
+]
+
 export const methodOptions = [
   {
     label: 'GET',

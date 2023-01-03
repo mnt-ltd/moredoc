@@ -104,7 +104,11 @@
               上传分享
             </div>
             <div class="btn-actions">
-              <el-button type="primary" plain icon="el-icon-warning-outline"
+              <el-button
+                type="primary"
+                @click="showReport"
+                plain
+                icon="el-icon-warning-outline"
                 >举报</el-button
               >
               <el-button
@@ -238,6 +242,14 @@
         </el-row>
       </el-card>
     </div>
+    <el-dialog title="举报文档" :visible.sync="reportVisible" width="520px">
+      <FormReport
+        ref="reportForm"
+        :init-report="report"
+        :is-admin="false"
+        @success="formReportSuccess"
+      />
+    </el-dialog>
   </div>
 </template>
 
@@ -280,6 +292,12 @@ export default {
       },
       scaleSpan: 18,
       loadingImage: '/static/images/loading.svg',
+      reportVisible: false,
+      report: {
+        document_id: 0,
+        document_title: '',
+        reason: 1,
+      },
     }
   },
   head() {
@@ -365,6 +383,14 @@ export default {
         this.$message.error(res.data.message)
         this.$router.replace('/404')
       }
+    },
+    showReport() {
+      this.report.document_id = this.document.id
+      this.report.document_title = this.document.title
+      this.reportVisible = true
+    },
+    formReportSuccess() {
+      this.reportVisible = false
     },
     handleScroll() {
       const scrollTop =

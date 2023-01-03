@@ -37,6 +37,12 @@ const cumstomPermissionMap = {
     children: [],
     pages: ['/admin/attachment'],
   },
+  'api.v1.ReportAPI': {
+    label: '举报管理',
+    path: 'ListReport',
+    children: [],
+    pages: ['/admin/report'],
+  },
   'api.v1.BannerAPI': {
     label: '横幅管理',
     path: 'ListBanner',

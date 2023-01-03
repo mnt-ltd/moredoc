@@ -1,0 +1,71 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+// 这里是proto文件中的结构体，可以根据需要删除或者调整
+message Report {
+  int64 id = 1;
+  int64 document_id = 2;
+  int64 user_id = 3;
+  int32 reason = 4;
+  bool status = 5;
+  google.protobuf.Timestamp created_at = 6 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 7 [ (gogoproto.stdtime) = true ];
+  string document_title = 8;
+  string remark = 9;
+  string username = 10;
+}
+
+message DeleteReportRequest { repeated int64 id = 1; }
+
+message ListReportRequest {
+  int64 page = 1;
+  int64 size = 2;
+  string wd = 3;
+  repeated string field = 4;
+  string order = 5;
+  repeated bool status = 6;
+}
+
+message ListReportReply {
+  int64 total = 1;
+  repeated Report report = 2;
+}
+
+service ReportAPI {
+  rpc CreateReport(Report) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : '/api/v1/report',
+      body : '*',
+    };
+  }
+
+  rpc UpdateReport(Report) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/report',
+      body : '*',
+    };
+  }
+
+  rpc DeleteReport(DeleteReportRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/report',
+    };
+  }
+
+  rpc ListReport(ListReportRequest) returns (ListReportReply) {
+    option (google.api.http) = {
+      get : '/api/v1/report/list',
+    };
+  }
+}
