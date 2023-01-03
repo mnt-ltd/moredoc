@@ -1,4 +1,3 @@
-
 package model
 
 func getPermissions() (permissions []Permission) {
@@ -59,7 +58,10 @@ func getPermissions() (permissions []Permission) {
 		{Title: "获取单个评论", Description: "", Method: "GRPC", Path: "/api.v1.CommentAPI/GetComment"},
 		{Title: "批量审核评论", Description: "", Method: "GRPC", Path: "/api.v1.CommentAPI/CheckComment"},
 		{Title: "删除评论", Description: "", Method: "GRPC", Path: "/api.v1.CommentAPI/DeleteComment"},
-		
+		{Title: "推荐文档", Description: "", Method: "GRPC", Path: "/api.v1.DocumentAPI/SetDocumentRecommend"},
+		{Title: "获取举报列表", Description: "", Method: "GRPC", Path: "/api.v1.ReportAPI/ListReport"},
+		{Title: "处理举报信息", Description: "", Method: "GRPC", Path: "/api.v1.ReportAPI/UpdateReport"},
+		{Title: "删除举报内容", Description: "", Method: "GRPC", Path: "/api.v1.ReportAPI/DeleteReport"},
 	}
 	return
 }
