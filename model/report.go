@@ -129,6 +129,6 @@ func (m *DBModel) DeleteReport(ids []int64) (err error) {
 }
 
 func (m *DBModel) GetReportByDocUser(docId, userId int64) (report Report, err error) {
-	err = m.db.Where("doc_id = ? and user_id = ?", docId, userId).First(&report).Error
+	err = m.db.Where("document_id = ? and user_id = ?", docId, userId).First(&report).Error
 	return
 }
