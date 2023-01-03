@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"moredoc/conf"
 	"moredoc/middleware/auth"
@@ -98,9 +99,12 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 func grpcHandlerFunc(grpcServer *grpc.Server, otherHandler http.Handler) http.Handler {
 	return h2c.NewHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// if r.ProtoMajor == 2 && strings.Contains(r.Header.Get("Content-Type"), "application/grpc") {
-		if r.ProtoMajor == 2 {
+		if r.ProtoMajor == 2 { // grpc 请求
 			grpcServer.ServeHTTP(w, r)
+		} else if !strings.HasPrefix(r.URL.Path, "/api/") {
+			http.ServeFile(w, r, "./dist/index.html")
 		} else {
+			// 如 /api/v1/xxxx ，/api/v2/xxxx
 			otherHandler.ServeHTTP(w, r)
 		}
 	}), &http2.Server{})
