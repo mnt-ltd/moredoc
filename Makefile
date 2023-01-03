@@ -42,19 +42,14 @@ doc:
 clean-api-go:
 	rm -rf api/*/*.go
 
-.PHONY: build
-# build
-build:
-	rm -rf output/${VERSION}/
-	mkdir -p output/${VERSION}/
-	CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -v -o output/${VERSION}/mac/app -ldflags ${LDFLAGS}
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -v -o output/${VERSION}/linux/app -ldflags ${LDFLAGS}
-	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -v -o output/${VERSION}/windows/app.exe -ldflags ${LDFLAGS}
-	cp -r dist output/${VERSION}/mac
+buildlinux:
+	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -o output/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
 	cp -r dist output/${VERSION}/linux
-	cp -r dist output/${VERSION}/windows
-	cp -r app.example.toml output/${VERSION}/mac
 	cp -r app.example.toml output/${VERSION}/linux
+
+buildwin:
+	CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -o output/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
+	cp -r dist output/${VERSION}/windows
 	cp -r app.example.toml output/${VERSION}/windows
 
 # show help
