@@ -53,12 +53,18 @@
             <el-col :span="12">
               <small>收录文档</small>
               <div>
-                <span class="el-link el-link--primary">3235</span>
+                <span class="el-link el-link--primary">{{
+                  stats.document_count || 0
+                }}</span>
               </div>
             </el-col>
             <el-col :span="12">
               <small>注册用户</small>
-              <div><span class="el-link el-link--primary">872</span></div>
+              <div>
+                <span class="el-link el-link--primary">{{
+                  stats.user_count || 0
+                }}</span>
+              </div>
             </el-col>
           </el-row>
         </el-card>
@@ -283,6 +289,7 @@ import UserAvatar from '~/components/UserAvatar.vue'
 import { listBanner } from '~/api/banner'
 import { listDocument, listDocumentForHome } from '~/api/document'
 import { getSignedToday, signToday } from '~/api/user'
+import { getStats } from '~/api/config'
 export default {
   components: { UserAvatar },
   data() {
@@ -295,6 +302,10 @@ export default {
       },
       sign: {
         sign_at: 0,
+      },
+      stats: {
+        document_count: '-',
+        user_count: '-',
       },
     }
   },
@@ -315,6 +326,7 @@ export default {
       this.listBanner(),
       this.getDocuments(),
       this.getSignedToday(),
+      this.getStats(),
     ])
   },
   methods: {
@@ -370,6 +382,14 @@ export default {
       })
       if (res.status === 200) {
         this.documents = res.data.document || []
+      } else {
+        console.log(res)
+      }
+    },
+    async getStats() {
+      const res = await getStats()
+      if (res.status === 200) {
+        this.stats = res.data || {}
       } else {
         console.log(res)
       }

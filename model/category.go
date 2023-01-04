@@ -163,3 +163,11 @@ func (m *DBModel) DeleteCategory(ids []int64) (err error) {
 	}
 	return
 }
+
+func (m *DBModel) CountCategory() (count int64, err error) {
+	err = m.db.Model(&Category{}).Count(&count).Error
+	if err != nil {
+		m.logger.Error("CountCategory", zap.Error(err))
+	}
+	return
+}

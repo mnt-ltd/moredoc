@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"runtime"
 
 	pb "moredoc/api/v1"
 	"moredoc/middleware/auth"
@@ -103,4 +104,33 @@ func (s *ConfigAPIService) GetSettings(ctx context.Context, req *emptypb.Empty) 
 	}
 
 	return res, nil
+}
+
+func (s *ConfigAPIService) GetStats(ctx context.Context, req *emptypb.Empty) (res *pb.Stats, err error) {
+	res = &pb.Stats{
+		UserCount:       0,
+		DocumentCount:   0,
+		CategoryCount:   0,
+		ArticleCount:    0,
+		CommentCount:    0,
+		BannerCount:     0,
+		FriendlinkCount: 0,
+		Os:              runtime.GOOS,
+		Version:         "1.0.0",
+		Hash:            "hash",
+		BuildAt:         "2021-01-01 00:00:00",
+	}
+	res.UserCount, _ = s.dbModel.CountUser()
+	res.DocumentCount, _ = s.dbModel.CountDocument()
+	_, errPermission := s.checkPermission(ctx)
+	if errPermission == nil {
+		res.CategoryCount, _ = s.dbModel.CountCategory()
+		res.ArticleCount, _ = s.dbModel.CountArticle()
+		res.CommentCount, _ = s.dbModel.CountComment()
+		res.BannerCount, _ = s.dbModel.CountBanner()
+		res.FriendlinkCount, _ = s.dbModel.CountFriendlink()
+		res.ReportCount, _ = s.dbModel.CountReport()
+	}
+
+	return
 }

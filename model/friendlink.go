@@ -116,3 +116,15 @@ func (m *DBModel) DeleteFriendlink(ids []int64) (err error) {
 	}
 	return
 }
+
+func (m *DBModel) CountFriendlink(enable ...bool) (count int64, err error) {
+	db := m.db.Model(&Friendlink{})
+	if len(enable) > 0 {
+		db = db.Where("enable in ?", enable)
+	}
+	err = db.Count(&count).Error
+	if err != nil {
+		m.logger.Error("CountFriendlink", zap.Error(err))
+	}
+	return
+}

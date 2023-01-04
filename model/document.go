@@ -743,3 +743,15 @@ func (m *DBModel) SetDocumentRecommend(documentIds []int64, typ int32) (err erro
 	}
 	return
 }
+
+func (m *DBModel) CountDocument(status ...int) (count int64, err error) {
+	db := m.db.Model(&Document{})
+	if len(status) > 0 {
+		db = db.Where("status in (?)", status)
+	}
+	err = db.Count(&count).Error
+	if err != nil {
+		m.logger.Error("CountDocument", zap.Error(err))
+	}
+	return
+}

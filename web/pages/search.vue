@@ -108,7 +108,9 @@
             本次搜索耗时
             <span class="el-link el-link--danger">{{ spend || '0.000' }}</span>
             秒，在
-            <span class="el-link el-link--primary">3235</span>
+            <span class="el-link el-link--primary">{{
+              stats.document_count || '0'
+            }}</span>
             篇文档中为您找到相关结果约
             <span class="el-link el-link--danger">{{ total || 0 }}</span> 个.
           </div>
@@ -194,6 +196,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { getStats } from '~/api/config'
 import { searchDocument } from '~/api/document'
 import { formatBytes, getIcon } from '~/utils/utils'
 export default {
@@ -229,6 +232,9 @@ export default {
       total: 0,
       spend: '',
       keywords: [],
+      stats: {
+        document_count: '-',
+      },
     }
   },
   head() {
@@ -261,6 +267,7 @@ export default {
     query.page = parseInt(query.page) || 1
     query.size = parseInt(query.size) || 10
     this.query = query
+    this.getStats()
   },
   methods: {
     formatBytes,
@@ -275,6 +282,12 @@ export default {
           ext: 'all',
         },
       })
+    },
+    async getStats() {
+      const res = await getStats()
+      if (res.status === 200) {
+        this.stats = res.data
+      }
     },
     async execSearch() {
       this.loading = true

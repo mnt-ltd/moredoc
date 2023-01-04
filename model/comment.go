@@ -226,3 +226,11 @@ func (m *DBModel) UpdateCommentStatus(ids []int64, status int32) (err error) {
 	}
 	return
 }
+
+func (m *DBModel) CountComment() (count int64, err error) {
+	err = m.db.Model(&Comment{}).Count(&count).Error
+	if err != nil {
+		m.logger.Error("CountComment", zap.Error(err))
+	}
+	return
+}

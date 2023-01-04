@@ -132,3 +132,12 @@ func (m *DBModel) GetReportByDocUser(docId, userId int64) (report Report, err er
 	err = m.db.Where("document_id = ? and user_id = ?", docId, userId).First(&report).Error
 	return
 }
+
+func (m *DBModel) CountReport(status ...bool) (count int64, err error) {
+	db := m.db.Model(&Report{})
+	if len(status) > 0 {
+		db = db.Where("status in ?", status)
+	}
+	err = db.Count(&count).Error
+	return
+}

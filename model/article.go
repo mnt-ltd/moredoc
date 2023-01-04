@@ -215,3 +215,8 @@ func (m *DBModel) checkArticleFile(article *Article) {
 		}
 	}
 }
+
+func (m *DBModel) CountArticle() (count int64, err error) {
+	err = m.db.Model(&Article{}).Count(&count).Error
+	return
+}

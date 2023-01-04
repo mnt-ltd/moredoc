@@ -136,3 +136,8 @@ func (m *DBModel) DeleteBanner(ids []int64) (err error) {
 
 	return
 }
+
+func (m *DBModel) CountBanner() (count int64, err error) {
+	err = m.db.Model(&Banner{}).Count(&count).Error
+	return
+}

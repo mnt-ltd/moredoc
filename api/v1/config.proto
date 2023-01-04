@@ -48,7 +48,7 @@ message ConfigSystem {
   string favicon = 6;
   string icp = 7;
   string analytics = 8;
-  string sitename  = 9;
+  string sitename = 9;
   string copyright_start_year = 10;
   string register_background = 11;
   string login_background = 12;
@@ -81,7 +81,22 @@ message Settings {
   ConfigSystem system = 1;
   ConfigFooter footer = 2;
   ConfigSecurity security = 3;
-  // ConfigCaptcha captcha = 4; 
+  // ConfigCaptcha captcha = 4;
+}
+
+message Stats {
+  int64 user_count = 1;
+  int64 document_count = 2;
+  int64 category_count = 3;
+  int64 article_count = 4;
+  int64 comment_count = 5;
+  int64 banner_count = 6;
+  int64 friendlink_count = 7;
+  string os = 8;
+  string version = 9;
+  string hash = 10;
+  string build_at = 11;
+  int64 report_count = 12;
 }
 
 service ConfigAPI {
@@ -104,6 +119,13 @@ service ConfigAPI {
   rpc ListConfig(ListConfigRequest) returns (Configs) {
     option (google.api.http) = {
       get : '/api/v1/config/list',
+    };
+  }
+
+  // 获取系统配置
+  rpc GetStats(google.protobuf.Empty) returns (Stats) {
+    option (google.api.http) = {
+      get : "/api/v1/stats"
     };
   }
 }

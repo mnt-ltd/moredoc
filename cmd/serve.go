@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"moredoc/service"
+	"moredoc/util"
 
 	"github.com/spf13/cobra"
 )
@@ -27,6 +28,9 @@ var serveCmd = &cobra.Command{
 	Short: "start a server",
 	Long:  `start a server`,
 	Run: func(cmd *cobra.Command, args []string) {
+		util.Version = Version
+		util.Hash = GitHash
+		util.BuildAt = BuildAt
 		service.Run(cfg, logger)
 	},
 }

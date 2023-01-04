@@ -22,3 +22,10 @@ export const getSettings = () => {
     method: 'get',
   })
 }
+
+export const getStats = () => {
+  return service({
+    url: '/api/v1/stats',
+    method: 'get',
+  })
+}

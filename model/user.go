@@ -470,3 +470,16 @@ func (m *DBModel) CanIPublishComment(userId int64) (defaultCommentStatus int8, e
 
 	return
 }
+
+func (s *DBModel) CountUser(status ...int) (count int64, err error) {
+	db := s.db.Model(&User{})
+	if len(status) > 0 {
+		db = db.Where("status in (?)", status)
+	}
+	err = db.Count(&count).Error
+	if err != nil {
+		s.logger.Error("CountUser", zap.Error(err))
+		return
+	}
+	return
+}
