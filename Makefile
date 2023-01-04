@@ -45,11 +45,13 @@ clean-api-go:
 buildlinux:
 	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -o output/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
 	cp -r dist output/${VERSION}/linux
+	cp -r dict output/${VERSION}/linux
 	cp -r app.example.toml output/${VERSION}/linux
 
 buildwin:
 	CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -o output/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
 	cp -r dist output/${VERSION}/windows
+	cp -r dict output/${VERSION}/windows
 	cp -r app.example.toml output/${VERSION}/windows
 
 # show help

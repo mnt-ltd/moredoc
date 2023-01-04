@@ -4,8 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
-	"runtime"
-	"syscall"
 	"time"
 )
 

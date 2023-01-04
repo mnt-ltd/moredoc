@@ -161,7 +161,9 @@ export default {
     formatRelativeTime,
     updateDocument(row) {
       this.updateDocumentVisible = true
-      this.document = row
+      const doc = { ...row }
+      delete doc.icon
+      this.document = doc
     },
     updateDocumentSuccess() {
       this.updateDocumentVisible = false

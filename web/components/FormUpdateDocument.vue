@@ -79,7 +79,7 @@
       <el-form-item label="关键字">
         <el-input
           v-model="document.keywords"
-          placeholder="请输入文档关键字"
+          placeholder="请输入文档关键字，多个关键字用英文逗号分隔"
         ></el-input>
       </el-form-item>
       <el-form-item label="摘要">
