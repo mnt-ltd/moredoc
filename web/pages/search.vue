@@ -247,7 +247,7 @@ export default {
         {
           hid: 'keywords',
           name: 'keywords',
-          content: `${query.wd},文档搜索,${this.settings.system.sitename},${this.settings.system.keywords}`,
+          content: `${this.query.wd},文档搜索,${this.settings.system.sitename},${this.settings.system.keywords}`,
         },
         {
           hid: 'description',
