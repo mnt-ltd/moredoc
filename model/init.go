@@ -161,6 +161,7 @@ func (m *DBModel) SyncDB() (err error) {
 		&Document{},
 		&DocumentCategory{},
 		&DocumentScore{},
+		&DocumentRelate{},
 		&Download{},
 		&Friendlink{},
 		&User{},

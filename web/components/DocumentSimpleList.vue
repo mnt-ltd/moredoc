@@ -3,7 +3,10 @@
     <ul>
       <li v-for="doc in docs" :key="'doc-' + doc.id">
         <nuxt-link to="/document/" class="el-link el-link--default">
-          <img :src="'/static/images/' + doc.type + '_24.png'" alt="" />
+          <img
+            :src="'/static/images/' + getIcon(doc.ext) + '_24.png'"
+            :alt="getIcon(doc.ext) + '文档'"
+          />
           {{ doc.title }}
         </nuxt-link>
       </li>
@@ -12,6 +15,7 @@
 </template>
 
 <script>
+import { getIcon } from '~/utils/utils'
 export default {
   name: 'DocumentSimpleList',
   props: {
@@ -23,13 +27,10 @@ export default {
   data() {
     return {}
   },
-  head() {
-    return {
-      title: 'MOREDOC · 魔豆文库，开源文库系统',
-    }
-  },
   async created() {},
-  methods: {},
+  methods: {
+    getIcon,
+  },
 }
 </script>
 <style lang="scss">

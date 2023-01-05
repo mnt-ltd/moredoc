@@ -40,6 +40,14 @@ export const getDocument = (params) => {
   })
 }
 
+export const getRelatedDocuments = (params) => {
+  return service({
+    url: '/api/v1/document/related',
+    method: 'get',
+    params,
+  })
+}
+
 export const listDocumentForHome = (params) => {
   return service({
     url: '/api/v1/document/home',

@@ -154,9 +154,13 @@
           <div slot="header">分享用户</div>
           <user-card :hide-actions="true" :user="document.user" />
         </el-card>
-        <el-card shadow="never" class="mgt-20px relate-docs">
+        <el-card
+          shadow="never"
+          class="mgt-20px relate-docs"
+          v-if="relatedDocuments.length > 0"
+        >
           <div slot="header">相关文档</div>
-          <document-simple-list :docs="docs" />
+          <document-simple-list :docs="relatedDocuments" />
         </el-card>
       </el-col>
     </el-row>
@@ -256,7 +260,11 @@
 <script>
 import { mapActions, mapGetters } from 'vuex'
 import DocumentSimpleList from '~/components/DocumentSimpleList.vue'
-import { getDocument, downloadDocument } from '~/api/document'
+import {
+  getDocument,
+  downloadDocument,
+  getRelatedDocuments,
+} from '~/api/document'
 import { getFavorite, createFavorite, deleteFavorite } from '~/api/favorite'
 import { formatDatetime, formatBytes, getIcon } from '~/utils/utils'
 import FormComment from '~/components/FormComment.vue'
@@ -298,6 +306,7 @@ export default {
         document_title: '',
         reason: 1,
       },
+      relatedDocuments: [],
     }
   },
   head() {
@@ -309,7 +318,11 @@ export default {
     ...mapGetters('category', ['categoryMap']),
   },
   created() {
-    Promise.all([this.getDocument(), this.getFavorite()])
+    Promise.all([
+      this.getDocument(),
+      this.getFavorite(),
+      this.getRelatedDocuments(),
+    ])
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll)
@@ -446,6 +459,14 @@ export default {
       }
       this.downloading = false
     },
+    async getRelatedDocuments() {
+      const res = await getRelatedDocuments({
+        id: this.documentId,
+      })
+      if (res.status === 200) {
+        this.relatedDocuments = res.data.document || []
+      }
+    },
     prevPage() {
       if (this.currentPage > 1) {
         const currentPage = this.currentPage - 1
@@ -482,7 +503,7 @@ export default {
     zoomOut() {
       if (this.scaleSpan > 18) {
         const currentPage = this.currentPage
-        this.scaleSpan -= 3
+        this.scaleSpan -= 6
         this.$nextTick(() => {
           this.zoomSetPage(currentPage)
         })
@@ -492,7 +513,7 @@ export default {
     zoomIn() {
       if (this.scaleSpan < 24) {
         const currentPage = this.currentPage
-        this.scaleSpan += 3
+        this.scaleSpan += 6
         this.$nextTick(() => {
           this.zoomSetPage(currentPage)
         })

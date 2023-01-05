@@ -51,8 +51,8 @@ message Document {
 message DeleteDocumentRequest { repeated int64 id = 1; }
 message RecoverRecycleDocumentRequest { repeated int64 id = 1; }
 
-message GetDocumentRequest { 
-  int64 id = 1; 
+message GetDocumentRequest {
+  int64 id = 1;
   bool with_author = 2;
 }
 
@@ -74,7 +74,7 @@ message ListDocumentReply {
   repeated Document document = 2;
 }
 
-message CreateDocumentItem{
+message CreateDocumentItem {
   string title = 1;
   int64 attachment_id = 2;
   int32 price = 3;
@@ -86,17 +86,14 @@ message CreateDocumentRequest {
   repeated CreateDocumentItem document = 3;
 }
 
-
-message SetDocumentRecommendRequest{
+message SetDocumentRecommendRequest {
   repeated int64 id = 1;
   int32 type = 2; // 0, 取消推荐，1:推荐 2:重新推荐
 }
 
-message ListDocumentForHomeRequest {
-  int64 limit = 1;
-}
+message ListDocumentForHomeRequest { int64 limit = 1; }
 
-message ListDocumentForHomeItem{
+message ListDocumentForHomeItem {
   int64 category_id = 1;
   string category_cover = 2;
   string category_name = 3;
@@ -112,9 +109,8 @@ message SearchDocumentRequest {
   int32 size = 2;
   string wd = 3;
   repeated int64 category_id = 4; // 分类
-  string sort = 5; // 排序
-  string ext = 7; // 类型
-
+  string sort = 5;                // 排序
+  string ext = 7;                 // 类型
 }
 
 message SearchDocumentReply {
@@ -123,24 +119,24 @@ message SearchDocumentReply {
   repeated Document document = 3;
 }
 
-message DownloadDocumentReply {
-  string url = 1;
-}
+message DownloadDocumentReply { string url = 1; }
 
 service DocumentAPI {
-  rpc ListDocumentForHome(ListDocumentForHomeRequest) returns ( ListDocumentForHomeResponse) {
+  rpc ListDocumentForHome(ListDocumentForHomeRequest)
+      returns (ListDocumentForHomeResponse) {
     option (google.api.http) = {
       get : '/api/v1/document/home',
     };
   }
 
-  rpc SetDocumentRecommend(SetDocumentRecommendRequest) returns (google.protobuf.Empty) {
+  rpc SetDocumentRecommend(SetDocumentRecommendRequest)
+      returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/document/recommend',
       body : '*',
     };
   }
-  
+
   rpc CreateDocument(CreateDocumentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post : '/api/v1/document',
@@ -167,6 +163,12 @@ service DocumentAPI {
     };
   }
 
+  rpc GetRelatedDocuments(Document) returns (ListDocumentReply) {
+    option (google.api.http) = {
+      get : '/api/v1/document/related',
+    };
+  }
+
   rpc DownloadDocument(Document) returns (DownloadDocumentReply) {
     option (google.api.http) = {
       get : '/api/v1/document/download',
@@ -178,7 +180,7 @@ service DocumentAPI {
       get : '/api/v1/document/list',
     };
   }
-  
+
   rpc SearchDocument(SearchDocumentRequest) returns (SearchDocumentReply) {
     option (google.api.http) = {
       get : '/api/v1/document/search',

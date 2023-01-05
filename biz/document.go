@@ -654,3 +654,10 @@ func (s *DocumentAPIService) generateDownloadURL(document model.Document, cfg mo
 	}
 	return fmt.Sprintf("/download/%s?filename=%s", tokenString, url.QueryEscape(document.Title+document.Ext)), nil
 }
+
+func (s *DocumentAPIService) GetRelatedDocuments(ctx context.Context, req *pb.Document) (res *pb.ListDocumentReply, err error) {
+	docs, _ := s.dbModel.GetRelatedDocuments(req.Id)
+	res = &pb.ListDocumentReply{}
+	util.CopyStruct(&docs, &res.Document)
+	return res, nil
+}
