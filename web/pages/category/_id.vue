@@ -135,15 +135,29 @@ export default {
       loading: false,
       cardOffsetTop: 0,
       cardWidth: 0,
+      title: '',
     }
   },
   head() {
     return {
-      title: 'MOREDOC · 魔豆文库，开源文库系统',
+      title: this.title + ' - ' + this.settings.system.sitename,
+      meta: [
+        {
+          hid: 'keywords',
+          name: 'keywords',
+          content: this.keywords.join(','),
+        },
+        {
+          hid: 'description',
+          name: 'description',
+          content: this.settings.system.description,
+        },
+      ],
     }
   },
   computed: {
     ...mapGetters('category', ['categories', 'categoryTrees', 'categoryMap']),
+    ...mapGetters('setting', ['settings']),
   },
   watch: {
     filterText(val) {
@@ -166,6 +180,13 @@ export default {
         }
       }
     }
+
+    var titles = []
+    breadcrumbs.forEach((x) => {
+      titles.push(x.title)
+    })
+    this.title = titles.join(' · ')
+
     this.breadcrumbs = breadcrumbs
 
     try {

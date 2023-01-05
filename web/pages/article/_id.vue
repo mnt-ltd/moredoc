@@ -1,7 +1,7 @@
 <template>
   <div class="page page-article">
     <el-row :gutter="20">
-      <el-col :span="18">
+      <el-col :span="24">
         <el-card shadow="never">
           <div slot="header">
             <h1>{{ article.title }}</h1>
@@ -24,7 +24,7 @@
           </article>
         </el-card>
       </el-col>
-      <el-col :span="6" class="article-list">
+      <!-- <el-col :span="6" class="article-list">
         <el-card shadow="never">
           <div slot="header">相关链接</div>
           <nuxt-link to="/" class="el-link el-link--default"
@@ -36,22 +36,14 @@
           <nuxt-link to="/" class="el-link el-link--default"
             >免责声明</nuxt-link
           >
-          <!-- 如果文章数不多，不显示。这里根据最后更新时间排序 -->
-          <el-pagination
-            class="mgt-20px"
-            :current-page="1"
-            :page-size="10"
-            layout="total, prev, next"
-            :total="400"
-          >
-          </el-pagination>
         </el-card>
-      </el-col>
+      </el-col> -->
     </el-row>
   </div>
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { getArticle } from '~/api/article'
 import { formatDate } from '~/utils/utils'
 export default {
@@ -68,8 +60,23 @@ export default {
   },
   head() {
     return {
-      title: 'MOREDOC · 魔豆文库，开源文库系统',
+      title: `${this.article.title} - ${this.settings.system.sitename}`,
+      meta: [
+        {
+          hid: 'keywords',
+          name: 'keywords',
+          content: this.article.keywords,
+        },
+        {
+          hid: 'description',
+          name: 'description',
+          content: this.article.description,
+        },
+      ],
     }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     const res = await getArticle({ identifier: this.$route.params.id })

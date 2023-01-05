@@ -314,11 +314,24 @@ export default {
   },
   head() {
     return {
-      title: 'MOREDOC · 魔豆文库，开源文库系统',
+      title: this.document.title + ' - ' + this.settings.system.sitename,
+      meta: [
+        {
+          hid: 'description',
+          name: 'description',
+          content: this.document.description,
+        },
+        {
+          hid: 'keywords',
+          name: 'keywords',
+          content: this.document.keywords,
+        },
+      ],
     }
   },
   computed: {
     ...mapGetters('category', ['categoryMap']),
+    ...mapGetters('setting', ['settings']),
   },
   created() {
     Promise.all([
@@ -431,7 +444,7 @@ export default {
           relateDocs.style.zIndex = '999'
           relateDocs.style.width = `${this.cardWidth}px`
         } else {
-          relateDocs.$el.style = null
+          relateDocs.style = null
         }
       }
 

@@ -13,13 +13,14 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 export default {
   data() {
     return {}
   },
   head() {
     return {
-      title: '404 - Not Found - MOREDOC · 魔豆文库',
+      title: `404 - Not Found - ${this.settings.system.sitename}`,
       meta: [
         {
           hid: 'keywords',
@@ -36,7 +37,9 @@ export default {
   },
   watch: {},
   async created() {},
-  mounted() {},
+  computed: {
+    ...mapGetters('setting', ['settings']),
+  },
   methods: {},
 }
 </script>

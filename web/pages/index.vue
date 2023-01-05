@@ -311,8 +311,19 @@ export default {
   },
   head() {
     return {
-      // title: 'MOREDOC · 魔豆文库，开源文库系统',
-      script: [],
+      title: this.settings.system.title || 'MOREDOC · 魔豆文库',
+      meta: [
+        {
+          hid: 'keywords',
+          name: 'keywords',
+          content: `${this.settings.system.sitename},${this.settings.system.keywords}`,
+        },
+        {
+          hid: 'description',
+          name: 'description',
+          content: this.settings.system.description,
+        },
+      ],
     }
   },
   computed: {

@@ -54,7 +54,7 @@
               >
             </span>
           </el-tab-pane>
-          <nuxt-child />
+          <nuxt-child :user="user" />
         </el-tabs>
       </el-col>
     </el-row>
@@ -62,6 +62,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { getUser } from '~/api/user'
 export default {
   data() {
@@ -74,8 +75,23 @@ export default {
   },
   head() {
     return {
-      title: 'MOREDOC · 魔豆文库，开源文库系统',
+      title: `[个人主页]${this.user.username} - ${this.settings.system.sitename}`,
+      meta: [
+        {
+          hid: 'keywords',
+          name: 'keywords',
+          content: `个人主页,${this.settings.system.sitename},${this.settings.system.keywords}`,
+        },
+        {
+          hid: 'description',
+          name: 'description',
+          content: `${this.settings.system.description}`,
+        },
+      ],
     }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   created() {
     try {

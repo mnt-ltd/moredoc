@@ -242,7 +242,19 @@ export default {
       bodyAttrs: {
         class: 'search-page',
       },
-      title: 'MOREDOC · 魔豆文库，开源文库系统',
+      title: this.settings.system.title || 'MOREDOC · 魔豆文库',
+      meta: [
+        {
+          hid: 'keywords',
+          name: 'keywords',
+          content: `${query.wd},文档搜索,${this.settings.system.sitename},${this.settings.system.keywords}`,
+        },
+        {
+          hid: 'description',
+          name: 'description',
+          content: this.settings.system.description,
+        },
+      ],
     }
   },
   computed: {
