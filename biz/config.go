@@ -116,9 +116,9 @@ func (s *ConfigAPIService) GetStats(ctx context.Context, req *emptypb.Empty) (re
 		BannerCount:     0,
 		FriendlinkCount: 0,
 		Os:              runtime.GOOS,
-		Version:         "1.0.0",
-		Hash:            "hash",
-		BuildAt:         "2021-01-01 00:00:00",
+		Version:         util.Version,
+		Hash:            util.Hash,
+		BuildAt:         util.BuildAt,
 	}
 	res.UserCount, _ = s.dbModel.CountUser()
 	res.DocumentCount, _ = s.dbModel.CountDocument()
