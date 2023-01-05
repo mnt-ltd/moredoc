@@ -157,6 +157,7 @@
         <el-card
           shadow="never"
           class="mgt-20px relate-docs"
+          ref="relateDocs"
           v-if="relatedDocuments.length > 0"
         >
           <div slot="header">相关文档</div>
@@ -307,6 +308,8 @@ export default {
         reason: 1,
       },
       relatedDocuments: [],
+      cardWidth: 0,
+      cardOffsetTop: 0,
     }
   },
   head() {
@@ -414,6 +417,24 @@ export default {
         currentPage = this.pages.length
       }
       this.currentPage = currentPage
+
+      const relateDocs = this.$refs.relateDocs.$el
+      if (relateDocs) {
+        if (this.cardWidth === 0) {
+          this.cardWidth = relateDocs.offsetWidth
+          this.cardOffsetTop = relateDocs.offsetTop
+        }
+
+        if (scrollTop > this.cardOffsetTop) {
+          relateDocs.style.position = 'fixed'
+          relateDocs.style.top = '60px'
+          relateDocs.style.zIndex = '999'
+          relateDocs.style.width = `${this.cardWidth}px`
+        } else {
+          relateDocs.$el.style = null
+        }
+      }
+
       this.pages[currentPage - 1].src = this.pages[currentPage - 1].lazySrc
     },
     handleFullscreenScroll() {

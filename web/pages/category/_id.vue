@@ -84,7 +84,7 @@
             @node-click="handleNodeClick"
           ></el-tree>
         </el-card>
-        <el-card shadow="never" class="mgt-20px keywords">
+        <el-card shadow="never" class="mgt-20px keywords" ref="keywords">
           <div slot="header">
             <el-row>
               <el-col :span="8" class="header-title">关键词</el-col>
@@ -133,6 +133,8 @@ export default {
       total: 0,
       keywords: [],
       loading: false,
+      cardOffsetTop: 0,
+      cardWidth: 0,
     }
   },
   head() {
@@ -178,6 +180,12 @@ export default {
     this.setDefaultExpandedKeys()
     this.loadData()
   },
+  mounted() {
+    window.addEventListener('scroll', this.handleScroll)
+  },
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.handleScroll)
+  },
   methods: {
     filterTree(value, data) {
       if (!value) return true
@@ -207,6 +215,26 @@ export default {
         }
       }
       this.defaultExpandedKeys = defaultExpandedKeys
+    },
+    handleScroll() {
+      const scrollTop =
+        document.documentElement.scrollTop || document.body.scrollTop
+      const keywords = this.$refs.keywords.$el
+      if (keywords) {
+        if (this.cardWidth === 0) {
+          this.cardWidth = keywords.offsetWidth
+          this.cardOffsetTop = keywords.offsetTop
+        }
+
+        if (scrollTop > this.cardOffsetTop) {
+          keywords.style.position = 'fixed'
+          keywords.style.top = '60px'
+          keywords.style.zIndex = '1000'
+          keywords.style.width = this.cardWidth + 'px'
+        } else {
+          keywords.style = null
+        }
+      }
     },
     sortClick(tab) {
       this.$router.push({
