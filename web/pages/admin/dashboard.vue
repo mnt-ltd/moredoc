@@ -84,7 +84,9 @@
         </el-descriptions-item>
         <el-descriptions-item>
           <template slot="label"> 服务支持邮箱 </template>
-          truthhun@mnt.ltd
+          <a href="mailto:truthhun@mnt.ltd" class="el-link el-link--primary"
+            >truthhun@mnt.ltd</a
+          >
         </el-descriptions-item>
         <el-descriptions-item>
           <template slot="label"> 服务支持官网 </template>
@@ -95,6 +97,51 @@
             title="摩枫网络科技 MNT.Ltd"
             >https://mnt.ltd</a
           >
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template slot="label"> 程序使用手册 </template>
+          <a
+            href="https://www.bookstack.cn/books/moredoc"
+            class="el-link el-link--primary"
+            target="_blank"
+            title="程序使用手册"
+            >https://www.bookstack.cn/books/moredoc</a
+          >
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template slot="label"> 程序开源地址 </template>
+          <ul class="opensource">
+            <li>
+              MNT：
+              <a
+                href="https://git.mnt.ltd/mnt/moredoc"
+                class="el-link el-link--primary"
+                target="_blank"
+                title="摩枫Git"
+                >https://git.mnt.ltd/mnt/moredoc</a
+              >
+            </li>
+            <li>
+              Gitee：
+              <a
+                href="https://git.mnt.ltd"
+                class="el-link el-link--primary"
+                target="_blank"
+                title="Gitee"
+                >https://gitee.com/mnt-ltd/moredoc</a
+              >
+            </li>
+            <li>
+              Github：
+              <a
+                href="https://github.com/mnt-ltd/moredoc"
+                class="el-link el-link--primary"
+                target="_blank"
+                title="Github"
+                >https://github.com/mnt-ltd/moredoc</a
+              >
+            </li>
+          </ul>
         </el-descriptions-item>
       </el-descriptions>
     </el-card>
@@ -165,6 +212,9 @@ export default {
     b {
       color: crimson;
     }
+  }
+  .opensource .el-link {
+    margin-top: -3px;
   }
 }
 </style>
