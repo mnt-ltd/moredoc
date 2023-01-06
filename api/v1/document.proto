@@ -46,6 +46,7 @@ message Document {
   string ext = 28;
   Attachment attachment = 30;
   User user = 31;
+  bool enable_gzip = 32;
 }
 
 message DeleteDocumentRequest { repeated int64 id = 1; }

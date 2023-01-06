@@ -390,9 +390,12 @@ export default {
         // 限定预览页数，拼装图片链接
         const pages = []
         for (let i = 1; i <= preview; i++) {
+          const src = doc.enable_gzip
+            ? `/view/page/${doc.attachment.hash}/${i}.gzip.svg`
+            : `/view/page/${doc.attachment.hash}/${i}.svg`
           pages.push({
-            lazySrc: `/view/page/${doc.attachment.hash}/${i}.gzip.svg`,
-            src: `/view/page/${doc.attachment.hash}/${i}.gzip.svg`,
+            lazySrc: src,
+            src: src,
             alt: `${doc.title} 第${i + 1}页`,
           })
         }
@@ -634,7 +637,9 @@ export default {
       if (document.fullscreenElement) startLazyLoad = 5
       for (let i = this.pages.length + 1; i <= end; i++) {
         j += 1
-        const src = `/view/page/${this.document.attachment.hash}/${i}.gzip.svg`
+        const src = doc.enable_gzip
+          ? `/view/page/${this.document.attachment.hash}/${i}.gzip.svg`
+          : `/view/page/${this.document.attachment.hash}/${i}.svg`
         this.pages.push({
           // 前两页，直接不要懒加载，如果非全屏
           src: j <= startLazyLoad ? src : this.loadingImage,
