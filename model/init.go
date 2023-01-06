@@ -139,13 +139,15 @@ func (m *DBModel) loopCovertDocument() {
 		return
 	}
 	convertDocumentRunning = true
-	sleep := 1 * time.Minute
+	sleep := 10 * time.Second
 	m.db.Model(&Document{}).Where("status = ?", DocumentStatusConverting).Update("status", DocumentStatusPending)
 	for {
 		now := time.Now()
 		m.logger.Info("loopCovertDocument，start...")
 		err := m.ConvertDocument()
-		m.logger.Info("loopCovertDocument，end...", zap.Error(err), zap.String("cost", time.Since(now).String()))
+		if err != nil && err != gorm.ErrRecordNotFound {
+			m.logger.Info("loopCovertDocument，end...", zap.Error(err), zap.String("cost", time.Since(now).String()))
+		}
 		if err == gorm.ErrRecordNotFound {
 			time.Sleep(sleep)
 		}
