@@ -581,6 +581,10 @@ func (m *DBModel) GetDocumentStatusConvertedByHash(hash []string) (hashMapDocume
 		documentIds = append(documentIds, attachment.TypeId)
 	}
 
+	if len(documentIds) == 0 {
+		return
+	}
+
 	m.db.Where("id in ?", documentIds).Find(&docs)
 	for _, doc := range docs {
 		hashMapDocuments[attachemnts[attachMapIndex[doc.Id]].Hash] = doc
@@ -654,6 +658,9 @@ func (m *DBModel) ConvertDocument() (err error) {
 	defer cvt.Clean()
 	document.Pages, _ = cvt.CountPDFPages(dstPDF)
 	document.Preview = cfg.MaxPreview
+	if document.Pages < cfg.MaxPreview {
+		document.Preview = document.Pages
+	}
 
 	// PDF截取第一章图片作为封面(封面不是最重要的，期间出现错误，不影响文档转换)
 	pages, err := cvt.ConvertPDFToPNG(dstPDF, 1, 1)

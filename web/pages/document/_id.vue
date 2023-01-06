@@ -377,7 +377,7 @@ export default {
         const doc = res.data || {}
         doc.score = parseFloat(doc.score) / 100 || 4.0
 
-        if (!doc.preview) {
+        if (!doc.preview || doc.preview >= doc.pages) {
           doc.preview = doc.pages
         }
 
@@ -637,7 +637,7 @@ export default {
       if (document.fullscreenElement) startLazyLoad = 5
       for (let i = this.pages.length + 1; i <= end; i++) {
         j += 1
-        const src = doc.enable_gzip
+        const src = this.document.enable_gzip
           ? `/view/page/${this.document.attachment.hash}/${i}.gzip.svg`
           : `/view/page/${this.document.attachment.hash}/${i}.svg`
         this.pages.push({
