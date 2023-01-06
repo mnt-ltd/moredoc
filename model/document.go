@@ -609,7 +609,8 @@ func (m *DBModel) ConvertDocument() (err error) {
 		}
 		return
 	}
-
+	// 文档转为PDF
+	cfg := m.GetConfigOfConverter()
 	m.SetDocumentStatus(document.Id, DocumentStatusConverting)
 
 	attachment := m.GetAttachmentByTypeAndTypeId(AttachmentTypeDocument, document.Id)
@@ -621,26 +622,26 @@ func (m *DBModel) ConvertDocument() (err error) {
 		return
 	}
 
-	// 文档hash
-	hashMapDocs := m.GetDocumentStatusConvertedByHash([]string{attachment.Hash})
-	if len(hashMapDocs) > 0 {
-		// 已有文档转换成功，将hash相同的文档相关数据迁移到当前文档
-		sql := " UPDATE `%s` SET `description`= ? , `enable_gzip` = ?, `width` = ?, `height`= ?, `preview`= ?, `pages` = ?, `status` = ? WHERE status in ? and id in (select type_id from `%s` where `hash` = ? and `type` = ?)"
-		sql = fmt.Sprintf(sql, Document{}.TableName(), Attachment{}.TableName())
-		for hash, doc := range hashMapDocs {
-			err = m.db.Exec(sql,
-				doc.Description, doc.EnableGZIP, doc.Width, doc.Height, doc.Preview, doc.Pages, DocumentStatusConverted, []int{DocumentStatusPending, DocumentStatusConverting, DocumentStatusFailed}, hash, AttachmentTypeDocument,
-			).Error
-			if err != nil {
-				m.logger.Error("ConvertDocument", zap.Error(err))
-				return
+	if !cfg.EnableConvertRepeatedDocument {
+		// 文档hash
+		hashMapDocs := m.GetDocumentStatusConvertedByHash([]string{attachment.Hash})
+		if len(hashMapDocs) > 0 {
+			// 已有文档转换成功，将hash相同的文档相关数据迁移到当前文档
+			sql := " UPDATE `%s` SET `description`= ? , `enable_gzip` = ?, `width` = ?, `height`= ?, `preview`= ?, `pages` = ?, `status` = ? WHERE status in ? and id in (select type_id from `%s` where `hash` = ? and `type` = ?)"
+			sql = fmt.Sprintf(sql, Document{}.TableName(), Attachment{}.TableName())
+			for hash, doc := range hashMapDocs {
+				err = m.db.Exec(sql,
+					doc.Description, doc.EnableGZIP, doc.Width, doc.Height, doc.Preview, doc.Pages, DocumentStatusConverted, []int{DocumentStatusPending, DocumentStatusConverting, DocumentStatusFailed}, hash, AttachmentTypeDocument,
+				).Error
+				if err != nil {
+					m.logger.Error("ConvertDocument", zap.Error(err))
+					return
+				}
 			}
+			return
 		}
-		return
 	}
 
-	// 文档转为PDF
-	cfg := m.GetConfigOfConverter()
 	timeout := 30 * time.Minute
 	if cfg.Timeout > 0 {
 		timeout = time.Duration(cfg.Timeout) * time.Minute

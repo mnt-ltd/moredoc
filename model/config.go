@@ -237,10 +237,11 @@ type ConfigSecurity struct {
 }
 
 const (
-	ConfigConverterMaxPreview = "max_preview" // 最大预览页数
-	ConfigConverterTimeout    = "timeout"     // 转换超时时间
-	ConfigConverterEnableSVGO = "enable_svgo" // 是否启用 SVGO
-	ConfigConverterEnableGZIP = "enable_gzip" // 是否启用 GZIP
+	ConfigConverterMaxPreview                    = "max_preview"                      // 最大预览页数
+	ConfigConverterTimeout                       = "timeout"                          // 转换超时时间
+	ConfigConverterEnableSVGO                    = "enable_svgo"                      // 是否启用 SVGO
+	ConfigConverterEnableGZIP                    = "enable_gzip"                      // 是否启用 GZIP
+	ConfigConverterEnableConvertRepeatedDocument = "enable_convert_repeated_document" // 是否转换已转换的重复文档
 )
 
 const (
@@ -266,10 +267,11 @@ type ConfigDownload struct {
 
 // ConfigConverter 转换配置
 type ConfigConverter struct {
-	MaxPreview int  `json:"max_preview"` // 文档所允许的最大预览页数，0 表示不限制，全部转换
-	Timeout    int  `json:"timeout"`     // 转换超时时间，单位为分钟，默认30分钟
-	EnableSVGO bool `json:"enable_svgo"` // 是否对svg启用SVGO压缩。转换效率会有所下降。相对直接的svg文件，可以节省1/2的存储空间
-	EnableGZIP bool `json:"enable_gzip"` // 是否对svg启用GZIP压缩。转换效率会有所下降。相对直接的svg文件，可以节省3/4的存储空间
+	MaxPreview                    int  `json:"max_preview"`                      // 文档所允许的最大预览页数，0 表示不限制，全部转换
+	Timeout                       int  `json:"timeout"`                          // 转换超时时间，单位为分钟，默认30分钟
+	EnableSVGO                    bool `json:"enable_svgo"`                      // 是否对svg启用SVGO压缩。转换效率会有所下降。相对直接的svg文件，可以节省1/2的存储空间
+	EnableGZIP                    bool `json:"enable_gzip"`                      // 是否对svg启用GZIP压缩。转换效率会有所下降。相对直接的svg文件，可以节省3/4的存储空间
+	EnableConvertRepeatedDocument bool `json:"enable_convert_repeated_document"` // 是否转换已转换的重复文档。如果开启，会导致转换效率下降，但是可以节省大量的存储空间
 	// GZIP和svgo都开启，转换效率会有所下降，可以综合节省约85%的存储空间
 }
 
@@ -480,9 +482,9 @@ func (m *DBModel) GetConfigOfConverter() (config ConfigConverter) {
 
 	for _, cfg := range configs {
 		switch cfg.Name {
-		case "max_preview", "timeout":
+		case ConfigConverterMaxPreview, ConfigConverterTimeout:
 			data[cfg.Name], _ = strconv.Atoi(cfg.Value)
-		case "enable_svgo", "enable_gzip":
+		case ConfigConverterEnableSVGO, ConfigConverterEnableGZIP, ConfigConverterEnableConvertRepeatedDocument:
 			value, _ := strconv.ParseBool(cfg.Value)
 			data[cfg.Name] = value
 		default:
@@ -567,6 +569,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryConverter, Name: ConfigConverterTimeout, Label: "转换超时(分钟)", Value: "30", Placeholder: "文档转换超时时间，默认为30分钟", InputType: "number", Sort: 16, Options: ""},
 		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableGZIP, Label: "是否启用GZIP压缩", Value: "true", Placeholder: "是否对文档SVG预览文件启用GZIP压缩，启用后转换效率会【稍微】下降，但相对直接的SVG文件减少75%的存储空间", InputType: "switch", Sort: 17, Options: ""},
 		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableSVGO, Label: "是否启用SVGO", Value: "false", Placeholder: "是否对文档SVG预览文件启用SVGO压缩，启用后转换效率会【明显】下降，但相对直接的SVG文件减少50%左右的存储空间", InputType: "switch", Sort: 18, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableConvertRepeatedDocument, Label: "是否转换重复文档", Value: "false", Placeholder: "对于已转换过的文档，再次被上传时是否再转换一次", InputType: "switch", Sort: 20, Options: ""},
 
 		// 下载配置
 		{Category: ConfigCategoryDownload, Name: ConfigDownloadEnableGuestDownload, Label: "是否允许游客下载", Value: "false", Placeholder: "是否允许游客下载。启用之后，未登录用户可以下载免费文档，且不受下载次数控制", InputType: "switch", Sort: 10, Options: ""},
