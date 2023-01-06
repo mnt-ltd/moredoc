@@ -434,6 +434,8 @@ export default {
       }
       this.currentPage = currentPage
 
+      console.log(currentPage)
+
       const relateDocs = this.$refs.relateDocs.$el
       if (relateDocs) {
         if (this.cardWidth === 0) {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -218,7 +219,17 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 	}
 
 	// 查找文档相关联的附件。对于列表，只返回hash和id，不返回其他字段
-	attchment := s.dbModel.GetAttachmentByTypeAndTypeId(model.AttachmentTypeDocument, doc.Id, "hash")
+	attchment := s.dbModel.GetAttachmentByTypeAndTypeId(model.AttachmentTypeDocument, doc.Id, "hash", "path")
+	if pbDoc.Width == 0 || pbDoc.Height == 0 {
+		bigCover := strings.TrimLeft(strings.TrimSuffix(attchment.Path, filepath.Ext(attchment.Path)), "./") + "/cover.big.png"
+		doc.Width, doc.Height, _ = util.GetImageSize(bigCover)
+		if doc.Width*doc.Height > 0 {
+			pbDoc.Width = int32(doc.Width)
+			pbDoc.Height = int32(doc.Height)
+			s.dbModel.UpdateDocumentField(doc.Id, map[string]interface{}{"width": doc.Width, "height": doc.Height})
+		}
+	}
+
 	pbDoc.Attachment = &pb.Attachment{Hash: attchment.Hash}
 	return pbDoc, nil
 }
