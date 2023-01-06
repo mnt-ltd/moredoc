@@ -702,7 +702,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 		if errCopy != nil {
 			m.logger.Error("ConvertDocument CopyFile", zap.Error(errCopy))
 		}
-		os.Remove(page.PagePath)
+		// os.Remove(page.PagePath)
 	}
 
 	// 提取PDF文本以及获取文档信息
