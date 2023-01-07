@@ -146,7 +146,9 @@
                   <span class="float-right"
                     >{{ doc.price || 0 }} 魔豆 | {{ doc.pages || '-' }} 页 |
                     {{ formatBytes(doc.size) }}
-                    <span class="hidden-xs-only">| 2019-06-10 10:17</span></span
+                    <span class="hidden-xs-only"
+                      >| {{ formatRelativeTime(doc.created_at) }}</span
+                    ></span
                   >
                 </div>
               </li>
@@ -198,7 +200,7 @@
 import { mapGetters } from 'vuex'
 import { getStats } from '~/api/config'
 import { searchDocument } from '~/api/document'
-import { formatBytes, getIcon } from '~/utils/utils'
+import { formatBytes, getIcon, formatRelativeTime } from '~/utils/utils'
 export default {
   data() {
     return {
@@ -283,6 +285,7 @@ export default {
   },
   methods: {
     formatBytes,
+    formatRelativeTime,
     onSearch() {
       this.$router.push({
         path: '/search',
