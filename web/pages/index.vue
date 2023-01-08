@@ -356,7 +356,7 @@ export default {
     },
     onSearch() {
       if (this.search.wd) {
-        location.href = '/search?wd=' + this.search.wd
+        location.href = '/search?wd=' + encodeURIComponent(this.search.wd)
         return
       }
     },

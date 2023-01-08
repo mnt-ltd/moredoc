@@ -244,7 +244,7 @@ export default {
       bodyAttrs: {
         class: 'search-page',
       },
-      title: this.settings.system.title || 'MOREDOC · 魔豆文库',
+      title: `${this.query.wd} - ${this.settings.system.title}`,
       meta: [
         {
           hid: 'keywords',
