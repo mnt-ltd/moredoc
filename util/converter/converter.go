@@ -188,15 +188,18 @@ func (c *Converter) convertPDFToPage(src string, fromPage, toPage int, ext strin
 		src,
 		pageRange,
 	}
+
 	c.logger.Debug("convert pdf to page", zap.String("cmd", mutool), zap.Strings("args", args))
 	_, err = util.ExecCommand(mutool, args, c.timeout)
 	if err != nil {
+		c.logger.Error("convert pdf to page", zap.String("cmd", mutool), zap.Strings("args", args), zap.Error(err))
 		return
 	}
 
 	for i := 0; i <= toPage-fromPage; i++ {
 		pagePath := fmt.Sprintf(cacheFileFormat, i+1)
-		if _, errPage := os.Stat(pagePath); errPage != nil {
+		if _, err = os.Stat(pagePath); err != nil {
+			c.logger.Error("convert pdf to page", zap.String("cmd", mutool), zap.Strings("args", args), zap.Error(err))
 			break
 		}
 		pages = append(pages, Page{

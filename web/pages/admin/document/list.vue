@@ -37,11 +37,7 @@
             >推荐</el-button
           >
           <nuxt-link :to="`/document/${scope.row.id}`" target="_blank"
-            ><el-button
-              type="text"
-              icon="el-icon-view"
-              size="small"
-              @click="recommendDocument(scope.row)"
+            ><el-button type="text" icon="el-icon-view" size="small"
               >查看</el-button
             ></nuxt-link
           >

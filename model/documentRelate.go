@@ -129,7 +129,7 @@ func (m *DBModel) GetRelatedDocuments(documentId int64) (docs []Document, err er
 		opt       = &OptionGetDocumentList{
 			WithCount: false,
 			Page:      1,
-			Size:      10,
+			Size:      11,
 			QueryIn:   make(map[string][]interface{}),
 			QueryLike: make(map[string][]interface{}),
 			SelectFields: []string{
@@ -172,7 +172,13 @@ func (m *DBModel) GetRelatedDocuments(documentId int64) (docs []Document, err er
 	docs, _, _ = m.GetDocumentList(opt)
 	if isExpired && len(docs) > 0 {
 		for _, doc := range docs {
+			if documentId == doc.Id {
+				continue
+			}
 			docIds = append(docIds, doc.Id)
+			if len(docIds) >= 10 {
+				break
+			}
 		}
 		bs, _ := json.Marshal(docIds)
 		docRelate.DocumentId = documentId

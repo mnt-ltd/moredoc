@@ -680,10 +680,14 @@ func (m *DBModel) ConvertDocument() (err error) {
 	}
 
 	// PDF转为SVG
-	toPage := 100000
+	toPage := document.Pages
 	if cfg.MaxPreview > 0 {
 		toPage = cfg.MaxPreview
 	}
+	if toPage > document.Pages {
+		toPage = document.Pages
+	}
+
 	pages, err = cvt.ConvertPDFToSVG(dstPDF, 1, toPage, cfg.EnableSVGO, cfg.EnableGZIP)
 	if err != nil {
 		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
