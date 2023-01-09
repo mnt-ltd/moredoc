@@ -189,6 +189,7 @@ import { listFriendlink } from '~/api/friendlink'
 import { categoryToTrees } from '~/utils/utils'
 export default {
   components: { UserAvatar, FormUserinfo },
+  middleware: ['analytic'],
   data() {
     return {
       search: {
