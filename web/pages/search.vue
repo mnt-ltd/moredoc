@@ -52,55 +52,59 @@
     </div>
     <el-row :gutter="20" class="mgt-20px">
       <el-col :span="4" class="search-left">
-        <el-card shadow="never">
-          <div slot="header" class="clearfix">
-            <span>类型</span>
-          </div>
-          <nuxt-link
-            v-for="item in searchExts"
-            :key="'st-' + item.value"
-            :to="{
-              path: '/search',
-              query: {
-                wd: query.wd,
-                ext: item.value,
-                page: 1,
-                size: 10,
-              },
-            }"
-            :class="[
-              'el-link',
-              'el-link--default',
-              item.value === query.ext ? 'el-link-active' : '',
-            ]"
-            >{{ item.label }}</nuxt-link
-          >
-        </el-card>
-        <el-card shadow="never">
-          <div slot="header" class="clearfix">
-            <span>排序</span>
-          </div>
-          <nuxt-link
-            v-for="item in searchSorts"
-            :key="'ss-' + item.value"
-            :to="{
-              path: '/search',
-              query: {
-                wd: query.wd,
-                ext: query.ext,
-                page: 1,
-                size: 10,
-                sort: item.value,
-              },
-            }"
-            :class="[
-              'el-link',
-              'el-link--default',
-              item.value === query.sort ? 'el-link-active' : '',
-            ]"
-            >{{ item.label }}</nuxt-link
-          >
-        </el-card>
+        <!-- 空 card 占位，以便设置position:fixed -->
+        <div class="emptyblock"></div>
+        <div ref="searchLeft">
+          <el-card shadow="never">
+            <div slot="header" class="clearfix">
+              <span>类型</span>
+            </div>
+            <nuxt-link
+              v-for="item in searchExts"
+              :key="'st-' + item.value"
+              :to="{
+                path: '/search',
+                query: {
+                  wd: query.wd,
+                  ext: item.value,
+                  page: 1,
+                  size: 10,
+                },
+              }"
+              :class="[
+                'el-link',
+                'el-link--default',
+                item.value === query.ext ? 'el-link-active' : '',
+              ]"
+              >{{ item.label }}</nuxt-link
+            >
+          </el-card>
+          <el-card shadow="never">
+            <div slot="header" class="clearfix">
+              <span>排序</span>
+            </div>
+            <nuxt-link
+              v-for="item in searchSorts"
+              :key="'ss-' + item.value"
+              :to="{
+                path: '/search',
+                query: {
+                  wd: query.wd,
+                  ext: query.ext,
+                  page: 1,
+                  size: 10,
+                  sort: item.value,
+                },
+              }"
+              :class="[
+                'el-link',
+                'el-link--default',
+                item.value === query.sort ? 'el-link-active' : '',
+              ]"
+              >{{ item.label }}</nuxt-link
+            >
+          </el-card>
+        </div>
       </el-col>
       <el-col :span="14" class="search-main">
         <el-card v-loading="loading" shadow="never">
@@ -166,31 +170,33 @@
         </el-card>
       </el-col>
       <el-col v-if="keywords.length > 0" :span="6" class="search-right">
-        <el-card shadow="never">
-          <div slot="header" class="clearfix">
-            <span>相关搜索词</span>
-          </div>
-          <nuxt-link
-            v-for="keyword in keywords"
-            :key="'kw-' + keyword"
-            :to="{
-              path: '/search',
-              query: {
-                wd: keyword,
-                page: 1,
-                size: 10,
-              },
-            }"
-            class="el-link el-link--default"
-            >{{ keyword }}</nuxt-link
-          >
-        </el-card>
-        <el-card shadow="never" class="mgt-20px">
-          <img
-            src="https://www.wenkuzhijia.cn/static/Home/default/img/cover.png"
-            alt=""
-          />
-        </el-card>
+        <div ref="searchRight">
+          <el-card shadow="never">
+            <div slot="header" class="clearfix">
+              <span>相关搜索词</span>
+            </div>
+            <nuxt-link
+              v-for="keyword in keywords"
+              :key="'kw-' + keyword"
+              :to="{
+                path: '/search',
+                query: {
+                  wd: keyword,
+                  page: 1,
+                  size: 10,
+                },
+              }"
+              class="el-link el-link--default"
+              >{{ keyword }}</nuxt-link
+            >
+          </el-card>
+          <el-card shadow="never" class="mgt-20px">
+            <img
+              src="https://www.wenkuzhijia.cn/static/Home/default/img/cover.png"
+              alt=""
+            />
+          </el-card>
+        </div>
       </el-col>
     </el-row>
   </div>
@@ -237,6 +243,9 @@ export default {
       stats: {
         document_count: '-',
       },
+      searchLeftWidth: 0,
+      searchRightWidth: 0,
+      cardOffsetTop: 120,
     }
   },
   head() {
@@ -283,6 +292,12 @@ export default {
     this.query = query
     this.getStats()
   },
+  mounted() {
+    window.addEventListener('scroll', this.handleScroll)
+  },
+  beforeDestroy() {
+    window.removeEventListener('scroll', this.handleScroll)
+  },
   methods: {
     formatBytes,
     formatRelativeTime,
@@ -297,6 +312,44 @@ export default {
           ext: 'all',
         },
       })
+    },
+    handleScroll() {
+      const scrollTop =
+        document.documentElement.scrollTop || document.body.scrollTop
+      const searchLeft = this.$refs.searchLeft
+      const searchRight = this.$refs.searchRight
+      console.log(
+        'handleScroll',
+        searchLeft,
+        searchRight,
+        this.$refs,
+        scrollTop,
+        this.$refs.searchLeft.offsetWidth,
+        this.$refs.searchLeft.offsetTop
+      )
+      if (searchLeft) {
+        if (this.searchLeftWidth === 0) {
+          this.searchLeftWidth = searchLeft.offsetWidth
+          this.searchRightWidth = searchRight.offsetWidth
+        }
+
+        const fixed = 'fixed'
+        const top = '0'
+        const zIndex = '1000'
+        if (scrollTop > this.cardOffsetTop) {
+          searchLeft.style.position = fixed
+          searchLeft.style.top = top
+          searchLeft.style.zIndex = zIndex
+          searchLeft.style.width = this.searchLeftWidth + 'px'
+          searchRight.style.position = fixed
+          searchRight.style.top = top
+          searchRight.style.zIndex = zIndex
+          searchRight.style.width = this.searchRightWidth + 'px'
+        } else {
+          searchLeft.style = null
+          searchRight.style = null
+        }
+      }
     },
     async getStats() {
       const res = await getStats()
@@ -419,6 +472,9 @@ export default {
       line-height: 30px;
       margin-right: 10px;
     }
+  }
+  .emptyblock {
+    height: 1px;
   }
   .search-main {
     .el-card__header {
