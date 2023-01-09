@@ -7,7 +7,7 @@
       :show-file-list="false"
       :on-success="success"
       :on-error="onError"
-      accept="image/jpeg,image/png,image/gif,image/jpg"
+      accept="image/*"
       :multiple="false"
       :disabled="disabled"
     >

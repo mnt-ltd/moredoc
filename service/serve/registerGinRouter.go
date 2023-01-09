@@ -4,7 +4,6 @@ import (
 	"moredoc/biz"
 	"moredoc/middleware/auth"
 	"moredoc/model"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -14,9 +13,8 @@ import (
 func RegisterGinRouter(app *gin.Engine, dbModel *model.DBModel, logger *zap.Logger, auth *auth.Auth) (err error) {
 	attachmentAPIService := biz.NewAttachmentAPIService(dbModel, logger)
 
-	app.GET("/helloworld", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, "hello world")
-	})
+	app.GET("/favicon.ico", attachmentAPIService.Favicon)
+
 	app.GET("/view/page/:hash/:page", attachmentAPIService.ViewDocumentPages)
 	app.GET("/view/cover/:hash", attachmentAPIService.ViewDocumentCover)
 	app.GET("/download/:jwt", attachmentAPIService.DownloadDocument)

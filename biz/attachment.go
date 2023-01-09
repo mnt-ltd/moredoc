@@ -443,3 +443,17 @@ func (s *AttachmentAPIService) saveFile(ctx *gin.Context, fileHeader *multipart.
 
 	return
 }
+
+func (s *AttachmentAPIService) Favicon(ctx *gin.Context) {
+	favicon := strings.TrimLeft(s.dbModel.GetConfigOfSystem("favicon").Favicon, "./")
+	faviconIco := "favicon.ico"
+	if favicon != "" {
+		_, err := os.Stat(favicon)
+		if err != nil {
+			favicon = faviconIco
+		}
+	} else {
+		favicon = faviconIco
+	}
+	ctx.File(favicon)
+}

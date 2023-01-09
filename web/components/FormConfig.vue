@@ -52,7 +52,7 @@
           v-else-if="item.input_type === 'image'"
           :action="'/api/v1/upload/config'"
           :image="configs[index]['value']"
-          :width="'100px'"
+          :width="'200px'"
           @success="success($event, index)"
         />
         <el-input

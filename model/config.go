@@ -408,9 +408,13 @@ func (m *DBModel) GetConfigOfCaptcha() (config ConfigCaptcha) {
 }
 
 // GetConfigOfSystem 获取系统配置
-func (m *DBModel) GetConfigOfSystem() (config ConfigSystem) {
+func (m *DBModel) GetConfigOfSystem(name ...string) (config ConfigSystem) {
 	var confgis []Config
-	err := m.db.Where("category = ?", ConfigCategorySystem).Find(&confgis).Error
+	db := m.db.Where("category = ?", ConfigCategorySystem)
+	if len(name) > 0 {
+		db = db.Where("name IN (?)", name)
+	}
+	err := db.Find(&confgis).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetConfigOfSystem", zap.Error(err))
 	}
