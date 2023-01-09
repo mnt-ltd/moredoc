@@ -656,7 +656,6 @@ func (m *DBModel) ConvertDocument() (err error) {
 		m.logger.Error("ConvertDocument", zap.Error(err))
 		return
 	}
-	defer cvt.Clean()
 	document.Pages, _ = cvt.CountPDFPages(dstPDF)
 	document.Preview = cfg.MaxPreview
 	if document.Pages < cfg.MaxPreview {
@@ -706,7 +705,6 @@ func (m *DBModel) ConvertDocument() (err error) {
 		if errCopy != nil {
 			m.logger.Error("ConvertDocument CopyFile", zap.Error(errCopy))
 		}
-		// os.Remove(page.PagePath)
 	}
 
 	// 提取PDF文本以及获取文档信息
@@ -719,7 +717,6 @@ func (m *DBModel) ConvertDocument() (err error) {
 		replacer := strings.NewReplacer("\r", " ", "\n", " ", "\t", " ")
 		document.Description = strings.TrimSpace(replacer.Replace(util.Substr(contentStr, 255)))
 	}
-	os.Remove(textFile)
 
 	document.Status = DocumentStatusConverted
 	document.EnableGZIP = cfg.EnableGZIP
@@ -728,6 +725,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
 		m.logger.Error("ConvertDocument", zap.Error(err))
 	}
+	cvt.Clean()
 	return
 }
 
