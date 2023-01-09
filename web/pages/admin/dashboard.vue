@@ -198,7 +198,6 @@ export default {
           ...res.data,
         }
       }
-      console.log(res)
     },
   },
 }

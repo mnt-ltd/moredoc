@@ -85,6 +85,7 @@ import FormSearch from '~/components/FormSearch.vue'
 import { categoryToTrees } from '~/utils/utils'
 import { documentStatusOptions, boolOptions } from '~/utils/enum'
 import FormUpdateDocument from '~/components/FormUpdateDocument.vue'
+import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormUpdateDocument },
   layout: 'admin',
@@ -108,6 +109,14 @@ export default {
       boolOptions,
       document: { id: 0 },
     }
+  },
+  head() {
+    return {
+      title: `文档列表 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     this.initSearchForm()

@@ -49,6 +49,7 @@ import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormCategory from '~/components/FormCategory.vue'
 import { categoryToTrees } from '~/utils/utils'
+import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormCategory },
   layout: 'admin',
@@ -68,6 +69,14 @@ export default {
       selectedRow: [],
       category: { id: 0, title: '', cover: '', sort: '' },
     }
+  },
+  head() {
+    return {
+      title: `分类管理 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     this.initSearchForm()

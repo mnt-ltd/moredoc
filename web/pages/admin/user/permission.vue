@@ -52,6 +52,7 @@ import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormPermission from '~/components/FormPermission.vue'
 import { methodOptions } from '~/utils/enum'
+import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormPermission },
   layout: 'admin',
@@ -72,6 +73,14 @@ export default {
       permission: {},
       methodOptions,
     }
+  },
+  head() {
+    return {
+      title: `权限管理 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     this.initSearchForm()

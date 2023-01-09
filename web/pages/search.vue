@@ -318,15 +318,7 @@ export default {
         document.documentElement.scrollTop || document.body.scrollTop
       const searchLeft = this.$refs.searchLeft
       const searchRight = this.$refs.searchRight
-      console.log(
-        'handleScroll',
-        searchLeft,
-        searchRight,
-        this.$refs,
-        scrollTop,
-        this.$refs.searchLeft.offsetWidth,
-        this.$refs.searchLeft.offsetTop
-      )
+
       if (searchLeft) {
         if (this.searchLeftWidth === 0) {
           this.searchLeftWidth = searchLeft.offsetWidth

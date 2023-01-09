@@ -64,6 +64,7 @@ import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormBanner from '~/components/FormBanner.vue'
 import { bannerTypeOptions } from '~/utils/enum'
+import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormBanner },
   layout: 'admin',
@@ -84,6 +85,14 @@ export default {
       banner: {},
       bannerTypeOptions,
     }
+  },
+  head() {
+    return {
+      title: `横幅管理 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     this.initSearchForm()

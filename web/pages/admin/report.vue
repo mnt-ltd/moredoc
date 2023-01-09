@@ -64,6 +64,7 @@ import { reportOptions } from '~/utils/enum'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormReport from '~/components/FormReport.vue'
+import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormReport },
   layout: 'admin',
@@ -85,6 +86,14 @@ export default {
       selectedRow: [],
       report: { id: 0 },
     }
+  },
+  head() {
+    return {
+      title: `举报管理 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     this.initSearchForm()

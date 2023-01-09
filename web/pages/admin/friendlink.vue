@@ -66,6 +66,7 @@ import {
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormFriendlink from '~/components/FormFriendlink.vue'
+import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormFriendlink },
   layout: 'admin',
@@ -86,6 +87,14 @@ export default {
       selectedRow: [],
       friendlink: { id: 0 },
     }
+  },
+  head() {
+    return {
+      title: `友链管理 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     this.initSearchForm()

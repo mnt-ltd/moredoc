@@ -58,6 +58,7 @@ import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormAttachment from '~/components/FormAttachment.vue'
 import { attachmentTypeOptions } from '~/utils/enum'
+import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormAttachment },
   layout: 'admin',
@@ -78,6 +79,14 @@ export default {
       attachment: {},
       attachmentTypeOptions,
     }
+  },
+  head() {
+    return {
+      title: `附件管理 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     this.initSearchForm()

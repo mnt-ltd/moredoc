@@ -350,8 +350,6 @@ export default {
       })
       if (res.status === 200) {
         this.banners = res.data.banner
-      } else {
-        console.log(res)
       }
     },
     onSearch() {
@@ -393,16 +391,12 @@ export default {
       })
       if (res.status === 200) {
         this.documents = res.data.document || []
-      } else {
-        console.log(res)
       }
     },
     async getStats() {
       const res = await getStats()
       if (res.status === 200) {
         this.stats = res.data || {}
-      } else {
-        console.log(res)
       }
     },
     login() {

@@ -82,6 +82,7 @@ import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormGroup from '~/components/FormGroup.vue'
 import FormGroupPermission from '~/components/FormGroupPermission.vue'
+import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormGroup, FormGroupPermission },
   layout: 'admin',
@@ -104,6 +105,14 @@ export default {
       selectedRow: [],
       group: {},
     }
+  },
+  head() {
+    return {
+      title: `角色管理 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     this.initGroup()

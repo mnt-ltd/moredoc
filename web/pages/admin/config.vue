@@ -22,6 +22,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { listConfig } from '~/api/config'
 import FormConfig from '~/components/FormConfig.vue'
 export default {
@@ -62,6 +63,14 @@ export default {
         },
       ],
     }
+  },
+  head() {
+    return {
+      title: `系统设置 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   created() {
     this.loadConfig()

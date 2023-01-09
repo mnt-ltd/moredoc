@@ -411,7 +411,6 @@ export default {
         this.pageHeight =
           (this.$refs.docPages.offsetWidth / doc.width) * doc.height
       } else {
-        console.log(res)
         this.$message.error(res.data.message)
         this.$router.replace('/404')
       }
@@ -433,8 +432,6 @@ export default {
         currentPage = this.pages.length
       }
       this.currentPage = currentPage
-
-      console.log(currentPage)
 
       const relateDocs = this.$refs.relateDocs.$el
       if (relateDocs) {

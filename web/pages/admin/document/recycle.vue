@@ -77,6 +77,7 @@ import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import { categoryToTrees } from '~/utils/utils'
 import { documentStatusOptions } from '~/utils/enum'
+import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch },
   layout: 'admin',
@@ -98,6 +99,14 @@ export default {
       documentStatusOptions,
       document: { id: 0 },
     }
+  },
+  head() {
+    return {
+      title: `回收站 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     this.initSearchForm()

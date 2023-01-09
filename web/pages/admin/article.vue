@@ -62,6 +62,7 @@ import { listArticle, deleteArticle, getArticle } from '~/api/article'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormArticle from '~/components/FormArticle.vue'
+import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormArticle },
   layout: 'admin',
@@ -89,6 +90,14 @@ export default {
         content: '',
       },
     }
+  },
+  head() {
+    return {
+      title: `单页管理 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     this.initSearchForm()

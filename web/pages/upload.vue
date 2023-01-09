@@ -351,7 +351,6 @@ export default {
             return
           }
           this.loading = true
-          console.log('onSubmit')
           if (this.percentAge === 100) {
             // 直接创建文档
             this.createDocuments()
@@ -416,7 +415,6 @@ export default {
         this.$refs.upload.clearFiles()
         this.getUser()
       } else {
-        console.log(res)
         this.$message.error(res.data.message || '上传失败')
         this.loading = false
       }

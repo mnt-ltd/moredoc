@@ -88,6 +88,7 @@ import { userStatusOptions } from '~/utils/enum'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormUser from '~/components/FormUser.vue'
+import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormUser },
   layout: 'admin',
@@ -112,6 +113,14 @@ export default {
       listFields: [],
       selectedRows: [],
     }
+  },
+  head() {
+    return {
+      title: `用户管理 - ${this.settings.system.sitename}`,
+    }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   async created() {
     await this.initSearchForm()
@@ -178,8 +187,7 @@ export default {
       })
     },
     viewRow(row) {
-      // TODO: 跳转用户页面
-      console.log(row)
+      this.$router.push(`/user/${row.id}`)
     },
     deleteRow(row) {
       this.$confirm(
