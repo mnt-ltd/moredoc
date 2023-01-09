@@ -44,9 +44,28 @@ func (s *ConfigAPIService) UpdateConfig(ctx context.Context, req *pb.Configs) (*
 		fmt.Println(err.Error())
 	}
 
+	isEmail := false
+	for idx, cfg := range cfgs {
+		if cfg.Category == model.ConfigCategoryEmail && cfg.Name == model.ConfigEmailPassword && cfg.Value == "******" {
+			// 6个星号，不修改密码
+			cfgs[idx].Value = s.dbModel.GetConfigOfEmail(model.ConfigEmailPassword).Password
+		}
+		isEmail = isEmail || cfg.Category == model.ConfigCategoryEmail
+	}
+
 	err = s.dbModel.UpdateConfigs(cfgs, "value")
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	if isEmail {
+		cfgEmail := s.dbModel.GetConfigOfEmail(model.ConfigEmailEnable, model.ConfigEmailTestEmail)
+		if cfgEmail.Enable && cfgEmail.TestEmail != "" {
+			err = s.dbModel.SendMail("测试邮件", cfgEmail.TestEmail, "这是一封测试邮件")
+			if err != nil {
+				return nil, status.Error(codes.Internal, "邮件发送失败:"+err.Error())
+			}
+		}
 	}
 
 	return &emptypb.Empty{}, nil
@@ -72,6 +91,12 @@ func (s *ConfigAPIService) ListConfig(ctx context.Context, req *pb.ListConfigReq
 
 	var pbConfigs []*pb.Config
 	util.CopyStruct(&configs, &pbConfigs)
+
+	for idx, cfg := range pbConfigs {
+		if cfg.Category == model.ConfigCategoryEmail && cfg.Name == model.ConfigEmailPassword {
+			pbConfigs[idx].Value = "******"
+		}
+	}
 
 	return &pb.Configs{Config: pbConfigs}, nil
 }

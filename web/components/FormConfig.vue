@@ -120,12 +120,11 @@ export default {
       if (res.status === 200) {
         this.$message.success('配置更新成功')
       } else {
-        this.$message.error('配置更新失败')
+        this.$message.error(res.data.message || '配置更新失败')
       }
       this.loading = false
     },
     success(res, index) {
-      console.log(res, index)
       this.configs[index] = { ...this.configs[index], value: res.data.path }
     },
   },

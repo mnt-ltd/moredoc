@@ -61,6 +61,10 @@ export default {
           label: '积分配置',
           value: 'score',
         },
+        {
+          label: '邮箱配置',
+          value: 'email',
+        },
       ],
     }
   },

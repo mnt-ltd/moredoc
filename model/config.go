@@ -1,6 +1,8 @@
 package model
 
 import (
+	"crypto/tls"
+	"errors"
 	"moredoc/util/captcha"
 	"strconv"
 	"strings"
@@ -8,6 +10,7 @@ import (
 
 	jsoniter "github.com/json-iterator/go"
 	"go.uber.org/zap"
+	"gopkg.in/gomail.v2"
 	"gorm.io/gorm"
 )
 
@@ -276,6 +279,32 @@ type ConfigConverter struct {
 }
 
 const (
+	ConfigEmailEnable    = "enable" // 是否启用邮件服务
+	ConfigEmailHost      = "host"   // SMTP 服务器地址
+	ConfigEmailPort      = "port"   // SMTP 服务器端口
+	ConfigEmailIsTLS     = "is_tls" // 是否启用TLS
+	ConfigEmailFromName  = "from_name"
+	ConfigEmailUsername  = "username" // SMTP 用户名
+	ConfigEmailPassword  = "password" // SMTP 密码
+	ConfigEmailDuration  = "duration" // 验证码有效期，单位为分钟
+	ConfigEmailTestEmail = "test_email"
+	ConfigEmailReplyTo   = "reply_to"
+)
+
+type ConfigEmail struct {
+	Enable    bool   `json:"enable"` // 是否启用邮件服务
+	Host      string `json:"host"`   // SMTP 服务器地址
+	Port      int    `json:"port"`   // SMTP 服务器端口
+	IsTLS     bool   `json:"is_tls"` // 是否启用TLS
+	FromName  string `json:"from_name"`
+	Username  string `json:"username"`
+	Password  string `json:"password"`
+	Duration  int    `json:"duration"` // 验证码有效期，单位为分钟
+	TestEmail string `json:"test_email"`
+	// ReplyTo   string `json:"reply_to"`
+}
+
+const (
 	ConfigFooterAbout     = "about"     // 关于我们
 	ConfigFooterContact   = "contact"   // 联系我们
 	ConfigFooterAgreement = "agreement" // 用户协议
@@ -502,6 +531,35 @@ func (m *DBModel) GetConfigOfConverter() (config ConfigConverter) {
 	return
 }
 
+func (m *DBModel) GetConfigOfEmail(name ...string) (config ConfigEmail) {
+	var configs []Config
+	db := m.db.Where("category = ?", ConfigCategoryEmail)
+	if len(name) > 0 {
+		db = db.Where("name in (?)", name)
+	}
+	err := db.Find(&configs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetConfigOfEmail", zap.Error(err))
+	}
+
+	var data = make(map[string]interface{})
+	for _, cfg := range configs {
+		switch cfg.Name {
+		case ConfigEmailEnable, ConfigEmailIsTLS:
+			data[cfg.Name], _ = strconv.ParseBool(cfg.Value)
+		case ConfigEmailPort, ConfigEmailDuration:
+			data[cfg.Name], _ = strconv.Atoi(cfg.Value)
+		default:
+			data[cfg.Name] = cfg.Value
+		}
+	}
+	bytes, _ := json.Marshal(data)
+	json.Unmarshal(bytes, &config)
+	m.logger.Debug("GetConfigOfEmail", zap.Any("data", data), zap.Any("config", config))
+
+	return
+}
+
 func (m *DBModel) GetConfigOfScore(name ...string) (config ConfigScore) {
 	var configs []Config
 	db := m.db.Where("category = ?", ConfigCategoryScore)
@@ -523,6 +581,32 @@ func (m *DBModel) GetConfigOfScore(name ...string) (config ConfigScore) {
 	json.Unmarshal(bytes, &config)
 
 	return
+}
+
+func (m *DBModel) SendMail(subject, email string, body string) error {
+	cfg := m.GetConfigOfEmail()
+	m.logger.Debug("SendMail", zap.Any("cfg", cfg), zap.String("email", email), zap.String("subject", subject), zap.String("body", body))
+	if !cfg.Enable {
+		return errors.New("邮件服务未启用")
+	}
+	fromName := cfg.Username
+	if fn := strings.TrimSpace(cfg.FromName); fn != "" {
+		fromName = fn
+	}
+	message := gomail.NewMessage()
+	message.SetHeader("From", message.FormatAddress(cfg.Username, fromName))
+	message.SetHeader("To", email)
+	message.SetHeader("Subject", subject)
+	message.SetBody("text/html", body)
+	// if cfg.ReplyTo != "" {
+	// 	message.SetHeader("Reply-To", cfg.ReplyTo)
+	// }
+
+	mail := gomail.NewDialer(cfg.Host, cfg.Port, cfg.Username, cfg.Password)
+	if cfg.IsTLS {
+		mail.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	}
+	return mail.DialAndSend(message)
 }
 
 func (m *DBModel) initConfig() (err error) {
@@ -592,6 +676,17 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryScore, Name: ConfigScoreDocumentCollectedLimit, Label: "每日文档被收藏奖励次数", Value: "1", Placeholder: "每天最多可以获得多少次文档被收藏奖励，0表示无奖励。", InputType: "number", Sort: 60, Options: ""},
 		{Category: ConfigCategoryScore, Name: ConfigScoreDocumentCommented, Label: "文档被评论", Value: "1", Placeholder: "上传的文档被评论后获得的魔豆", InputType: "number", Sort: 70, Options: ""},
 		{Category: ConfigCategoryScore, Name: ConfigScoreDocumentCommentedLimit, Label: "每日文档被评论奖励次数", Value: "1", Placeholder: "每天最多可以获得多少次文档被评论奖励，0表示无奖励。", InputType: "number", Sort: 80, Options: ""},
+
+		// 邮件配置
+		{Category: ConfigCategoryEmail, Name: ConfigEmailEnable, Label: "是否启用邮件服务", Value: "false", Placeholder: "邮件服务，用于找回账户密码", InputType: "switch", Sort: 10, Options: ""},
+		{Category: ConfigCategoryEmail, Name: ConfigEmailHost, Label: "SMTP 服务器地址", Value: "", Placeholder: "如：smtp.exmail.com", InputType: "text", Sort: 20, Options: ""},
+		{Category: ConfigCategoryEmail, Name: ConfigEmailPort, Label: "SMTP 服务器端口", Value: "465", Placeholder: "如：465", InputType: "number", Sort: 30, Options: ""},
+		{Category: ConfigCategoryEmail, Name: ConfigEmailIsTLS, Label: "是否启用TLS", Value: "true", Placeholder: "如果是TLS端口，请启用", InputType: "switch", Sort: 40, Options: ""},
+		{Category: ConfigCategoryEmail, Name: ConfigEmailFromName, Label: "发件人名称", Value: "", Placeholder: "请输入您要展示的发件人名称", InputType: "text", Sort: 50, Options: ""},
+		{Category: ConfigCategoryEmail, Name: ConfigEmailUsername, Label: "SMTP 账号", Value: "", Placeholder: "请输入您的邮箱账户", InputType: "text", Sort: 60, Options: ""},
+		{Category: ConfigCategoryEmail, Name: ConfigEmailPassword, Label: "SMTP 密码", Value: "", Placeholder: "请输入您的邮箱密码", InputType: "password", Sort: 70, Options: ""},
+		{Category: ConfigCategoryEmail, Name: ConfigEmailDuration, Label: "邮件有效期", Value: "30", Placeholder: "找回密码时链接有效期，默认为30，表示30分钟", InputType: "number", Sort: 80, Options: ""},
+		{Category: ConfigCategoryEmail, Name: ConfigEmailTestEmail, Label: "测试邮箱", Value: "", Placeholder: "用于每次变更配置时保存发送测试邮件", InputType: "text", Sort: 90, Options: ""},
 	}
 
 	for _, cfg := range cfgs {
