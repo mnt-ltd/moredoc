@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
 export default {
   data() {
     return {
@@ -20,10 +22,13 @@ export default {
   },
   head() {
     return {
-      title: 'MOREDOC · 魔豆文库，开源文库系统',
+      title: '找回密码 - ' + this.settings.system.sitename,
     }
   },
   async created() {},
+  computed: {
+    ...mapGetters('setting', ['settings']),
+  },
   methods: {},
 }
 </script>
