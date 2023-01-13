@@ -124,3 +124,19 @@ export const signToday = () => {
     method: 'put',
   })
 }
+
+export const findPasswordStepOne = (data) => {
+  return service({
+    url: '/api/v1/user/findpassword/stepone',
+    method: 'post',
+    data,
+  })
+}
+
+export const findPasswordStepTwo = (data) => {
+  return service({
+    url: '/api/v1/user/findpassword/steptwo',
+    method: 'put',
+    data,
+  })
+}

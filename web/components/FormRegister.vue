@@ -124,6 +124,7 @@
           class="btn-block btn-register"
           icon="el-icon-check"
           @click="execRegister"
+          :loading="loading"
           >立即注册</el-button
         >
         <nuxt-link to="/findpassword" class="el-link el-link--default"
@@ -160,6 +161,7 @@ export default {
       captcha: {
         enable: false,
       },
+      loading: false,
     }
   },
   created() {
@@ -177,6 +179,7 @@ export default {
           }
           delete user.repeat_password
 
+          this.loading = true
           const res = await this.register(user)
           if (res.status === 200) {
             this.$message.success('注册成功')
@@ -186,6 +189,7 @@ export default {
               this.$router.replace({ name: 'index' })
             }
           }
+          this.loading = false
         }
       })
     },

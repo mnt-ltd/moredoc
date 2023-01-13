@@ -1,18 +1,25 @@
 <template>
-  <div class="com-form-login">
+  <div class="com-form-find-password-step-two">
     <el-form label-position="top" label-width="80px" :model="user">
-      <el-form-item label="用户名">
+      <el-form-item label="电子邮箱">
         <el-input
-          v-model="user.username"
-          placeholder="请输入您的登录用户名"
+          v-model="user.email"
+          placeholder="请输入您注册账户时的电子邮箱"
+          :disabled="true"
         ></el-input>
       </el-form-item>
-      <el-form-item label="密码">
+      <el-form-item label="账户密码">
         <el-input
           v-model="user.password"
-          placeholder="请输入您的登录密码"
           type="password"
-          @keydown.native.enter="execLogin"
+          placeholder="请输入您的账户新密码"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="确认密码">
+        <el-input
+          v-model="user.repassword"
+          type="password"
+          placeholder="请再次输入您的账户新密码"
         ></el-input>
       </el-form-item>
       <el-form-item v-if="captcha.enable" label="验证码">
@@ -44,31 +51,28 @@
           type="primary"
           class="btn-block"
           icon="el-icon-check"
-          @click="execLogin"
+          @click="execFindPassword"
           :loading="loading"
-          >立即登录</el-button
+          :disabled="disabled"
+          >立即提交</el-button
         >
-        <nuxt-link
-          to="/findpassword"
-          title="找回密码"
-          class="el-link el-link--default"
-          >找回密码</nuxt-link
-        >
-        <nuxt-link
-          to="/register"
-          title="注册账户"
-          class="el-link el-link--default float-right"
+        <nuxt-link to="/register" title="" class="el-link el-link--default"
           >注册账户</nuxt-link
+        >
+        <nuxt-link
+          to="/login"
+          title="登录账户"
+          class="el-link el-link--default float-right"
+          >登录账户</nuxt-link
         >
       </el-form-item>
     </el-form>
   </div>
 </template>
 <script>
-import { mapActions } from 'vuex'
-import { getUserCaptcha } from '~/api/user'
+import { getUserCaptcha, findPasswordStepTwo } from '~/api/user'
 export default {
-  name: 'FormLogin',
+  name: 'FormFindPasswordStepTwo',
   props: {
     redirect: {
       type: String,
@@ -78,8 +82,10 @@ export default {
   data() {
     return {
       user: {
-        username: '',
+        email: '',
+        token: '',
         password: '',
+        repassword: '',
         captcha: '',
         captcha_id: '',
       },
@@ -87,32 +93,36 @@ export default {
         enable: false,
       },
       loading: false,
+      disabled: false,
     }
   },
   created() {
+    this.user.token = this.$route.query.token
+    this.user.email = this.$route.query.email
     this.loadCaptcha()
   },
   methods: {
-    ...mapActions('user', ['login']),
-    async execLogin() {
+    async execFindPassword() {
       this.loading = true
-      const res = await this.login(this.user)
-      if (res.status === 200) {
-        this.$message.success('登录成功')
-        setTimeout(() => {
-          if (this.redirect) {
-            this.$router.push(this.redirect)
-          } else {
-            this.$router.push({ name: 'index' })
-          }
-          this.loading = false
-        }, 2000)
-      } else {
+      const user = { ...this.user }
+      if (user.password !== user.repassword) {
+        this.$message.error('两次输入的密码不一致')
         this.loading = false
+        return
       }
+      delete user.repassword
+      const res = await findPasswordStepTwo(user)
+      if (res.status === 200) {
+        this.$message.success('设置成功，请用新密码重新登录')
+        this.$router.push('/login')
+        this.disabled = true
+      } else {
+        this.$message.error(res.data.message || '请求失败')
+      }
+      this.loading = false
     },
     async loadCaptcha() {
-      const res = await getUserCaptcha({ type: 'login', t: Date.now() })
+      const res = await getUserCaptcha({ type: 'find_password', t: Date.now() })
       if (res.data.enable) {
         // 启用了验证码
         this.user = {

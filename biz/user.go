@@ -682,5 +682,40 @@ func (s *UserAPIService) FindPasswordStepOne(ctx context.Context, req *v1.FindPa
 
 // 找回密码：重置密码
 func (s *UserAPIService) FindPasswordStepTwo(ctx context.Context, req *v1.FindPasswordRequest) (res *emptypb.Empty, err error) {
-	return
+	if !util.IsValidEmail(req.Email) {
+		return nil, status.Errorf(codes.InvalidArgument, "邮箱格式不正确")
+	}
+
+	if len(req.Password) < 6 {
+		return nil, status.Errorf(codes.InvalidArgument, "密码长度不能小于6位")
+	}
+
+	cfgSec := s.dbModel.GetConfigOfSecurity(model.ConfigSecurityEnableCaptchaFindPassword)
+	if cfgSec.EnableCaptchaFindPassword && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
+		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+	}
+
+	// 验证token
+	claims := &jwt.StandardClaims{}
+	cfgEmail := s.dbModel.GetConfigOfEmail(model.ConfigEmailSecret)
+	// 验证JWT是否合法
+	jwtToken, err := jwt.ParseWithClaims(req.Token, claims, func(t *jwt.Token) (interface{}, error) {
+		return []byte(cfgEmail.Secret), nil
+	})
+	if err != nil || !jwtToken.Valid {
+		return nil, status.Errorf(codes.InvalidArgument, "找回密码 token 无效")
+	}
+
+	user, _ := s.dbModel.GetUserByEmail(req.Email, "id")
+	if user.Id == 0 {
+		return nil, status.Errorf(codes.NotFound, "用户不存在")
+	}
+
+	// 更新密码
+	err = s.dbModel.UpdateUserPassword(user.Id, req.Password)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
 }
