@@ -338,6 +338,7 @@ export default {
       this.getDocuments(),
       this.getSignedToday(),
       this.getStats(),
+      this.getUser(),
     ])
   },
   methods: {
