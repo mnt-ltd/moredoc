@@ -1,6 +1,9 @@
 <template>
-  <div class="page-index">
-    {{ $route.name }}
+  <div class="page page-findpassword">
+    <el-card shadow="never">
+      <div slot="header">找回密码</div>
+      谁谁谁
+    </el-card>
   </div>
 </template>
 

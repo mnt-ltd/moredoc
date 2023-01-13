@@ -199,7 +199,7 @@ const (
 
 type ConfigSystem struct {
 	Sitename                        string   `json:"sitename"`             // 网站名称
-	Domain                          string   `json:"domain"`               // 站点域名，不带 HTTPS:// 和 HTTP://
+	Domain                          string   `json:"domain"`               // 站点域名，带 HTTPS:// 或 HTTP://
 	Title                           string   `json:"title"`                // 网站首页标题
 	Keywords                        string   `json:"keywords"`             // 系统关键字
 	Description                     string   `json:"description"`          // 系统描述
@@ -289,6 +289,7 @@ const (
 	ConfigEmailDuration  = "duration" // 验证码有效期，单位为分钟
 	ConfigEmailTestEmail = "test_email"
 	ConfigEmailReplyTo   = "reply_to"
+	ConfigEmailSecret    = "secret" // 找回密码邮件的签名密钥
 )
 
 type ConfigEmail struct {
@@ -301,6 +302,7 @@ type ConfigEmail struct {
 	Password  string `json:"password"`
 	Duration  int    `json:"duration"` // 验证码有效期，单位为分钟
 	TestEmail string `json:"test_email"`
+	Secret    string `json:"secret"`
 	// ReplyTo   string `json:"reply_to"`
 }
 
@@ -623,7 +625,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySystem, Name: ConfigSystemRegistrerBackground, Label: "注册页背景图", Value: "", Placeholder: "请上传一张图片作为注册页背景图", InputType: "image", Sort: 62, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemLoginBackground, Label: "登录页背景图", Value: "", Placeholder: "请上传一张图片作为登录页背景图", InputType: "image", Sort: 63, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemIcp, Label: "网站备案号", Value: "", Placeholder: "请输入您网站的备案号", InputType: "text", Sort: 69, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "https://moredoc.mnt.ltd", Placeholder: "请输入您网站的域名访问地址，如 https://moredoc.mnt.ltd，用以生成网站地图sitemap", InputType: "text", Sort: 70, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "https://moredoc.mnt.ltd", Placeholder: "请输入您网站的域名访问地址，带 https:// 或 http:// 如 https://moredoc.mnt.ltd，用以生成网站地图sitemap", InputType: "text", Sort: 70, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemCopyrightStartYear, Label: "版权起始年", Value: "2019", Placeholder: "请输入您网站版权起始年，如：2019，则前台会显示如 ©2019 - 2022 的字样", InputType: "text", Sort: 80, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemAnalytics, Label: "网站统计代码", Value: "", Placeholder: "请输入您网站的统计代码", InputType: "textarea", Sort: 90, Options: ""},
 
@@ -686,6 +688,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryEmail, Name: ConfigEmailUsername, Label: "SMTP 账号", Value: "", Placeholder: "请输入您的邮箱账户", InputType: "text", Sort: 60, Options: ""},
 		{Category: ConfigCategoryEmail, Name: ConfigEmailPassword, Label: "SMTP 密码", Value: "", Placeholder: "请输入您的邮箱密码", InputType: "password", Sort: 70, Options: ""},
 		{Category: ConfigCategoryEmail, Name: ConfigEmailDuration, Label: "邮件有效期", Value: "30", Placeholder: "找回密码时链接有效期，默认为30，表示30分钟", InputType: "number", Sort: 80, Options: ""},
+		{Category: ConfigCategoryEmail, Name: ConfigEmailSecret, Label: "签名密钥", Value: "moredoc", Placeholder: "找回密码链接签名密钥", InputType: "text", Sort: 80, Options: ""},
 		{Category: ConfigCategoryEmail, Name: ConfigEmailTestEmail, Label: "测试邮箱", Value: "", Placeholder: "用于每次变更配置时保存发送测试邮件", InputType: "text", Sort: 90, Options: ""},
 	}
 

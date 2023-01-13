@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"net/url"
 	"strings"
 	"time"
 
@@ -16,6 +17,7 @@ import (
 	"moredoc/util/captcha"
 
 	"github.com/alexandrevicenzi/unchained"
+	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -604,4 +606,81 @@ func (s *UserAPIService) ListUserDynamic(ctx context.Context, req *v1.ListUserDy
 	util.CopyStruct(&dynamics, &pbDynamics)
 
 	return &v1.ListUserDynamicReply{Dynamic: pbDynamics, Total: total}, nil
+}
+
+// 找回密码：发送邮件
+func (s *UserAPIService) FindPasswordStepOne(ctx context.Context, req *v1.FindPasswordRequest) (res *emptypb.Empty, err error) {
+	if !util.IsValidEmail(req.Email) {
+		return nil, status.Errorf(codes.InvalidArgument, "邮箱格式不正确")
+	}
+
+	cfgSec := s.dbModel.GetConfigOfSecurity(model.ConfigSecurityEnableCaptchaFindPassword)
+	if cfgSec.EnableCaptchaFindPassword && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
+		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+	}
+
+	user, _ := s.dbModel.GetUserByEmail(req.Email, "id")
+	if user.Id == 0 {
+		return nil, status.Errorf(codes.NotFound, "用户不存在")
+	}
+
+	cfgEmail := s.dbModel.GetConfigOfEmail()
+	if !cfgEmail.Enable {
+		return nil, status.Errorf(codes.Internal, "邮件服务未启用，请联系管理员")
+	}
+	cfgSystem := s.dbModel.GetConfigOfSystem()
+	cfgEmail.Duration = util.LimitRange(cfgEmail.Duration, 1, 60)
+	// 使用JWT创建token
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
+		Id:        req.Email,
+		ExpiresAt: time.Now().Add(time.Minute * time.Duration(cfgEmail.Duration)).Unix(),
+	})
+	tokenString, err := token.SignedString([]byte(cfgEmail.Secret))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	link := fmt.Sprintf("%s/findpassword?token=%s&email=%s", strings.TrimRight(cfgSystem.Domain, "/"), tokenString, url.QueryEscape(req.Email))
+	body := fmt.Sprintf(`
+	<div class="wrapper" style="margin: 20px auto 0; width: 500px; padding-top:16px; padding-bottom:10px;">
+        <div class="content" style="background: none repeat scroll 0 0 #FFFFFF; border: 1px solid #E9E9E9; margin: 2px 0 0; padding: 30px;">
+            <p>您好: </p>
+            <p>您在 <a href="%s">%s</a> 提交了找回密码申请。<br>如果您没有提交修改密码的申请, 请忽略本邮件</p>
+            <p style="border-top: 1px solid #DDDDDD;margin: 15px 0 25px;padding: 15px;">
+                请点击链接继续: <a href="%s" target="_blank">%s</a>
+            </p>
+            <p>
+                好的密码，不但应该容易记住，还要尽量符合以下强度标准：
+            <ul>
+                <li>包含大小写字母、数字和符号</li>
+                <li>不少于 6 位 </li>
+                <li>不包含生日、手机号码等易被猜出的信息</li>
+            </ul>
+            </p>
+        </div>
+    </div>
+	`,
+		cfgSystem.Domain,
+		cfgSystem.Sitename,
+		link,
+		link,
+	)
+
+	// 发送邮件
+	err = s.dbModel.SendMail(
+		"找回密码 - "+cfgSystem.Sitename,
+		req.Email,
+		body,
+	)
+	if err != nil {
+		s.logger.Error("发送邮件失败", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+// 找回密码：重置密码
+func (s *UserAPIService) FindPasswordStepTwo(ctx context.Context, req *v1.FindPasswordRequest) (res *emptypb.Empty, err error) {
+	return
 }

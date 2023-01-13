@@ -43,7 +43,7 @@ message RegisterAndLoginRequest {
   string password = 2 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
   string captcha = 3;
   string captcha_id = 4;
-  string email = 5; 
+  string email = 5;
 }
 
 message GetUserCaptchaRequest {
@@ -59,6 +59,14 @@ message LoginReply {
 message DeleteUserRequest { repeated int64 id = 1; }
 
 message GetUserRequest { int64 id = 1; }
+
+message FindPasswordRequest {
+  string email = 1;
+  string token = 2;
+  string password = 3 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
+  string captcha = 4;
+  string captcha_id = 5;
+}
 
 message ListUserRequest {
   int64 page = 1;
@@ -120,7 +128,7 @@ message ListUserDynamicReply {
   repeated Dynamic dynamic = 2;
 }
 
-message Sign{
+message Sign {
   int64 id = 1;
   int64 user_id = 2;
   int32 sign_at = 3;
@@ -253,38 +261,17 @@ service UserAPI {
     };
   }
 
-  // 获取用户粉丝列表
-  // rpc ListUserFans(ListUserFansRequest) returns (ListUserReply) {
-  //   option (google.api.http) = {
-  //     get : '/api/v1/user/fans',
-  //   };
-  // }
+  rpc FindPasswordStepOne(FindPasswordRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : '/api/v1/user/findpassword/stepone',
+      body : '*',
+    };
+  }
 
-  // //   获取用户关注列表
-  // rpc ListUserFollow(ListUserFollowRequest) returns (ListUserReply) {
-  //   option (google.api.http) = {
-  //     get : '/api/v1/user/follow',
-  //   };
-  // }
-
-  // //  获取用户收藏列表
-  // rpc ListUserFavorite(ListUserFavoriteRequest) returns (ListUserReply) {
-  //   option (google.api.http) = {
-  //     get : '/api/v1/user/favorite',
-  //   };
-  // }
-
-  // //  获取用户文档列表
-  // rpc ListUserDocument(ListUserDocumentRequest) returns (ListUserReply) {
-  //   option (google.api.http) = {
-  //     get : '/api/v1/user/document',
-  //   };
-  // }
-
-  // //  获取用户评论列表
-  // rpc ListUserComment(ListUserCommentRequest) returns (ListUserReply) {
-  //   option (google.api.http) = {
-  //     get : '/api/v1/user/comment',
-  //   };
-  // }
+  rpc FindPasswordStepTwo(FindPasswordRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/user/findpassword/steptwo',
+      body : '*',
+    };
+  }
 }
