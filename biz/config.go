@@ -4,12 +4,14 @@ import (
 	"context"
 	"fmt"
 	"runtime"
+	"strings"
 
 	pb "moredoc/api/v1"
 	"moredoc/middleware/auth"
 	"moredoc/model"
 	"moredoc/util"
 
+	"github.com/PuerkitoBio/goquery"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -116,6 +118,21 @@ func (s *ConfigAPIService) GetSettings(ctx context.Context, req *emptypb.Empty) 
 	system := s.dbModel.GetConfigOfSystem()
 	if err := util.CopyStruct(&system, res.System); err != nil {
 		s.logger.Error("util.CopyStruct", zap.Any("system", system), zap.Any("res.System", res.System), zap.Error(err))
+	}
+	system.Analytics = strings.TrimSpace(system.Analytics)
+	if system.Analytics != "" {
+		gq, errGQ := goquery.NewDocumentFromReader(strings.NewReader(system.Analytics))
+		if errGQ == nil {
+			var texts []string
+			gq.Find("script").Each(func(i int, selection *goquery.Selection) {
+				if text := strings.TrimSpace(selection.Text()); text != "" {
+					texts = append(texts, text)
+				}
+			})
+			if len(texts) > 0 {
+				res.System.Analytics = strings.Join(texts, "\n")
+			}
+		}
 	}
 
 	footer := s.dbModel.GetConfigOfFooter()
