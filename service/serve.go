@@ -79,13 +79,9 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 	// 根目录访问静态文件，要放在 grpc 服务的前面
 	// 可以在 dist 目录下创建一个 index.html 文件并添加内容，然后访问 http://ip:port
 	app.Use(static.Serve("/uploads", static.LocalFile("./uploads", true)))
+	app.Use(static.Serve("/sitemap", static.LocalFile("./sitemap", true)))
 	app.Use(static.Serve("/", static.LocalFile("./dist", true)))
-	app.NoRoute(func(ctx *gin.Context) {
-		http.ServeFile(ctx.Writer, ctx.Request, "./dist/index.html")
-	})
-
-	// grpcServer and grpcGatewayServer
-	app.NoRoute(wrapH(grpcHandlerFunc(grpcServer, gwmux)))
+	app.NoRoute(wrapH(grpcHandlerFunc(grpcServer, gwmux))) // grpcServer and grpcGatewayServer
 
 	addr := fmt.Sprintf(":%v", cfg.Port)
 	logger.Info("server start", zap.Int("port", cfg.Port))

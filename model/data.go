@@ -63,6 +63,8 @@ func getPermissions() (permissions []Permission) {
 		{Title: "处理举报内容", Description: "", Method: "GRPC", Path: "/api.v1.ReportAPI/UpdateReport"},
 		{Title: "删除举报内容", Description: "", Method: "GRPC", Path: "/api.v1.ReportAPI/DeleteReport"},
 		{Title: "查看系统信息", Description: "", Method: "GRPC", Path: "/api.v1.ConfigAPI/GetStats"},
+		{Title: "更新文档全文索引", Description: "", Method: "GRPC", Path: "/api.v1.DocumentAPI/UpdateDocumentIndexes"},
+		{Title: "更新站点地图sitemap", Description: "", Method: "GRPC", Path: "/api.v1.ConfigAPI/UpdateSitemap"},
 	}
 	return
 }

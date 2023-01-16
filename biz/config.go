@@ -159,3 +159,19 @@ func (s *ConfigAPIService) GetStats(ctx context.Context, req *emptypb.Empty) (re
 
 	return
 }
+
+// UpdateSitemap 更新站点地图
+func (s *ConfigAPIService) UpdateSitemap(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.dbModel.UpdateSitemap()
+	if err != nil {
+		s.logger.Error("UpdateSitemap", zap.Error(err))
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}

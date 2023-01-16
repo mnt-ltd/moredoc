@@ -14,6 +14,9 @@ func RegisterGinRouter(app *gin.Engine, dbModel *model.DBModel, logger *zap.Logg
 	attachmentAPIService := biz.NewAttachmentAPIService(dbModel, logger)
 
 	app.GET("/favicon.ico", attachmentAPIService.Favicon)
+	app.GET("/sitemap.xml", func(ctx *gin.Context) {
+		ctx.File("./sitemap/sitemap.xml")
+	})
 
 	app.GET("/view/page/:hash/:page", attachmentAPIService.ViewDocumentPages)
 	app.GET("/view/cover/:hash", attachmentAPIService.ViewDocumentCover)

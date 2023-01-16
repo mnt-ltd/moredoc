@@ -128,4 +128,11 @@ service ConfigAPI {
       get : "/api/v1/stats"
     };
   }
+
+  // 更新站点地图
+  rpc UpdateSitemap(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/api/v1/sitemap"
+    };
+  }
 }
