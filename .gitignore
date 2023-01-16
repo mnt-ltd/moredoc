@@ -2,10 +2,6 @@
 !app.example.toml
 *.exe
 *.exe~
-# 忽略生成的proto go文件
-*.pb.go
-*.pb.gw.go
-*.pb.validate.go
 ginrpc*
 dist
 output
