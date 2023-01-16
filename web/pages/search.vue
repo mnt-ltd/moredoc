@@ -27,7 +27,7 @@
         </span>
       </el-col>
     </el-row>
-    <div class="search-box">
+    <div class="search-box" ref="searchBox">
       <el-row :gutter="20">
         <el-col :span="4">
           <nuxt-link to="/" :title="settings.system.sitename"
@@ -245,7 +245,7 @@ export default {
       },
       searchLeftWidth: 0,
       searchRightWidth: 0,
-      cardOffsetTop: 120,
+      cardOffsetTop: 35,
     }
   },
   head() {
@@ -318,6 +318,7 @@ export default {
         document.documentElement.scrollTop || document.body.scrollTop
       const searchLeft = this.$refs.searchLeft
       const searchRight = this.$refs.searchRight
+      const searchBox = this.$refs.searchBox
 
       if (searchLeft) {
         if (this.searchLeftWidth === 0) {
@@ -326,8 +327,8 @@ export default {
         }
 
         const fixed = 'fixed'
-        const top = '0'
-        const zIndex = '1000'
+        const top = '105px'
+        const zIndex = '100'
         if (scrollTop > this.cardOffsetTop) {
           searchLeft.style.position = fixed
           searchLeft.style.top = top
@@ -337,9 +338,13 @@ export default {
           searchRight.style.top = top
           searchRight.style.zIndex = zIndex
           searchRight.style.width = this.searchRightWidth + 'px'
+          searchBox.style.top = '0'
+          searchBox.style.position = fixed
+          searchBox.style.zIndex = zIndex
         } else {
           searchLeft.style = null
           searchRight.style = null
+          searchBox.style = null
         }
       }
     },
@@ -415,6 +420,7 @@ export default {
     padding: 20px 0;
     margin-bottom: 20px;
     background-color: #fff;
+    width: 100%;
     & > .el-row {
       margin: 0 auto !important;
       width: $default-width;
