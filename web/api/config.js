@@ -8,6 +8,14 @@ export const updateConfig = (data) => {
   })
 }
 
+export const updateSitemap = (data) => {
+  return service({
+    url: '/api/v1/sitemap',
+    method: 'put',
+    data,
+  })
+}
+
 export const listConfig = (params) => {
   return service({
     url: '/api/v1/config/list',

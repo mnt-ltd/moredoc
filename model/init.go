@@ -131,6 +131,7 @@ func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
 		m.tableFieldsMap[table] = filedsMap
 	}
 	go m.loopCovertDocument()
+	go m.cronUpdateSitemap()
 	return
 }
 

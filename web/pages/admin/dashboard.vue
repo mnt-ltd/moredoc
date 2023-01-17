@@ -55,7 +55,18 @@
       </el-descriptions>
     </el-card>
     <el-card shadow="never" class="mgt-20px">
-      <div slot="header">系统信息</div>
+      <div slot="header">
+        <span>系统信息</span>
+        <el-button
+          style="float: right; padding: 3px 0"
+          @click="updateSitemap"
+          :loading="loading"
+          icon="el-icon-refresh"
+          type="text"
+        >
+          更新站点地图</el-button
+        >
+      </div>
       <el-descriptions class="margin-top" :column="1" border>
         <el-descriptions-item>
           <template slot="label"> 操作系统 </template>
@@ -149,7 +160,7 @@
 </template>
 
 <script>
-import { getStats } from '~/api/config'
+import { getStats, updateSitemap } from '~/api/config'
 import { formatDatetime } from '~/utils/utils'
 
 export default {
@@ -178,6 +189,7 @@ export default {
         hash: '-',
         build_at: '',
       },
+      loading: false,
     }
   },
   computed: {
@@ -198,6 +210,17 @@ export default {
           ...res.data,
         }
       }
+    },
+    async updateSitemap() {
+      this.loading = true
+      const res = await updateSitemap()
+      if (res.status === 200) {
+        this.$message.success('更新成功')
+        this.loading = false
+        return
+      }
+      this.loading = false
+      this.$message.error(res.data.message || '更新失败')
     },
   },
 }

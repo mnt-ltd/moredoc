@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"moredoc/util/sitemap"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -104,4 +105,25 @@ func (m *DBModel) UpdateSitemap() (err error) {
 	}
 
 	return
+}
+
+func (m *DBModel) cronUpdateSitemap() {
+	layout := "2006-01-02"
+	lastUpdated := time.Now().Format(layout)
+	for {
+		hour, _ := strconv.Atoi(os.Getenv("CRON_UPDATE_SITEMAP_HOUR")) // 默认为每天凌晨0点更新站点地图
+		hour = hour % 24
+		m.logger.Info("cronUpdateSitemap", zap.Int("hour", hour), zap.String("lastUpdated", lastUpdated))
+		now := time.Now()
+		if now.Hour() == hour && now.Format(layout) != lastUpdated {
+			m.logger.Info("cronUpdateSitemap，start...")
+			err := m.UpdateSitemap()
+			if err != nil {
+				m.logger.Info("cronUpdateSitemap，end...", zap.Error(err))
+			}
+			m.logger.Info("cronUpdateSitemap，end...")
+			lastUpdated = now.Format(layout)
+		}
+		time.Sleep(1 * time.Minute)
+	}
 }
