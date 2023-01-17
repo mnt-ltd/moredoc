@@ -191,7 +191,7 @@ func (s *UserAPIService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*
 	userId := req.Id
 	fields := s.dbModel.GetUserPublicFields()
 	userClaims, err := s.checkPermission(ctx)
-	if err == nil || (err != nil && userClaims != nil && userClaims.UserId == userId) {
+	if err == nil || (userClaims != nil && (userClaims.UserId == userId || userId == 0)) {
 		// 有权限或者查的是用户自己的资料
 		fields = []string{}
 	}

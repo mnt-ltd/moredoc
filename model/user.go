@@ -57,7 +57,7 @@ func (User) TableName() string {
 
 // GetUserPublicFields 获取用户公开字段
 func (m *DBModel) GetUserPublicFields() []string {
-	return []string{"id", "username", "avatar", "signature", "doc_count", "follow_count", "fans_count", "favorite_count", "comment_count"}
+	return []string{"id", "username", "avatar", "signature", "doc_count", "follow_count", "fans_count", "favorite_count", "comment_count", "credit_count"}
 }
 
 // CreateUser 创建User
