@@ -81,7 +81,7 @@
           {{ stats.version }}
         </el-descriptions-item>
         <el-descriptions-item>
-          <template slot="label"> 程序Hash </template>
+          <template slot="label"> Git Hash </template>
           {{ stats.hash }}
         </el-descriptions-item>
         <el-descriptions-item>

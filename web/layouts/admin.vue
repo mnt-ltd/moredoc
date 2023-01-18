@@ -4,9 +4,8 @@
       :class="isCollapse ? 'layout-aside-collapsed' : ''"
       :width="'240px'"
     >
-      <div class="logo" @click="gohome">
-        <img src="/static/images/default-logo-icon.png" alt="" />
-        <span>魔豆文库系统</span>
+      <div class="logo" @click="gohome" title="魔豆文库管理后台">
+        <img src="/static/images/logo.png" alt="魔豆文库" />
       </div>
       <transition
         :duration="{ enter: 800, leave: 800 }"
@@ -264,10 +263,10 @@ export default {
     flex-direction: row;
     justify-content: space-between;
     img {
-      width: 50px;
       padding: 5px;
       height: 50px;
       margin: 0 2px;
+      max-width: 100%;
     }
     span {
       font-size: 26px;
