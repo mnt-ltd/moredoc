@@ -60,13 +60,17 @@
       </el-col>
 
       <el-col :span="6">
-        <el-card shadow="never" class="categories">
+        <el-card
+          shadow="never"
+          class="categories"
+          :class="hasExpand ? '' : 'categories-none-expand'"
+        >
           <div slot="header">
             <el-row>
               <el-col :span="12" class="header-title">
                 {{ breadcrumbs[0].title }}
               </el-col>
-              <el-col :span="12">
+              <el-col :span="12" v-if="hasExpand">
                 <el-input v-model="filterText" placeholder="分类过滤">
                 </el-input>
               </el-col>
@@ -84,7 +88,12 @@
             @node-click="handleNodeClick"
           ></el-tree>
         </el-card>
-        <el-card shadow="never" class="mgt-20px keywords" ref="keywords">
+        <el-card
+          shadow="never"
+          class="mgt-20px keywords"
+          v-if="keywords.length > 0"
+          ref="keywords"
+        >
           <div slot="header">
             <el-row>
               <el-col :span="8" class="header-title">关键词</el-col>
@@ -136,6 +145,7 @@ export default {
       cardOffsetTop: 0,
       cardWidth: 0,
       title: '',
+      hasExpand: false,
     }
   },
   head() {
@@ -190,9 +200,19 @@ export default {
     this.breadcrumbs = breadcrumbs
 
     try {
-      this.trees =
+      const trees =
         this.categoryTrees.find((x) => x.id === breadcrumbs[0].id).children ||
         []
+      this.trees = trees
+
+      // trees 下是否有展开项
+      let hasExpand = false
+      trees.forEach((x) => {
+        if (x.children && x.children.length > 0) {
+          hasExpand = true
+        }
+      })
+      this.hasExpand = hasExpand
     } catch (error) {
       console.log(error)
     }
@@ -371,6 +391,16 @@ export default {
       background-color: #f5f7fa;
       color: #409eff;
       font-weight: bold;
+    }
+  }
+  .categories-none-expand {
+    .el-card__body {
+      .el-tree-node__expand-icon.is-leaf {
+        display: none;
+      }
+      .el-tree-node__label {
+        padding-left: 5px;
+      }
     }
   }
   .doc-list {
