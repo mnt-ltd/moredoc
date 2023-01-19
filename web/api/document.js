@@ -111,3 +111,19 @@ export const clearRecycleDocument = (params) => {
     params,
   })
 }
+
+export const getDocumentScore = (params) => {
+  return service({
+    url: '/api/v1/document/score',
+    method: 'get',
+    params,
+  })
+}
+
+export const setDocumentScore = (data) => {
+  return service({
+    url: '/api/v1/document/score',
+    method: 'post',
+    data,
+  })
+}

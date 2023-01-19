@@ -114,6 +114,15 @@ message SearchDocumentRequest {
   string ext = 7;                 // 类型
 }
 
+message DocumentScore {
+  int64 id = 1;
+  int64 document_id = 2;
+  int64 user_id = 3;
+  int32 score = 4;
+  google.protobuf.Timestamp created_at = 5 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 6 [ (gogoproto.stdtime) = true ];
+}
+
 message SearchDocumentReply {
   int64 total = 1;
   string spend = 2; // 搜索耗时
@@ -185,6 +194,21 @@ service DocumentAPI {
   rpc SearchDocument(SearchDocumentRequest) returns (SearchDocumentReply) {
     option (google.api.http) = {
       get : '/api/v1/document/search',
+    };
+  }
+
+  // 设置文档评分
+  rpc SetDocumentScore(DocumentScore) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : '/api/v1/document/score',
+      body : '*',
+    };
+  }
+
+  // 获取当前登录用户的文档评分
+  rpc GetDocumentScore(DocumentScore) returns (DocumentScore) {
+    option (google.api.http) = {
+      get : '/api/v1/document/score',
     };
   }
 }

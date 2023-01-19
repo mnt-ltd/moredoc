@@ -145,7 +145,28 @@
           shadow="never"
           class="mgt-20px"
         >
-          <FormComment :document-id="document.id" @success="commentSuccess" />
+          <div>
+            <span class="score-tips">文档打分 </span>
+            <el-rate
+              :disabled="disabledScore"
+              v-model="score"
+              show-text
+              @change="setDocumentScore"
+              :texts="[
+                '该文档令人失望',
+                '该文档不怎么样',
+                '该文档一般般',
+                '该文档很让我满意',
+                '该文档非常棒',
+              ]"
+            >
+            </el-rate>
+          </div>
+          <FormComment
+            :document-id="document.id"
+            @success="commentSuccess"
+            class="mgt-20px"
+          />
           <comment-list ref="commentList" :document-id="document.id" />
         </el-card>
       </el-col>
@@ -265,6 +286,8 @@ import {
   getDocument,
   downloadDocument,
   getRelatedDocuments,
+  setDocumentScore,
+  getDocumentScore,
 } from '~/api/document'
 import { getFavorite, createFavorite, deleteFavorite } from '~/api/favorite'
 import { formatDatetime, formatBytes, getIcon } from '~/utils/utils'
@@ -288,6 +311,8 @@ export default {
           hash: '',
         },
       },
+      score: null,
+      disabledScore: false,
       downloading: false,
       documentId: parseInt(this.$route.params.id) || 0,
       pages: [],
@@ -338,6 +363,7 @@ export default {
       this.getDocument(),
       this.getFavorite(),
       this.getRelatedDocuments(),
+      this.getDocumentScore(),
     ])
   },
   mounted() {
@@ -647,6 +673,41 @@ export default {
         })
       }
     },
+    async setDocumentScore() {
+      if (!this.score) {
+        return
+      }
+      const res = await setDocumentScore({
+        document_id: this.documentId,
+        score: this.score * 100,
+      })
+      if (res.status === 200) {
+        this.$message.success('提交评分成功')
+        this.disabledScore = true
+      } else {
+        this.$message.error(res.data.message)
+      }
+    },
+    async getDocumentScore() {
+      // 判断用户是否已登录
+      let userId = 0
+      try {
+        userId = this.$store.state.user.user.id || 0
+      } catch (error) {}
+      if (!userId) {
+        return
+      }
+      const res = await getDocumentScore({
+        document_id: this.documentId,
+      })
+      if (res.status === 200) {
+        const score = res.data.score / 100 || null
+        this.score = score
+        if (score) this.disabledScore = true
+      } else {
+        this.$message.error(res.data.message)
+      }
+    },
   },
 }
 </script>
@@ -777,6 +838,12 @@ export default {
         cursor: auto;
       }
     }
+  }
+  .score-tips {
+    position: relative;
+    top: 3px;
+    margin-right: 10px;
+    color: #565656;
   }
 }
 </style>

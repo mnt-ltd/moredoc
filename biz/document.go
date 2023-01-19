@@ -672,3 +672,41 @@ func (s *DocumentAPIService) GetRelatedDocuments(ctx context.Context, req *pb.Do
 	util.CopyStruct(&docs, &res.Document)
 	return res, nil
 }
+
+// 获取文档评分
+func (s *DocumentAPIService) GetDocumentScore(ctx context.Context, req *pb.DocumentScore) (res *pb.DocumentScore, err error) {
+	userClaims, err := s.checkLogin(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	score, _ := s.dbModel.GetDocumentScore(userClaims.UserId, req.DocumentId)
+	res = &pb.DocumentScore{}
+	util.CopyStruct(&score, res)
+	return res, nil
+}
+
+// 设置文档评分
+func (s *DocumentAPIService) SetDocumentScore(ctx context.Context, req *pb.DocumentScore) (res *emptypb.Empty, err error) {
+	userClaims, err := s.checkLogin(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	score, _ := s.dbModel.GetDocumentScore(userClaims.UserId, req.DocumentId)
+	if score.Id > 0 {
+		return nil, status.Errorf(codes.PermissionDenied, "您已经评分过了")
+	}
+
+	score = model.DocumentScore{
+		UserId:     userClaims.UserId,
+		DocumentId: req.DocumentId,
+		Score:      int(req.Score),
+	}
+	err = s.dbModel.CreateDocumentScore(&score)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "评分失败：%s", err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}
