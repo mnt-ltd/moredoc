@@ -84,6 +84,19 @@ message Settings {
   // ConfigCaptcha captcha = 4;
 }
 
+message EnvDependent {
+  string name = 1;        // 依赖名称
+  string description = 2; // 依赖描述
+  bool is_installed = 3;  // 是否已安装
+  string error = 4;       // 错误信息
+  google.protobuf.Timestamp checked_at = 5
+      [ (gogoproto.stdtime) = true ]; // 检测时间
+  string cmd = 6;                     // 检测命令
+  bool is_required = 7;               // 是否必须
+}
+
+message Envs { repeated EnvDependent envs = 1; }
+
 message Stats {
   int64 user_count = 1;
   int64 document_count = 2;
@@ -126,6 +139,13 @@ service ConfigAPI {
   rpc GetStats(google.protobuf.Empty) returns (Stats) {
     option (google.api.http) = {
       get : "/api/v1/stats"
+    };
+  }
+
+  // 获取系统环境依赖检测
+  rpc GetEnvs(google.protobuf.Empty) returns (Envs) {
+    option (google.api.http) = {
+      get : "/api/v1/envs"
     };
   }
 

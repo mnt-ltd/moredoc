@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"runtime"
 	"strings"
+	"time"
 
 	pb "moredoc/api/v1"
 	"moredoc/middleware/auth"
@@ -173,7 +174,6 @@ func (s *ConfigAPIService) GetStats(ctx context.Context, req *emptypb.Empty) (re
 		res.FriendlinkCount, _ = s.dbModel.CountFriendlink()
 		res.ReportCount, _ = s.dbModel.CountReport()
 	}
-
 	return
 }
 
@@ -191,4 +191,61 @@ func (s *ConfigAPIService) UpdateSitemap(ctx context.Context, req *emptypb.Empty
 	}
 
 	return &emptypb.Empty{}, nil
+}
+
+func (s *ConfigAPIService) GetEnvs(ctx context.Context, req *emptypb.Empty) (res *pb.Envs, err error) {
+	res = &pb.Envs{}
+	_, errPermission := s.checkPermission(ctx)
+	if errPermission != nil {
+		return
+	}
+	envs := []*pb.EnvDependent{
+		{
+			Name:        "LibreOffice",
+			Description: "LibreOffice是由文档基金会开发的自由及开放源代码的办公套件。魔豆文库用于将office等文档转为pdf。",
+			Cmd:         "soffice",
+			IsRequired:  true,
+		},
+		{
+			Name:        "Calibre",
+			Description: "calibre是一个自由开源的电子书软件套装。魔豆文库用于将epub、mobi等电子书转为pdf。",
+			Cmd:         "ebook-convert",
+			IsRequired:  true,
+		},
+		{
+			// mupdf
+			Name:        "MuPDF",
+			Description: "MuPDF是一款以C语言编写的自由及开放源代码软件库，是PDF和XPS解析和渲染引擎。魔豆文库用于将PDF转为svg、png等图片。",
+			Cmd:         "mutool",
+			IsRequired:  true,
+		},
+		{
+			Name:        "SVGO",
+			Description: "SVGO 是一个基于 Node.js 的工具，用于优化 SVG 矢量图形文件。魔豆文库用于压缩svg图片大小。",
+			Cmd:         "svgo",
+			IsRequired:  false,
+		},
+		{
+			Name:        "PM2",
+			Description: "PM2是JavaScript运行时Node.js的进程管理器。用于做魔豆文库的系统守护进程。Windows下建议使用PM2。",
+			Cmd:         "pm2",
+			IsRequired:  false,
+		}, {
+			Name:        "Supervisor",
+			Description: "Supervisor是一个客户端/服务器系统，用于监视进程状态，当进程不再运行时自动重启它们。用于做魔豆文库的系统守护进程。Linux下建议使用Supervisor。",
+			Cmd:         "supervisorctl",
+			IsRequired:  false,
+		},
+	}
+	for i := 0; i < len(envs); i++ {
+		now := time.Now()
+		err := util.CheckCommandExists(envs[i].Cmd)
+		envs[i].IsInstalled = err == nil
+		envs[i].CheckedAt = &now
+		if err != nil {
+			envs[i].Error = err.Error()
+		}
+	}
+	res.Envs = envs
+	return
 }

@@ -37,3 +37,10 @@ export const getStats = () => {
     method: 'get',
   })
 }
+
+export const getEnvs = () => {
+  return service({
+    url: '/api/v1/envs',
+    method: 'get',
+  })
+}

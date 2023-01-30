@@ -2,7 +2,7 @@
   <div class="page-admin-dashboard">
     <el-card shadow="never">
       <div slot="header">数据统计</div>
-      <el-descriptions class="margin-top" :column="2" border>
+      <el-descriptions class="margin-top" :column="3" border>
         <el-descriptions-item>
           <template slot="label">
             <i class="el-icon-tickets"></i>
@@ -53,6 +53,61 @@
           {{ stats.friendlink_count || 0 }}
         </el-descriptions-item>
       </el-descriptions>
+    </el-card>
+    <el-card shadow="never" class="mgt-20px">
+      <div slot="header">
+        <span>环境依赖</span>
+        <a
+          href="https://www.bookstack.cn/read/moredoc/install.md"
+          target="_blank"
+        >
+          <el-button
+            style="float: right; padding: 3px 0"
+            icon="el-icon-refresh"
+            type="text"
+          >
+            依赖安装教程</el-button
+          >
+        </a>
+      </div>
+      <el-table
+        :data="envs"
+        style="width: 100%"
+        empty-text="您暂无权限查看环境依赖情况"
+      >
+        <el-table-column prop="name" label="名称" width="100"> </el-table-column
+        ><el-table-column prop="is_required" label="是否必需" width="100">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.is_required" effect="danger" size="small"
+              >必需安装</el-tag
+            >
+            <el-tag effect="info" size="small" v-else>非必需</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="is_installed" label="安装" width="100">
+          <template slot-scope="scope">
+            <el-tag v-if="scope.row.is_installed" effect="success" size="small"
+              >已安装</el-tag
+            >
+            <el-tag effect="warning" size="small" v-else>未安装</el-tag>
+          </template>
+        </el-table-column>
+        <el-table-column prop="description" min-width="200" label="用途">
+        </el-table-column>
+        <el-table-column prop="error" label="错误" min-width="100">
+          <template slot-scope="scope">
+            <span v-if="scope.row.error" effect="danger" size="small">{{
+              scope.row.error
+            }}</span>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="checked_at" width="180" label="检测">
+          <template slot-scope="scope">
+            {{ formatDatetime(scope.row.checked_at) }}
+          </template>
+        </el-table-column>
+      </el-table>
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <div slot="header">
@@ -160,7 +215,7 @@
 </template>
 
 <script>
-import { getStats, updateSitemap } from '~/api/config'
+import { getStats, getEnvs, updateSitemap } from '~/api/config'
 import { formatDatetime } from '~/utils/utils'
 
 export default {
@@ -189,6 +244,7 @@ export default {
         hash: '-',
         build_at: '',
       },
+      envs: [],
       loading: false,
     }
   },
@@ -198,7 +254,7 @@ export default {
     },
   },
   created() {
-    this.getStats()
+    Promise.all([this.getStats(), this.getEnvs()])
   },
   methods: {
     formatDatetime,
@@ -209,6 +265,12 @@ export default {
           ...this.stats,
           ...res.data,
         }
+      }
+    },
+    async getEnvs() {
+      const res = await getEnvs()
+      if (res.status === 200) {
+        this.envs = res.data.envs
       }
     },
     async updateSitemap() {

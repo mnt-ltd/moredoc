@@ -7,6 +7,7 @@ import (
 	"image"
 	"io"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -172,4 +173,10 @@ func IsValidEmail(email string) (yes bool) {
 	pattern := `\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*` //匹配电子邮箱
 	reg := regexp.MustCompile(pattern)
 	return reg.MatchString(email)
+}
+
+// CheckCommandExists 验证命令是否存在
+func CheckCommandExists(command string) error {
+	_, err := exec.LookPath(command)
+	return err
 }
