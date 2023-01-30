@@ -128,17 +128,19 @@
             v-if="settings.system.domain"
             :underline="false"
             type="white"
-            title="魔豆文库"
+            :title="settings.system.sitename || ''"
             :href="settings.system.domain"
           >
             {{ settings.system.sitename }}
-            <span v-if="settings.system.copyright_start_year == currentYear"
+          </el-link>
+          <span class="copyright-year"
+            ><span v-if="settings.system.copyright_start_year == currentYear"
               >©{{ currentYear }}</span
             >
             <span v-else>
               ©{{ settings.system.copyright_start_year }} - {{ currentYear }}
-            </span>
-          </el-link>
+            </span></span
+          >
           <span>|</span>
           <el-link
             :underline="false"
@@ -160,15 +162,17 @@
           >
         </div>
         <div>
+          Powered By
           <el-link
             :underline="false"
             type="primary"
             target="_blank"
-            href="https://mnt.ltd/?prod=moredoc"
+            href="https://mnt.ltd/#services"
             title="MOREDOC"
-            >Powered By
-            <strong class="el-link--primary">MOREDOC</strong></el-link
+            class="powered-by"
+            >MOREDOC</el-link
           >
+          <span>{{ settings.system.version }}</span>
         </div>
       </div>
     </el-footer>
@@ -398,6 +402,20 @@ export default {
         .el-link--primary {
           color: #409eff;
         }
+      }
+      .copyright-year {
+        font-size: 15px;
+        position: relative;
+        top: 1px;
+        margin-left: -5px;
+        margin-right: 5px;
+      }
+      .powered-by {
+        font-size: 15px;
+        position: relative;
+        top: -3px;
+        color: #409eff !important;
+        margin-left: 0;
       }
     }
   }

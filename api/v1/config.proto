@@ -53,6 +53,7 @@ message ConfigSystem {
   string register_background = 11;
   string login_background = 12;
   repeated string recommend_words = 13;
+  string version = 14; // 程序版本号
 }
 
 // 底链配置项
