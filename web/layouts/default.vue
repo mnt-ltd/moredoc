@@ -322,6 +322,7 @@ export default {
     }
     .el-rate__text {
       margin-left: 5px;
+      color: #bdc3c7 !important;
     }
   }
   padding-top: 60px;

@@ -146,7 +146,8 @@
           class="mgt-20px"
         >
           <div>
-            <span class="score-tips">文档打分 </span>
+            <span class="score-tips" v-if="disabledScore">我的评分 </span>
+            <span class="score-tips" v-else>文档评分 </span>
             <el-rate
               :disabled="disabledScore"
               v-model="score"
@@ -458,25 +459,29 @@ export default {
         currentPage = this.pages.length
       }
       this.currentPage = currentPage
-
-      const relateDocs = this.$refs.relateDocs.$el
-      if (relateDocs) {
-        if (this.cardWidth === 0) {
-          this.cardWidth = relateDocs.offsetWidth
-          this.cardOffsetTop = relateDocs.offsetTop
-        }
-
-        if (scrollTop > this.cardOffsetTop) {
-          relateDocs.style.position = 'fixed'
-          relateDocs.style.top = '60px'
-          relateDocs.style.zIndex = '999'
-          relateDocs.style.width = `${this.cardWidth}px`
-        } else {
-          relateDocs.style = null
-        }
-      }
-
       this.pages[currentPage - 1].src = this.pages[currentPage - 1].lazySrc
+
+      // 右侧相关文档固定
+      try {
+        const relateDocs = this.$refs.relateDocs.$el
+        if (relateDocs) {
+          if (this.cardWidth === 0) {
+            this.cardWidth = relateDocs.offsetWidth
+            this.cardOffsetTop = relateDocs.offsetTop
+          }
+
+          if (scrollTop > this.cardOffsetTop) {
+            relateDocs.style.position = 'fixed'
+            relateDocs.style.top = '60px'
+            relateDocs.style.zIndex = '999'
+            relateDocs.style.width = `${this.cardWidth}px`
+          } else {
+            relateDocs.style = null
+          }
+        }
+      } catch (error) {
+        console.log('handleScroll relateDocs', error)
+      }
     },
     handleFullscreenScroll() {
       try {
