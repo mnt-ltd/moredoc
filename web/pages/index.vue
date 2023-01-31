@@ -148,7 +148,9 @@
         >
           <el-row>
             <el-col :span="8">
-              <user-avatar :size="64" :user="user" />
+              <nuxt-link to="/login"
+                ><user-avatar :size="64" :user="user"
+              /></nuxt-link>
             </el-col>
             <el-col :span="16">
               <h3>欢迎您，游客</h3>

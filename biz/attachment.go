@@ -343,10 +343,12 @@ func (s *AttachmentAPIService) UploadCategory(ctx *gin.Context) {
 
 func (s *AttachmentAPIService) uploadImage(ctx *gin.Context, attachmentType int) {
 	name := "file"
-	userCliams, statusCodes, err := s.checkGinPermission(ctx)
+	userClaims, statusCodes, err := s.checkGinPermission(ctx)
 	if err != nil {
-		ctx.JSON(statusCodes, ginResponse{Code: statusCodes, Message: err.Error(), Error: err.Error()})
-		return
+		if !(userClaims != nil && attachmentType == model.AttachmentTypeAvatar) {
+			ctx.JSON(statusCodes, ginResponse{Code: statusCodes, Message: err.Error(), Error: err.Error()})
+			return
+		}
 	}
 
 	// 验证文件是否是图片
@@ -369,17 +371,17 @@ func (s *AttachmentAPIService) uploadImage(ctx *gin.Context, attachmentType int)
 		return
 	}
 	attachment.Type = attachmentType
-	attachment.UserId = userCliams.UserId
+	attachment.UserId = userClaims.UserId
 
 	if attachmentType == model.AttachmentTypeAvatar {
-		attachment.TypeId = userCliams.UserId
+		attachment.TypeId = userClaims.UserId
 		// 更新用户头像信息
-		err = s.dbModel.UpdateUser(&model.User{Id: userCliams.UserId, Avatar: attachment.Path}, "avatar")
+		err = s.dbModel.UpdateUser(&model.User{Id: userClaims.UserId, Avatar: attachment.Path}, "avatar")
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
 		}
 		// 标记删除旧头像附件记录
-		s.dbModel.GetDB().Where("type = ? AND type_id = ?", model.AttachmentTypeAvatar, userCliams.UserId).Delete(&model.Attachment{})
+		s.dbModel.GetDB().Where("type = ? AND type_id = ?", model.AttachmentTypeAvatar, userClaims.UserId).Delete(&model.Attachment{})
 	}
 
 	// 保存附件信息

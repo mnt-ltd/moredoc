@@ -151,8 +151,10 @@
                     icon="el-icon-hot-water"
                     class="btn-block"
                     disabled
-                    >您未登录或您暂无文档上传权限</el-button
                   >
+                    <span v-if="user.id > 0">您所在用户组暂无权限上传文档</span>
+                    <span v-else>您未登录，请先登录</span>
+                  </el-button>
                 </el-form-item>
               </el-form>
             </el-col>
@@ -304,7 +306,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', ['token']),
+    ...mapGetters('user', ['token', 'user']),
     ...mapGetters('category', ['categoryTrees']),
     ...mapGetters('setting', ['settings']),
   },
