@@ -577,6 +577,7 @@ export default {
         border-radius: 5px;
         height: 160px;
         width: 115px;
+        max-width: 100%;
         img {
           width: 100%;
           transition: transform 0.3s ease 0s;

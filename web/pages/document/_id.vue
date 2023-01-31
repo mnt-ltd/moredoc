@@ -803,6 +803,7 @@ export default {
     right: 0;
     z-index: 100;
     width: 100%;
+    min-width: $min-width;
     background-color: #ecf0f1;
     height: 50px;
     [class*=' el-icon-'],

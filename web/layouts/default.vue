@@ -413,7 +413,7 @@ export default {
       .powered-by {
         font-size: 15px;
         position: relative;
-        top: -3px;
+        top: -2px;
         color: #409eff !important;
         margin-left: 0;
       }
@@ -448,7 +448,8 @@ export default {
 }
 .page {
   width: $default-width;
-  max-width: $max-width;
+  // max-width: $max-width;
+  min-width: $min-width !important;
   margin: 0 auto;
   overflow-x: hidden;
 }
