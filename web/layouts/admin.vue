@@ -5,7 +5,12 @@
       :width="'240px'"
     >
       <div class="logo" @click="gohome" title="魔豆文库管理后台">
-        <img src="/static/images/logo.png" alt="魔豆文库" />
+        <img
+          v-if="isCollapse"
+          src="/static/images/logo-icon.png"
+          alt="魔豆文库"
+        />
+        <img v-else src="/static/images/logo.png" alt="魔豆文库" />
       </div>
       <transition
         :duration="{ enter: 800, leave: 800 }"
