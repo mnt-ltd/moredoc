@@ -147,7 +147,7 @@
             type="white"
             target="_blank"
             title="站点地图"
-            href="sitemap.xml"
+            href="/sitemap.xml"
             >站点地图</el-link
           >
         </div>
@@ -416,6 +416,7 @@ export default {
         top: -2px;
         color: #409eff !important;
         margin-left: 0;
+        margin-right: 0;
       }
     }
   }
