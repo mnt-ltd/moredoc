@@ -259,10 +259,10 @@
           <div>
             <div class="card-body-left hidden-xs-only">
               <nuxt-link :to="`/category/${item.category_id}`">
-                <el-image :src="item.category_cover">
+                <el-image class="category-cover" :src="item.category_cover">
                   <div slot="error" class="image-slot">
                     <img
-                      src="/static/images/cover-news.png"
+                      src="/static/images/default-category-cover.png"
                       :alt="item.category_name"
                     />
                   </div>
