@@ -286,8 +286,8 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 		}
 	}()
 
-	if len(deepDelete) > 0 && deepDelete[0] { // 彻底删除
-		err = sess.Model(&Attachment{}).Where("type = ? and type_id in (?)", AttachmentTypeDocument, ids).Update("type_id", 0).Error
+	if len(deepDelete) > 0 && deepDelete[0] { // 标记附件为删除状态
+		err = sess.Where("type = ? and type_id in (?)", AttachmentTypeDocument, ids).Delete(&Attachment{}).Error
 		if err != nil {
 			m.logger.Error("DeleteDocument", zap.Error(err))
 			return

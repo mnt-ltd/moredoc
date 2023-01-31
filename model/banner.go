@@ -127,8 +127,7 @@ func (m *DBModel) DeleteBanner(ids []int64) (err error) {
 		return
 	}
 
-	// 附件，标记删除
-	err = sess.Model(&Attachment{}).Where("type = ? and type_id in (?)", AttachmentTypeBanner, ids).Update("type_id", 0).Error
+	err = sess.Where("type = ? and type_id in (?)", AttachmentTypeBanner, ids).Delete(&Attachment{}).Error
 	if err != nil {
 		m.logger.Error("DeleteBanner", zap.Error(err))
 		return

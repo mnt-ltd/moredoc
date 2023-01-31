@@ -132,6 +132,8 @@ func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
 	}
 	go m.loopCovertDocument()
 	go m.cronUpdateSitemap()
+	go m.cronMarkAttachmentDeleted()
+	go m.cronCleanInvalidAttachment()
 	return
 }
 

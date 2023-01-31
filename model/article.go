@@ -172,8 +172,7 @@ func (m *DBModel) DeleteArticle(ids []int64) (err error) {
 		return
 	}
 
-	// 附件，标记删除：将type_id设置为0
-	err = sess.Model(&Attachment{}).Where("type = ? and type_id in (?)", AttachmentTypeArticle, ids).Update("type_id", 0).Error
+	err = sess.Where("type = ? and type_id in (?)", AttachmentTypeArticle, ids).Delete(&Attachment{}).Error
 	if err != nil {
 		m.logger.Error("DeleteArticle", zap.Error(err))
 		return

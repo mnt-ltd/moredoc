@@ -378,6 +378,8 @@ func (s *AttachmentAPIService) uploadImage(ctx *gin.Context, attachmentType int)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
 		}
+		// 标记删除旧头像附件记录
+		s.dbModel.GetDB().Where("type = ? AND type_id = ?", model.AttachmentTypeAvatar, userCliams.UserId).Delete(&model.Attachment{})
 	}
 
 	// 保存附件信息
