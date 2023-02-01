@@ -274,9 +274,15 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 	} else {
 		opt.Size = util.LimitRange(opt.Size, 1, 24)
 		opt.Page = util.LimitRange(opt.Page, 1, 100)
-		opt.QueryIn["status"] = []interface{}{
-			model.DocumentStatusPending, model.DocumentStatusConverting,
-			model.DocumentStatusConverted, model.DocumentStatusFailed,
+		if len(req.Status) == 1 && req.Status[0] == model.DocumentStatusConverted {
+			opt.QueryIn["status"] = []interface{}{
+				model.DocumentStatusConverted,
+			}
+		} else {
+			opt.QueryIn["status"] = []interface{}{
+				model.DocumentStatusPending, model.DocumentStatusConverting,
+				model.DocumentStatusConverted, model.DocumentStatusFailed,
+			}
 		}
 	}
 

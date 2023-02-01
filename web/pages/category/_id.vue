@@ -22,6 +22,11 @@
         <el-card shadow="never" class="doc-list">
           <div slot="header">
             <el-tabs v-model="query.sort" @tab-click="sortClick">
+              <el-tab-pane name="default">
+                <span slot="label"
+                  ><i class="el-icon-coffee-cup"></i> 综合</span
+                >
+              </el-tab-pane>
               <el-tab-pane name="latest">
                 <span slot="label"><i class="el-icon-date"></i> 最新</span>
               </el-tab-pane>
@@ -131,7 +136,7 @@ export default {
       },
       query: {
         id: 0,
-        sort: 'latest',
+        sort: 'default',
         page: 1,
       },
       size: 10,
@@ -239,7 +244,7 @@ export default {
     },
     setQuery() {
       this.query.id = parseInt(this.$route.params.id) || 0
-      this.query.sort = this.$route.query.sort || 'latest'
+      this.query.sort = this.$route.query.sort || this.query.sort
       this.query.page = parseInt(this.$route.query.page) || 1
     },
     setDefaultExpandedKeys() {
@@ -297,6 +302,7 @@ export default {
     async loadData() {
       this.loading = true
       let order = 'id desc'
+      let status = []
       switch (this.query.sort) {
         case 'latest':
           order = 'id desc'
@@ -320,10 +326,13 @@ export default {
           order = 'download_count desc'
           break
         default:
+          // 已转换完成的文档，基本有封面，展示的时候不会显得空落落的
+          status = [2]
           break
       }
       const res = await listDocument({
         order,
+        status,
         page: this.query.page,
         size: this.size,
         category_id: this.categoryId,
