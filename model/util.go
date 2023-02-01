@@ -203,11 +203,13 @@ func (m *DBModel) cronMarkAttachmentDeleted() {
 	// 定时标记删除24小时前上传的但是未被使用的附件
 	for {
 		time.Sleep(1 * time.Hour)
-		// 1. 查找图片类配置
 		var (
 			configs []Config
+			banners []Banner
 			hashes  []string
 		)
+
+		// 1. 查找图片类配置
 		m.db.Select("value").Where("input_type = ?", "image").Find(&configs)
 		if len(configs) > 0 {
 			for _, config := range configs {
@@ -217,15 +219,31 @@ func (m *DBModel) cronMarkAttachmentDeleted() {
 					hashes = append(hashes, hash)
 				}
 			}
-			err := m.db.Where("`hash` NOT IN (?) and `type` = ?", hashes, AttachmentTypeConfig).Delete(&Attachment{}).Error
+
+		}
+
+		// 2. 查找横幅类配置
+		m.db.Select("path").Find(&banners)
+		if len(banners) > 0 {
+			for _, banner := range banners {
+				// 文件hash
+				hash := strings.TrimSpace(strings.TrimSuffix(filepath.Base(banner.Path), filepath.Ext(banner.Path)))
+				if hash != "" {
+					hashes = append(hashes, hash)
+				}
+			}
+		}
+
+		if len(hashes) > 0 {
+			err := m.db.Where("`hash` NOT IN (?) and `type` in (?)", hashes, []int{AttachmentTypeConfig, AttachmentTypeBanner}).Delete(&Attachment{}).Error
 			if err != nil {
 				m.logger.Error("cronMarkAttachmentDeleted", zap.Error(err))
 			}
 		}
 
-		// 非配置类附件，如果type_id为0，则表示未被使用，超过24小时则标记删除
+		// 非配置类和横幅类附件，如果type_id为0，则表示未被使用，超过24小时则标记删除
 		m.logger.Info("cronMarkAttachmentDeleted start...")
-		err := m.db.Where("type != ?  and type_id = ?", AttachmentTypeConfig, 0).Where("created_at < ?", time.Now().Add(-time.Duration(24)*time.Hour)).Delete(&Attachment{}).Error
+		err := m.db.Where("`type` not in (?)  and type_id = ?", []int{AttachmentTypeConfig, AttachmentTypeBanner}, 0).Where("created_at < ?", time.Now().Add(-time.Duration(24)*time.Hour)).Delete(&Attachment{}).Error
 		if err != nil {
 			m.logger.Error("cronMarkAttachmentDeleted", zap.Error(err))
 		}

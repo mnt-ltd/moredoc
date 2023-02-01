@@ -21,34 +21,18 @@
           @success="success"
         />
       </el-form-item>
-      <el-form-item
-        label="名称"
-        prop="title"
-        :rules="[
-          { required: true, message: '请输入横幅名称', trigger: 'blur' },
-        ]"
-      >
+      <el-form-item label="名称" prop="title">
         <el-input
           v-model="banner.title"
           clearable
           placeholder="请输入横幅名称"
         ></el-input>
       </el-form-item>
-      <el-form-item
-        label="链接"
-        prop="url"
-        :rules="[
-          {
-            required: true,
-            message: '请输入链接地址',
-            trigger: 'blur',
-          },
-        ]"
-      >
+      <el-form-item label="链接" prop="url">
         <el-input
           v-model="banner.url"
           clearable
-          placeholder="请输入链接地址"
+          placeholder="请输入链接地址，链接地址为空点击横幅不会跳转"
         ></el-input>
       </el-form-item>
       <el-row :gutter="20">

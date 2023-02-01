@@ -5,8 +5,8 @@
         <a
           v-for="banner in banners"
           :key="'banner-' + banner.id"
-          :href="banner.url"
-          target="_blank"
+          :href="banner.url ? banner.url : 'javascript:;'"
+          :target="banner.url ? '_blank' : ''"
           :title="banner.title"
         >
           <el-carousel-item
