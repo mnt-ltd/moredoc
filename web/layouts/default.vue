@@ -18,11 +18,47 @@
             <nuxt-link to="/">首页</nuxt-link>
           </el-menu-item>
           <el-menu-item
+            v-show="$route.path === '/'"
             v-for="item in categoryTrees"
             :key="'c-' + item.id"
             :index="`/category/${item.id}`"
           >
             <nuxt-link :to="`/category/${item.id}`">{{ item.title }}</nuxt-link>
+          </el-menu-item>
+          <el-submenu index="channel" v-show="$route.path !== '/'">
+            <template slot="title">频道分类</template>
+            <el-menu-item
+              v-for="item in categoryTrees"
+              :key="'sub-cate-' + item.id"
+              class="channel-category"
+              :index="`/category/${item.id}`"
+            >
+              <nuxt-link
+                class="el-link el-link--default"
+                :to="`/category/${item.id}`"
+                >{{ item.title }}</nuxt-link
+              >
+            </el-menu-item>
+          </el-submenu>
+          <el-menu-item
+            index="searchbox"
+            class="nav-searchbox"
+            v-show="$route.path !== '/'"
+          >
+            <el-input
+              v-model="search.wd"
+              class="search-input"
+              size="large"
+              placeholder="搜索文档..."
+              @keyup.enter.native="onSearch"
+            >
+              <i
+                class="el-icon-search el-input__icon"
+                @click="onSearch"
+                slot="suffix"
+              >
+              </i>
+            </el-input>
           </el-menu-item>
           <el-menu-item
             v-if="user.id > 0"
@@ -251,6 +287,17 @@ export default {
     ...mapActions('category', ['getCategories']),
     ...mapActions('setting', ['getSettings']),
     ...mapActions('user', ['logout']),
+    onSearch() {
+      if (!this.search.wd) return
+      let wd = this.search.wd
+      this.$router.push({
+        path: '/search',
+        query: {
+          wd: wd,
+        },
+      })
+      this.search.wd = ''
+    },
     loopUpdate() {
       clearTimeout(this.timeouter)
       this.timeouter = setTimeout(() => {
@@ -289,6 +336,7 @@ export default {
 </script>
 <style lang="scss">
 .layout-default {
+  background-color: $background-grey-light;
   min-width: $min-width !important;
   .el-table th {
     height: 45px;
@@ -342,6 +390,7 @@ export default {
     top: 0;
     z-index: 100;
     overflow: hidden;
+    border-bottom: 1px solid $background-grey-light;
     & > div {
       margin: 0 auto;
       width: $default-width;
@@ -357,6 +406,16 @@ export default {
         a {
           padding: 0 15px;
         }
+      }
+    }
+    .nav-searchbox {
+      padding: 0 25px !important;
+      top: -2px;
+      &.is-active {
+        border-color: transparent;
+      }
+      .el-input {
+        width: 360px;
       }
     }
     a {
@@ -420,7 +479,6 @@ export default {
       }
     }
   }
-  background-color: $background-grey-light;
   .logo {
     &.is-active {
       border-color: transparent !important;
@@ -453,5 +511,19 @@ export default {
   min-width: $min-width !important;
   margin: 0 auto;
   overflow-x: hidden;
+}
+.channel-category {
+  &.is-active {
+    background-color: #f2f6fc !important;
+    a {
+      color: #409eff;
+    }
+  }
+  a {
+    display: block;
+  }
+}
+.el-menu--popup {
+  min-width: 115px;
 }
 </style>
