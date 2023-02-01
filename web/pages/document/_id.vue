@@ -57,6 +57,17 @@
               ></span>
             </div>
           </div>
+          <template v-if="tips">
+            <el-alert
+              type="warning"
+              effect="dark"
+              :title="tips"
+              show-icon
+              :closable="false"
+            >
+            </el-alert>
+            <div class="mgt-20px"></div>
+          </template>
           <div ref="docPages" class="doc-pages">
             <el-image
               v-for="(page, index) in pages"
@@ -292,12 +303,14 @@ import {
 } from '~/api/document'
 import { getFavorite, createFavorite, deleteFavorite } from '~/api/favorite'
 import { formatDatetime, formatBytes, getIcon } from '~/utils/utils'
+import { documentStatusOptions } from '~/utils/enum'
 import FormComment from '~/components/FormComment.vue'
 import CommentList from '~/components/CommentList.vue'
 export default {
   components: { DocumentSimpleList, FormComment, CommentList },
   data() {
     return {
+      documentStatusOptions,
       docs: [],
       user: {
         id: 0,
@@ -336,6 +349,7 @@ export default {
       relatedDocuments: [],
       cardWidth: 0,
       cardOffsetTop: 0,
+      tips: '',
     }
   },
   head() {
@@ -437,6 +451,15 @@ export default {
         this.pageWidth = this.$refs.docPages.offsetWidth
         this.pageHeight =
           (this.$refs.docPages.offsetWidth / doc.width) * doc.height
+
+        if (doc.status !== 2) {
+          // 2 为文档已转换成功，不需要展示提示
+          this.documentStatusOptions.map((item) => {
+            if (item.value === doc.status) {
+              this.tips = `当前文档【${item.label}】，可能暂时无法正常提供预览，建议您下载到本地进行阅读。`
+            }
+          })
+        }
       } else {
         this.$message.error(res.data.message)
         this.$router.replace('/404')
