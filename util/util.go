@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/disintegration/imaging"
@@ -179,4 +180,33 @@ func IsValidEmail(email string) (yes bool) {
 func CheckCommandExists(command string) error {
 	_, err := exec.LookPath(command)
 	return err
+}
+
+// 获取系统发行版本信息
+func GetOSRelease() (osVersion string, err error) {
+	var (
+		content       []byte
+		name, version string
+	)
+	osVersion = runtime.GOOS // 默认为GOOS
+	switch runtime.GOOS {
+	case "linux":
+		content, err = os.ReadFile("/etc/os-release")
+		if err != nil {
+			return
+		}
+		lines := strings.Split(string(content), "\n")
+		for _, line := range lines {
+			if strings.HasPrefix(line, "NAME=") {
+				name = strings.Trim(strings.TrimPrefix(line, "NAME="), "\"")
+			}
+			if strings.HasPrefix(line, "VERSION_ID=") {
+				version = strings.Trim(strings.TrimPrefix(line, "VERSION_ID="), "\"")
+			}
+		}
+		if name != "" {
+			osVersion = name + " " + version
+		}
+	}
+	return
 }

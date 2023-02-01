@@ -163,6 +163,7 @@ func (s *ConfigAPIService) GetStats(ctx context.Context, req *emptypb.Empty) (re
 		Hash:            util.Hash,
 		BuildAt:         util.BuildAt,
 	}
+	res.Os, _ = util.GetOSRelease()
 	res.UserCount, _ = s.dbModel.CountUser()
 	res.DocumentCount, _ = s.dbModel.CountDocument()
 	_, errPermission := s.checkPermission(ctx)
