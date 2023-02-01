@@ -1,18 +1,16 @@
 package captcha
 
 import (
-	"strings"
-
 	"github.com/mojocn/base64Captcha"
 )
 
 var (
-	store              = base64Captcha.DefaultMemStore
-	width              = 240
-	height             = 60
-	sourceChinese      = strings.Join(strings.Split("欢迎使用由深圳市摩枫网络科技有限公司基于阿帕奇开源协议的魔豆文库系统", ""), ",")
+	store  = base64Captcha.DefaultMemStore
+	width  = 240
+	height = 60
+	// sourceChinese      = strings.Join(strings.Split("欢迎使用由深圳市摩枫网络科技有限公司基于阿帕奇开源协议的魔豆文库系统", ""), ",")
 	sourceString       = "1234567890qwertyuioplkjhgfdsazxcvbnm"
-	CaptchaTypeOptions = "string:字符串\nmath:算术\nchinese:中文\ndigit:数字\naudio:语音"
+	CaptchaTypeOptions = "string:字符串\nmath:算术\ndigit:数字\naudio:语音"
 )
 
 const (

@@ -186,28 +186,29 @@
                   </li> -->
                   <li>
                     4. 目前支持的文档类型：
-                    <div>
+                    <div v-if="wordExt.length > 0">
                       <img src="/static/images/word_24.png" alt="Word文档" />
-                      doc，docx，rtf，wps，odt
+                      {{ wordExt.join('，') }}
                     </div>
-                    <div>
+                    <div v-if="pptExt.length > 0">
                       <img src="/static/images/ppt_24.png" alt="PPT文档" />
-                      ppt，pptx，pps，ppsx，dps，odp，pot
+                      {{ pptExt.join('，') }}
                     </div>
-                    <div>
+                    <div v-if="excelExt.length > 0">
                       <img src="/static/images/excel_24.png" alt="Excel文档" />
-                      xls，xlsx，et，ods，csv，tsv
+                      {{ excelExt.join('，') }}
                     </div>
-                    <div>
+                    <div v-if="otherExt.length > 0">
                       <img src="/static/images/other_24.png" alt="其他文档" />
-                      epub，umd，chm，mobi
+                      {{ otherExt.join('，') }}
                     </div>
-                    <div>
-                      <img src="/static/images/text_24.png" alt="TXT文档" /> txt
+                    <div v-if="allowExt.includes('.txt')">
+                      <img src="/static/images/text_24.png" alt="TXT文档" />
+                      .txt
                     </div>
-                    <div>
+                    <div v-if="allowExt.includes('.pdf')">
                       <img src="/static/images/pdf_24.png" alt="PDF文档" />
-                      pdf
+                      .pdf
                     </div>
                   </li>
                   <li>
@@ -266,6 +267,7 @@ export default {
         '.rtf',
         '.wps',
         '.odt',
+        '.dot',
         '.ppt',
         '.pptx',
         '.pps',
@@ -286,6 +288,14 @@ export default {
         '.txt',
         '.pdf',
       ],
+      wordExtEnum: ['.doc', '.docx', '.rtf', '.wps', '.odt', '.dot'],
+      pptExtEnum: ['.ppt', '.pptx', '.pps', '.ppsx', '.dps', '.odp', '.pot'],
+      excelExtEnum: ['.xls', '.xlsx', '.csv', '.tsv', '.et', '.ods'],
+      otherExtEnum: ['.epub', '.umd', '.chm', '.mobi'],
+      wordExt: [],
+      pptExt: [],
+      excelExt: [],
+      otherExt: [],
     }
   },
   head() {
@@ -315,8 +325,30 @@ export default {
     if (res.status === 200) {
       this.canIUploadDocument = true
     }
-    this.maxDocumentSize =
-      (this.settings.security.max_document_size || 50) * 1024 * 1024
+    try {
+      this.maxDocumentSize =
+        (this.settings.security.max_document_size || 50) * 1024 * 1024
+    } catch (error) {
+      console.log(error)
+    }
+
+    try {
+      this.allowExt =
+        this.settings.security.document_allowed_ext || this.allowExt
+    } catch (error) {
+      console.log(error)
+    }
+    this.allowExt.map((ext) => {
+      if (this.wordExtEnum.includes(ext)) {
+        this.wordExt.push(ext)
+      } else if (this.pptExtEnum.includes(ext)) {
+        this.pptExt.push(ext)
+      } else if (this.excelExtEnum.includes(ext)) {
+        this.excelExt.push(ext)
+      } else if (this.otherExtEnum.includes(ext)) {
+        this.otherExt.push(ext)
+      }
+    })
   },
   methods: {
     formatBytes,

@@ -210,3 +210,12 @@ func GetOSRelease() (osVersion string, err error) {
 	}
 	return
 }
+
+func InSlice[T Any](slice []T, value T) bool {
+	for _, v := range slice {
+		if v == value {
+			return true
+		}
+	}
+	return false
+}

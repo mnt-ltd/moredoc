@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"moredoc/util/captcha"
+	"moredoc/util/filetil"
 	"strconv"
 	"strings"
 	"time"
@@ -224,19 +225,21 @@ const (
 	ConfigSecurityEnableCaptchaComment      = "enable_captcha_comment"       // 是否开启注册验证码
 	ConfigSecurityEnableCaptchaFindPassword = "enable_captcha_find_password" // 是否开启注册验证码
 	ConfigSecurityDocumentRelatedDuration   = "document_related_duration"    // 相关文档有效期，默认为7天，最小值为1
+	ConfigSecurityDocumentAllowedExt        = "document_allowed_ext"         // 允许上传的文档类型
 )
 
 type ConfigSecurity struct {
-	MaxDocumentSize           int32  `json:"max_document_size"`            // 允许上传的最大文档大小
-	CommentInterval           int32  `json:"comment_interval"`             // 评论时间间隔, 单位秒
-	DocumentRelatedDuration   int32  `json:"document_related_duration"`    // 相关文档有效期，默认为7天，最小值为1
-	IsClose                   bool   `json:"is_close"`                     // 是否闭站
-	CloseStatement            string `json:"close_statement"`              // 闭站说明
-	EnableRegister            bool   `json:"enable_register"`              // 是否启用注册
-	EnableCaptchaLogin        bool   `json:"enable_captcha_login"`         // 是否启用登录验证码
-	EnableCaptchaRegister     bool   `json:"enable_captcha_register"`      // 是否启用注册验证码
-	EnableCaptchaComment      bool   `json:"enable_captcha_comment"`       // 是否启用评论验证码
-	EnableCaptchaFindPassword bool   `json:"enable_captcha_find_password"` // 找回密码是否需要验证码
+	MaxDocumentSize           int32    `json:"max_document_size"`            // 允许上传的最大文档大小
+	CommentInterval           int32    `json:"comment_interval"`             // 评论时间间隔, 单位秒
+	DocumentRelatedDuration   int32    `json:"document_related_duration"`    // 相关文档有效期，默认为7天，最小值为1
+	IsClose                   bool     `json:"is_close"`                     // 是否闭站
+	CloseStatement            string   `json:"close_statement"`              // 闭站说明
+	EnableRegister            bool     `json:"enable_register"`              // 是否启用注册
+	EnableCaptchaLogin        bool     `json:"enable_captcha_login"`         // 是否启用登录验证码
+	EnableCaptchaRegister     bool     `json:"enable_captcha_register"`      // 是否启用注册验证码
+	EnableCaptchaComment      bool     `json:"enable_captcha_comment"`       // 是否启用评论验证码
+	EnableCaptchaFindPassword bool     `json:"enable_captcha_find_password"` // 找回密码是否需要验证码
+	DocumentAllowedExt        []string `json:"document_allowed_ext"`         // 允许上传的文档类型
 }
 
 const (
@@ -495,6 +498,12 @@ func (m *DBModel) GetConfigOfSecurity(name ...string) (config ConfigSecurity) {
 			data[cfg.Name] = value
 		case "max_document_size", "comment_interval", ConfigSecurityDocumentRelatedDuration:
 			data[cfg.Name], _ = strconv.Atoi(cfg.Value)
+		case ConfigSecurityDocumentAllowedExt:
+			arr := strings.Split(cfg.Value, ",")
+			if len(arr) == 1 && arr[0] == "" {
+				arr = []string{}
+			}
+			data[cfg.Name] = arr
 		default:
 			data[cfg.Name] = cfg.Value
 		}
@@ -636,11 +645,12 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryCaptcha, Name: ConfigCaptchaType, Label: "验证码类型", Value: "digit", Placeholder: "请选择验证码类型，默认为数字", InputType: "select", Sort: 16, Options: captcha.CaptchaTypeOptions},
 
 		// 安全配置项
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityMaxDocumentSize, Label: "最大文档大小(MB)", Value: "50", Placeholder: "允许用户上传的最大文档大小，默认为50，即50MB", InputType: "number", Sort: 15, Options: ""},
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityCommentInterval, Label: "评论时间间隔", Value: "10", Placeholder: "用户评论时间间隔，单位为秒。0表示不限制。", InputType: "number", Sort: 15, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityMaxDocumentSize, Label: "最大文档大小(MB)", Value: "50", Placeholder: "允许用户上传的最大文档大小，默认为50，即50MB", InputType: "number", Sort: 1, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityCommentInterval, Label: "评论时间间隔", Value: "10", Placeholder: "用户评论时间间隔，单位为秒。0表示不限制。", InputType: "number", Sort: 2, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityDocumentRelatedDuration, Label: "文档的【相关文档】有效期", Value: "7", Placeholder: "文档的相关联文档的有效期，默认为7，即7天，0或小于0，表示不开启相关文档功能", InputType: "number", Sort: 15, Options: ""},
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityIsClose, Label: "是否关闭网站", Value: "false", Placeholder: "请选择是否关闭网站", InputType: "switch", Sort: 16, Options: ""},
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityCloseStatement, Label: "闭站说明", Value: "false", Placeholder: "关闭网站后，页面提示的内容", InputType: "textarea", Sort: 17, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityDocumentAllowedExt, Label: "允许上传的文档类型", Value: "", Placeholder: "留空表示允许程序所支持的全部文档类型", InputType: "select-multi", Sort: 3, Options: strings.Join(filetil.GetDocumentExts(), "\n")},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityIsClose, Label: "【WIP】是否关闭网站", Value: "false", Placeholder: "请选择是否关闭网站", InputType: "switch", Sort: 160, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityCloseStatement, Label: "【WIP】闭站说明", Value: "false", Placeholder: "关闭网站后，页面提示的内容", InputType: "textarea", Sort: 170, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableRegister, Label: "是否允许注册", Value: "true", Placeholder: "请选择是否允许用户注册", InputType: "switch", Sort: 18, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaLogin, Label: "是否开启登录验证码", Value: "true", Placeholder: "请选择是否开启登录验证码", InputType: "switch", Sort: 19, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaRegister, Label: "是否开启注册验证码", Value: "true", Placeholder: "请选择是否开启注册验证码", InputType: "switch", Sort: 20, Options: ""},

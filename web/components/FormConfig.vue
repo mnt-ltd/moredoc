@@ -37,6 +37,19 @@
             :value="option.split(':')[0]"
           ></el-option>
         </el-select>
+        <el-select
+          v-else-if="item.input_type === 'select-multi'"
+          v-model="configs[index]['value']"
+          multiple
+          clearable
+        >
+          <el-option
+            v-for="option in item.options.split('\n')"
+            :key="'option-' + option"
+            :label="option.split(':')[1]"
+            :value="option.split(':')[0]"
+          ></el-option>
+        </el-select>
         <el-switch
           v-else-if="item.input_type === 'switch'"
           v-model="configs[index]['value']"
@@ -96,13 +109,29 @@ export default {
   watch: {
     initConfigs: {
       handler(val) {
-        this.configs = { ...val }
+        let configs = { ...val }
+        Object.values(configs).forEach((item) => {
+          if (item.input_type === 'select-multi') {
+            try {
+              item.value = item.value.split(',')
+            } catch (error) {}
+          }
+        })
+        this.configs = configs
       },
       immediate: true,
     },
   },
   created() {
-    this.configs = { ...this.initConfigs }
+    let configs = { ...this.initConfigs }
+    Object.values(configs).forEach((item) => {
+      if (item.input_type === 'select-multi') {
+        try {
+          item.value = item.value.split(',')
+        } catch (error) {}
+      }
+    })
+    this.configs = configs
   },
   methods: {
     async onSubmit() {

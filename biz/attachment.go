@@ -198,9 +198,16 @@ func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
 		return
 	}
 
+	unsuportedExt := "不支持的文档类型"
 	ext := strings.ToLower(filepath.Ext(fileheader.Filename))
 	if !filetil.IsDocument(ext) {
-		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: "不支持的文件类型", Error: "不支持的文件类型"})
+		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: unsuportedExt, Error: unsuportedExt})
+		return
+	}
+
+	allowedExt := s.dbModel.GetConfigOfSecurity(model.ConfigSecurityDocumentAllowedExt).DocumentAllowedExt
+	if len(allowedExt) > 0 && !util.InSlice(allowedExt, ext) {
+		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: unsuportedExt, Error: unsuportedExt})
 		return
 	}
 

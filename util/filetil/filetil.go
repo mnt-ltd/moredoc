@@ -101,3 +101,10 @@ func GetImageSize(file string) (width, height int, err error) {
 	height = img.Bounds().Max.Y
 	return
 }
+
+func GetDocumentExts() (exts []string) {
+	for _, ext := range documentExtMap {
+		exts = append(exts, ext...)
+	}
+	return
+}
