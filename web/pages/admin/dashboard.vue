@@ -63,7 +63,7 @@
         >
           <el-button
             style="float: right; padding: 3px 0"
-            icon="el-icon-refresh"
+            icon="el-icon-tickets"
             type="text"
           >
             依赖安装教程</el-button

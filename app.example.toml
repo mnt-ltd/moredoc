@@ -1,5 +1,7 @@
 # 程序运行级别：debug、info、warn、error
 level="debug"
+# 日志编码方式，支持：json、console
+logEncoding="console"
 port="8080"
 [database]
     driver="mysql"

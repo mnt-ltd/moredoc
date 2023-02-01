@@ -2,10 +2,11 @@ package conf
 
 // Config app config
 type Config struct {
-	Level    string //
-	Port     int    // listent port
-	Database Database
-	JWT      JWT
+	Level       string //
+	LogEncoding string // log encoding, json or console
+	Port        int    // listent port
+	Database    Database
+	JWT         JWT
 }
 
 type Database struct {
