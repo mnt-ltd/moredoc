@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"strings"
+	"time"
 
 	"moredoc/conf"
 	"moredoc/middleware/auth"
@@ -64,7 +65,14 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 	app.Use(
 		gzip.Gzip(gzip.BestCompression, gzip.WithExcludedExtensions([]string{".svg", ".png", ".gif", ".jpeg", ".jpg", ".ico"})), // gzip
 		gin.Recovery(), // recovery
-		cors.Default(), // allows all origins
+		// cors.Default(), // allows all origins
+		cors.New(cors.Config{
+			AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+			AllowHeaders:     []string{"*"},
+			AllowOrigins:     []string{"*"}, //  Referrer Policy: strict-origin-when-cross-origin
+			AllowCredentials: false,
+			MaxAge:           12 * time.Hour,
+		}),
 	)
 
 	endpoint := fmt.Sprintf("localhost:%v", cfg.Port)
