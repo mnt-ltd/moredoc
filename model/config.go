@@ -261,11 +261,14 @@ const (
 	ConfigDownloadUrlDuration = "url_duration"
 	// 购买文档后多少天内允许免费重复下载
 	ConfigDownloadFreeDownloadDuration = "free_download_duration"
+	//  允许每个IP每天下载的次数
+	ConfigDownloadTimesEveryIP = "times_every_ip"
 )
 
 type ConfigDownload struct {
-	EnableGuestDownload  bool   `json:"enable_guest_download"`  // 是否允许游客下载
-	TimesEveryDay        int32  `json:"times_every_day"`        // 每天允许下载的次数
+	EnableGuestDownload  bool   `json:"enable_guest_download"`  // 是否允许游客下载(不需要登录，针对免费文档)
+	TimesEveryDay        int32  `json:"times_every_day"`        // 允许用户每天下载的次数（针对登录用户）
+	TimesEveryIP         int32  `json:"times_every_ip"`         // 允许每个IP每天下载的次数（针对所有用户）
 	SecretKey            string `json:"secret_key"`             // 下载链接地址签名密钥
 	UrlDuration          int32  `json:"url_duration"`           // 生成的下载链接有效期，单位为秒
 	FreeDownloadDuration int32  `json:"free_download_duration"` // 购买文档后多少天内允许免费重复下载
@@ -395,7 +398,7 @@ func (m *DBModel) GetConfigOfDownload(name ...string) (config ConfigDownload) {
 		switch cfg.Name {
 		case ConfigDownloadEnableGuestDownload:
 			data[cfg.Name], _ = strconv.ParseBool(cfg.Value)
-		case ConfigDownloadTimesEveryDay, ConfigDownloadUrlDuration, ConfigDownloadFreeDownloadDuration:
+		case ConfigDownloadTimesEveryDay, ConfigDownloadUrlDuration, ConfigDownloadFreeDownloadDuration, ConfigDownloadTimesEveryIP:
 			data[cfg.Name], _ = strconv.ParseInt(cfg.Value, 10, 32)
 		default:
 			data[cfg.Name] = cfg.Value
@@ -672,10 +675,11 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableConvertRepeatedDocument, Label: "是否转换重复文档", Value: "false", Placeholder: "对于已转换过的文档，再次被上传时是否再转换一次", InputType: "switch", Sort: 20, Options: ""},
 
 		// 下载配置
-		{Category: ConfigCategoryDownload, Name: ConfigDownloadEnableGuestDownload, Label: "是否允许游客下载", Value: "false", Placeholder: "是否允许游客下载。启用之后，未登录用户可以下载免费文档，且不受下载次数控制", InputType: "switch", Sort: 10, Options: ""},
+		{Category: ConfigCategoryDownload, Name: ConfigDownloadEnableGuestDownload, Label: "是否允许游客下载", Value: "false", Placeholder: "启用之后，未登录用户可以下载免费文档", InputType: "switch", Sort: 10, Options: ""},
 		{Category: ConfigCategoryDownload, Name: ConfigDownloadFreeDownloadDuration, Label: "购买文档后多少天内允许免费重复下载", Value: "0", Placeholder: "0表示再次下载仍需购买，大于0表示指定多少天内有效", InputType: "number", Sort: 20, Options: ""},
 		{Category: ConfigCategoryDownload, Name: ConfigDownloadUrlDuration, Label: "下载链接有效时长(秒)", Value: "60", Placeholder: "生成文档下载链接后多少秒之后链接失效", InputType: "number", Sort: 30, Options: ""},
-		{Category: ConfigCategoryDownload, Name: ConfigDownloadTimesEveryDay, Label: "每天允许下载次数", Value: "10", Placeholder: "每天允许下载多少篇文档，0表示不允许下载", InputType: "number", Sort: 40, Options: ""},
+		{Category: ConfigCategoryDownload, Name: ConfigDownloadTimesEveryDay, Label: "允许登录用户每天下载次数", Value: "10", Placeholder: "允许登录用户每天下载次数，0表示不允许下载", InputType: "number", Sort: 40, Options: ""},
+		{Category: ConfigCategoryDownload, Name: ConfigDownloadTimesEveryIP, Label: "允许每个IP每天下载次数", Value: "10", Placeholder: "允许每个IP每天下载的次数，0表示不允许下载（针对所有用户）", InputType: "number", Sort: 41, Options: ""},
 		{Category: ConfigCategoryDownload, Name: ConfigDownloadSecretKey, Label: "链接签名密钥", Value: "moredoc", Placeholder: "链接签名密钥，用于加密下载链接", InputType: "text", Sort: 50, Options: ""},
 
 		// 积分规则配置

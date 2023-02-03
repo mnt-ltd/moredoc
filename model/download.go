@@ -13,7 +13,7 @@ type Download struct {
 	Id         int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	UserId     int64      `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);size:20;default:0;index:idx_user_id;comment:下载文档的用户ID;"`
 	DocumentId int64      `form:"document_id" json:"document_id,omitempty" gorm:"column:document_id;type:bigint(20);size:20;index:idx_document_id;default:0;comment:被下载的文档ID;"`
-	Ip         string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(16);size:16;comment:下载文档的用户IP;"`
+	Ip         string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(16);size:16;index:idx_ip;comment:下载文档的用户IP;"`
 	IsPay      bool       `form:"is_pay" json:"is_pay,omitempty" gorm:"column:is_pay;type:tinyint(1);size:1;default:0;comment:是否付费下载;"`
 	CreatedAt  *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;index:idx_created_at"`
 	UpdatedAt  *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
@@ -187,14 +187,26 @@ func (m *DBModel) CanIFreeDownload(userId, documentId int64) bool {
 	return download.CreatedAt.Add(time.Duration(cfg.FreeDownloadDuration) * time.Hour * 24).After(time.Now())
 }
 
-// CountDownloadToday 统计今日下载次数
-func (m *DBModel) CountDownloadToday(userId int64) (total int64) {
+// CountDownloadToday 统计用户今日下载次数
+func (m *DBModel) CountDownloadTodayForUser(userId int64) (total int64) {
 	if userId == 0 {
 		return
 	}
 	err := m.db.Model(&Download{}).Where("user_id = ?", userId).Where("created_at >= ?", time.Now().Format("2006-01-02")).Count(&total).Error
 	if err != nil {
 		m.logger.Error("CountDownloadToday", zap.Error(err))
+	}
+	return
+}
+
+// CountDownloadToday 统计IP今日下载次数
+func (m *DBModel) CountDownloadTodayForIP(ip string) (total int64) {
+	if ip == "" {
+		return
+	}
+	err := m.db.Model(&Download{}).Where("ip = ?", ip).Where("created_at >= ?", time.Now().Format("2006-01-02")).Count(&total).Error
+	if err != nil {
+		m.logger.Error("CountDownloadTodayForIP", zap.Error(err))
 	}
 	return
 }

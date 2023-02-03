@@ -597,9 +597,20 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 		userId = userClaims.UserId
 	}
 
-	downloadToday := s.dbModel.CountDownloadToday(userId)
-	if downloadToday >= int64(cfg.TimesEveryDay) {
-		return res, status.Errorf(codes.PermissionDenied, "今日下载次数已达上限(%d)", cfg.TimesEveryDay)
+	ip := ""
+	ips, _ := util.GetGRPCRemoteIP(ctx)
+	if len(ips) > 0 {
+		ip = ips[0]
+	}
+
+	downloadIP := s.dbModel.CountDownloadTodayForIP(ip)
+	if downloadIP >= int64(cfg.TimesEveryIP) {
+		return res, status.Errorf(codes.PermissionDenied, "您所在IP今日下载次数已达上限(%d)", cfg.TimesEveryIP)
+	}
+
+	downloadUser := s.dbModel.CountDownloadTodayForUser(userId)
+	if downloadUser >= int64(cfg.TimesEveryDay) {
+		return res, status.Errorf(codes.PermissionDenied, "您的账户今日下载次数已达上限(%d)", cfg.TimesEveryDay)
 	}
 
 	// 查询文档存不存在
@@ -617,11 +628,6 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 	attachment := s.dbModel.GetAttachmentByTypeAndTypeId(model.AttachmentTypeDocument, doc.Id, "id", "hash")
 	if attachment.Id == 0 {
 		return res, status.Errorf(codes.NotFound, "附件不存在")
-	}
-
-	ip := ""
-	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
-		ip = ips[0]
 	}
 
 	user, _ := s.dbModel.GetUser(userId)
@@ -653,7 +659,6 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 	res = &pb.DownloadDocumentReply{
 		Url: link,
 	}
-	// TODO: 添加用户的下载动态
 	return res, nil
 }
 
