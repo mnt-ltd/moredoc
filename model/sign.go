@@ -16,6 +16,7 @@ type Sign struct {
 	SignAt    int        `form:"sign_at" json:"sign_at,omitempty" gorm:"column:sign_at;type:int(11);size:11;default:0;index:idx_user_sign_at,unique;comment:签到时间，格式20060102;"`
 	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	Award     int32      `form:"award" json:"award,omitempty" gorm:"column:award;type:int(11);size:11;default:0;comment:奖励积分;"`
 }
 
 func (Sign) TableName() string {
@@ -35,6 +36,7 @@ func (m *DBModel) CreateSign(userId int64, ip string) (sign *Sign, err error) {
 	}
 
 	cfg := m.GetConfigOfScore(ConfigScoreSignIn)
+	sign.Award = cfg.SignIn
 
 	tx := m.db.Begin()
 	defer func() {

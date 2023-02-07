@@ -370,9 +370,10 @@ export default {
     async signToday() {
       const res = await signToday()
       if (res.status === 200) {
-        this.sign = res.data || { id: 1 }
+        const sign = res.data || { id: 1 }
+        this.sign = sign
         this.getUser()
-        this.$message.success('签到成功')
+        this.$message.success(`签到成功，获得 ${sign.award || 0} 个魔豆奖励`)
       } else {
         this.$message.error(res.message || res.data.message)
       }

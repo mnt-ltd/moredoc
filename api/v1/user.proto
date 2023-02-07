@@ -134,6 +134,7 @@ message Sign {
   int32 sign_at = 3;
   string ip = 4;
   google.protobuf.Timestamp created_at = 5 [ (gogoproto.stdtime) = true ];
+  int32 award = 6; // 签到积分奖励
 }
 
 service UserAPI {
