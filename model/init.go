@@ -248,10 +248,12 @@ func (m *DBModel) initDatabase() (err error) {
 		return
 	}
 
+	// 初始化文章
+	m.initArticle()
+
 	// 初始化友情链接
 	if err = m.initFriendlink(); err != nil {
 		m.logger.Error("initFriendlink", zap.Error(err))
-		return
 	}
 	return
 }

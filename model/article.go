@@ -28,6 +28,59 @@ func (Article) TableName() string {
 	return tablePrefix + "article"
 }
 
+func (m *DBModel) initArticle() (err error) {
+	// 初始化文章:
+	// about 关于我们
+	// agreement 文库协议
+	// contact 联系我们
+	// feedback 意见反馈
+	// copyright 免责声明
+	// help 使用帮助
+	articles := []Article{
+		{
+			Identifier: "about",
+			Title:      "关于我们",
+			Content:    "请输入【关于我们】的内容",
+		},
+		{
+			Identifier: "agreement",
+			Title:      "文库协议",
+			Content:    "请输入【文库协议】的内容",
+		},
+		{
+			Identifier: "contact",
+			Title:      "联系我们",
+			Content:    "请输入【联系我们】的内容",
+		},
+		{
+			Identifier: "feedback",
+			Title:      "意见反馈",
+			Content:    "请输入【意见反馈】的内容",
+		},
+		{
+			Identifier: "copyright",
+			Title:      "免责声明",
+			Content:    "请输入【免责声明】的内容",
+		},
+		{
+			Identifier: "help",
+			Title:      "使用帮助",
+			Content:    "请输入【使用帮助】的内容",
+		},
+	}
+	for _, article := range articles {
+		exist, _ := m.GetArticleByIdentifier(article.Identifier, "id")
+		if exist.Id == 0 {
+			err = m.CreateArticle(&article)
+			if err != nil {
+				m.logger.Error("initArticle", zap.Error(err), zap.Any("article", article))
+				return
+			}
+		}
+	}
+	return
+}
+
 // CreateArticle 创建Article
 func (m *DBModel) CreateArticle(article *Article) (err error) {
 	err = m.db.Create(article).Error
