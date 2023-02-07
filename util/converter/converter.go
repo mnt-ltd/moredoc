@@ -120,7 +120,7 @@ func (c *Converter) ConvertPDFToTxt(src string) (dst string, err error) {
 		dst,
 		src,
 	}
-	c.logger.Debug("convert pdf to txt", zap.String("cmd", mutool), zap.Strings("args", args))
+	c.logger.Info("convert pdf to txt", zap.String("cmd", mutool), zap.Strings("args", args))
 	_, err = util.ExecCommand(mutool, args, c.timeout)
 	if err != nil {
 		c.logger.Error("convert pdf to txt", zap.String("cmd", mutool), zap.Strings("args", args), zap.Error(err))
@@ -189,7 +189,7 @@ func (c *Converter) convertPDFToPage(src string, fromPage, toPage int, ext strin
 		pageRange,
 	}
 
-	c.logger.Debug("convert pdf to page", zap.String("cmd", mutool), zap.Strings("args", args))
+	c.logger.Info("convert pdf to page", zap.String("cmd", mutool), zap.Strings("args", args))
 	_, err = util.ExecCommand(mutool, args, c.timeout)
 	if err != nil {
 		c.logger.Error("convert pdf to page", zap.String("cmd", mutool), zap.Strings("args", args), zap.Error(err))
@@ -221,7 +221,7 @@ func (c *Converter) convertToPDFBySoffice(src string) (dst string, err error) {
 		workspace,
 	}
 	args = append(args, src)
-	c.logger.Debug("convert to pdf by soffice", zap.String("cmd", soffice), zap.Strings("args", args))
+	c.logger.Info("convert to pdf by soffice", zap.String("cmd", soffice), zap.Strings("args", args))
 	_, err = util.ExecCommand(soffice, args, c.timeout)
 	if err != nil {
 		c.logger.Error("convert to pdf by soffice", zap.String("cmd", soffice), zap.Strings("args", args), zap.Error(err))
@@ -243,7 +243,7 @@ func (c *Converter) convertToPDFByCalibre(src string) (dst string, err error) {
 		"--pdf-page-margin-top", "36",
 	}
 	os.MkdirAll(filepath.Dir(dst), os.ModePerm)
-	c.logger.Debug("convert to pdf by calibre", zap.String("cmd", ebookConvert), zap.Strings("args", args))
+	c.logger.Info("convert to pdf by calibre", zap.String("cmd", ebookConvert), zap.Strings("args", args))
 	_, err = util.ExecCommand(ebookConvert, args, c.timeout)
 	if err != nil {
 		c.logger.Error("convert to pdf by calibre", zap.String("cmd", ebookConvert), zap.Strings("args", args), zap.Error(err))
@@ -257,7 +257,7 @@ func (c *Converter) CountPDFPages(file string) (pages int, err error) {
 		file,
 		"pages",
 	}
-	c.logger.Debug("count pdf pages", zap.String("cmd", mutool), zap.Strings("args", args))
+	c.logger.Info("count pdf pages", zap.String("cmd", mutool), zap.Strings("args", args))
 	var out string
 	out, err = util.ExecCommand(mutool, args, c.timeout)
 	if err != nil {
@@ -305,13 +305,13 @@ func (c *Converter) CompressSVGBySVGO(svgFolder string) (err error) {
 		"-f",
 		svgFolder,
 	}
-	c.logger.Debug("compress svg by svgo", zap.String("cmd", svgo), zap.Strings("args", args))
+	c.logger.Info("compress svg by svgo", zap.String("cmd", svgo), zap.Strings("args", args))
 	var out string
 	out, err = util.ExecCommand(svgo, args, c.timeout*10)
 	if err != nil {
 		c.logger.Error("compress svg by svgo", zap.String("cmd", svgo), zap.Strings("args", args), zap.Error(err))
 	}
-	c.logger.Debug("compress svg by svgo", zap.String("out", out))
+	c.logger.Info("compress svg by svgo", zap.String("out", out))
 	return
 }
 

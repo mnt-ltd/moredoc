@@ -23,8 +23,10 @@ func ExecCommand(name string, args []string, timeout ...time.Duration) (out stri
 	cmd.Stderr = &stderr
 	time.AfterFunc(expire, func() { // 超时后，强制杀死进程
 		if cmd.Process != nil && cmd.Process.Pid != 0 {
+			pid := fmt.Sprintf("%d", cmd.Process.Pid)
 			out = out + fmt.Sprintf("\nexecute timeout: %v seconds.", expire.Seconds())
 			cmd.Process.Kill()
+			exec.Command("kill", "-9", pid).Run() // 强制杀死进程
 		}
 	})
 
