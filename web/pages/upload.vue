@@ -356,6 +356,20 @@ export default {
     handleChange(file) {
       const name = file.name.toLowerCase()
       const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
+      if (!this.allowExt.includes(ext)) {
+        this.$message.warning(`${file.name} 不支持的文件格式，忽略该文件`)
+        return
+      }
+
+      if (file.size > this.maxDocumentSize) {
+        this.$message.warning(
+          `${file.name} 文件大小${formatBytes(
+            file.size
+          )} 超过限制（最大${formatBytes(this.maxDocumentSize)}），忽略该文件`
+        )
+        return
+      }
+
       // 文件不能大于指定的文件大小
       if (
         !this.filesMap[name] &&
