@@ -5,6 +5,7 @@
 ginrpc*
 dist
 output
+release
 cache
 uploads
 documents

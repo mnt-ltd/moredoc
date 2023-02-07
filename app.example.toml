@@ -2,7 +2,7 @@
 level="debug"
 # 日志编码方式，支持：json、console
 logEncoding="console"
-port="8080"
+port="8880"
 [database]
     driver="mysql"
     dsn="root:root@tcp(localhost:3306)/moredoc?charset=utf8mb4&loc=Local&parseTime=true"

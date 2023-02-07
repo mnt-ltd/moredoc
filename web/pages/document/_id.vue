@@ -99,6 +99,9 @@
                 >继续阅读</span
               >
             </div>
+            <div class="text-muted" v-else>
+              <small>- 可预览页数已预览完 -</small>
+            </div>
           </div>
           <div>
             <div class="share-info">
