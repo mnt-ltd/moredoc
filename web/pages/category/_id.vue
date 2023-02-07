@@ -85,6 +85,7 @@
             ref="tree"
             :data="trees"
             :props="defaultProps"
+            accordion
             :indent="8"
             node-key="id"
             :default-expanded-keys="defaultExpandedKeys"
