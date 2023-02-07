@@ -18,10 +18,10 @@
             <nuxt-link to="/">首页</nuxt-link>
           </el-menu-item>
           <el-menu-item
-            v-show="$route.path === '/'"
-            v-for="item in categoryTrees"
+            v-for="(item, index) in categoryTrees"
             :key="'c-' + item.id"
             :index="`/category/${item.id}`"
+            v-show="$route.path === '/' && index < 6"
           >
             <nuxt-link :to="`/category/${item.id}`">{{ item.title }}</nuxt-link>
           </el-menu-item>
