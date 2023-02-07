@@ -22,6 +22,27 @@
 
 关于魔豆文库安装部署以及使用和二次开发等更详细的教程，详见书栈网[《魔豆文库使用手册》](https://www.bookstack.cn/books/moredoc)
 
+## 演示站点
+
+**网址**
+
+- https://moredoc.mnt.ltd
+
+**账号密码**
+
+```
+账号：admin
+密码：mnt.ltd
+```
+
+## 微信交流群
+
+魔豆文库微信交流群，请添加`进击的皇虫`的微信，备注`魔豆文库加群`，以便进群。
+
+**微信二维码**
+
+![魔豆文库微信交流群](docs/wx-qrcode.jpeg)
+
 ## 二次开发
 
 除了文件上传相关的接口，其他接口统一使用 proto 进行定义。
@@ -158,27 +179,6 @@ cd web && npm run generate
 # 编译linux版本（Windows版本用 make buildwin）
 make buildlinux
 ```
-
-## 演示站点
-
-**网址**
-
-- https://moredoc.mnt.ltd
-
-**账号密码**
-
-```
-账号：admin
-密码：mnt.ltd
-```
-
-## 微信交流群
-
-魔豆文库微信交流群，请添加`进击的皇虫`的微信，备注`魔豆文库加群`，以便进群。
-
-**微信二维码**
-
-![魔豆文库微信交流群](docs/wx-qrcode.jpeg)
 
 ## License
 
