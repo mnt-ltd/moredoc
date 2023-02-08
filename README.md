@@ -1,10 +1,14 @@
 ![魔豆文库](web/static/static/images/logo.png)
 
+目录
+
+<a name="intro"></a>
+
 # MOREDOC - 魔豆文库
 
 `moredoc` - 魔豆文库，由 深圳市摩枫网络科技(**M**orefun **N**etwork **T**echnology Co., **Ltd**，https://mnt.ltd ) 使用 Golang 开发的类似[百度文库](https://wenku.baidu.com/)、[新浪爱问文库](http://ishare.iask.sina.com.cn/)的开源文库系统，支持 `TXT`、`PDF`、`EPUB`、`MOBI`、`Office` 等格式文档的在线预览与管理，为 `dochub文库`( [github](https://github.com/truthhun/dochub), [gitee](https://gitee.com/truthhun/DocHub) )的重构版本。
 
-## 文库介绍
+<a name="stack"></a>
 
 ## 技术栈
 
@@ -12,15 +16,21 @@
 - Vue.js : nuxt2 + element-ui
 - Database : MySQL 5.7
 
+<a name="opensource"></a>
+
 ## 开源地址
 
 - Github - https://github.com/mnt-ltd/moredoc
 - Gitee - https://gitee.com/mnt-ltd/moredoc
 - MNT.Ltd - https://git.mnt.ltd/mnt/moredoc
 
+<a name="manual"></a>
+
 ## 使用手册
 
 关于魔豆文库安装部署以及使用和二次开发等更详细的教程，详见书栈网[《魔豆文库使用手册》](https://www.bookstack.cn/books/moredoc)
+
+<a name="demo"></a>
 
 ## 演示站点
 
@@ -35,17 +45,67 @@
 密码：mnt.ltd
 ```
 
+<a name="wechatgroup"></a>
+
 ## 微信交流群
 
 魔豆文库微信交流群，请添加`进击的皇虫`的微信，备注`魔豆文库加群`，以便进群。
 
 **微信二维码**
 
-![魔豆文库微信交流群](docs/wx-qrcode.jpeg)
+![魔豆文库微信交流群](docs/images/wx-qrcode.jpeg)
+
+<a name="preview"></a>
+
+## 页面预览
+
+> 点击放大预览
+
+<br/>
+
+<a name="preview-index"></a>
+
+### 首页
+
+<a href="docs/images/index.png" target="_blank"><img src="docs/images/index.png" width="480px" /></a>
+
+<a name="preview-category"></a>
+
+### 列表页
+
+<a href="docs/images/category.png" target="_blank"><img src="docs/images/category.png" width="480px" /></a>
+
+<a name="preview-read"></a>
+
+### 文档详情页
+
+<a href="docs/images/read.png" target="_blank"><img src="docs/images/read.png" width="480px" /></a>
+
+<a name="preview-upload"></a>
+
+### 文档上传页
+
+<a href="docs/images/upload.png" target="_blank"><img src="docs/images/upload.png" width="480px" /></a>
+
+<a name="preview-search"></a>
+
+### 搜索结果页
+
+<a href="docs/images/search.png" target="_blank"><img src="docs/images/search.png" width="480px" /></a>
+
+<a name="preview-dashboard"></a>
+
+### 管理后台
+
+<a href="docs/images/dashboard.png" target="_blank"><img src="docs/images/dashboard.png" width="480px" /></a>
+
+<a name="dev"></a>
 
 ## 二次开发
 
 除了文件上传相关的接口，其他接口统一使用 proto 进行定义。
+
+<a name="dev-env"></a>
 
 ### 环境要求
 
@@ -54,6 +114,8 @@
 - MySQL 5.7+
 
 **请自行配置相应环境。如在此过程中遇到错误，请根据错误提示自行通过 Google 或者百度解决。**
+
+<a name="dev-tree"></a>
 
 ### 目录结构
 
@@ -88,6 +150,8 @@
 └── web                     # 前端Web
 ```
 
+<a name="dev-config"></a>
+
 ### app.toml
 
 ```
@@ -113,6 +177,8 @@ port="8880"
     secret="moredoc"
     expireDays=365
 ```
+
+<a name="dev-init"></a>
 
 ### 初始化
 
@@ -154,12 +220,16 @@ npm install
 npm run dev
 ```
 
+<a name="dev-account"></a>
+
 ### 管理员初始账号密码
 
 ```
 admin
 mnt.ltd
 ```
+
+<a name="dev-release"></a>
 
 ### 发布版本
 
@@ -180,9 +250,13 @@ cd web && npm run generate
 make buildlinux
 ```
 
+<a name="dev-license"></a>
+
 ## License
 
 开源版本基于 [Apache License 2.0](./LICENSE) 协议发布。
+
+<a name="dev-thanks"></a>
 
 ## 鸣谢
 
