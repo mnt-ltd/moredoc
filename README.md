@@ -2,6 +2,29 @@
 
 目录
 
+- [MOREDOC - 魔豆文库](#intro)
+  - [技术栈](#stack)
+  - [开源地址](#opensource)
+  - [使用手册](#manual)
+  - [演示站点](#demo)
+  - [微信交流群](#wechatgroup)
+  - [页面预览](#preview)
+    - [首页](#preview-index)
+    - [列表页](#preview-category)
+    - [文档详情页](#preview-read)
+    - [文档上传页](#preview-upload)
+    - [搜索结果页](#preview-search)
+    - [管理后台](#preview-dashboard)
+  - [二次开发](#dev)
+    - [环境要求](#dev-env)
+    - [目录结构](#dev-tree)
+    - [app.toml](#dev-config)
+    - [初始化](#dev-init)
+    - [管理员初始账号密码](#dev-account)
+    - [发布版本](#dev-release)
+  - [License](#license)
+  - [鸣谢](#thanks)
+
 <a name="intro"></a>
 
 # MOREDOC - 魔豆文库
@@ -34,16 +57,11 @@
 
 ## 演示站点
 
-**网址**
+- 网址：https://moredoc.mnt.ltd
+- 账号：admin
+- 密码：mnt.ltd
 
-- https://moredoc.mnt.ltd
-
-**账号密码**
-
-```
-账号：admin
-密码：mnt.ltd
-```
+> 演示站点，每天凌晨 1:00 ~ 6:00，每隔一小时重置一次全部数据
 
 <a name="wechatgroup"></a>
 
@@ -250,14 +268,16 @@ cd web && npm run generate
 make buildlinux
 ```
 
-<a name="dev-license"></a>
+<a name="license"></a>
 
 ## License
 
 开源版本基于 [Apache License 2.0](./LICENSE) 协议发布。
 
-<a name="dev-thanks"></a>
+<a name="thanks"></a>
 
 ## 鸣谢
 
 感谢各开源项目为魔豆文库的开发奠定了基础。相关开源项目，后端依赖，详见 [go.mod](./go.mod)；前端依赖，详见 [web/package.json](./web/package.json)。
+
+魔豆文库 Logo 使用 [ 标小智 logosc.cn ](https://www.logosc.cn/?coupon=bookstack) 付费生成，效果不错，感谢。
