@@ -92,9 +92,11 @@ func (s *FavoriteAPIService) ListFavorite(ctx context.Context, req *pb.ListFavor
 	userClaims, err := s.checkLogin(ctx)
 	if err == nil {
 		if req.UserId == userClaims.UserId {
-			documentStatus = []int{} // 如果是获取自己的收藏列表，可以获取所有状态的文章
+			documentStatus = []int{}
 		}
-		userId = userClaims.UserId
+		if userId <= 0 {
+			userId = userClaims.UserId
+		}
 	}
 
 	favorites, total, err := s.dbModel.GetFavoriteList(&model.OptionGetFavoriteList{

@@ -85,37 +85,37 @@
 
 ### 首页
 
-<a href="docs/images/index.png" target="_blank"><img src="docs/images/index.png" width="480px" /></a>
+<a href="docs/images/index.png" target="_blank"><img src="docs/images/index.png" style="width:640px;max-width:100%;" /></a>
 
 <a name="preview-category"></a>
 
 ### 列表页
 
-<a href="docs/images/category.png" target="_blank"><img src="docs/images/category.png" width="480px" /></a>
+<a href="docs/images/category.png" target="_blank"><img src="docs/images/category.png" style="width:640px;max-width:100%;"  /></a>
 
 <a name="preview-read"></a>
 
 ### 文档详情页
 
-<a href="docs/images/read.png" target="_blank"><img src="docs/images/read.png" width="480px" /></a>
+<a href="docs/images/read.png" target="_blank"><img src="docs/images/read.png" style="width:640px;max-width:100%;"  /></a>
 
 <a name="preview-upload"></a>
 
 ### 文档上传页
 
-<a href="docs/images/upload.png" target="_blank"><img src="docs/images/upload.png" width="480px" /></a>
+<a href="docs/images/upload.png" target="_blank"><img src="docs/images/upload.png" style="width:640px;max-width:100%;"  /></a>
 
 <a name="preview-search"></a>
 
 ### 搜索结果页
 
-<a href="docs/images/search.png" target="_blank"><img src="docs/images/search.png" width="480px" /></a>
+<a href="docs/images/search.png" target="_blank"><img src="docs/images/search.png" style="width:640px;max-width:100%;"  /></a>
 
 <a name="preview-dashboard"></a>
 
 ### 管理后台
 
-<a href="docs/images/dashboard.png" target="_blank"><img src="docs/images/dashboard.png" width="480px" /></a>
+<a href="docs/images/dashboard.png" target="_blank"><img src="docs/images/dashboard.png" style="width:640px;max-width:100%;"  /></a>
 
 <a name="dev"></a>
 
