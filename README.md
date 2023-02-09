@@ -85,37 +85,37 @@
 
 ### 首页
 
-<a href="docs/images/index.png" target="_blank"><img src="docs/images/index.png" style="width:640px;max-width:100%;" /></a>
+![魔豆文库首页](docs/images/index.png)
 
 <a name="preview-category"></a>
 
 ### 列表页
 
-<a href="docs/images/category.png" target="_blank"><img src="docs/images/category.png" style="width:640px;max-width:100%;"  /></a>
+![魔豆文库列表页](docs/images/category.png)
 
 <a name="preview-read"></a>
 
 ### 文档详情页
 
-<a href="docs/images/read.png" target="_blank"><img src="docs/images/read.png" style="width:640px;max-width:100%;"  /></a>
+![魔豆文库文档详情页](docs/images/read.png)
 
 <a name="preview-upload"></a>
 
 ### 文档上传页
 
-<a href="docs/images/upload.png" target="_blank"><img src="docs/images/upload.png" style="width:640px;max-width:100%;"  /></a>
+![魔豆文库文档上传页](docs/images/upload.png)
 
 <a name="preview-search"></a>
 
 ### 搜索结果页
 
-<a href="docs/images/search.png" target="_blank"><img src="docs/images/search.png" style="width:640px;max-width:100%;"  /></a>
+![魔豆文库搜索结果页](docs/images/search.png)
 
 <a name="preview-dashboard"></a>
 
 ### 管理后台
 
-<a href="docs/images/dashboard.png" target="_blank"><img src="docs/images/dashboard.png" style="width:640px;max-width:100%;"  /></a>
+![魔豆文库管理后台](docs/images/dashboard.png)
 
 <a name="dev"></a>
 
