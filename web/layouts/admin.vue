@@ -19,7 +19,7 @@
       >
         <el-menu
           :router="true"
-          :default-active="$route.path"
+          :default-active="activeMenu"
           :collapse="isCollapse"
           class="layout-admin-menu"
         >
@@ -116,6 +116,7 @@ export default {
       formProfileVisible: false,
       formPasswordVisible: false,
       isCollapse: false,
+      activeMenu: this.$route.path,
       menus: [
         {
           page: '/admin/document',
@@ -219,6 +220,9 @@ export default {
     ...mapGetters('setting', ['settings']),
   },
   created() {
+    if (this.activeMenu.endsWith('/')) {
+      this.activeMenu = this.activeMenu.slice(0, -1)
+    }
     this.getUserPermissions()
   },
   mounted() {

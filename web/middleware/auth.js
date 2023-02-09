@@ -11,8 +11,14 @@ export default function ({ store, route, redirect }) {
   // 管理员均可访问的页面
   allowPages.push('/admin', '/admin/index', '/admin/dashboard')
 
+  // 去除route.path最后的斜杠
+  let routePath = route.path
+  if (routePath.endsWith('/')) {
+    routePath = route.path.slice(0, -1)
+  }
+
   // 没有特定页面的访问权限
-  if (!allowPages.includes(route.path)) {
+  if (!allowPages.includes(routePath)) {
     redirect('/admin')
   }
 }
