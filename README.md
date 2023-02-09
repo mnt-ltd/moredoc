@@ -45,7 +45,7 @@
 
 - Github - https://github.com/mnt-ltd/moredoc
 - Gitee - https://gitee.com/mnt-ltd/moredoc
-- MNT.Ltd - https://git.mnt.ltd/mnt/moredoc
+- MNT.Ltd - https://git.mnt.ltd/mnt-ltd/moredoc
 
 <a name="manual"></a>
 
