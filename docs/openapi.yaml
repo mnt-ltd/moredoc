@@ -2043,6 +2043,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/Status'
+    /api/v1/envs:
+        get:
+            tags:
+                - ConfigAPI
+            description: 获取系统环境依赖检测
+            operationId: ConfigAPI_GetEnvs
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Envs'
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
     /api/v1/favorite:
         get:
             tags:
@@ -3445,6 +3464,10 @@ components:
                 maxDocumentSize:
                     type: integer
                     format: int32
+                documentAllowedExt:
+                    type: array
+                    items:
+                        type: string
             description: 安全配置
         ConfigSystem:
             type: object
@@ -3477,6 +3500,8 @@ components:
                     type: array
                     items:
                         type: string
+                version:
+                    type: string
             description: 系统配置项
         Configs:
             type: object
@@ -3677,6 +3702,17 @@ components:
                 checkedAt:
                     type: string
                     format: date-time
+                cmd:
+                    type: string
+                isRequired:
+                    type: boolean
+        Envs:
+            type: object
+            properties:
+                envs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/EnvDependent'
         Favorite:
             type: object
             properties:
@@ -4111,6 +4147,9 @@ components:
                 createdAt:
                     type: string
                     format: date-time
+                award:
+                    type: integer
+                    format: int32
         Stats:
             type: object
             properties:
@@ -4146,10 +4185,6 @@ components:
                 reportCount:
                     type: integer
                     format: int64
-                envs:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/EnvDependent'
         Status:
             type: object
             properties:

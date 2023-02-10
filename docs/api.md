@@ -58,6 +58,7 @@
     - [ConfigSystem](#api-v1-ConfigSystem)
     - [Configs](#api-v1-Configs)
     - [EnvDependent](#api-v1-EnvDependent)
+    - [Envs](#api-v1-Envs)
     - [ListConfigRequest](#api-v1-ListConfigRequest)
     - [Settings](#api-v1-Settings)
     - [Stats](#api-v1-Stats)
@@ -898,6 +899,7 @@
 | enable_captcha_find_password | [bool](#bool) |  |  |
 | enable_captcha_upload | [bool](#bool) |  |  |
 | max_document_size | [int32](#int32) |  |  |
+| document_allowed_ext | [string](#string) | repeated |  |
 
 
 
@@ -925,6 +927,7 @@
 | register_background | [string](#string) |  |  |
 | login_background | [string](#string) |  |  |
 | recommend_words | [string](#string) | repeated |  |
+| version | [string](#string) |  | 程序版本号 |
 
 
 
@@ -959,6 +962,23 @@
 | is_installed | [bool](#bool) |  | 是否已安装 |
 | error | [string](#string) |  | 错误信息 |
 | checked_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 检测时间 |
+| cmd | [string](#string) |  | 检测命令 |
+| is_required | [bool](#bool) |  | 是否必须 |
+
+
+
+
+
+
+<a name="api-v1-Envs"></a>
+
+### Envs
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| envs | [EnvDependent](#api-v1-EnvDependent) | repeated |  |
 
 
 
@@ -1017,7 +1037,6 @@
 | hash | [string](#string) |  |  |
 | build_at | [string](#string) |  |  |
 | report_count | [int64](#int64) |  |  |
-| envs | [EnvDependent](#api-v1-EnvDependent) | repeated |  |
 
 
 
@@ -1041,6 +1060,7 @@
 | UpdateConfig | [Configs](#api-v1-Configs) | [.google.protobuf.Empty](#google-protobuf-Empty) | UpdateConfig 更新配置 |
 | ListConfig | [ListConfigRequest](#api-v1-ListConfigRequest) | [Configs](#api-v1-Configs) | ListConfig 查询配置项 |
 | GetStats | [.google.protobuf.Empty](#google-protobuf-Empty) | [Stats](#api-v1-Stats) | 获取系统配置 |
+| GetEnvs | [.google.protobuf.Empty](#google-protobuf-Empty) | [Envs](#api-v1-Envs) | 获取系统环境依赖检测 |
 | UpdateSitemap | [.google.protobuf.Empty](#google-protobuf-Empty) | [.google.protobuf.Empty](#google-protobuf-Empty) | 更新站点地图 |
 
  
@@ -2355,6 +2375,7 @@
 | sign_at | [int32](#int32) |  |  |
 | ip | [string](#string) |  |  |
 | created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
+| award | [int32](#int32) |  | 签到积分奖励 |
 
 
 
