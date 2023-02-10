@@ -17,7 +17,18 @@
             @click="batchRecover"
             >恢复选中</el-button
           >
-          <el-button type="danger" icon="el-icon-delete" @click="clearAll"
+          <el-button
+            type="warning"
+            icon="el-icon-close"
+            :disabled="selectedRow.length === 0"
+            @click="batchDelete"
+            >删除选中</el-button
+          >
+          <el-button
+            type="danger"
+            :disabled="selectedRow.length > 0"
+            icon="el-icon-delete"
+            @click="clearAll"
             >清空回收站</el-button
           >
         </template>
@@ -222,6 +233,28 @@ export default {
           const res = await recoverRecycleDocument({ id: ids })
           if (res.status === 200) {
             this.$message.success('恢复成功')
+            this.listDocument()
+          } else {
+            this.$message.error(res.data.message)
+          }
+        })
+        .catch(() => {})
+    },
+    batchDelete() {
+      this.$confirm(
+        `您确定要从回收站中删除选中的【${this.selectedRow.length}个】文档吗？删除之后不可恢复！`,
+        '温馨提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'info',
+        }
+      )
+        .then(async () => {
+          const ids = this.selectedRow.map((item) => item.id)
+          const res = await deleteRecycleDocument({ id: ids })
+          if (res.status === 200) {
+            this.$message.success('删除成功')
             this.listDocument()
           } else {
             this.$message.error(res.data.message)
