@@ -50,7 +50,10 @@
             </el-tabs>
           </div>
           <div v-loading="loading" class="doc-list-data">
-            <document-list :documents="documents" />
+            <document-list v-if="documents.length > 0" :documents="documents" />
+            <div v-if="empty" class="no-data">
+              <el-empty description="暂无数据"></el-empty>
+            </div>
           </div>
           <el-pagination
             v-if="total > 0"
@@ -73,7 +76,9 @@
           <div slot="header">
             <el-row>
               <el-col :span="12" class="header-title">
-                {{ breadcrumbs[0].title }}
+                <span @click="go2cate(breadcrumbs[0].id)">{{
+                  breadcrumbs[0].title
+                }}</span>
               </el-col>
               <el-col :span="12" v-if="hasExpand">
                 <el-input v-model="filterText" placeholder="分类过滤">
@@ -148,6 +153,7 @@ export default {
       total: 0,
       keywords: [],
       loading: false,
+      empty: false,
       cardOffsetTop: 0,
       cardWidth: 0,
       title: '',
@@ -247,6 +253,11 @@ export default {
       this.query.id = parseInt(this.$route.params.id) || 0
       this.query.sort = this.$route.query.sort || this.query.sort
       this.query.page = parseInt(this.$route.query.page) || 1
+    },
+    go2cate(id) {
+      this.$router.push({
+        path: '/category/' + id,
+      })
     },
     setDefaultExpandedKeys() {
       const defaultExpandedKeys = []
@@ -373,6 +384,9 @@ export default {
         this.keywords = keywords
       }
       this.loading = false
+      if (this.query.page === 1 && this.documents.length === 0) {
+        this.empty = true
+      }
     },
   },
 }
@@ -385,6 +399,9 @@ export default {
       padding-bottom: 0;
       .header-title {
         line-height: 56px;
+        span {
+          cursor: pointer;
+        }
       }
       .el-input {
         top: 10px;
@@ -401,6 +418,14 @@ export default {
       background-color: #f5f7fa;
       color: #409eff;
       font-weight: bold;
+    }
+  }
+  .doc-list-data {
+    min-height: 200px;
+    .no-data {
+      text-align: center;
+      font-size: 14px;
+      color: #aaa;
     }
   }
   .categories-none-expand {

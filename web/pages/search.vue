@@ -122,7 +122,7 @@
           <div class="search-result">
             <ul>
               <li v-if="docs.length === 0">
-                <div class="noresult">暂无搜索结果</div>
+                <el-empty description="很遗憾，未能检索到相关结果"></el-empty>
               </li>
               <li v-for="doc in docs" :key="'doc-' + doc.id">
                 <h3 class="doc-title">

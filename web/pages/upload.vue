@@ -431,8 +431,9 @@ export default {
       const successItems = fileList.filter(
         (item) => item.response && item.response.code === 200
       )
-      this.percentAge = (successItems.length / length) * 100
-      if (this.percentAge === 100) {
+      let percentAge = (successItems.length / length) * 100
+      this.percentAge = percentAge.toFixed(2)
+      if (percentAge === 100) {
         this.createDocuments()
       }
     },
