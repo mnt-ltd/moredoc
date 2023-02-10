@@ -131,7 +131,7 @@ func (m *DBModel) GetCategoryList(opt *OptionGetCategoryList) (categoryList []Ca
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 
-	err = db.Order("parent_id asc, sort desc, title asc").Find(&categoryList).Error
+	err = db.Order("parent_id asc, sort desc, id asc").Find(&categoryList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetCategoryList", zap.Error(err))
 	}
