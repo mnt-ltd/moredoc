@@ -12,4 +12,5 @@ documents
 watch.bat
 indexes
 sitemap
+!util/sitemap
 license.cert
