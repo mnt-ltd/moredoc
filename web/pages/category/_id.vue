@@ -2,14 +2,41 @@
   <div class="page page-category">
     <el-row>
       <el-col :span="24">
-        <el-card shadow="never">
-          <el-breadcrumb separator="/">
+        <el-card shadow="never" ref="breadcrumb">
+          <template v-if="categoryChildren.length > 0">
+            <div slot="header" class="clearfix">
+              <el-breadcrumb separator="/">
+                <el-breadcrumb-item>
+                  <nuxt-link to="/"
+                    ><i class="el-icon-s-home"></i> 首页</nuxt-link
+                  >
+                </el-breadcrumb-item>
+                <el-breadcrumb-item
+                  v-for="item in breadcrumbs"
+                  :key="'bread1-' + item.id"
+                  :to="`/category/${item.id}`"
+                  >{{ item.title }}
+                </el-breadcrumb-item>
+              </el-breadcrumb>
+            </div>
+            <div class="category-children">
+              <nuxt-link
+                v-for="child in categoryChildren"
+                :key="'tree-' + child.id"
+                :to="`/category/${child.id}`"
+                :title="child.title"
+                class="el-link el-link--default"
+                >{{ child.title }}</nuxt-link
+              >
+            </div>
+          </template>
+          <el-breadcrumb v-else separator="/">
             <el-breadcrumb-item>
               <nuxt-link to="/"><i class="el-icon-s-home"></i> 首页</nuxt-link>
             </el-breadcrumb-item>
             <el-breadcrumb-item
               v-for="item in breadcrumbs"
-              :key="'bread-' + item.id"
+              :key="'bread2-' + item.id"
               :to="`/category/${item.id}`"
               >{{ item.title }}</el-breadcrumb-item
             >
@@ -19,7 +46,7 @@
     </el-row>
     <el-row :gutter="20" class="mgt-20px">
       <el-col :span="18">
-        <el-card shadow="never" class="doc-list">
+        <el-card shadow="never" ref="docList" class="doc-list">
           <div slot="header">
             <el-tabs v-model="query.sort" @tab-click="sortClick">
               <el-tab-pane name="default">
@@ -66,45 +93,8 @@
           </el-pagination>
         </el-card>
       </el-col>
-
       <el-col :span="6">
-        <el-card
-          shadow="never"
-          class="categories"
-          :class="hasExpand ? '' : 'categories-none-expand'"
-        >
-          <div slot="header">
-            <el-row>
-              <el-col :span="12" class="header-title">
-                <span @click="go2cate(breadcrumbs[0].id)">{{
-                  breadcrumbs[0].title
-                }}</span>
-              </el-col>
-              <el-col :span="12" v-if="hasExpand">
-                <el-input v-model="filterText" placeholder="分类过滤">
-                </el-input>
-              </el-col>
-            </el-row>
-          </div>
-          <el-tree
-            ref="tree"
-            :data="trees"
-            :props="defaultProps"
-            accordion
-            :indent="8"
-            node-key="id"
-            :default-expanded-keys="defaultExpandedKeys"
-            highlight-current
-            :filter-node-method="filterTree"
-            @node-click="handleNodeClick"
-          ></el-tree>
-        </el-card>
-        <el-card
-          shadow="never"
-          class="mgt-20px keywords"
-          v-if="keywords.length > 0"
-          ref="keywords"
-        >
+        <el-card shadow="never" class="keywords" ref="keywords">
           <div slot="header">
             <el-row>
               <el-col :span="8" class="header-title">关键词</el-col>
@@ -118,6 +108,9 @@
             >
               <el-tag effect="plain"> {{ keyword }}</el-tag>
             </nuxt-link>
+            <div v-if="keywords.length === 0">
+              <el-empty description="暂无相关关键词"></el-empty>
+            </div>
           </div>
         </el-card>
       </el-col>
@@ -148,6 +141,7 @@ export default {
       size: 10,
       breadcrumbs: [], // 面包屑
       trees: [],
+      categoryChildren: [],
       documents: [],
       categoryId: parseInt(this.$route.params.id) || 0,
       total: 0,
@@ -211,29 +205,25 @@ export default {
 
     this.breadcrumbs = breadcrumbs
 
-    try {
-      const trees =
-        this.categoryTrees.find((x) => x.id === breadcrumbs[0].id).children ||
-        []
-      this.trees = trees
-
-      // trees 下是否有展开项
-      let hasExpand = false
-      trees.forEach((x) => {
-        if (x.children && x.children.length > 0) {
-          hasExpand = true
-        }
-      })
-      this.hasExpand = hasExpand
-    } catch (error) {
-      console.log(error)
+    // 查找当前最后一个面包屑导航的子分类
+    let categoryChildren = []
+    if (breadcrumbs.length > 0) {
+      categoryChildren = this.categories.filter(
+        (x) => x.parent_id === breadcrumbs[breadcrumbs.length - 1].id
+      )
     }
+    this.categoryChildren = categoryChildren
 
     this.setQuery()
     this.setDefaultExpandedKeys()
     this.loadData()
   },
   mounted() {
+    this.$nextTick(() => {
+      try {
+        this.cardOffsetTop = this.$refs.breadcrumb.$el.offsetHeight
+      } catch (error) {}
+    })
     window.addEventListener('scroll', this.handleScroll)
   },
   beforeDestroy() {
@@ -281,12 +271,11 @@ export default {
       if (keywords) {
         if (this.cardWidth === 0) {
           this.cardWidth = keywords.offsetWidth
-          this.cardOffsetTop = keywords.offsetTop
         }
 
         if (scrollTop > this.cardOffsetTop) {
           keywords.style.position = 'fixed'
-          keywords.style.top = '60px'
+          keywords.style.top = '80px'
           keywords.style.zIndex = '1000'
           keywords.style.width = this.cardWidth + 'px'
         } else {
@@ -419,6 +408,14 @@ export default {
       color: #409eff;
       font-weight: bold;
     }
+  }
+  .category-children {
+    a {
+      display: inline-block;
+      margin-right: 20px;
+      margin-bottom: 20px;
+    }
+    margin-bottom: -20px;
   }
   .doc-list-data {
     min-height: 200px;
