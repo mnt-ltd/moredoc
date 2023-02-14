@@ -14,8 +14,29 @@
                 <el-breadcrumb-item
                   v-for="item in breadcrumbs"
                   :key="'bread1-' + item.id"
-                  :to="`/category/${item.id}`"
-                  >{{ item.title }}
+                >
+                  <el-dropdown v-if="item.siblings.length > 0">
+                    <span class="el-dropdown-link">
+                      {{ item.title
+                      }}<i class="el-icon-arrow-down el-icon--right"></i>
+                    </span>
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item
+                        v-for="ss in item.siblings"
+                        :key="'s1-' + ss.id"
+                      >
+                        <nuxt-link
+                          class="el-link el-link--default block"
+                          :class="{
+                            'el-link--primary': ss.id === item.id,
+                          }"
+                          :to="`/category/${ss.id}`"
+                          >{{ ss.title }}</nuxt-link
+                        ></el-dropdown-item
+                      >
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                  <span v-else>{{ item.title }}</span>
                 </el-breadcrumb-item>
               </el-breadcrumb>
             </div>
@@ -37,9 +58,30 @@
             <el-breadcrumb-item
               v-for="item in breadcrumbs"
               :key="'bread2-' + item.id"
-              :to="`/category/${item.id}`"
-              >{{ item.title }}</el-breadcrumb-item
             >
+              <el-dropdown v-if="item.siblings.length > 0">
+                <span class="el-dropdown-link">
+                  {{ item.title
+                  }}<i class="el-icon-arrow-down el-icon--right"></i>
+                </span>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item
+                    v-for="ss in item.siblings"
+                    :key="'s2-' + ss.id"
+                  >
+                    <nuxt-link
+                      class="el-link el-link--default block"
+                      :class="{
+                        'el-link--primary': ss.id === item.id,
+                      }"
+                      :to="`/category/${ss.id}`"
+                      >{{ ss.title }}</nuxt-link
+                    ></el-dropdown-item
+                  >
+                </el-dropdown-menu>
+              </el-dropdown>
+              <span v-else>{{ item.title }}</span>
+            </el-breadcrumb-item>
           </el-breadcrumb>
         </el-card>
       </el-col>
@@ -172,7 +214,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('category', ['categories', 'categoryTrees', 'categoryMap']),
+    ...mapGetters('category', ['categories', 'categoryMap']),
     ...mapGetters('setting', ['settings']),
   },
   watch: {
@@ -188,10 +230,15 @@ export default {
     const breadcrumbs = []
     let category = this.categoryMap[this.categoryId]
     if (category) {
+      category['siblings'] =
+        this.categories.filter((x) => x.parent_id === category.parent_id) || []
       breadcrumbs.push(category)
       while (category.parent_id) {
         category = this.categoryMap[category.parent_id]
         if (category) {
+          category['siblings'] =
+            this.categories.filter((x) => x.parent_id === category.parent_id) ||
+            []
           breadcrumbs.splice(0, 0, category)
         }
       }
@@ -382,6 +429,9 @@ export default {
 </script>
 <style lang="scss">
 .page-category {
+  .el-breadcrumb__inner {
+    cursor: pointer !important;
+  }
   .categories {
     .el-card__header {
       padding-top: 0;
