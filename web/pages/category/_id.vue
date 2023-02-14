@@ -230,15 +230,15 @@ export default {
       await this.$store.dispatch('category/getCategories')
     }
     const breadcrumbs = []
-    let category = this.categoryMap[this.categoryId]
-    if (category) {
-      category['siblings'] =
+    let category = { siblings: [], ...this.categoryMap[this.categoryId] }
+    if (category.id) {
+      category.siblings =
         this.categories.filter((x) => x.parent_id === category.parent_id) || []
       breadcrumbs.push(category)
       while (category.parent_id) {
-        category = this.categoryMap[category.parent_id]
-        if (category) {
-          category['siblings'] =
+        category = { siblings: [], ...this.categoryMap[category.parent_id] }
+        if (category.id) {
+          category.siblings =
             this.categories.filter((x) => x.parent_id === category.parent_id) ||
             []
           breadcrumbs.splice(0, 0, category)
