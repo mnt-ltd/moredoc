@@ -170,7 +170,6 @@ export default {
   data() {
     return {
       filterText: '',
-      defaultExpandedKeys: [],
       defaultProps: {
         children: 'children',
         label: 'title',
@@ -226,7 +225,10 @@ export default {
       this.loadData()
     },
   },
-  created() {
+  async created() {
+    if (this.categories.length === 0) {
+      await this.$store.dispatch('category/getCategories')
+    }
     const breadcrumbs = []
     let category = this.categoryMap[this.categoryId]
     if (category) {
@@ -262,7 +264,6 @@ export default {
     this.categoryChildren = categoryChildren
 
     this.setQuery()
-    this.setDefaultExpandedKeys()
     this.loadData()
   },
   mounted() {
@@ -277,6 +278,7 @@ export default {
     window.removeEventListener('scroll', this.handleScroll)
   },
   methods: {
+    ...mapGetters('category', ['getCategories']),
     filterTree(value, data) {
       if (!value) return true
       return data.title.toLowerCase().includes(value.toLowerCase())
@@ -295,21 +297,6 @@ export default {
       this.$router.push({
         path: '/category/' + id,
       })
-    },
-    setDefaultExpandedKeys() {
-      const defaultExpandedKeys = []
-      let category = this.breadcrumbs[this.breadcrumbs.length - 1] || {
-        id: 0,
-        title: '全部',
-      }
-      if (category) {
-        defaultExpandedKeys.push(category.id)
-        while (category.parent_id) {
-          defaultExpandedKeys.unshift(category.parent_id)
-          category = this.categoryMap[category.parent_id]
-        }
-      }
-      this.defaultExpandedKeys = defaultExpandedKeys
     },
     handleScroll() {
       const scrollTop =
