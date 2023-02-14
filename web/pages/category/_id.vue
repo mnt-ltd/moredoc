@@ -14,6 +14,7 @@
                 <el-breadcrumb-item
                   v-for="item in breadcrumbs"
                   :key="'bread1-' + item.id"
+                  :to="`/category/${item.id}`"
                 >
                   <el-dropdown v-if="item.siblings.length > 0">
                     <span class="el-dropdown-link">
@@ -58,6 +59,7 @@
             <el-breadcrumb-item
               v-for="item in breadcrumbs"
               :key="'bread2-' + item.id"
+              :to="`/category/${item.id}`"
             >
               <el-dropdown v-if="item.siblings.length > 0">
                 <span class="el-dropdown-link">
