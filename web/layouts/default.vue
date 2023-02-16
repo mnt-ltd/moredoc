@@ -14,7 +14,7 @@
                 :alt="settings.system.sitename"
             /></nuxt-link>
           </el-menu-item>
-          <el-menu-item index="/">
+          <el-menu-item index="/" class="hidden-xs-only">
             <nuxt-link to="/">首页</nuxt-link>
           </el-menu-item>
           <el-menu-item
@@ -22,10 +22,15 @@
             :key="'c-' + item.id"
             :index="`/category/${item.id}`"
             v-show="$route.path === '/' && index < 6"
+            class="hidden-xs-only"
           >
             <nuxt-link :to="`/category/${item.id}`">{{ item.title }}</nuxt-link>
           </el-menu-item>
-          <el-submenu index="channel" v-show="$route.path !== '/'">
+          <el-submenu
+            index="channel"
+            class="hidden-xs-only"
+            v-show="$route.path !== '/'"
+          >
             <template slot="title">频道分类</template>
             <el-menu-item
               v-for="item in categoryTrees"
@@ -504,13 +509,20 @@ export default {
       }
     }
   }
+  @media screen and (max-width: $mobile-width) {
+    min-width: 0 !important;
+  }
 }
 .page {
   width: $default-width;
-  // max-width: $max-width;
   min-width: $min-width !important;
+  // max-width: $max-width;
   margin: 0 auto;
   overflow-x: hidden;
+  @media screen and (max-width: $mobile-width) {
+    width: 100%;
+    min-width: auto;
+  }
 }
 .channel-category {
   &.is-active {
