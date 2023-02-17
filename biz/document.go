@@ -537,7 +537,7 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 			Page:         1,
 			Size:         limit,
 			Sort:         []string{"id desc"},
-			SelectFields: []string{"id", "title"},
+			SelectFields: []string{"id", "title", "ext"},
 		})
 
 		var pbDocs []*pb.Document

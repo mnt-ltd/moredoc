@@ -45,7 +45,11 @@
             placeholder="请输入关键词"
             @keyup.enter.native="onSearch"
           >
-            <el-button slot="append" icon="el-icon-search" @click="onSearch" />
+            <i
+              slot="suffix"
+              @click="onSearch"
+              class="el-input__icon el-icon-search btn-search"
+            ></i>
           </el-input>
         </el-col>
       </el-row>
@@ -429,9 +433,6 @@ export default {
     .el-input-group__append,
     .el-input-group__prepend {
       background-color: #dcdfe6;
-    }
-    .el-input__inner {
-      border-right: 0;
     }
     .search-input {
       margin-top: 5px;

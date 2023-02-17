@@ -1,7 +1,7 @@
 <template>
   <div class="page page-index">
     <div class="searchbox">
-      <el-carousel :interval="3000" arrow="always" :height="'360px'">
+      <el-carousel :interval="3000" arrow="always" :height="carouselHeight">
         <a
           v-for="banner in banners"
           :key="'banner-' + banner.id"
@@ -25,15 +25,15 @@
             placeholder="搜索文档..."
             @keydown.native.enter="onSearch"
           >
-            <el-button
-              slot="append"
-              icon="el-icon-search"
+            <i
+              slot="suffix"
               @click="onSearch"
-            ></el-button>
+              class="el-input__icon el-icon-search btn-search"
+            ></i>
           </el-input>
         </el-form-item>
         <el-form-item v-if="settings.system.recommend_words">
-          <span>大家在搜:</span>
+          <span class="hidden-xs-only">大家在搜:</span>
           <nuxt-link
             v-for="word in settings.system.recommend_words"
             :key="'kw-' + word"
@@ -47,7 +47,7 @@
       </el-form>
     </div>
     <el-row :gutter="20" class="mgt-20px">
-      <el-col :span="6" class="float-right">
+      <el-col :span="6" class="float-right right-at-recommend">
         <el-card class="text-center stat-info" shadow="never">
           <el-row>
             <el-col :span="12">
@@ -68,7 +68,7 @@
             </el-col>
           </el-row>
         </el-card>
-        <el-card class="text-center mgt-20px" shadow="never">
+        <el-card class="text-center mgt-20px hidden-xs-only" shadow="never">
           <nuxt-link to="/upload">
             <el-button type="warning" class="btn-block" icon="el-icon-upload"
               >上传文档</el-button
@@ -194,9 +194,10 @@
           <div slot="header">最新推荐</div>
           <el-row :gutter="20">
             <el-col
-              v-for="item in recommends"
+              v-for="(item, index) in recommends"
               :key="'recommend' + item.id"
               :span="4"
+              :class="isMobile && index > 7 ? 'hidden-xs-only' : ''"
             >
               <nuxt-link :to="`/document/${item.id}`">
                 <el-image
@@ -275,8 +276,13 @@
                 :key="'c-' + item.category_id + 'd' + doc.id"
                 class="el-link el-link--default"
                 :to="`/document/${doc.id}`"
-                >{{ doc.title }}</nuxt-link
               >
+                <img
+                  :src="`/static/images/${getIcon(doc.ext)}_24.png`"
+                  :alt="`${getIcon(doc.ext)}文档`"
+                />
+                <span>{{ doc.title }}</span>
+              </nuxt-link>
             </div>
           </div>
         </el-card>
@@ -292,6 +298,7 @@ import { listBanner } from '~/api/banner'
 import { listDocument, listDocumentForHome } from '~/api/document'
 import { getSignedToday, signToday } from '~/api/user'
 import { getStats } from '~/api/config'
+import { getIcon } from '~/utils/utils'
 export default {
   components: { UserAvatar },
   data() {
@@ -309,6 +316,8 @@ export default {
         document_count: '-',
         user_count: '-',
       },
+      carouselHeight: '360px',
+      isMobile: false,
     }
   },
   head() {
@@ -334,6 +343,8 @@ export default {
     ...mapGetters('setting', ['settings']),
   },
   async created() {
+    this.isMobile = document.body.clientWidth <= 768 ? true : false
+    this.carouselHeight = this.isMobile ? '250px' : '360px'
     await Promise.all([
       this.getRecommendDocuments(),
       this.listBanner(),
@@ -345,6 +356,7 @@ export default {
   },
   methods: {
     ...mapActions('user', ['logout', 'getUser']),
+    getIcon,
     async listBanner() {
       const res = await listBanner({
         enable: true,
@@ -635,6 +647,90 @@ export default {
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+        }
+      }
+    }
+  }
+}
+
+// =================================
+// 移动端样式
+// =================================
+@media screen and (max-width: $mobile-width) {
+  .page-index {
+    .searchbox {
+      .search-form {
+        width: 90%;
+        .el-input__inner {
+          height: 40px;
+          line-height: 40px;
+        }
+      }
+    }
+    .el-carousel__arrow {
+      display: none;
+    }
+    .latest-recommend {
+      width: 100%;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      .el-card__body {
+        padding: 15px;
+        padding-bottom: 0;
+      }
+      .el-col-4 {
+        width: 25%;
+        padding-left: 7.5px !important;
+        padding-right: 7.5px !important;
+      }
+      a {
+        margin-bottom: 15px;
+        .el-image {
+          height: auto;
+          width: 100%;
+          border: 1px solid #e6e6e6;
+        }
+        div.el-link {
+          font-size: 12px;
+        }
+      }
+    }
+    .right-at-recommend {
+      display: none; // 屏蔽，影响整体美观
+      width: 100%;
+      margin-top: -20px;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      margin-bottom: 20px;
+    }
+    .categories {
+      padding-bottom: 15px;
+      .el-col-6 {
+        width: 50%;
+        .el-card__body {
+          height: 75px;
+          overflow: hidden;
+        }
+      }
+    }
+
+    .category-item {
+      .el-col-12 {
+        width: 100%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        .card-body-right {
+          padding-right: 0 !important;
+          a {
+            line-height: 35px !important;
+            img {
+              height: 18px;
+              width: 18px;
+              position: relative;
+              top: 3px;
+              margin-right: 3px;
+            }
+          }
         }
       }
     }

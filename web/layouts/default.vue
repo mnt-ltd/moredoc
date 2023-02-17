@@ -509,9 +509,6 @@ export default {
       }
     }
   }
-  @media screen and (max-width: $mobile-width) {
-    min-width: 0 !important;
-  }
 }
 .page {
   width: $default-width;
@@ -519,10 +516,9 @@ export default {
   // max-width: $max-width;
   margin: 0 auto;
   overflow-x: hidden;
-  @media screen and (max-width: $mobile-width) {
-    width: 100%;
-    min-width: auto;
-  }
+}
+.btn-search {
+  cursor: pointer;
 }
 .channel-category {
   &.is-active {
@@ -537,5 +533,25 @@ export default {
 }
 .el-menu--popup {
   min-width: 115px;
+}
+
+// =======================
+// 移动端样式
+// =======================
+@media screen and (max-width: $mobile-width) {
+  .layout-default {
+    min-width: 0 !important;
+    .el-card {
+      border-radius: 0;
+    }
+  }
+  .page {
+    width: 100%;
+    min-width: auto !important;
+  }
+  .el-card__header,
+  .el-card__body {
+    padding: 15px;
+  }
 }
 </style>
