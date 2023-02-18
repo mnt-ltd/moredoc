@@ -92,6 +92,7 @@ export default {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      max-width: 100%;
       img {
         height: 18px;
         position: relative;

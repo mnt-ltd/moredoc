@@ -137,7 +137,7 @@
           </el-pagination>
         </el-card>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="6" class="hidden-xs-only">
         <el-card shadow="never" class="keywords" ref="keywords">
           <div slot="header">
             <el-row>
@@ -501,6 +501,67 @@ export default {
         background-color: #409eff;
         border-color: #409eff;
         color: #fff;
+      }
+    }
+  }
+}
+@media screen and (max-width: $mobile-width) {
+  .page-category {
+    .el-col-18 {
+      width: 100% !important;
+    }
+    .doc-list {
+      .el-card__header {
+        padding: 0 10px;
+        .el-tabs__item {
+          line-height: 40px;
+          height: 40px;
+          padding: 0 10px;
+        }
+      }
+      .el-rate__icon {
+        font-size: 15px;
+      }
+    }
+  }
+}
+</style>
+<style scoped lang="scss">
+@media screen and (max-width: $mobile-width) {
+  ::v-deep .com-document-list {
+    // h3 {
+    //   a {
+    //     white-space: inherit;
+    //     overflow: auto;
+    //     text-overflow: inherit;
+    //   }
+    // }
+    .doc-cover {
+      width: 25%;
+      padding-right: 5px !important;
+      .el-image {
+        border: 1px solid #efefef;
+      }
+    }
+    .el-col-20 {
+      width: 75%;
+    }
+    .doc-desc {
+      // display: none;
+      width: 100%;
+      font-size: 14px;
+      -webkit-line-clamp: 2;
+      height: 48px;
+      line-height: 160%;
+      padding-top: 8px;
+    }
+    .doc-info {
+      font-size: 12px;
+      .el-rate {
+        float: right;
+      }
+      .float-right {
+        float: left;
       }
     }
   }
