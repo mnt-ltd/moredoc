@@ -727,6 +727,7 @@ export default {
           a {
             line-height: 35px !important;
             img {
+              display: inline-block !important;
               height: 18px;
               width: 18px;
               position: relative;

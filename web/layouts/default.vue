@@ -47,7 +47,7 @@
           </el-submenu>
           <el-menu-item
             index="searchbox"
-            class="nav-searchbox"
+            class="nav-searchbox hidden-xs-only"
             v-show="$route.path !== '/'"
           >
             <el-input

@@ -39,4 +39,11 @@ export default {
     margin: 0 auto;
   }
 }
+@media screen and (max-width: 768px) {
+  .page-findpassword {
+    .el-card {
+      width: 100%;
+    }
+  }
+}
 </style>

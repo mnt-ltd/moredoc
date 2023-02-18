@@ -71,4 +71,18 @@ export default {
     }
   }
 }
+
+@media screen and (max-width: $mobile-width) {
+  .page-register {
+    background: none !important;
+    & > div {
+      width: 100%;
+      margin: 0;
+    }
+    .el-card {
+      width: 100%;
+      margin: 20px 0;
+    }
+  }
+}
 </style>

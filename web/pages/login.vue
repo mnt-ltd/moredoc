@@ -67,4 +67,17 @@ export default {
     }
   }
 }
+@media screen and (max-width: $mobile-width) {
+  .page-login {
+    background: none !important;
+    & > div {
+      width: 100%;
+      margin: 0 auto;
+    }
+    .el-card {
+      width: 100%;
+      margin: 20px auto;
+    }
+  }
+}
 </style>
