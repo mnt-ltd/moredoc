@@ -256,9 +256,8 @@
         >
         </i>
       </el-input>
-
-      <el-collapse class="mgt-20px">
-        <el-collapse-item name="categorys">
+      <el-collapse v-model="activeCollapse" class="mgt-20px">
+        <el-collapse-item name="categories">
           <template slot="title"
             ><i class="el-icon-menu"></i> &nbsp; <span>频道分类</span>
           </template>
@@ -267,71 +266,84 @@
               v-for="item in categoryTrees"
               :key="'collapse-sub-cate-' + item.id"
             >
-              <nuxt-link
+              <div
                 class="el-link el-link--default"
-                :to="`/category/${item.id}`"
-                >{{ item.title }}</nuxt-link
+                @click="goToLink(`/category/${item.id}`)"
               >
+                {{ item.title }}
+              </div>
             </li>
           </ul>
         </el-collapse-item>
       </el-collapse>
       <ul class="navs">
         <li>
-          <nuxt-link to="/login" class="el-link el-link--default login-link"
-            ><user-avatar :size="38" :user="user" class="user-avatar" />
-            <span>登录注册</span></nuxt-link
+          <div
+            @click="goToLink('/login')"
+            class="el-link el-link--default login-link"
           >
+            <user-avatar :size="38" :user="user" class="user-avatar" />
+            <span v-if="user.id > 0">{{ user.username }}</span>
+            <span v-else>登录注册</span>
+          </div>
         </li>
-        <li cass="mgt-20px">
-          <el-button
-            v-if="sign.id > 0"
-            :key="'sign-' + sign.id"
-            class="btn-block"
-            type="success"
-            size="medium"
-            disabled
-          >
-            <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
-            今日已签到
-          </el-button>
-          <el-button
-            v-else
-            :key="'sign-0'"
-            class="btn-block"
-            type="success"
-            size="medium"
-            @click="signToday"
-          >
-            <i class="fa fa-calendar-plus-o"></i>
-            每日签到</el-button
-          >
-        </li>
-        <li>
-          <nuxt-link to="/" class="el-link el-link--default"
-            ><i class="fa fa-user-o"></i> &nbsp;个人主页</nuxt-link
-          >
-        </li>
-        <li>
-          <nuxt-link to="/" class="el-link el-link--default"
-            ><i class="fa fa-edit"></i> &nbsp;个人资料</nuxt-link
-          >
-        </li>
-        <li>
-          <nuxt-link to="/" class="el-link el-link--default"
-            ><i class="fa fa-cloud-upload"></i> &nbsp;上传文档</nuxt-link
-          >
-        </li>
-        <li>
-          <nuxt-link to="/" class="el-link el-link--default"
-            ><i class="el-icon-box"></i> &nbsp;管理后台</nuxt-link
-          >
-        </li>
-        <li>
-          <nuxt-link to="/" class="el-link el-link--default"
-            ><i class="fa fa-sign-out"></i> &nbsp;退出登录</nuxt-link
-          >
-        </li>
+        <template v-if="user.id > 0">
+          <li cass="mgt-20px">
+            <el-button
+              v-if="sign.id > 0"
+              :key="'sign-' + sign.id"
+              class="btn-block"
+              type="success"
+              size="medium"
+              disabled
+            >
+              <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+              今日已签到
+            </el-button>
+            <el-button
+              v-else
+              :key="'sign-0'"
+              class="btn-block"
+              type="success"
+              size="medium"
+              @click="signToday"
+            >
+              <i class="fa fa-calendar-plus-o"></i>
+              每日签到</el-button
+            >
+          </li>
+          <li>
+            <div
+              @click="goToLink(`/user/${user.id}`)"
+              class="el-link el-link--default"
+            >
+              <i class="fa fa-user-o"></i> &nbsp;个人主页
+            </div>
+          </li>
+          <li>
+            <div
+              class="el-link el-link--default"
+              @click="userinfoDialogVisible = !userinfoDialogVisible"
+            >
+              <i class="fa fa-edit"></i> &nbsp;个人资料
+            </div>
+          </li>
+          <li>
+            <div @click="goToLink(`/upload`)" class="el-link el-link--default">
+              <i class="fa fa-cloud-upload"></i> &nbsp;上传文档
+            </div>
+          </li>
+          <li>
+            <nuxt-link to="/admin" class="el-link el-link--default"
+              ><i class="el-icon-box"></i> &nbsp;管理后台</nuxt-link
+            >
+          </li>
+          <li>
+            <div class="el-link el-link--default" @click="logout">
+              <i class="fa fa-sign-out"></i> &nbsp;退出登录
+            </div>
+          </li></template
+        >
       </ul>
     </el-drawer>
   </el-container>
@@ -357,6 +369,7 @@ export default {
       categoryTrees: [],
       menuDrawerVisible: false,
       sign: { id: 0 },
+      activeCollapse: 'categories',
     }
   },
   head() {
@@ -383,6 +396,18 @@ export default {
     ...mapGetters('category', ['categories']),
     ...mapGetters('device', ['isMobile']),
   },
+  watch: {
+    user: {
+      handler(val) {
+        if (val.id > 0) {
+          this.activeCollapse = ''
+        } else {
+          this.activeCollapse = 'categories'
+        }
+      },
+      deep: true,
+    },
+  },
   async created() {
     const [res] = await Promise.all([
       listFriendlink({
@@ -399,6 +424,7 @@ export default {
       (item) => item.enable
     )
     this.loopUpdate()
+    this.activeCollapse = this.user.id > 0 ? '' : 'categories'
   },
   mounted() {
     window.addEventListener('resize', this.handleResize)
@@ -414,6 +440,10 @@ export default {
     },
     showMenuDrawer() {
       this.menuDrawerVisible = true
+    },
+    goToLink(link) {
+      this.menuDrawerVisible = false
+      this.$router.push(link)
     },
     async signToday() {
       const res = await signToday()
@@ -698,28 +728,42 @@ export default {
         li {
           line-height: 30px;
           .login-link {
-            display: block;
             max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
             .user-avatar {
               margin-right: 5px;
-              top: 13px;
+              top: 6px;
             }
             span {
               display: inline-block;
               position: relative;
               top: -10px;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
             }
+          }
+          .el-link {
+            font-size: 14px;
+            display: block;
           }
         }
         & > li {
-          margin: 10px 0;
+          margin: 5px 0;
         }
       }
       .el-collapse {
         .el-icon-menu {
           font-size: 16px;
+        }
+        .el-collapse-item__content {
+          padding-bottom: 0;
+          margin-top: -15px;
+        }
+        ul {
+          padding-left: 30px;
+          li {
+            line-height: 30px;
+          }
         }
       }
     }
