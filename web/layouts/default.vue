@@ -453,6 +453,7 @@ export default {
     },
     onSearch() {
       if (!this.search.wd) return
+      this.menuDrawerVisible = false
       let wd = this.search.wd
       this.$router.push({
         path: '/search',
