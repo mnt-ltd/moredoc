@@ -2,7 +2,11 @@
   <div class="com-user-dynamic">
     <el-card shadow="never">
       <el-table v-loading="loading" :data="dynamics" style="width: 100%">
-        <el-table-column prop="created_at" label="时间" width="160">
+        <el-table-column
+          prop="created_at"
+          label="时间"
+          :width="isMobile ? 90 : 160"
+        >
           <template slot-scope="scope">
             <el-tooltip
               :content="formatDatetime(scope.row.created_at)"
@@ -33,6 +37,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { getDynamics } from '~/api/user'
 import { formatRelativeTime, formatDatetime } from '~/utils/utils'
 export default {
@@ -53,6 +58,9 @@ export default {
       dynamics: [],
       total: 0,
     }
+  },
+  computed: {
+    ...mapGetters('device', ['isMobile']),
   },
   watch: {
     '$route.query': {

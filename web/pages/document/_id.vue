@@ -932,8 +932,11 @@ export default {
       .el-col-18 {
         width: 100% !important;
       }
+      .btn-actions {
+        padding-left: 5px;
+      }
       .el-card .el-button {
-        padding: 15px;
+        padding: 15px 10px;
       }
     }
   }

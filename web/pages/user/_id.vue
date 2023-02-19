@@ -1,12 +1,12 @@
 <template>
   <div class="page page-user">
     <el-row :gutter="20">
-      <el-col :span="6">
+      <el-col :span="6" class="user-profile">
         <el-card shadow="never">
           <div slot="header">个人主页</div>
           <user-card :user="user" />
         </el-card>
-        <el-card shadow="never" class="mgt-20px shared-user">
+        <el-card shadow="never" class="mgt-20px shared-user hidden-xs-only">
           <div slot="header">分享达人</div>
           <user-list />
         </el-card>
@@ -142,6 +142,21 @@ export default {
       & > .el-tabs__content {
         padding-top: 5px;
         min-height: 805px;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: $mobile-width) {
+  .page-user {
+    .user-profile {
+      width: 100% !important;
+    }
+    .user-right {
+      margin-top: 15px;
+      width: 100% !important;
+      .user-tabs.el-tabs--border-card > .el-tabs__content {
+        min-height: unset;
       }
     }
   }
