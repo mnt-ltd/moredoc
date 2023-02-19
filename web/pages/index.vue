@@ -317,7 +317,6 @@ export default {
         user_count: '-',
       },
       carouselHeight: '360px',
-      isMobile: false,
     }
   },
   head() {
@@ -341,9 +340,9 @@ export default {
     ...mapGetters('category', ['categoryTrees']),
     ...mapGetters('user', ['user']),
     ...mapGetters('setting', ['settings']),
+    ...mapGetters('device', ['isMobile']),
   },
   async created() {
-    this.isMobile = document.body.clientWidth <= 768 ? true : false
     this.carouselHeight = this.isMobile ? '250px' : '360px'
     await Promise.all([
       this.getRecommendDocuments(),

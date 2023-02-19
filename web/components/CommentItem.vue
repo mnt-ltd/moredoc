@@ -1,11 +1,20 @@
 <template>
   <el-row :class="`com-comment-item com-comment-item-${size}`">
-    <el-col :span="2">
-      <nuxt-link :to="{ name: 'user-id', params: { id: user.id } }"
-        ><user-avatar :size="size == 'small' ? 40 : 48" :user="comment.user"
-      /></nuxt-link>
+    <el-col :span="isMobile ? 3 : 2">
+      <nuxt-link :to="{ name: 'user-id', params: { id: user.id } }">
+        <user-avatar
+          v-if="isMobile"
+          :size="size == 'small' ? 32 : 36"
+          :user="comment.user"
+        />
+        <user-avatar
+          v-else
+          :size="size == 'small' ? 40 : 48"
+          :user="comment.user"
+        />
+      </nuxt-link>
     </el-col>
-    <el-col :span="22">
+    <el-col :span="isMobile ? 21 : 22">
       <div class="username">
         <nuxt-link
           class="el-link el-link--default"
@@ -88,6 +97,7 @@ export default {
   },
   computed: {
     ...mapGetters('user', ['user']),
+    ...mapGetters('device', ['isMobile']),
   },
   methods: {
     formatRelativeTime,
@@ -133,5 +143,7 @@ export default {
   .comment-content {
     padding: 15px;
   }
+}
+@media screen and (max-width: $mobile-width) {
 }
 </style>

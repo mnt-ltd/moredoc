@@ -12,15 +12,20 @@
           v-model="comment.content"
           type="textarea"
           :placeholder="placeholder"
-          :autosize="{ minRows: 4, maxRows: 6 }"
+          :autosize="
+            isMobile ? { minRows: 3, maxRows: 6 } : { minRows: 4, maxRows: 6 }
+          "
         />
       </el-form-item>
       <el-form-item class="comment-btns">
         <el-row>
-          <el-col :span="7"> 请文明评论，理性发言. </el-col>
-          <el-col :span="17" class="text-right">
+          <el-col :span="isMobile ? 24 : 7"> 请文明评论，理性发言. </el-col>
+          <el-col
+            :span="isMobile ? 24 : 17"
+            :class="isMobile ? '' : 'text-right'"
+          >
             <template v-if="captcha.enable">
-              <el-form-item>
+              <el-form-item class="el-form-item-captcha">
                 <div class="captcha">
                   <div v-if="captcha.type == 'audio'">
                     <el-row :gutter="15">
@@ -61,6 +66,7 @@
                 <el-input
                   v-model="comment.captcha"
                   placeholder="请输入验证码"
+                  :size="isMobile ? 'medium' : ''"
                 ></el-input>
               </el-form-item>
             </template>
@@ -68,8 +74,9 @@
               <el-button
                 type="primary"
                 icon="el-icon-position"
+                :size="isMobile ? 'medium' : ''"
                 @click="submitForm('form')"
-                >发布评论</el-button
+                >发表点评</el-button
               >
             </el-form-item>
           </el-col>
@@ -81,6 +88,7 @@
 <script>
 import { getUserCaptcha } from '~/api/user'
 import { createComment } from '~/api/comment'
+import { mapGetters } from 'vuex'
 export default {
   name: 'FormComment',
   props: {
@@ -115,6 +123,9 @@ export default {
         ],
       },
     }
+  },
+  computed: {
+    ...mapGetters('device', ['isMobile']),
   },
   watch: {
     documentId: {
@@ -184,6 +195,22 @@ export default {
     }
     .captcha {
       float: left;
+    }
+  }
+}
+@media screen and (max-width: $mobile-width) {
+  .com-form-comment {
+    .comment-content {
+      margin-bottom: 10px;
+    }
+    .captcha {
+      width: 100%;
+    }
+    .el-input--medium {
+      width: 150px;
+    }
+    .el-form-item-captcha {
+      display: block;
     }
   }
 }

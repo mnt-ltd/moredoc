@@ -1,7 +1,7 @@
 <template>
   <div class="page page-document">
     <el-row :gutter="20">
-      <el-col :span="scaleSpan">
+      <el-col :span="scaleSpan" class="doc-left">
         <el-card ref="docMain" shadow="never" class="doc-main">
           <div slot="header" class="clearfix">
             <h1>
@@ -84,10 +84,11 @@
             </el-image>
           </div>
           <div class="doc-page-more text-center">
-            <div>下载文档到电脑，方便使用</div>
+            <div>下载文档到本地，方便使用</div>
             <el-button
               type="primary"
               icon="el-icon-download"
+              :size="isMobile ? 'medium' : ''"
               :loading="downloading"
               @click="downloadDocument"
             >
@@ -121,6 +122,7 @@
               <el-button
                 type="primary"
                 @click="showReport"
+                :size="isMobile ? 'medium' : ''"
                 plain
                 icon="el-icon-warning-outline"
                 >举报</el-button
@@ -129,6 +131,7 @@
                 type="primary"
                 icon="el-icon-download"
                 class="float-right"
+                :size="isMobile ? 'medium' : ''"
                 :loading="downloading"
                 @click="downloadDocument"
                 >下载文档({{ formatBytes(document.size) }})</el-button
@@ -137,7 +140,7 @@
                 v-if="favorite.id > 0"
                 type="primary"
                 plain
-                class="float-right"
+                class="float-right hidden-xs-only"
                 icon="el-icon-star-on"
                 @click="deleteFavorite"
                 >取消收藏</el-button
@@ -145,13 +148,21 @@
               <el-button
                 v-else
                 type="primary"
-                class="float-right"
+                class="float-right hidden-xs-only"
                 icon="el-icon-star-off"
                 @click="createFavorite"
                 >收藏</el-button
               >
             </div>
           </div>
+        </el-card>
+        <el-card
+          shadow="never"
+          class="mgt-20px relate-docs"
+          v-if="relatedDocuments.length > 0"
+        >
+          <div slot="header">相关文档</div>
+          <document-simple-list :docs="relatedDocuments" />
         </el-card>
         <el-card
           v-if="document.id > 0"
@@ -185,7 +196,7 @@
           <comment-list ref="commentList" :document-id="document.id" />
         </el-card>
       </el-col>
-      <el-col :span="24 - scaleSpan">
+      <el-col :span="24 - scaleSpan" class="hidden-xs-only">
         <el-card shadow="never">
           <div slot="header">分享用户</div>
           <user-card :hide-actions="true" :user="document.user" />
@@ -206,7 +217,13 @@
         <el-row>
           <el-col :span="18">
             <el-button-group class="btn-actions">
-              <el-tooltip content="全屏阅读">
+              <el-tooltip content="文档点评" v-if="isMobile">
+                <el-button
+                  icon="el-icon-chat-dot-square"
+                  @click="gotoComment"
+                ></el-button>
+              </el-tooltip>
+              <el-tooltip content="全屏阅读" class="hidden-xs-only">
                 <el-button
                   icon="el-icon-full-screen"
                   @click="fullscreen"
@@ -224,14 +241,14 @@
                   @click="createFavorite"
                 ></el-button>
               </el-tooltip>
-              <el-tooltip content="缩小">
+              <el-tooltip content="缩小" class="hidden-xs-only">
                 <el-button
                   icon="el-icon-zoom-out"
                   :disabled="scaleSpan === 18"
                   @click="zoomOut"
                 ></el-button>
               </el-tooltip>
-              <el-tooltip content="放大">
+              <el-tooltip content="放大" class="hidden-xs-only">
                 <el-button
                   icon="el-icon-zoom-in"
                   :disabled="scaleSpan === 24"
@@ -257,25 +274,28 @@
               </el-tooltip>
             </el-button-group>
             <el-button
-              class="btn-comment"
+              class="btn-comment hidden-xs-only"
               icon="el-icon-chat-dot-square"
               @click="gotoComment"
               >文档点评</el-button
             >
             <el-button-group class="float-right">
               <el-button type="primary" icon="el-icon-coin" class="btn-coin"
-                >{{ document.price || 0 }} 个魔豆</el-button
+                >{{ document.price || 0
+                }}<span class="hidden-xs-only"> 个魔豆</span></el-button
               >
               <el-button
                 type="primary"
                 icon="el-icon-download"
                 :loading="downloading"
                 @click="downloadDocument"
-                >下载文档({{ formatBytes(document.size) }})</el-button
-              >
+                >下载<span class="hidden-xs-only"
+                  >({{ formatBytes(document.size) }})</span
+                >
+              </el-button>
             </el-button-group>
           </el-col>
-          <el-col :span="6" class="text-right">
+          <el-col :span="6" class="text-right hidden-xs-only">
             <el-button icon="el-icon-top" @click="scrollTop"
               >回到顶部</el-button
             >
@@ -375,6 +395,7 @@ export default {
   computed: {
     ...mapGetters('category', ['categoryMap']),
     ...mapGetters('setting', ['settings']),
+    ...mapGetters('device', ['isMobile']),
   },
   created() {
     Promise.all([
@@ -557,7 +578,13 @@ export default {
         id: this.documentId,
       })
       if (res.status === 200) {
-        this.relatedDocuments = res.data.document || []
+        // 如果是移动端，则只显示5条，否则显示10条
+        let relatedDocuments = res.data.document || []
+        if (this.isMobile) {
+          this.relatedDocuments = relatedDocuments.slice(0, 5)
+        } else {
+          this.relatedDocuments = relatedDocuments
+        }
       }
     },
     prevPage() {
@@ -876,6 +903,34 @@ export default {
     top: 3px;
     margin-right: 10px;
     color: #565656;
+  }
+}
+
+@media screen and (max-width: $mobile-width) {
+  .page-document {
+    .doc-left {
+      width: 100% !important;
+    }
+    .doc-info {
+      float: left;
+      margin-top: 40px;
+      & > span {
+        margin-left: 0;
+        margin-right: 8px;
+        display: inline-block;
+        margin-top: 5px;
+      }
+    }
+    .fixed-buttons {
+      min-width: 100%;
+      height: 44px;
+      .el-col-18 {
+        width: 100% !important;
+      }
+      .el-card .el-button {
+        padding: 15px;
+      }
+    }
   }
 }
 </style>

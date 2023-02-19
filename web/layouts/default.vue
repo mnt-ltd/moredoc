@@ -287,11 +287,18 @@ export default {
     )
     this.loopUpdate()
   },
-  mounted() {},
+  mounted() {
+    window.addEventListener('resize', this.handleResize)
+  },
   methods: {
     ...mapActions('category', ['getCategories']),
     ...mapActions('setting', ['getSettings']),
     ...mapActions('user', ['logout']),
+    ...mapActions('device', ['setDeviceWidth']),
+    handleResize() {
+      console.log('handleResize', window.innerWidth)
+      this.setDeviceWidth(window.innerWidth)
+    },
     onSearch() {
       if (!this.search.wd) return
       let wd = this.search.wd
