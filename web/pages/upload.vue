@@ -7,7 +7,7 @@
             <strong>上传文档</strong>
           </div>
           <el-row :gutter="40">
-            <el-col :span="14">
+            <el-col :span="14" class="part-left">
               <el-form
                 ref="form"
                 :model="document"
@@ -158,7 +158,7 @@
                 </el-form-item>
               </el-form>
             </el-col>
-            <el-col :span="10" class="upload-tips">
+            <el-col :span="10" class="upload-tips part-right">
               <div><strong>温馨提示</strong></div>
               <div class="help-block">
                 <ul>
@@ -496,6 +496,26 @@ export default {
     img {
       position: relative;
       top: 7px;
+    }
+  }
+}
+@media screen and (max-width: $mobile-width) {
+  .page-upload {
+    .part-left {
+      width: 100% !important;
+      .el-upload {
+        display: block;
+        .el-upload-dragger {
+          width: 100% !important;
+        }
+      }
+    }
+    .part-right {
+      width: 100% !important;
+      margin-top: 20px;
+      li {
+        margin-bottom: 0;
+      }
     }
   }
 }
