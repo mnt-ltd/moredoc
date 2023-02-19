@@ -7,14 +7,11 @@
             <div slot="header" class="clearfix">
               <el-breadcrumb separator="/">
                 <el-breadcrumb-item>
-                  <nuxt-link to="/"
-                    ><i class="el-icon-s-home"></i> 首页</nuxt-link
-                  >
+                  <nuxt-link to="/"><i class="fa fa-home"></i> 首页</nuxt-link>
                 </el-breadcrumb-item>
                 <el-breadcrumb-item
                   v-for="item in breadcrumbs"
                   :key="'bread1-' + item.id"
-                  :to="`/category/${item.id}`"
                 >
                   <el-dropdown v-if="item.siblings.length > 0">
                     <span class="el-dropdown-link">
@@ -54,12 +51,11 @@
           </template>
           <el-breadcrumb v-else separator="/">
             <el-breadcrumb-item>
-              <nuxt-link to="/"><i class="el-icon-s-home"></i> 首页</nuxt-link>
+              <nuxt-link to="/"><i class="fa fa-home"></i> 首页</nuxt-link>
             </el-breadcrumb-item>
             <el-breadcrumb-item
               v-for="item in breadcrumbs"
               :key="'bread2-' + item.id"
-              :to="`/category/${item.id}`"
             >
               <el-dropdown v-if="item.siblings.length > 0">
                 <span class="el-dropdown-link">
@@ -420,6 +416,9 @@ export default {
 .page-category {
   .el-breadcrumb__inner {
     cursor: pointer !important;
+    a {
+      font-weight: normal;
+    }
   }
   .categories {
     .el-card__header {
