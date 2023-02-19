@@ -100,9 +100,14 @@
                 >继续阅读</span
               >
             </div>
-            <div class="text-muted" v-else>
-              <small>- 可预览页数已预览完 -</small>
-            </div>
+            <template v-else>
+              <div v-if="document.pages != document.preview" class="text-muted">
+                <small
+                  >- 可预览页数已用完，剩余
+                  {{ document.pages - document.preview }} 页请下载阅读 -</small
+                >
+              </div>
+            </template>
           </div>
           <div>
             <div class="share-info">
