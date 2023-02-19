@@ -416,6 +416,7 @@ export default {
   },
   mounted() {
     window.addEventListener('scroll', this.handleScroll)
+    window.addEventListener('resize', this.handleResize)
     try {
       this.$refs.docMain.$el.addEventListener(
         'scroll',
@@ -428,6 +429,7 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener('scroll', this.handleScroll)
+    window.removeEventListener('resize', this.handleResize)
     try {
       this.$refs.docMain.$el.removeEventListener(
         'scroll',
@@ -498,6 +500,17 @@ export default {
         this.$router.replace('/404')
       }
     },
+    handleResize() {
+      this.calcPageSize()
+    },
+    calcPageSize() {
+      try {
+        this.pageWidth = this.$refs.docPages.offsetWidth
+        this.pageHeight =
+          (this.$refs.docPages.offsetWidth / this.document.width) *
+          this.document.height
+      } catch (error) {}
+    },
     showReport() {
       this.report.document_id = this.document.id
       this.report.document_title = this.document.title
@@ -516,6 +529,10 @@ export default {
       }
       this.currentPage = currentPage
       this.pages[currentPage - 1].src = this.pages[currentPage - 1].lazySrc
+      if (currentPage < this.pages.length) {
+        // 多加载一页
+        this.pages[currentPage].src = this.pages[currentPage].lazySrc
+      }
 
       // 右侧相关文档固定
       try {
