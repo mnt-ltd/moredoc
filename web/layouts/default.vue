@@ -415,6 +415,7 @@ export default {
     this.loopUpdate()
   },
   mounted() {
+    this.handleResize()
     window.addEventListener('resize', this.handleResize)
   },
   methods: {
