@@ -29,7 +29,7 @@
     </el-row>
     <div class="search-box" ref="searchBox">
       <el-row :gutter="20">
-        <el-col :span="4" class="logo">
+        <el-col :span="4" class="logo hidden-xs-only">
           <nuxt-link to="/" :title="settings.system.sitename"
             ><img
               :src="settings.system.logo"
@@ -556,14 +556,9 @@ export default {
     .search-box {
       padding: 15px 0;
       margin-bottom: 15px;
-      .logo {
-        width: 100% !important;
-        padding-bottom: 7px;
-      }
       .search-form {
         width: 100% !important;
-        border-top: 15px solid $background-grey-light;
-        padding-top: 10px;
+        padding-top: 55px;
       }
     }
 

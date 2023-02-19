@@ -1,6 +1,6 @@
 <template>
   <el-container class="layout-default">
-    <el-header v-if="$route.name !== 'search'">
+    <el-header v-if="$route.name !== 'search' || isMobile">
       <div>
         <el-menu
           :default-active="$route.path"
@@ -354,6 +354,7 @@ import UserAvatar from '~/components/UserAvatar.vue'
 import FormUserinfo from '~/components/FormUserinfo.vue'
 import { listFriendlink } from '~/api/friendlink'
 import { categoryToTrees } from '~/utils/utils'
+import { getSignedToday, signToday } from '~/api/user'
 export default {
   components: { UserAvatar, FormUserinfo },
   middleware: ['analytic'],
@@ -396,18 +397,6 @@ export default {
     ...mapGetters('category', ['categories']),
     ...mapGetters('device', ['isMobile']),
   },
-  // watch: {
-  //   user: {
-  //     handler(val) {
-  //       if (val.id > 0) {
-  //         this.activeCollapse = ''
-  //       } else {
-  //         this.activeCollapse = 'categories'
-  //       }
-  //     },
-  //     deep: true,
-  //   },
-  // },
   async created() {
     const [res] = await Promise.all([
       listFriendlink({
@@ -424,7 +413,6 @@ export default {
       (item) => item.enable
     )
     this.loopUpdate()
-    // this.activeCollapse = this.user.id > 0 ? '' : 'categories'
   },
   mounted() {
     window.addEventListener('resize', this.handleResize)
@@ -432,18 +420,25 @@ export default {
   methods: {
     ...mapActions('category', ['getCategories']),
     ...mapActions('setting', ['getSettings']),
-    ...mapActions('user', ['logout']),
+    ...mapActions('user', ['logout', 'getUser']),
     ...mapActions('device', ['setDeviceWidth']),
     handleResize() {
       console.log('handleResize', window.innerWidth)
       this.setDeviceWidth(window.innerWidth)
     },
-    showMenuDrawer() {
+    async showMenuDrawer() {
+      this.getSignedToday()
       this.menuDrawerVisible = true
     },
     goToLink(link) {
       this.menuDrawerVisible = false
       this.$router.push(link)
+    },
+    async getSignedToday() {
+      const res = await getSignedToday()
+      if (res.status === 200) {
+        this.sign = res.data || this.sign
+      }
     },
     async signToday() {
       const res = await signToday()
@@ -560,6 +555,15 @@ export default {
     z-index: 100;
     overflow: hidden;
     border-bottom: 1px solid $background-grey-light;
+    .logo {
+      &.is-active {
+        border-color: transparent !important;
+      }
+      img {
+        margin-top: -4px;
+        height: 42px;
+      }
+    }
     & > div {
       margin: 0 auto;
       width: $default-width;
@@ -651,15 +655,7 @@ export default {
       }
     }
   }
-  .logo {
-    &.is-active {
-      border-color: transparent !important;
-    }
-    img {
-      margin-top: -4px;
-      height: 42px;
-    }
-  }
+
   .nav-ucenter {
     &.is-active {
       border-color: transparent !important;
