@@ -14,7 +14,8 @@
               {{ article.view_count || 0 }} 阅读</span
             >
             <span class="float-right"
-              ><i class="el-icon-time"></i> 最后更新:
+              ><i class="el-icon-time"></i>
+              <span class="hidden-xs-only">最后更新:</span>
               {{ formatDate(article.updated_at) }}
             </span>
           </div>
@@ -117,6 +118,9 @@ export default {
   .article-info {
     span {
       margin-right: 10px;
+      &.float-right {
+        margin-right: 0;
+      }
     }
   }
   .article-list {
