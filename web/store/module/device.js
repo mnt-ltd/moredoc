@@ -4,7 +4,7 @@ export const device = {
     device: {
       isMobile: false,
       isPad: false,
-      isPC: false,
+      isPC: true,
       width: 0,
     },
   },

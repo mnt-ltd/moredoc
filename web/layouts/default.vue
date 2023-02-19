@@ -68,7 +68,7 @@
           <el-menu-item
             v-if="user.id > 0"
             index="ucenter"
-            class="float-right nav-ucenter"
+            class="float-right nav-ucenter hidden-xs-only"
           >
             <el-dropdown trigger="hover" @command="handleDropdown">
               <span class="el-dropdown-link">
@@ -95,8 +95,20 @@
               </el-dropdown-menu>
             </el-dropdown>
           </el-menu-item>
-          <el-menu-item v-else index="/login" class="float-right">
+          <el-menu-item
+            v-else
+            index="/login"
+            class="float-right hidden-xs-only"
+          >
             <nuxt-link to="/login"><i class="el-icon-user"></i> 登录</nuxt-link>
+          </el-menu-item>
+          <el-menu-item
+            v-if="isMobile"
+            class="menu-drawer float-right"
+            index="menuDrawer"
+            @click="showMenuDrawer"
+          >
+            <i class="el-icon-s-operation"></i>
           </el-menu-item>
         </el-menu>
       </div>
@@ -224,6 +236,104 @@
     >
       <form-userinfo v-if="userinfoDialogVisible" />
     </el-dialog>
+    <el-drawer
+      :visible.sync="menuDrawerVisible"
+      size="50%"
+      :with-header="false"
+      class="menu-drawer-box"
+    >
+      <el-input
+        v-model="search.wd"
+        class="search-input"
+        size="large"
+        placeholder="搜索文档..."
+        @keyup.enter.native="onSearch"
+      >
+        <i
+          class="el-icon-search el-input__icon"
+          @click="onSearch"
+          slot="suffix"
+        >
+        </i>
+      </el-input>
+
+      <el-collapse class="mgt-20px">
+        <el-collapse-item name="categorys">
+          <template slot="title"
+            ><i class="el-icon-menu"></i> &nbsp; <span>频道分类</span>
+          </template>
+          <ul>
+            <li
+              v-for="item in categoryTrees"
+              :key="'collapse-sub-cate-' + item.id"
+            >
+              <nuxt-link
+                class="el-link el-link--default"
+                :to="`/category/${item.id}`"
+                >{{ item.title }}</nuxt-link
+              >
+            </li>
+          </ul>
+        </el-collapse-item>
+      </el-collapse>
+      <ul class="navs">
+        <li>
+          <nuxt-link to="/login" class="el-link el-link--default login-link"
+            ><user-avatar :size="38" :user="user" class="user-avatar" />
+            <span>登录注册</span></nuxt-link
+          >
+        </li>
+        <li cass="mgt-20px">
+          <el-button
+            v-if="sign.id > 0"
+            :key="'sign-' + sign.id"
+            class="btn-block"
+            type="success"
+            size="medium"
+            disabled
+          >
+            <i class="fa fa-calendar-check-o" aria-hidden="true"></i>
+            今日已签到
+          </el-button>
+          <el-button
+            v-else
+            :key="'sign-0'"
+            class="btn-block"
+            type="success"
+            size="medium"
+            @click="signToday"
+          >
+            <i class="fa fa-calendar-plus-o"></i>
+            每日签到</el-button
+          >
+        </li>
+        <li>
+          <nuxt-link to="/" class="el-link el-link--default"
+            ><i class="fa fa-user-o"></i> &nbsp;个人主页</nuxt-link
+          >
+        </li>
+        <li>
+          <nuxt-link to="/" class="el-link el-link--default"
+            ><i class="fa fa-edit"></i> &nbsp;个人资料</nuxt-link
+          >
+        </li>
+        <li>
+          <nuxt-link to="/" class="el-link el-link--default"
+            ><i class="fa fa-cloud-upload"></i> &nbsp;上传文档</nuxt-link
+          >
+        </li>
+        <li>
+          <nuxt-link to="/" class="el-link el-link--default"
+            ><i class="el-icon-box"></i> &nbsp;管理后台</nuxt-link
+          >
+        </li>
+        <li>
+          <nuxt-link to="/" class="el-link el-link--default"
+            ><i class="fa fa-sign-out"></i> &nbsp;退出登录</nuxt-link
+          >
+        </li>
+      </ul>
+    </el-drawer>
   </el-container>
 </template>
 <script>
@@ -245,6 +355,8 @@ export default {
       timeouter: null,
       currentYear: new Date().getFullYear(),
       categoryTrees: [],
+      menuDrawerVisible: false,
+      sign: { id: 0 },
     }
   },
   head() {
@@ -299,6 +411,20 @@ export default {
     handleResize() {
       console.log('handleResize', window.innerWidth)
       this.setDeviceWidth(window.innerWidth)
+    },
+    showMenuDrawer() {
+      this.menuDrawerVisible = true
+    },
+    async signToday() {
+      const res = await signToday()
+      if (res.status === 200) {
+        const sign = res.data || { id: 1 }
+        this.sign = sign
+        this.getUser()
+        this.$message.success(`签到成功，获得 ${sign.award || 0} 个魔豆奖励`)
+      } else {
+        this.$message.error(res.message || res.data.message)
+      }
     },
     onSearch() {
       if (!this.search.wd) return
@@ -420,6 +546,9 @@ export default {
           padding: 0 15px;
         }
       }
+    }
+    .menu-drawer {
+      display: none;
     }
     .nav-searchbox {
       padding: 0 25px !important;
@@ -558,6 +687,68 @@ export default {
     min-width: 0 !important;
     .el-card {
       border-radius: 0;
+    }
+    .menu-drawer-box {
+      .el-drawer__body {
+        padding: 15px;
+      }
+      .navs {
+        padding: 0;
+        list-style: none;
+        li {
+          line-height: 30px;
+          .login-link {
+            display: block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            .user-avatar {
+              margin-right: 5px;
+              top: 13px;
+            }
+            span {
+              display: inline-block;
+              position: relative;
+              top: -10px;
+            }
+          }
+        }
+        & > li {
+          margin: 10px 0;
+        }
+      }
+      .el-collapse {
+        .el-icon-menu {
+          font-size: 16px;
+        }
+      }
+    }
+    .el-header {
+      .el-menu.el-menu--horizontal {
+        border-bottom: 0;
+        width: 100%;
+        max-width: unset;
+        min-width: unset;
+        .float-right {
+          float: right;
+          a {
+            padding: 0 15px;
+          }
+        }
+      }
+      a {
+        padding: 0 15px;
+      }
+      .menu-drawer {
+        padding: 0 15px;
+        display: inline-block;
+        &.is-active {
+          border-bottom: 0;
+        }
+        .el-icon-s-operation {
+          font-size: 22px;
+        }
+      }
     }
     .el-footer {
       .footer-links {
