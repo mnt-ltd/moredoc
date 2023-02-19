@@ -256,26 +256,6 @@
         >
         </i>
       </el-input>
-      <el-collapse v-model="activeCollapse" class="mgt-20px">
-        <el-collapse-item name="categories">
-          <template slot="title"
-            ><i class="el-icon-menu"></i> &nbsp; <span>频道分类</span>
-          </template>
-          <ul>
-            <li
-              v-for="item in categoryTrees"
-              :key="'collapse-sub-cate-' + item.id"
-            >
-              <div
-                class="el-link el-link--default"
-                @click="goToLink(`/category/${item.id}`)"
-              >
-                {{ item.title }}
-              </div>
-            </li>
-          </ul>
-        </el-collapse-item>
-      </el-collapse>
       <ul class="navs">
         <li>
           <div
@@ -345,6 +325,26 @@
           </li></template
         >
       </ul>
+      <el-collapse v-model="activeCollapse">
+        <el-collapse-item name="categories">
+          <template slot="title"
+            ><i class="el-icon-menu"></i> &nbsp; <span>频道分类</span>
+          </template>
+          <ul>
+            <li
+              v-for="item in categoryTrees"
+              :key="'collapse-sub-cate-' + item.id"
+            >
+              <div
+                class="el-link el-link--default"
+                @click="goToLink(`/category/${item.id}`)"
+              >
+                {{ item.title }}
+              </div>
+            </li>
+          </ul>
+        </el-collapse-item>
+      </el-collapse>
     </el-drawer>
   </el-container>
 </template>
@@ -396,18 +396,18 @@ export default {
     ...mapGetters('category', ['categories']),
     ...mapGetters('device', ['isMobile']),
   },
-  watch: {
-    user: {
-      handler(val) {
-        if (val.id > 0) {
-          this.activeCollapse = ''
-        } else {
-          this.activeCollapse = 'categories'
-        }
-      },
-      deep: true,
-    },
-  },
+  // watch: {
+  //   user: {
+  //     handler(val) {
+  //       if (val.id > 0) {
+  //         this.activeCollapse = ''
+  //       } else {
+  //         this.activeCollapse = 'categories'
+  //       }
+  //     },
+  //     deep: true,
+  //   },
+  // },
   async created() {
     const [res] = await Promise.all([
       listFriendlink({
@@ -424,7 +424,7 @@ export default {
       (item) => item.enable
     )
     this.loopUpdate()
-    this.activeCollapse = this.user.id > 0 ? '' : 'categories'
+    // this.activeCollapse = this.user.id > 0 ? '' : 'categories'
   },
   mounted() {
     window.addEventListener('resize', this.handleResize)
@@ -731,12 +731,12 @@ export default {
             max-width: 100%;
             .user-avatar {
               margin-right: 5px;
-              top: 6px;
+              top: 4px;
             }
             span {
               display: inline-block;
               position: relative;
-              top: -10px;
+              top: 0;
               white-space: nowrap;
               overflow: hidden;
               text-overflow: ellipsis;
