@@ -510,6 +510,13 @@ export default {
     .el-col-18 {
       width: 100% !important;
     }
+    .category-children {
+      padding-bottom: 7px;
+      a {
+        margin-right: 10px;
+        margin-bottom: 10px;
+      }
+    }
     .doc-list {
       .el-card__header {
         padding: 0 10px;

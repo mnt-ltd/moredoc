@@ -220,7 +220,7 @@
     <el-dialog
       title="个人资料"
       :visible.sync="userinfoDialogVisible"
-      width="520px"
+      :width="isMobile ? '95%' : '520px'"
     >
       <form-userinfo v-if="userinfoDialogVisible" />
     </el-dialog>
@@ -269,6 +269,7 @@ export default {
     ...mapGetters('user', ['user', 'token', 'allowPages']),
     ...mapGetters('setting', ['settings']),
     ...mapGetters('category', ['categories']),
+    ...mapGetters('device', ['isMobile']),
   },
   async created() {
     const [res] = await Promise.all([
@@ -542,6 +543,13 @@ export default {
   min-width: 115px;
 }
 
+.el-dialog__header {
+  padding: 20px 20px 10px;
+}
+.el-dialog__body {
+  padding: 1px 20px;
+}
+
 // =======================
 // 移动端样式
 // =======================
@@ -571,6 +579,12 @@ export default {
   .el-card__header,
   .el-card__body {
     padding: 15px;
+  }
+  .el-dialog__header {
+    padding: 15px 15px 5px;
+  }
+  .el-dialog__body {
+    padding: 1px 15px;
   }
 }
 </style>

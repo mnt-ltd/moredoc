@@ -19,7 +19,7 @@
         ></el-input>
       </el-form-item>
       <el-row :gutter="20">
-        <el-col :span="12">
+        <el-col :span="12" :xs="24">
           <el-form-item
             label="分类"
             prop="category_id"
@@ -42,7 +42,7 @@
             ></el-cascader>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="12" :xs="24">
           <el-form-item label="价格(魔豆)" prop="price">
             <el-input-number
               v-model.number="document.price"

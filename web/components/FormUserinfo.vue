@@ -33,7 +33,7 @@
           <el-descriptions-item>
             <template slot="label">
               <i class="el-icon-location-outline"></i>
-              <span> 登录IP地址</span>
+              <span> 登录IP</span>
             </template>
             {{ user.last_login_ip || '-' }}
           </el-descriptions-item>
@@ -124,6 +124,13 @@ export default {
   }
   .el-descriptions__body .el-descriptions__table {
     color: #888;
+  }
+}
+@media screen and (max-width: $mobile-width) {
+  .com-form-userinfo {
+    .el-descriptions-item__container {
+      display: block;
+    }
   }
 }
 </style>

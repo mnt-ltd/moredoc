@@ -96,7 +96,11 @@
       @current-change="pageChange"
     >
     </el-pagination>
-    <el-dialog title="提示" :visible.sync="updateDocumentVisible" width="520px">
+    <el-dialog
+      title="编辑文档"
+      :visible.sync="updateDocumentVisible"
+      :width="isMobile ? '95%' : '520px'"
+    >
       <FormUpdateDocument
         :category-trees="categoryTrees"
         :init-document="document"
@@ -141,6 +145,7 @@ export default {
   computed: {
     ...mapGetters('user', ['user']),
     ...mapGetters('category', ['categoryTrees']),
+    ...mapGetters('device', ['isMobile']),
   },
   watch: {
     '$route.query': {
