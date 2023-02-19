@@ -551,6 +551,18 @@ export default {
     .el-card {
       border-radius: 0;
     }
+    .el-footer {
+      .footer-links {
+        font-size: 13px !important;
+        padding: 30px 0;
+        .el-link {
+          font-size: 13px;
+        }
+        .copyright-year {
+          font-size: 13px;
+        }
+      }
+    }
   }
   .page {
     width: 100%;
