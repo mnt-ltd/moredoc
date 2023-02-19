@@ -1,6 +1,6 @@
 <template>
   <div class="page page-search">
-    <el-row class="header-links">
+    <el-row class="header-links hidden-xs-only">
       <el-col :span="24">
         <nuxt-link to="/" class="el-link el-link--default">文库首页</nuxt-link>
         <nuxt-link
@@ -29,7 +29,7 @@
     </el-row>
     <div class="search-box" ref="searchBox">
       <el-row :gutter="20">
-        <el-col :span="4">
+        <el-col :span="4" class="logo">
           <nuxt-link to="/" :title="settings.system.sitename"
             ><img
               :src="settings.system.logo"
@@ -37,7 +37,7 @@
               :alt="settings.system.sitename"
           /></nuxt-link>
         </el-col>
-        <el-col :span="14">
+        <el-col :span="14" class="search-form">
           <el-input
             v-model="query.wd"
             class="search-input"
@@ -194,12 +194,12 @@
               >{{ keyword }}</nuxt-link
             >
           </el-card>
-          <el-card shadow="never" class="mgt-20px">
+          <!-- <el-card shadow="never" class="mgt-20px">
             <img
               src="https://www.wenkuzhijia.cn/static/Home/default/img/cover.png"
               alt=""
             />
-          </el-card>
+          </el-card> -->
         </div>
       </el-col>
     </el-row>
@@ -276,6 +276,7 @@ export default {
     ...mapGetters('user', ['user']),
     ...mapGetters('category', ['categoryTrees']),
     ...mapGetters('setting', ['settings']),
+    ...mapGetters('device', ['isMobile']),
   },
   watch: {
     '$route.query': {
@@ -318,6 +319,7 @@ export default {
       })
     },
     handleScroll() {
+      if (this.isMobile) return
       const scrollTop =
         document.documentElement.scrollTop || document.body.scrollTop
       const searchLeft = this.$refs.searchLeft
@@ -545,6 +547,54 @@ export default {
     .doc-info {
       color: #bdc3c7;
       font-size: 14px;
+    }
+  }
+}
+
+@media screen and (max-width: $mobile-width) {
+  .page-search {
+    .search-box {
+      padding: 15px 0;
+      margin-bottom: 15px;
+      .logo {
+        width: 100% !important;
+        padding-bottom: 7px;
+      }
+      .search-form {
+        width: 100% !important;
+        border-top: 15px solid $background-grey-light;
+        padding-top: 10px;
+      }
+    }
+
+    .search-left {
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      width: 100%;
+      a {
+        display: inline-block;
+        padding: 0 10px;
+        line-height: 30px;
+        font-size: 13px;
+      }
+    }
+    .search-main {
+      width: 100% !important;
+      margin-top: 15px;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      .el-card__body {
+        min-height: unset;
+      }
+      .search-result li {
+        padding-top: 0;
+      }
+    }
+    .search-right {
+      width: 100% !important;
+      padding-left: 0 !important;
+      padding-right: 0 !important;
+      margin-top: 15px;
     }
   }
 }
