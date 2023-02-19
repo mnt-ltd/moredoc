@@ -109,7 +109,7 @@
               </div>
             </template>
           </div>
-          <div>
+          <div class="moreinfo">
             <div class="share-info">
               本文档由
               <nuxt-link
@@ -947,9 +947,27 @@ export default {
         margin-top: 5px;
       }
     }
+    .doc-main {
+      .el-card__body {
+        padding-left: 0;
+        padding-right: 0;
+      }
+    }
+    .doc-pages {
+      .doc-page {
+        border-left: 0;
+        border-right: 0;
+      }
+    }
+    .doc-page-more {
+      border-left: 0;
+      border-right: 0;
+    }
+    .moreinfo {
+      padding: 0 15px;
+    }
     .fixed-buttons {
       min-width: 100%;
-      height: 44px;
       .el-col-18 {
         width: 100% !important;
       }
@@ -957,7 +975,7 @@ export default {
         padding-left: 5px;
       }
       .el-card .el-button {
-        padding: 15px 10px;
+        padding: 19px 10px;
       }
     }
   }
