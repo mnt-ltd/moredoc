@@ -838,11 +838,15 @@ export default {
       top: 3px;
     }
     .fa-qrcode {
+      color: #aaa;
       cursor: pointer;
       margin-left: 5px;
       font-size: 26px;
       top: 2px;
       position: relative;
+      &:hover {
+        color: unset;
+      }
     }
   }
   .el-breadcrumb {
