@@ -164,10 +164,12 @@
         <el-card
           shadow="never"
           class="mgt-20px relate-docs"
-          v-if="relatedDocuments.length > 0"
+          v-if="isMobile && relatedDocuments.length > 0"
         >
           <div slot="header">相关文档</div>
-          <document-simple-list :docs="relatedDocuments" />
+          <document-simple-list
+            :docs="isMobile ? relatedDocuments.slice(0, 5) : relatedDocuments"
+          />
         </el-card>
         <el-card
           v-if="document.id > 0"
@@ -604,13 +606,7 @@ export default {
         id: this.documentId,
       })
       if (res.status === 200) {
-        // 如果是移动端，则只显示5条，否则显示10条
-        let relatedDocuments = res.data.document || []
-        if (this.isMobile) {
-          this.relatedDocuments = relatedDocuments.slice(0, 5)
-        } else {
-          this.relatedDocuments = relatedDocuments
-        }
+        this.relatedDocuments = res.data.document || []
       }
     },
     prevPage() {

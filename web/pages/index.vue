@@ -661,6 +661,7 @@ export default {
 @media screen and (max-width: $mobile-width) {
   .page-index {
     .searchbox {
+      margin-bottom: 15px;
       .search-form {
         width: 90%;
         .el-input__inner {

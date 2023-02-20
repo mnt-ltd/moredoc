@@ -33,13 +33,16 @@ export const device = {
   },
   getters: {
     isMobile(state) {
-      return state.device.isMobile
+      return state.device.isMobile || window.innerWidth < 768
     },
     isPad(state) {
-      return state.device.isPad
+      return (
+        state.device.isPad ||
+        (window.innerWidth < 992 && window.innerWidth >= 768)
+      )
     },
     isPC(state) {
-      return state.device.isPC
+      return state.device.isPC || window.innerWidth >= 992
     },
     width() {
       return state.device.width

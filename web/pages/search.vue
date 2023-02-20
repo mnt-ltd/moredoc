@@ -167,6 +167,13 @@
             :current-page="query.page"
             :page-size="query.size"
             layout="total,  prev, pager, next, jumper"
+            :layout="
+              isMobile
+                ? 'total, prev, pager, next'
+                : 'total, prev, pager, next, jumper'
+            "
+            :pager-count="4"
+            :small="isMobile"
             :total="total"
             @current-change="onPageChange"
           >
