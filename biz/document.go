@@ -14,6 +14,7 @@ import (
 	"moredoc/model"
 	"moredoc/util"
 	"moredoc/util/filetil"
+	"moredoc/util/gse"
 
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
@@ -79,7 +80,6 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 	var (
 		documents        []model.Document
 		docMapAttachment = make(map[int]int64)
-		jieba            = util.NewJieba()
 	)
 	for idx, doc := range req.Document {
 		attachment, ok := attachmentMap[doc.AttachmentId]
@@ -89,7 +89,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 
 		doc := model.Document{
 			Title:    doc.Title,
-			Keywords: strings.Join(jieba.SegWords(doc.Title, 10), ","),
+			Keywords: strings.Join(gse.SegWords(doc.Title), ","),
 			UserId:   userCliams.UserId,
 			// UUID:     uuid.Must(uuid.NewV4()).String(),
 			Score:  300,

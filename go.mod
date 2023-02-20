@@ -7,6 +7,7 @@ require (
 	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-contrib/gzip v0.0.5
 	github.com/gin-gonic/gin v1.8.1
+	github.com/go-ego/gse v0.80.2
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.5.2
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
@@ -15,12 +16,12 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
-	github.com/yanyiwu/gojieba v1.2.0
 	go.uber.org/zap v1.21.0
 	golang.org/x/net v0.1.0
 	google.golang.org/genproto v0.0.0-20220228195345-15d65a4533f7
 	google.golang.org/grpc v1.44.0
 	google.golang.org/protobuf v1.28.0
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gorm.io/driver/mysql v1.3.2
 	gorm.io/gorm v1.23.2
 )
@@ -30,9 +31,9 @@ require (
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
+	github.com/vcaesar/cedar v0.20.1 // indirect
 	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
-	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df // indirect
 )
 
 require (
