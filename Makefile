@@ -42,16 +42,19 @@ doc:
 clean-api-go:
 	rm -rf api/*/*.go
 
+builddarwin:
+	GOOS=darwin GOARCH=amd64 go build -v -o release/${VERSION}/darwin/moredoc -ldflags ${LDFLAGS}
+	cp -r dist release/${VERSION}/darwin
+	cp -r app.example.toml release/${VERSION}/darwin
+
 buildlinux:
-	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
+	GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/linux
-	cp -r dict release/${VERSION}/linux
 	cp -r app.example.toml release/${VERSION}/linux
 
 buildwin:
-	CGO_ENABLED=1 GOOS=windows GOARCH=amd64 go build -v -o release/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
+	GOOS=windows GOARCH=amd64 go build -v -o release/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/windows
-	cp -r dict release/${VERSION}/windows
 	cp -r app.example.toml release/${VERSION}/windows
 
 # show help
