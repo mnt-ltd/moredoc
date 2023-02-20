@@ -149,13 +149,13 @@
           <b>T</b>echnology Co., <b>Ltd</b>.
         </el-descriptions-item>
         <el-descriptions-item>
-          <template slot="label"> 服务支持邮箱 </template>
+          <template slot="label"> 服务邮箱 </template>
           <a href="mailto:truthhun@mnt.ltd" class="el-link el-link--primary"
             >truthhun@mnt.ltd</a
           >
         </el-descriptions-item>
         <el-descriptions-item>
-          <template slot="label"> 服务支持官网 </template>
+          <template slot="label"> 服务官网 </template>
           <a
             href="https://mnt.ltd"
             class="el-link el-link--primary"
@@ -165,7 +165,7 @@
           >
         </el-descriptions-item>
         <el-descriptions-item>
-          <template slot="label"> 程序使用手册 </template>
+          <template slot="label"> 使用手册 </template>
           <a
             href="https://www.bookstack.cn/books/moredoc"
             class="el-link el-link--primary"
@@ -175,7 +175,7 @@
           >
         </el-descriptions-item>
         <el-descriptions-item>
-          <template slot="label"> 程序开源地址 </template>
+          <template slot="label"> 开源地址 </template>
           <ul class="opensource">
             <li>
               MNT：
