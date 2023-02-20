@@ -24,17 +24,23 @@ func ExecCommand(name string, args []string, timeout ...time.Duration) (out stri
 	cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
-	time.AfterFunc(expire, func() { // 超时后，强制杀死进程
+
+	isDone := make(chan bool, 1)
+	go func() {
+		err = cmd.Run()
+		if err != nil {
+			err = fmt.Errorf("%s\n%s", err.Error(), stderr.String())
+		}
+		isDone <- true
+	}()
+
+	select {
+	case <-isDone:
+	case <-time.After(expire):
 		if cmd.Process != nil && cmd.Process.Pid != 0 {
-			out = out + fmt.Sprintf("\nexecute timeout: %v seconds.", expire.Seconds())
+			err = fmt.Errorf("execute timeout: %f minutes", expire.Minutes())
 			cmd.Process.Kill()
 		}
-	})
-
-	err = cmd.Run()
-	if err != nil {
-		err = fmt.Errorf("%v\n%v\n%v", err.Error(), stderr.String(), out)
-		return
 	}
 	out = stdout.String()
 	return
