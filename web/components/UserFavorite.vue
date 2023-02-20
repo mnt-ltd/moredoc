@@ -67,7 +67,7 @@
           ? 'total, prev, pager, next'
           : 'total, prev, pager, next, jumper'
       "
-      :pager-count="4"
+      :pager-count="isMobile ? 5 : 7"
       :small="isMobile"
       :total="total"
     >

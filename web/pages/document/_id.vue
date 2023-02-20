@@ -7,6 +7,20 @@
             <h1>
               <img :src="`/static/images/${document.icon}_24.png`" alt="" />
               {{ document.title }}
+              <el-popover
+                class="hidden-xs-only"
+                placement="bottom"
+                width="200"
+                trigger="hover"
+                v-show="document.id > 0"
+              >
+                <div id="qrcode" ref="qrcode" class="qrcode text-center"></div>
+                <span slot="reference">
+                  <span target="_blank" class="share-wechat">
+                    <i class="fa fa-qrcode"></i>
+                  </span>
+                </span>
+              </el-popover>
             </h1>
             <el-breadcrumb separator-class="el-icon-arrow-right">
               <el-breadcrumb-item>
@@ -338,6 +352,7 @@ import {
 import { getFavorite, createFavorite, deleteFavorite } from '~/api/favorite'
 import { formatDatetime, formatBytes, getIcon } from '~/utils/utils'
 import { documentStatusOptions } from '~/utils/enum'
+import QRCode from 'qrcodejs2' // 引入qrcode
 import FormComment from '~/components/FormComment.vue'
 import CommentList from '~/components/CommentList.vue'
 export default {
@@ -451,56 +466,58 @@ export default {
         id: this.documentId,
         with_author: true,
       })
-      if (res.status === 200) {
-        const doc = res.data || {}
-        doc.score = parseFloat(doc.score) / 100 || 4.0
 
-        if (!doc.preview || doc.preview >= doc.pages) {
-          doc.preview = doc.pages
-        }
-
-        // 限定每次预览页数
-        let preview = 2
-        if (doc.preview < preview) {
-          preview = doc.preview
-        }
-
-        // 限定预览页数，拼装图片链接
-        const pages = []
-        for (let i = 1; i <= preview; i++) {
-          const src = doc.enable_gzip
-            ? `/view/page/${doc.attachment.hash}/${i}.gzip.svg`
-            : `/view/page/${doc.attachment.hash}/${i}.svg`
-          pages.push({
-            lazySrc: src,
-            src: src,
-            alt: `${doc.title} 第${i + 1}页`,
-          })
-        }
-
-        this.breadcrumbs = (doc.category_id || []).map((id) => {
-          return this.categoryMap[id]
-        })
-
-        doc.icon = getIcon(doc.ext)
-        this.pages = pages
-        this.document = doc
-        this.pageWidth = this.$refs.docPages.offsetWidth
-        this.pageHeight =
-          (this.$refs.docPages.offsetWidth / doc.width) * doc.height
-
-        if (doc.status !== 2) {
-          // 2 为文档已转换成功，不需要展示提示
-          this.documentStatusOptions.map((item) => {
-            if (item.value === doc.status) {
-              this.tips = `当前文档【${item.label}】，可能暂时无法正常提供预览，建议您下载到本地进行阅读。`
-            }
-          })
-        }
-      } else {
+      if (res.status !== 200) {
         this.$message.error(res.data.message)
         this.$router.replace('/404')
+        return
       }
+      const doc = res.data || {}
+      doc.score = parseFloat(doc.score) / 100 || 4.0
+
+      if (!doc.preview || doc.preview >= doc.pages) {
+        doc.preview = doc.pages
+      }
+
+      // 限定每次预览页数
+      let preview = 2
+      if (doc.preview < preview) {
+        preview = doc.preview
+      }
+
+      // 限定预览页数，拼装图片链接
+      const pages = []
+      for (let i = 1; i <= preview; i++) {
+        const src = doc.enable_gzip
+          ? `/view/page/${doc.attachment.hash}/${i}.gzip.svg`
+          : `/view/page/${doc.attachment.hash}/${i}.svg`
+        pages.push({
+          lazySrc: src,
+          src: src,
+          alt: `${doc.title} 第${i + 1}页`,
+        })
+      }
+
+      this.breadcrumbs = (doc.category_id || []).map((id) => {
+        return this.categoryMap[id]
+      })
+
+      doc.icon = getIcon(doc.ext)
+      this.pages = pages
+      this.document = doc
+      this.pageWidth = this.$refs.docPages.offsetWidth
+      this.pageHeight =
+        (this.$refs.docPages.offsetWidth / doc.width) * doc.height
+
+      if (doc.status !== 2) {
+        // 2 为文档已转换成功，不需要展示提示
+        this.documentStatusOptions.map((item) => {
+          if (item.value === doc.status) {
+            this.tips = `当前文档【${item.label}】，可能暂时无法正常提供预览，建议您下载到本地进行阅读。`
+          }
+        })
+      }
+      this.genQrcode()
     },
     handleResize() {
       this.calcPageSize()
@@ -788,6 +805,19 @@ export default {
         this.$message.error(res.data.message)
       }
     },
+    genQrcode() {
+      // 把之前可能存在的二维码清空
+      this.$refs.qrcode.innerHTML =
+        '<div style="margin-bottom:10px">手机扫码，畅享阅读</div>'
+      // eslint-disable-next-line no-new
+      new QRCode('qrcode', {
+        width: 200,
+        height: 200,
+        text: location.href,
+        colorDark: '#000',
+        colorLight: '#fff',
+      })
+    },
   },
 }
 </script>
@@ -806,6 +836,13 @@ export default {
     img {
       position: relative;
       top: 3px;
+    }
+    .fa-qrcode {
+      cursor: pointer;
+      margin-left: 5px;
+      font-size: 26px;
+      top: 2px;
+      position: relative;
     }
   }
   .el-breadcrumb {
