@@ -238,7 +238,7 @@
     </el-dialog>
     <el-drawer
       :visible.sync="menuDrawerVisible"
-      size="50%"
+      size="60%"
       :with-header="false"
       class="menu-drawer-box"
     >
