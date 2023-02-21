@@ -24,7 +24,7 @@ type Comment struct {
 	DocumentId   int64      `form:"document_id" json:"document_id,omitempty" gorm:"column:document_id;type:bigint(20);size:20;default:0;comment:文档ID;index:idx_document_id;"`
 	Status       int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;comment:0 待审，1过审，2拒绝;"`
 	CommentCount int        `form:"comment_count" json:"comment_count,omitempty" gorm:"column:comment_count;type:int(11);size:11;default:0;comment:评论数量;"`
-	IP           string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(20);size:20;default:'';comment:IP地址;"`
+	IP           string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(64);size:64;default:'';comment:IP地址;"`
 	CreatedAt    *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:评论时间;"`
 	UpdatedAt    *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:评论更新时间;"`
 }

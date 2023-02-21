@@ -13,7 +13,7 @@ type Download struct {
 	Id         int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	UserId     int64      `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);size:20;default:0;index:idx_user_id;comment:下载文档的用户ID;"`
 	DocumentId int64      `form:"document_id" json:"document_id,omitempty" gorm:"column:document_id;type:bigint(20);size:20;index:idx_document_id;default:0;comment:被下载的文档ID;"`
-	Ip         string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(16);size:16;index:idx_ip;comment:下载文档的用户IP;"`
+	Ip         string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(64);size:64;index:idx_ip;comment:下载文档的用户IP;"`
 	IsPay      bool       `form:"is_pay" json:"is_pay,omitempty" gorm:"column:is_pay;type:tinyint(1);size:1;default:0;comment:是否付费下载;"`
 	CreatedAt  *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;index:idx_created_at"`
 	UpdatedAt  *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`

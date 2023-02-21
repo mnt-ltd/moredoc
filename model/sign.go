@@ -12,7 +12,7 @@ import (
 type Sign struct {
 	Id        int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	UserId    int64      `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);size:20;default:0;index:idx_user_id;index:idx_user_sign_at,unique;comment:签到的用户ID;"`
-	Ip        string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(16);size:16;comment:签到的用户IP;"`
+	Ip        string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(64);size:64;comment:签到的用户IP;"`
 	SignAt    int        `form:"sign_at" json:"sign_at,omitempty" gorm:"column:sign_at;type:int(11);size:11;default:0;index:idx_user_sign_at,unique;comment:签到时间，格式20060102;"`
 	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`

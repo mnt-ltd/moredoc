@@ -45,7 +45,7 @@ type Attachment struct {
 	Width       int             `form:"width" json:"width,omitempty" gorm:"column:width;type:int(11);default:0;comment:宽度;"`
 	Height      int             `form:"height" json:"height,omitempty" gorm:"column:height;type:int(11);default:0;comment:高度;"`
 	Ext         string          `form:"ext" json:"ext,omitempty" gorm:"column:ext;type:varchar(32);size:32;comment:文件类型，如 .pdf 。统一处理成小写;"`
-	Ip          string          `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(16);size:16;comment:上传文档的用户IP地址;"`
+	Ip          string          `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(64);size:64;comment:上传文档的用户IP地址;"`
 	Description string          `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(255);size:255;comment:描述、备注;"`
 	CreatedAt   *time.Time      `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt   *time.Time      `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`

@@ -255,6 +255,7 @@ func (m *DBModel) initDatabase() (err error) {
 	if err = m.initFriendlink(); err != nil {
 		m.logger.Error("initFriendlink", zap.Error(err))
 	}
+	m.upgradeTableFieldLength()
 	return
 }
 
@@ -418,4 +419,27 @@ func (m *DBModel) generateQuerySort(db *gorm.DB, tableName string, querySort []s
 		db = db.Order(fmt.Sprintf("%sid desc", alias))
 	}
 	return db
+}
+
+// upgradeFieldLength 升级修正数据库表字段长度
+func (m *DBModel) upgradeTableFieldLength() {
+	// 1. 调整IP字段长度为64位，以存储IPv6地址
+	table := map[string][]string{
+		Attachment{}.TableName(): {"ip"},
+		Comment{}.TableName():    {"ip"},
+		Download{}.TableName():   {"ip"},
+		Sign{}.TableName():       {"ip"},
+		User{}.TableName():       {"last_login_ip", "register_ip"},
+	}
+	sql := "ALTER TABLE `%s` CHANGE `%s` `%s` VARCHAR(64) NOT NULL DEFAULT ''"
+	for tableName, fields := range table {
+		for _, field := range fields {
+			execSQL := fmt.Sprintf(sql, tableName, field, field)
+			m.logger.Info("upgradeTableFieldLength", zap.String("execSQL", execSQL))
+			err := m.db.Exec(execSQL).Error
+			if err != nil {
+				m.logger.Error("upgradeTableFieldLength", zap.Error(err))
+			}
+		}
+	}
 }
