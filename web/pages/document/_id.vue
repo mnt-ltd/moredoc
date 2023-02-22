@@ -971,14 +971,24 @@ export default {
 }
 
 @media screen and (max-width: $mobile-width) {
-  .el-image-viewer__canvas {
-    display: block;
-    overflow: auto;
-    padding-top: 20px;
-    .el-image-viewer__img {
-      transform-origin: 50% 50% !important;
+  .el-image-viewer__wrapper {
+    .el-image-viewer__actions {
+      .el-icon-refresh-left,
+      .el-image-viewer__actions__divider,
+      .el-icon-refresh-right {
+        display: none;
+      }
+    }
+    .el-image-viewer__canvas {
+      display: block;
+      overflow: auto;
+      padding-top: 20px;
+      .el-image-viewer__img {
+        transform-origin: 0 0 !important;
+      }
     }
   }
+
   .page-document {
     .doc-left {
       width: 100% !important;
