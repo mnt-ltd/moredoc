@@ -105,6 +105,7 @@ message SetUserRequest {
   string username = 2 [ (gogoproto.moretags) = "validate:\"min=3,max=32\"" ];
   string password = 3 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
   repeated int64 group_id = 4;
+  string email = 5;
 }
 
 message Dynamic {

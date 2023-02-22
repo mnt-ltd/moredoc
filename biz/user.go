@@ -508,13 +508,22 @@ func (s *UserAPIService) AddUser(ctx context.Context, req *pb.SetUserRequest) (*
 		return nil, status.Errorf(codes.InvalidArgument, "用户组不能为空")
 	}
 
-	existUser, _ := s.dbModel.GetUserByUsername(req.Username, "id")
+	if !util.IsValidEmail(req.Email) {
+		return nil, status.Errorf(codes.InvalidArgument, "邮箱格式不正确")
+	}
+
+	existUser, _ := s.dbModel.GetUserByEmail(req.Email, "id")
+	if existUser.Id > 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "邮箱已存在")
+	}
+
+	existUser, _ = s.dbModel.GetUserByUsername(req.Username, "id")
 	if existUser.Id > 0 {
 		return nil, status.Errorf(codes.InvalidArgument, "用户名已存在")
 	}
 
 	// 新增用户
-	user := &model.User{Username: req.Username, Password: req.Password}
+	user := &model.User{Username: req.Username, Password: req.Password, Email: req.Email}
 	err = s.dbModel.CreateUser(user, req.GroupId...)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
