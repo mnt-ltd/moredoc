@@ -219,6 +219,7 @@ export default {
   computed: {
     ...mapGetters('category', ['categories', 'categoryMap']),
     ...mapGetters('setting', ['settings']),
+    ...mapGetters('device', ['isMobile']),
   },
   watch: {
     filterText(val) {

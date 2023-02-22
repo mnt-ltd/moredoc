@@ -76,6 +76,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
 import { deleteFavorite, listFavorite } from '~/api/favorite'
 import {
   formatDatetime,
@@ -111,10 +112,9 @@ export default {
       immediate: true,
     },
   },
-  // created() {
-  //   console.log('created')
-  //   this.getFavorites()
-  // },
+  computed: {
+    ...mapGetters('device', ['isMobile']),
+  },
   methods: {
     formatDatetime,
     formatRelativeTime,
