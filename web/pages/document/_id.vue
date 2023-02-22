@@ -88,6 +88,7 @@
               :key="index + page.src"
               :src="page.src"
               :alt="page.alt"
+              :preview-src-list="isMobile ? [page.src] : []"
               lazy
               class="doc-page"
               :style="{
@@ -970,6 +971,14 @@ export default {
 }
 
 @media screen and (max-width: $mobile-width) {
+  .el-image-viewer__canvas {
+    display: block;
+    overflow: auto;
+    padding-top: 20px;
+    .el-image-viewer__img {
+      transform-origin: 50% 50% !important;
+    }
+  }
   .page-document {
     .doc-left {
       width: 100% !important;
