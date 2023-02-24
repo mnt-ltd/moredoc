@@ -14,7 +14,7 @@ import (
 	"moredoc/model"
 	"moredoc/util"
 	"moredoc/util/filetil"
-	"moredoc/util/gse"
+	"moredoc/util/segword/jieba"
 
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
@@ -89,7 +89,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 
 		doc := model.Document{
 			Title:    doc.Title,
-			Keywords: strings.Join(gse.SegWords(doc.Title), ","),
+			Keywords: strings.Join(jieba.SegWords(doc.Title), ","),
 			UserId:   userCliams.UserId,
 			// UUID:     uuid.Must(uuid.NewV4()).String(),
 			Score:  300,
