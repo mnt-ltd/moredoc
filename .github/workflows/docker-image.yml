@@ -15,4 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build docker/ --file dockerfile --tag bluezealot/moredoc:Linux_ce_v1.0.0
+      run: docker build ./docker --file dockerfile --tag bluezealot/moredoc:Linux_ce_v1.0.0
