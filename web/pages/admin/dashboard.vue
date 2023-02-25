@@ -42,6 +42,7 @@
             <span>魔豆文库 · 社区版</span>
             （<a
               href="https://www.bookstack.cn/read/moredoc/price.md"
+              target="_blank"
               class="el-link el-link--primary"
               >版本划分与定价策略 <i class="el-icon-top-right"></i> </a
             >）
