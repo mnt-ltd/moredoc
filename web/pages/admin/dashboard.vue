@@ -1,6 +1,55 @@
 <template>
   <div class="page-admin-dashboard">
     <el-card shadow="never">
+      <div slot="header">
+        <span>授权信息</span>
+      </div>
+      <el-descriptions class="margin-top" :column="2" border>
+        <el-descriptions-item>
+          <template slot="label">
+            <i class="el-icon-tickets"></i>
+            最大文档数
+          </template>
+          不限
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template slot="label">
+            <i class="el-icon-user"></i>
+            最大用户数
+          </template>
+          不限
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template slot="label">
+            <i class="el-icon-cpu"></i>
+            授权协议
+          </template>
+          Apache License 2.0
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template slot="label">
+            <i class="el-icon-time"></i>
+            授权截止日期
+          </template>
+          <span>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template slot="label">
+            <i class="el-icon-guide"></i>
+            授权类型
+          </template>
+          <span class="opensource">
+            <span>魔豆文库 · 社区版</span>
+            （<a
+              href="https://www.bookstack.cn/read/moredoc/price.md"
+              class="el-link el-link--primary"
+              >版本划分与定价策略 <i class="el-icon-top-right"></i> </a
+            >）
+          </span>
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-card>
+    <el-card shadow="never" class="mgt-20px">
       <div slot="header">数据统计</div>
       <el-descriptions class="margin-top" :column="3" border>
         <el-descriptions-item>
