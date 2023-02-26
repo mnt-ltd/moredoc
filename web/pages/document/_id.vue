@@ -82,7 +82,7 @@
             </el-alert>
             <div class="mgt-20px"></div>
           </template>
-          <div ref="docPages" class="doc-pages">
+          <div ref="docPages" class="doc-pages" @contextmenu.prevent>
             <el-image
               v-for="(page, index) in pages"
               :key="index + page.src"
