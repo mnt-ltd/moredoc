@@ -3,7 +3,6 @@ FROM ubuntu:jammy-20230126
 ARG uid=1001
 ARG gid=1001
 ARG basedir=workspace
-ENV VERSION ce_v1.0.0
 ARG DEBIAN_FRONTEND=noninteractive
 EXPOSE 8880
 # install wget
@@ -33,15 +32,16 @@ RUN wget -nv -O- https://download.calibre-ebook.com/linux-installer.py | python3
 
 # Add non root user
 RUN addgroup --gid $gid --system moredoc\
-    && adduser --uid $uid --disabled-password --system --gid $gid moredoc
+  && adduser --uid $uid --disabled-password --system --gid $gid moredoc
 # change to moredoc user
 USER moredoc
 WORKDIR /home/moredoc
+ENV VERSION ce_v1.1.0
 # Get and Unpack Tomcat
-RUN wget https://github.com/mnt-ltd/moredoc/releases/download/v1.0.0/moredoc_${VERSION}_linux_amd64.zip -O ~/moredoc_${VERSION}_linux_amd64.zip
+RUN wget https://github.com/mnt-ltd/moredoc/releases/download/v1.1.0/moredoc_${VERSION}_linux_amd64.zip -O ~/moredoc_${VERSION}_linux_amd64.zip
 RUN cd ~/ && \ 
-    mkdir $basedir && \
-    unzip -n ~/moredoc_${VERSION}_linux_amd64.zip -d $basedir/
+  mkdir $basedir && \
+  unzip -n ~/moredoc_${VERSION}_linux_amd64.zip -d $basedir/
 COPY entrypoint.sh entrypoint.sh
 USER root
 RUN chmod 777 entrypoint.sh
