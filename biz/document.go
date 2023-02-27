@@ -608,9 +608,8 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Document) (res *pb.DownloadDocumentReply, err error) {
 	cfg := s.dbModel.GetConfigOfDownload()
 	userClaims, err := s.checkLogin(ctx)
-	if err != nil && !cfg.EnableGuestDownload {
-		// 未登录且不允许游客下载
-		return res, status.Errorf(codes.Unauthenticated, err.Error())
+	if err != nil && !cfg.EnableGuestDownload { // 未登录且不允许游客下载
+		return res, err
 	}
 
 	var userId int64
