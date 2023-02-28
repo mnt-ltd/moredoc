@@ -357,7 +357,7 @@ import { categoryToTrees } from '~/utils/utils'
 import { getSignedToday, signToday } from '~/api/user'
 export default {
   components: { UserAvatar, FormUserinfo },
-  middleware: ['analytic'],
+  middleware: ['analytic', 'checkCloseSite'],
   data() {
     return {
       search: {

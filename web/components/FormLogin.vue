@@ -99,14 +99,12 @@ export default {
       const res = await this.login(this.user)
       if (res.status === 200) {
         this.$message.success('登录成功')
-        setTimeout(() => {
-          if (this.redirect) {
-            this.$router.push(this.redirect)
-          } else {
-            this.$router.push({ name: 'index' })
-          }
-          this.loading = false
-        }, 2000)
+        if (this.redirect) {
+          this.$router.push(this.redirect)
+        } else {
+          this.$router.push({ name: 'index' })
+        }
+        this.loading = false
       } else {
         this.loading = false
       }

@@ -38,6 +38,7 @@ export const user = {
     logout(state) {
       state.user = {}
       state.token = ''
+      state.permissions = []
       localStorage.clear()
     },
     setPermissions(state, permissions) {
