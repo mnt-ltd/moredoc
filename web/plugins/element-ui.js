@@ -10,7 +10,7 @@ Vue.use(VueViewer, {
   defaultOptions: {
     button: true,
     navbar: false,
-    title: false,
+    title: true,
     toolbar: false,
     tooltip: false,
     movable: true,
