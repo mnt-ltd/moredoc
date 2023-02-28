@@ -21,7 +21,9 @@
         <div v-if="settings.security.is_close" class="close-tips">
           <div v-html="settings.security.close_statement"></div>
         </div>
-        <form-login v-if="!user.id"></form-login>
+        <form-login
+          v-if="!(user.id > 0 && settings.security.is_close)"
+        ></form-login>
       </el-card>
     </div>
   </div>

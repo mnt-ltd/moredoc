@@ -226,6 +226,7 @@ const (
 	ConfigSecurityEnableCaptchaFindPassword = "enable_captcha_find_password" // 是否开启注册验证码
 	ConfigSecurityDocumentRelatedDuration   = "document_related_duration"    // 相关文档有效期，默认为7天，最小值为1
 	ConfigSecurityDocumentAllowedExt        = "document_allowed_ext"         // 允许上传的文档类型
+	ConfigSecurityLoginRequired             = "login_required"               // 是否需要登录才能查看文档
 )
 
 type ConfigSecurity struct {
@@ -240,6 +241,7 @@ type ConfigSecurity struct {
 	EnableCaptchaComment      bool     `json:"enable_captcha_comment"`       // 是否启用评论验证码
 	EnableCaptchaFindPassword bool     `json:"enable_captcha_find_password"` // 找回密码是否需要验证码
 	DocumentAllowedExt        []string `json:"document_allowed_ext"`         // 允许上传的文档类型
+	LoginRequired             bool     `json:"login_required"`               // 是否需要登录才能查看文档
 }
 
 const (
@@ -501,6 +503,7 @@ func (m *DBModel) GetConfigOfSecurity(name ...string) (config ConfigSecurity) {
 			ConfigSecurityEnableCaptchaLogin,
 			ConfigSecurityEnableCaptchaRegister,
 			ConfigSecurityEnableCaptchaComment,
+			ConfigSecurityLoginRequired,
 			ConfigSecurityEnableCaptchaFindPassword:
 			value, _ := strconv.ParseBool(cfg.Value)
 			data[cfg.Name] = value
@@ -666,6 +669,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityIsClose, Label: "是否关闭网站", Value: "false", Placeholder: "请选择是否关闭网站", InputType: "switch", Sort: 160, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityCloseStatement, Label: "闭站说明", Value: closeStatement, Placeholder: "关闭网站后，页面提示内容（支持HTML）", InputType: "textarea", Sort: 170, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableRegister, Label: "是否允许注册", Value: "true", Placeholder: "请选择是否允许用户注册", InputType: "switch", Sort: 18, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityLoginRequired, Label: "是否登录才能访问", Value: "false", Placeholder: "用户是否登录了才能访问", InputType: "switch", Sort: 18, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaLogin, Label: "是否开启登录验证码", Value: "true", Placeholder: "请选择是否开启登录验证码", InputType: "switch", Sort: 19, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaRegister, Label: "是否开启注册验证码", Value: "true", Placeholder: "请选择是否开启注册验证码", InputType: "switch", Sort: 20, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaComment, Label: "是否开启评论验证码", Value: "true", Placeholder: "请选择是否开启评论验证码", InputType: "switch", Sort: 21, Options: ""},
