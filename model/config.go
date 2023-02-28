@@ -496,10 +496,17 @@ func (m *DBModel) GetConfigOfSecurity(name ...string) (config ConfigSecurity) {
 
 	for _, cfg := range configs {
 		switch cfg.Name {
-		case "is_close", "enable_register", "enable_captcha_login", "enable_captcha_register", "enable_captcha_comment", "enable_captcha_find_password", "enable_captcha_upload":
+		case ConfigSecurityIsClose,
+			ConfigSecurityEnableRegister,
+			ConfigSecurityEnableCaptchaLogin,
+			ConfigSecurityEnableCaptchaRegister,
+			ConfigSecurityEnableCaptchaComment,
+			ConfigSecurityEnableCaptchaFindPassword:
 			value, _ := strconv.ParseBool(cfg.Value)
 			data[cfg.Name] = value
-		case "max_document_size", "comment_interval", ConfigSecurityDocumentRelatedDuration:
+		case ConfigSecurityMaxDocumentSize,
+			ConfigSecurityCommentInterval,
+			ConfigSecurityDocumentRelatedDuration:
 			data[cfg.Name], _ = strconv.Atoi(cfg.Value)
 		case ConfigSecurityDocumentAllowedExt:
 			arr := strings.Split(cfg.Value, ",")
