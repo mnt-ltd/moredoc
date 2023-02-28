@@ -5,7 +5,13 @@ export default function ({ store, route, redirect }) {
 
   if (settings.security && settings.security.login_required && !user.id) {
     // 未登录，且开启了登录访问限制
-    if (route.name !== 'login') {
+    if (
+      !(
+        route.name === 'login' ||
+        route.name === 'register' ||
+        route.name === 'findpassword'
+      )
+    ) {
       redirect('/login')
       return
     }
