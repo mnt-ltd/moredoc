@@ -83,20 +83,38 @@
             <div class="mgt-20px"></div>
           </template>
           <div ref="docPages" class="doc-pages" @contextmenu.prevent>
-            <el-image
-              v-for="(page, index) in pages"
-              :key="index + page.src"
-              :src="page.src"
-              :alt="page.alt"
-              :preview-src-list="isMobile ? [page.src] : []"
-              lazy
-              class="doc-page"
-              :style="{
-                width: pageWidth + 'px',
-                height: pageHeight + 'px',
-              }"
-            >
-            </el-image>
+            <div v-if="isMobile" v-viewer>
+              <el-image
+                v-for="(page, index) in pages"
+                :key="index + page.src"
+                :src="page.src"
+                :alt="page.alt"
+                :data-source="page.lazySrc"
+                lazy
+                class="doc-page"
+                :style="{
+                  width: pageWidth + 'px',
+                  height: pageHeight + 'px',
+                }"
+              >
+              </el-image>
+            </div>
+            <div v-else>
+              <el-image
+                v-for="(page, index) in pages"
+                :key="index + page.src"
+                :src="page.src"
+                :alt="page.alt"
+                :data-source="page.lazySrc"
+                lazy
+                class="doc-page"
+                :style="{
+                  width: pageWidth + 'px',
+                  height: pageHeight + 'px',
+                }"
+              >
+              </el-image>
+            </div>
           </div>
           <div class="doc-page-more text-center">
             <div>下载文档到本地，方便使用</div>
@@ -823,6 +841,9 @@ export default {
 }
 </script>
 <style lang="scss">
+.viewer-canvas > img {
+  background-color: #fff;
+}
 .page-document {
   .doc-main {
     overflow: auto;
