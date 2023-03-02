@@ -45,16 +45,19 @@ clean-api-go:
 builddarwin:
 	GOOS=darwin GOARCH=amd64 go build -v -o release/${VERSION}/darwin/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/darwin
+	cp -r dictionary release/${VERSION}/darwin
 	cp -r app.example.toml release/${VERSION}/darwin
 
 buildlinux:
 	GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/linux
+	cp -r dictionary release/${VERSION}/linux
 	cp -r app.example.toml release/${VERSION}/linux
 
 buildwin:
 	GOOS=windows GOARCH=amd64 go build -v -o release/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/windows
+	cp -r dictionary release/${VERSION}/windows
 	cp -r app.example.toml release/${VERSION}/windows
 
 # show help
