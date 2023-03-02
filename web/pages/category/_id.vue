@@ -459,6 +459,7 @@ export default {
       display: inline-block;
       margin-right: 20px;
       margin-bottom: 20px;
+      font-weight: normal;
     }
     margin-bottom: -20px;
   }
