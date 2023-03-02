@@ -254,7 +254,12 @@ func (m *DBModel) initDatabase() (err error) {
 	// 初始化友情链接
 	if err = m.initFriendlink(); err != nil {
 		m.logger.Error("initFriendlink", zap.Error(err))
+		return
 	}
+
+	// 初始化静态页面SEO
+	m.InitSEO()
+
 	return
 }
 
