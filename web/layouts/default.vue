@@ -543,6 +543,10 @@ export default {
       color: #bdc3c7 !important;
     }
   }
+  .el-breadcrumb__inner a,
+  .el-breadcrumb__inner.is-link {
+    font-weight: normal;
+  }
   padding-top: 60px;
   .el-card {
     border-radius: 5px;

@@ -5,6 +5,15 @@
         <el-card shadow="never">
           <div slot="header">
             <h1>{{ article.title }}</h1>
+            <el-breadcrumb separator="/">
+              <el-breadcrumb-item>
+                <nuxt-link to="/"><i class="fa fa-home"></i> 首页</nuxt-link>
+              </el-breadcrumb-item>
+              <el-breadcrumb-item>
+                <nuxt-link to="/article">文章列表</nuxt-link>
+              </el-breadcrumb-item>
+              <el-breadcrumb-item>文章详情</el-breadcrumb-item>
+            </el-breadcrumb>
           </div>
           <div class="help-block text-muted article-info">
             <!-- 如果没有作者，则默认显示网站名称 -->
@@ -104,10 +113,26 @@ export default {
 </script>
 <style lang="scss">
 .page-article {
+  .el-breadcrumb {
+    margin-top: 15px;
+    .el-breadcrumb__inner a,
+    .el-breadcrumb__inner.is-link {
+      color: #666;
+    }
+    .el-breadcrumb__item:last-child .el-breadcrumb__inner {
+      color: #777;
+    }
+    .el-breadcrumb__inner a:hover,
+    .el-breadcrumb__inner.is-link:hover {
+      color: #409eff;
+    }
+  }
   .el-card__header {
     h1 {
-      font-size: 16px;
+      font-size: 24px;
+      font-weight: 400;
       margin: 0;
+      color: #111;
     }
   }
   [data-w-e-type='todo'] {

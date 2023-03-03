@@ -3,7 +3,14 @@
     <el-row :gutter="20">
       <el-col :span="18">
         <el-card shadow="never">
-          <div slot="header">文章列表</div>
+          <div slot="header">
+            <el-breadcrumb separator="/">
+              <el-breadcrumb-item>
+                <nuxt-link to="/"><i class="fa fa-home"></i> 首页</nuxt-link>
+              </el-breadcrumb-item>
+              <el-breadcrumb-item>文章列表</el-breadcrumb-item>
+            </el-breadcrumb>
+          </div>
           <article-list :articles="articles" />
           <el-pagination
             v-if="total > 0"
@@ -117,6 +124,9 @@ export default {
     }
   }
   .popular {
+    .el-card__header {
+      padding: 14px 20px;
+    }
     a {
       display: block;
       white-space: nowrap;
@@ -128,6 +138,17 @@ export default {
       &:last-of-type {
         border-bottom: 0;
       }
+    }
+  }
+}
+
+@media screen and (max-width: $mobile-width) {
+  .page-article-index {
+    .el-col {
+      width: 100%;
+    }
+    .popular {
+      margin-top: 15px;
     }
   }
 }
