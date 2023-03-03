@@ -136,6 +136,7 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 		Size:      int(req.Size_),
 		WithCount: true,
 		QueryLike: make(map[string][]interface{}),
+		Sort:      []string{req.Order},
 	}
 
 	_, err := s.checkPermission(ctx)
