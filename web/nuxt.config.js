@@ -68,6 +68,10 @@ export default {
     baseURL: '/',
     proxy: true,
   },
+  server: {
+    port: 3000, // default: 3000
+    host: '0.0.0.0', // default: localhost
+  },
   proxy: {
     '/api': {
       target: 'http://127.0.0.1:8880', // 目标服务器

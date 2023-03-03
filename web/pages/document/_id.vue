@@ -1010,6 +1010,11 @@ export default {
     }
   }
 
+  .viewer-canvas > img {
+    // 调整到1.3被比较合适，这样可以在手机上看到更清晰的内容
+    transform: scale(1.3) !important;
+  }
+
   .page-document {
     .doc-left {
       width: 100% !important;
