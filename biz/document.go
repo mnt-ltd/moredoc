@@ -741,3 +741,19 @@ func (s *DocumentAPIService) SetDocumentScore(ctx context.Context, req *pb.Docum
 
 	return &emptypb.Empty{}, nil
 }
+
+// SetDocumentReconvert
+func (s *DocumentAPIService) SetDocumentReconvert(ctx context.Context, req *emptypb.Empty) (res *emptypb.Empty, err error) {
+	_, err = s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 更新文档状态
+	err = s.dbModel.SetDocumentReconvert()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "更新文档状态失败：%s", err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}

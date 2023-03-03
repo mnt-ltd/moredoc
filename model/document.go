@@ -68,17 +68,6 @@ func (Document) TableName() string {
 	return tablePrefix + "document"
 }
 
-// CreateDocument 创建Document
-// TODO: 创建成功之后，注意相关表统计字段数值的增减
-func (m *DBModel) CreateDocument(document *Document) (err error) {
-	err = m.db.Create(document).Error
-	if err != nil {
-		m.logger.Error("CreateDocument", zap.Error(err))
-		return
-	}
-	return
-}
-
 // UpdateDocument 更新Document，如果需要更新指定字段，则请指定updateFields参数
 func (m *DBModel) UpdateDocument(document *Document, categoryId []int64, updateFields ...string) (err error) {
 	sess := m.db.Begin()
@@ -152,6 +141,16 @@ func (m *DBModel) UpdateDocument(document *Document, categoryId []int64, updateF
 		return
 	}
 
+	return
+}
+
+func (m *DBModel) SetDocumentReconvert() (err error) {
+	err = m.db.Model(&Document{}).
+		Where("status = ?", DocumentStatusFailed).
+		Update("status", DocumentStatusPending).Error
+	if err != nil {
+		m.logger.Error("SetDocumentReconvert", zap.Error(err))
+	}
 	return
 }
 

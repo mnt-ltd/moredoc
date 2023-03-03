@@ -211,6 +211,14 @@ service DocumentAPI {
       get : '/api/v1/document/score',
     };
   }
+
+  // 将文档一键设置为重转
+  rpc SetDocumentReconvert(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/document/reconvert',
+    };
+  }
 }
 
 service RecycleAPI {

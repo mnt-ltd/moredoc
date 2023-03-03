@@ -10,7 +10,25 @@
         @onSearch="onSearch"
         @onCreate="onCreate"
         @onDelete="batchDelete"
-      />
+      >
+        <template slot="buttons">
+          <el-form-item>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="将转换失败的文档一键重置为待转换状态，以便重新转换"
+              placement="top"
+            >
+              <el-button
+                type="warning"
+                @click="reconvertDocument"
+                icon="el-icon-refresh"
+                >失败重转</el-button
+              >
+            </el-tooltip>
+          </el-form-item>
+        </template>
+      </FormSearch>
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <TableList
@@ -79,7 +97,12 @@
 
 <script>
 import { listCategory } from '~/api/category'
-import { deleteDocument, getDocument, listDocument } from '~/api/document'
+import {
+  deleteDocument,
+  getDocument,
+  listDocument,
+  setDocumentReconvert,
+} from '~/api/document'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import { categoryToTrees } from '~/utils/utils'
@@ -189,6 +212,15 @@ export default {
         path: '/upload',
       })
       window.open(routeUrl.href, '_blank')
+    },
+    async reconvertDocument() {
+      const res = await setDocumentReconvert()
+      if (res.status === 200) {
+        this.$message.success('提交成功，请耐心等待重新转换')
+        this.listDocument()
+      } else {
+        this.$message.error(res.data.message || '操作失败')
+      }
     },
     viewRow(row) {
       // 查看，跳转到前台文档详情页面
