@@ -66,6 +66,7 @@ func getPermissions() (permissions []Permission) {
 		{Title: "更新站点地图sitemap", Description: "", Method: "GRPC", Path: "/api.v1.ConfigAPI/UpdateSitemap"},
 		{Title: "获取环境依赖检测", Description: "", Method: "GRPC", Path: "/api.v1.ConfigAPI/GetEnvs"},
 		{Title: "更新头像", Description: "", Method: "POST", Path: "/api/v1/upload/avatar"},
+		{Title: "失败文档一键重转", Description: "", Method: "GRPC", Path: "/api.v1.DocumentAPI/SetDocumentReconvert"},
 	}
 	return
 }
