@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"os/exec"
+	"syscall"
 	"time"
 )
 
@@ -19,6 +20,7 @@ func ExecCommand(name string, args []string, timeout ...time.Duration) (out stri
 	}
 
 	cmd := exec.Command(name, args...)
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
@@ -35,10 +37,9 @@ func ExecCommand(name string, args []string, timeout ...time.Duration) (out stri
 	case <-isDone:
 	case <-time.After(expire):
 		if cmd.Process != nil && cmd.Process.Pid != 0 {
-			pid := fmt.Sprintf("%d", cmd.Process.Pid)
-			out = out + fmt.Sprintf("\nexecute timeout: %v seconds.", expire.Seconds())
+			err = fmt.Errorf("execute timeout: %v seconds.", expire.Seconds())
+			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 			cmd.Process.Kill()
-			exec.Command("kill", "-9", pid).Run() // 强制杀死进程
 		}
 	}
 	out = stdout.String()
