@@ -474,6 +474,11 @@ func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList) (*pb
 			}
 		}
 
+		for docId, errStr := range s.dbModel.GetConvertError(docIds...) {
+			index := docIndexMap[docId]
+			pbDocs[index].ConvertError = errStr
+		}
+
 		for _, docUser := range docUsers {
 			indexes := userIndexesMap[docUser.Id]
 			for _, index := range indexes {

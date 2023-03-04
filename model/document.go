@@ -608,6 +608,9 @@ func (m *DBModel) ConvertDocument() (err error) {
 		}
 		return
 	}
+	defer func() {
+		m.SetDocumentConvertError(document.Id, err)
+	}()
 	// 文档转为PDF
 	cfg := m.GetConfigOfConverter()
 	m.SetDocumentStatus(document.Id, DocumentStatusConverting)

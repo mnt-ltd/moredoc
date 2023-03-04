@@ -142,6 +142,7 @@
             icon="el-icon-delete"
             :disabled="scope.row.disable_delete"
             @click="deleteRow(scope.row)"
+            class="text-danger"
             >删除</el-button
           >
         </template>

@@ -47,6 +47,21 @@
         @deleteRow="deleteRow"
       >
         <template slot="actions" slot-scope="scope">
+          <el-tooltip
+            v-if="scope.row.convert_error"
+            class="item"
+            effect="dark"
+            :content="scope.row.convert_error"
+            placement="top"
+          >
+            <el-button
+              type="text"
+              size="small"
+              class="text-warning"
+              icon="el-icon-error"
+              >转换失败原因</el-button
+            >
+          </el-tooltip>
           <el-button
             type="text"
             size="small"
