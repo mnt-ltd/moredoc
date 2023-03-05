@@ -1,9 +1,12 @@
-package util
+package command
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
+	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -13,6 +16,7 @@ func ExecCommand(name string, args []string, timeout ...time.Duration) (out stri
 	var (
 		stderr, stdout bytes.Buffer
 		expire         = 30 * time.Minute
+		errs           []string
 	)
 
 	if len(timeout) > 0 {
@@ -25,23 +29,31 @@ func ExecCommand(name string, args []string, timeout ...time.Duration) (out stri
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
 
-	isDone := make(chan bool, 1)
-	go func() {
-		err = cmd.Run()
-		if err != nil {
-			err = fmt.Errorf("%s\n%s", err.Error(), stderr.String())
-		}
-		isDone <- true
-	}()
+	err = cmd.Start()
+	if err != nil {
+		err = fmt.Errorf("%s\n%s", err.Error(), stderr.String())
+		return
+	}
 
-	select {
-	case <-isDone:
-	case <-time.After(expire):
+	time.AfterFunc(expire, func() {
 		if cmd.Process != nil && cmd.Process.Pid != 0 {
-			err = fmt.Errorf("execute timeout: %f minutes", expire.Minutes())
+			errs = append(errs, fmt.Sprintf("execute timeout: %d min.", int(expire.Minutes())))
+			if proc, errProc := os.FindProcess(cmd.Process.Pid); errProc == nil {
+				proc.Kill()
+				proc.Release()
+			}
 			cmd.Process.Kill()
 		}
+	})
+
+	err = cmd.Wait()
+	if err != nil {
+		errs = append(errs, err.Error(), stderr.String())
 	}
 	out = stdout.String()
+	if len(errs) > 0 {
+		errs = append(errs, out)
+		err = errors.New(strings.Join(errs, "\n\r"))
+	}
 	return
 }

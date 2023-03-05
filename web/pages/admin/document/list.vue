@@ -48,12 +48,16 @@
       >
         <template slot="actions" slot-scope="scope">
           <el-tooltip
-            v-if="scope.row.convert_error"
+            v-if="scope.row.convert_error && scope.row.status === 3"
             class="item"
             effect="dark"
-            :content="scope.row.convert_error"
             placement="top"
           >
+            <div slot="content">
+              <div class="tooltip-box">
+                {{ scope.row.convert_error }}
+              </div>
+            </div>
             <el-button
               type="text"
               size="small"
@@ -392,4 +396,9 @@ export default {
   },
 }
 </script>
-<style></style>
+<style lang="scss" scoped>
+.tooltip-box {
+  max-width: 300px;
+  word-break: break-all;
+}
+</style>

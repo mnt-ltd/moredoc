@@ -1,9 +1,11 @@
-package util
+package command
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"os/exec"
+	"strings"
 	"syscall"
 	"time"
 )
@@ -13,6 +15,7 @@ func ExecCommand(name string, args []string, timeout ...time.Duration) (out stri
 	var (
 		stderr, stdout bytes.Buffer
 		expire         = 30 * time.Minute
+		errs           []string
 	)
 
 	if len(timeout) > 0 {
@@ -23,25 +26,28 @@ func ExecCommand(name string, args []string, timeout ...time.Duration) (out stri
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Stdout = &stdout
 	cmd.Stderr = &stderr
+	err = cmd.Start()
+	if err != nil {
+		err = fmt.Errorf("%s\n%s", err.Error(), stderr.String())
+		return
+	}
 
-	isDone := make(chan bool, 1)
-	go func() {
-		err = cmd.Run()
-		if err != nil {
-			err = fmt.Errorf("%s\n%s", err.Error(), stderr.String())
-		}
-		isDone <- true
-	}()
-
-	select {
-	case <-isDone:
-	case <-time.After(expire):
+	time.AfterFunc(expire, func() {
 		if cmd.Process != nil && cmd.Process.Pid != 0 {
-			err = fmt.Errorf("execute timeout: %v seconds.", expire.Seconds())
+			errs = append(errs, fmt.Sprintf("execute timeout: %d min.", int(expire.Minutes())))
 			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
 			cmd.Process.Kill()
 		}
+	})
+
+	err = cmd.Wait()
+	if err != nil {
+		errs = append(errs, err.Error(), stderr.String())
 	}
 	out = stdout.String()
+	if len(errs) > 0 {
+		errs = append(errs, out)
+		err = errors.New(strings.Join(errs, "\n\r"))
+	}
 	return
 }
