@@ -32,6 +32,17 @@ func ExecCommand(name string, args []string, timeout ...time.Duration) (out stri
 		return
 	}
 
+	pid := 0
+	if cmd.Process != nil && cmd.Process.Pid != 0 {
+		pid = cmd.Process.Pid
+		pidMap.Store(pid, pid)
+	}
+	defer func() {
+		if pid != 0 {
+			pidMap.Delete(pid)
+		}
+	}()
+
 	time.AfterFunc(expire, func() {
 		if cmd.Process != nil && cmd.Process.Pid != 0 {
 			errs = append(errs, fmt.Sprintf("execute timeout: %d min.", int(expire.Minutes())))
@@ -50,4 +61,15 @@ func ExecCommand(name string, args []string, timeout ...time.Duration) (out stri
 		err = errors.New(strings.Join(errs, "\n\r"))
 	}
 	return
+}
+
+// 当主程序退出时，从pidMap中获取所有的pid，然后kill掉
+func CloseChildProccess() {
+	pidMap.Range(func(key, value interface{}) bool {
+		if pid, ok := value.(int); ok {
+			fmt.Println("kill pid:", pid)
+			syscall.Kill(-pid, syscall.SIGKILL)
+		}
+		return true
+	})
 }

@@ -16,8 +16,12 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
 	"moredoc/service"
 	"moredoc/util"
+	"moredoc/util/command"
+	"os"
+	"os/signal"
 
 	"github.com/spf13/cobra"
 )
@@ -31,6 +35,20 @@ var serveCmd = &cobra.Command{
 		util.Version = Version
 		util.Hash = GitHash
 		util.BuildAt = BuildAt
+
+		c := make(chan os.Signal, 1)
+		signal.Notify(c)
+		go func() {
+			//阻塞直至有信号传入
+			s := <-c
+			// 收到退出信号，关闭子进程
+			fmt.Println("get signal：", s)
+			fmt.Println("close child process...")
+			command.CloseChildProccess()
+			fmt.Println("close child process done.")
+			fmt.Println("exit.")
+			os.Exit(0)
+		}()
 		service.Run(cfg, logger)
 	},
 }
