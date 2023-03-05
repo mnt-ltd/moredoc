@@ -22,6 +22,7 @@ import (
 	"moredoc/util/command"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/spf13/cobra"
 )
@@ -37,7 +38,8 @@ var serveCmd = &cobra.Command{
 		util.BuildAt = BuildAt
 
 		c := make(chan os.Signal, 1)
-		signal.Notify(c)
+		// 监听退出信号
+		signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
 		go func() {
 			//阻塞直至有信号传入
 			s := <-c
