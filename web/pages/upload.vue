@@ -432,7 +432,7 @@ export default {
         (item) => item.response && item.response.code === 200
       )
       let percentAge = (successItems.length / length) * 100
-      this.percentAge = percentAge.toFixed(2)
+      this.percentAge = parseFloat(percentAge.toFixed(2))
       if (percentAge === 100) {
         this.createDocuments()
       }
