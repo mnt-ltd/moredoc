@@ -177,6 +177,13 @@ func (s *AttachmentAPIService) ListAttachment(ctx context.Context, req *pb.ListA
 
 // UploadDocument 上传文档
 func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
+	time.Sleep(3 * time.Second)
+	ctx.JSON(http.StatusForbidden, ginResponse{Code: http.StatusForbidden, Message: "没有权限上传文档", Error: "没有权限上传文档"})
+	return
+	// ctx.JSON(http.StatusOK, ginResponse{Code: http.StatusOK, Message: "ok", Data: map[string]interface{}{"id": "attachment.Id"}})
+	// // ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: "故意返回错误，后续需要移除", Error: "故意返回错误，后续需要移除"})
+	// return
+
 	// 检查用户是否已登录
 	userClaims, statusCodes, err := s.checkLogin(ctx)
 	if err != nil {

@@ -31,6 +31,7 @@
     "vue-marquee-text-component": "^1.2.0",
     "vue-server-renderer": "^2.6.14",
     "vue-template-compiler": "^2.6.14",
+    "vue-upload-component": "^2.8.23",
     "vuex-persist": "^3.1.3",
     "webpack": "^4.46.0"
   },

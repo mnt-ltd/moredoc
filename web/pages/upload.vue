@@ -50,17 +50,15 @@
                 <el-form-item>
                   <el-upload
                     ref="upload"
-                    class="upload-demo"
                     drag
+                    multiple
                     :action="'/api/v1/upload/document'"
                     :headers="{ authorization: `bearer ${token}` }"
                     :show-file-list="false"
-                    :on-success="onSuccess"
-                    :on-error="onError"
-                    multiple
                     :disabled="loading || !canIUploadDocument"
+                    :on-success="onSuccess"
                     :auto-upload="false"
-                    :on-change="handleChange"
+                    :on-change="onChange"
                     :file-list="fileList"
                   >
                     <i class="el-icon-upload"></i>
@@ -247,6 +245,7 @@ import { mapActions, mapGetters } from 'vuex'
 import { formatBytes } from '~/utils/utils'
 import { createDocument } from '~/api/document'
 import { canIUploadDocument } from '~/api/user'
+import { uploadDocument } from '~/api/attachment'
 export default {
   data() {
     return {
@@ -353,7 +352,7 @@ export default {
   methods: {
     formatBytes,
     ...mapActions('user', ['getUser']),
-    handleChange(file) {
+    onChange(file) {
       const name = file.name.toLowerCase()
       const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
       if (!this.allowExt.includes(ext)) {
@@ -398,13 +397,21 @@ export default {
             this.$message.error('请先选择要上传的文档')
             return
           }
-          this.loading = true
-          if (this.percentAge === 100) {
-            // 直接创建文档
-            this.createDocuments()
-          } else {
-            this.$refs.upload.submit()
-          }
+
+          try {
+            // 取消之前上传的请求，不然一直pending，新请求会没法发送
+            window.uploadDocumentCancel.map((c) => c())
+            window.uploadDocumentCancel = []
+          } catch (error) {}
+
+          // TODO: 跳过以上传成功的文件
+          this.fileList.map((file) => {
+            console.log(file)
+            const formData = new FormData()
+            formData.append('file', file.raw)
+            const res = uploadDocument(formData)
+            console.log(res)
+          })
         }
       })
     },
@@ -416,7 +423,23 @@ export default {
       this.filesMap = {}
       this.$refs.upload.clearFiles()
     },
-    onError(err) {
+    async uploadFile(option) {
+      const { file, filename } = option
+      console.log('upload', option, file, filename)
+      const res = await uploadDocument({
+        file,
+        filename,
+      })
+      console.log(res)
+      // if (res.status === 200) {
+      //   this.$refs.upload.onSuccess(res.data, file, this.fileList)
+      // } else {
+      //   this.$refs.upload.onError(res, file, this.fileList)
+      // }
+      this.loading = false
+    },
+    onError(err, file, fileList) {
+      console.log('onError', err, file, fileList)
       this.loading = false
       try {
         const message = JSON.parse(err.message)
@@ -427,6 +450,7 @@ export default {
     },
     // TODO: 优化：因网络问题失败或者没有权限等情况，可以正常重试
     onSuccess(res, file, fileList) {
+      console.log('onSuccess', res, file, fileList)
       const length = fileList.length
       const successItems = fileList.filter(
         (item) => item.response && item.response.code === 200
