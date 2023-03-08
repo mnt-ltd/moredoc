@@ -56,7 +56,6 @@
                     :headers="{ authorization: `bearer ${token}` }"
                     :show-file-list="false"
                     :disabled="loading || !canIUploadDocument"
-                    :on-success="onSuccess"
                     :auto-upload="false"
                     :on-change="onChange"
                     :file-list="fileList"
@@ -398,13 +397,15 @@ export default {
             return
           }
 
+          // 文档上传中
+          this.loading = true
           try {
             // 取消之前上传的请求，不然一直pending，新请求会没法发送
             window.uploadDocumentCancel.map((c) => c())
             window.uploadDocumentCancel = []
           } catch (error) {}
 
-          // TODO: 跳过以上传成功的文件
+          // TODO: 跳过已上传成功的文件
           this.fileList.map((file) => {
             console.log(file)
             const formData = new FormData()
@@ -412,8 +413,16 @@ export default {
             const res = uploadDocument(formData)
             console.log(res)
           })
+          console.log('end')
         }
       })
+    },
+    cancleUpload() {
+      this.$refs.upload.abort()
+    },
+    onError(err) {
+      this.loading = false
+      console.log(err)
     },
     clearAllFiles() {
       if (this.loading) {
@@ -422,44 +431,6 @@ export default {
       this.fileList = []
       this.filesMap = {}
       this.$refs.upload.clearFiles()
-    },
-    async uploadFile(option) {
-      const { file, filename } = option
-      console.log('upload', option, file, filename)
-      const res = await uploadDocument({
-        file,
-        filename,
-      })
-      console.log(res)
-      // if (res.status === 200) {
-      //   this.$refs.upload.onSuccess(res.data, file, this.fileList)
-      // } else {
-      //   this.$refs.upload.onError(res, file, this.fileList)
-      // }
-      this.loading = false
-    },
-    onError(err, file, fileList) {
-      console.log('onError', err, file, fileList)
-      this.loading = false
-      try {
-        const message = JSON.parse(err.message)
-        this.$message.error(message.error)
-      } catch (error) {
-        this.$message.error(err.message)
-      }
-    },
-    // TODO: 优化：因网络问题失败或者没有权限等情况，可以正常重试
-    onSuccess(res, file, fileList) {
-      console.log('onSuccess', res, file, fileList)
-      const length = fileList.length
-      const successItems = fileList.filter(
-        (item) => item.response && item.response.code === 200
-      )
-      let percentAge = (successItems.length / length) * 100
-      this.percentAge = parseFloat(percentAge.toFixed(2))
-      if (percentAge === 100) {
-        this.createDocuments()
-      }
     },
     async createDocuments() {
       const createDocumentRequest = {
