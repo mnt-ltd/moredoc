@@ -20,8 +20,18 @@ fileService.interceptors.request.use(
     return config
   },
   (error) => {
-    console.log(error)
+    console.log('error', error)
     return Promise.reject(error)
+  }
+)
+
+// http response 拦截器
+fileService.interceptors.response.use(
+  (response) => {
+    return response
+  },
+  (error) => {
+    return error.response
   }
 )
 

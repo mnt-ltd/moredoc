@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -177,13 +178,6 @@ func (s *AttachmentAPIService) ListAttachment(ctx context.Context, req *pb.ListA
 
 // UploadDocument 上传文档
 func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
-	time.Sleep(3 * time.Second)
-	ctx.JSON(http.StatusForbidden, ginResponse{Code: http.StatusForbidden, Message: "没有权限上传文档", Error: "没有权限上传文档"})
-	return
-	// ctx.JSON(http.StatusOK, ginResponse{Code: http.StatusOK, Message: "ok", Data: map[string]interface{}{"id": "attachment.Id"}})
-	// // ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: "故意返回错误，后续需要移除", Error: "故意返回错误，后续需要移除"})
-	// return
-
 	// 检查用户是否已登录
 	userClaims, statusCodes, err := s.checkLogin(ctx)
 	if err != nil {
@@ -197,6 +191,21 @@ func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
 		ctx.JSON(http.StatusForbidden, ginResponse{Code: http.StatusForbidden, Message: "没有权限上传文档", Error: "没有权限上传文档"})
 		return
 	}
+
+	rand.Seed(time.Now().UnixNano())
+	// 随机sleep 1-3秒，模拟网络延迟
+	time.Sleep(time.Duration(rand.Intn(3)+1) * time.Second)
+	fh, _ := ctx.FormFile("file")
+
+	// 随机返回成功
+	rd := rand.Intn(10)
+	fmt.Println(rd, time.Now(), fh.Filename)
+	if rd > 5 {
+		ctx.JSON(http.StatusOK, ginResponse{Code: http.StatusOK, Message: "【测试】随机上传成功", Data: gin.H{"id": 1}})
+		return
+	}
+	ctx.JSON(http.StatusForbidden, ginResponse{Code: http.StatusForbidden, Message: "【测试】没有权限上传文档", Error: "【测试】没有权限上传文档"})
+	return
 
 	name := "file"
 	fileheader, err := ctx.FormFile(name)

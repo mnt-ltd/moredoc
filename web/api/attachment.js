@@ -38,5 +38,6 @@ export const uploadDocument = (data, option) => {
     url: '/api/v1/upload/document',
     method: 'post',
     data,
+    ...option,
   })
 }

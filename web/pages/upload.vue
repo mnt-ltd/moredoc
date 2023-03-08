@@ -78,6 +78,17 @@
                             scope.row.ext
                           }}</template></el-input
                         >
+                        <el-progress
+                          v-if="scope.row.percentage > 0"
+                          :key="scope.row.name"
+                          :percentage="scope.row.percentage"
+                          :status="scope.row.progressStatus || 'success'"
+                        ></el-progress>
+                        <small
+                          v-if="scope.row.error"
+                          class="el-link el-link--danger error-tips"
+                          >{{ scope.row.error }}</small
+                        >
                       </template>
                     </el-table-column>
                     <el-table-column prop="size" label="大小" width="100">
@@ -124,14 +135,6 @@
                   </el-table>
                 </el-form-item>
                 <el-form-item style="margin-bottom: 0">
-                  <el-progress
-                    v-if="loading"
-                    :percentage="percentAge"
-                    :text-inside="true"
-                    :stroke-width="12"
-                    status="success"
-                  ></el-progress>
-                  <div v-if="loading" class="mgt-20px"></div>
                   <el-button
                     v-if="canIUploadDocument"
                     type="primary"
@@ -379,6 +382,10 @@ export default {
           title: file.name.substring(0, file.name.lastIndexOf('.')),
           ext,
           price: this.document.price || 0,
+          progressStatus: 'success',
+          error: '',
+          percentage: 0,
+          attachment_id: 0,
         }
         this.filesMap[name] = item
         this.fileList.push(item)
@@ -398,31 +405,43 @@ export default {
           }
 
           // 文档上传中
-          this.loading = true
+          // this.loading = true
           try {
             // 取消之前上传的请求，不然一直pending，新请求会没法发送
             window.uploadDocumentCancel.map((c) => c())
             window.uploadDocumentCancel = []
           } catch (error) {}
 
-          // TODO: 跳过已上传成功的文件
-          this.fileList.map((file) => {
-            console.log(file)
+          // 跳过已上传成功的文件
+          this.fileList.map(async (file) => {
+            if (file.percentage === 100 && file.attachment_id) {
+              console.log('跳过已上传成功的文件', file.name)
+              return
+            }
+            file.error = ''
+            file.progressStatus = 'success'
             const formData = new FormData()
             formData.append('file', file.raw)
-            const res = uploadDocument(formData)
-            console.log(res)
+            const res = await uploadDocument(formData, {
+              onUploadProgress: (progressEvent) => {
+                file.percentage = parseInt(
+                  (progressEvent.loaded / progressEvent.total) * 100
+                )
+              },
+            })
+            if (res.status === 200) {
+              file.attachment_id = res.data.data.id || 0
+              this.createDocument(file)
+            } else {
+              file.progressStatus = 'exception'
+              file.error = res.data.message
+              this.$message.error(
+                `《${file.name}》上传失败: ${res.data.message}`
+              )
+            }
           })
-          console.log('end')
         }
       })
-    },
-    cancleUpload() {
-      this.$refs.upload.abort()
-    },
-    onError(err) {
-      this.loading = false
-      console.log(err)
     },
     clearAllFiles() {
       if (this.loading) {
@@ -432,35 +451,35 @@ export default {
       this.filesMap = {}
       this.$refs.upload.clearFiles()
     },
-    async createDocuments() {
+    async createDocument(doc) {
       const createDocumentRequest = {
         overwrite: this.document.overwrite,
         category_id: this.document.category_id,
-        document: this.fileList.map((item) => {
-          return {
-            title: item.title,
-            price: item.price,
-            attachment_id: item.response.data.id,
-          }
-        }),
+        document: [
+          {
+            title: doc.title,
+            price: doc.price,
+            attachment_id: doc.attachment_id,
+          },
+        ],
       }
       const res = await createDocument(createDocumentRequest)
       if (res.status === 200) {
-        this.$message.success('上传成功')
-        this.loading = false
-        this.percentAge = 0
-        this.fileList = []
-        this.filesMap = {}
-        this.document = {
-          category_id: [],
-          price: 0,
-          overwrite: false,
-        }
-        this.$refs.upload.clearFiles()
-        this.getUser()
+        // 从 fileList 中剔除 attachment_id 与当前文档相同的文档
+        this.$message.success(`《${doc.title}》上传成功`)
+        this.fileList = this.fileList.filter((item) => {
+          return item.attachment_id !== doc.attachment_id && doc.attachment_id
+        })
+
+        // 过滤 filesMap 中的文档
+        this.filesMap = Object.keys(this.filesMap).reduce((acc, key) => {
+          if (this.filesMap[key].attachment_id !== doc.attachment_id) {
+            acc[key] = this.filesMap[key]
+          }
+          return acc
+        }, {})
       } else {
-        this.$message.error(res.data.message || '上传失败')
-        this.loading = false
+        this.$message.error(`《${doc.title}》上传失败 ` + res.data.message)
       }
     },
   },
@@ -472,6 +491,14 @@ export default {
     .el-input-number {
       width: 120px;
     }
+  }
+  .el-progress {
+    position: absolute;
+    width: 100%;
+    bottom: -1px;
+  }
+  .error-tips {
+    font-size: 12px;
   }
   .upload-tips {
     line-height: 180%;
