@@ -71,6 +71,11 @@
                     style="width: 100%"
                     max-height="480"
                   >
+                    <el-table-column prop="title" label="#" width="50">
+                      <template slot-scope="scope">
+                        {{ scope.$index + 1 }}
+                      </template>
+                    </el-table-column>
                     <el-table-column prop="title" label="文件" min-width="180">
                       <template slot-scope="scope">
                         <el-input v-model="scope.row.title" :disabled="loading">
@@ -78,17 +83,20 @@
                             scope.row.ext
                           }}</template></el-input
                         >
+                        <div v-if="scope.row.error">
+                          <el-progress
+                            :key="scope.row.name"
+                            :percentage="scope.row.percentage"
+                            status="exception"
+                          ></el-progress>
+                          <small class="el-link el-link--danger error-tips">{{
+                            scope.row.error
+                          }}</small>
+                        </div>
                         <el-progress
-                          v-if="scope.row.percentage > 0"
-                          :key="scope.row.name"
+                          v-else-if="scope.row.percentage > 0"
                           :percentage="scope.row.percentage"
-                          :status="scope.row.progressStatus || 'success'"
                         ></el-progress>
-                        <small
-                          v-if="scope.row.error"
-                          class="el-link el-link--danger error-tips"
-                          >{{ scope.row.error }}</small
-                        >
                       </template>
                     </el-table-column>
                     <el-table-column prop="size" label="大小" width="100">
@@ -297,6 +305,10 @@ export default {
       pptExt: [],
       excelExt: [],
       otherExt: [],
+      totalFiles: 0, // 总个数
+      totalFailed: 0, // 失败个数
+      totalSuccess: 0, // 成功个数
+      totalDone: 0, // 完成个数
     }
   },
   head() {
@@ -389,6 +401,7 @@ export default {
         }
         this.filesMap[name] = item
         this.fileList.push(item)
+        this.totalFiles = this.fileList.length
       }
     },
     handleRemove(index) {
@@ -404,8 +417,9 @@ export default {
             return
           }
 
-          // 文档上传中
-          // this.loading = true
+          this.totalFiles = this.fileList.length
+          this.totalDone = 0
+          this.loading = true
           try {
             // 取消之前上传的请求，不然一直pending，新请求会没法发送
             window.uploadDocumentCancel.map((c) => c())
@@ -420,24 +434,39 @@ export default {
             }
             file.error = ''
             file.progressStatus = 'success'
+
             const formData = new FormData()
             formData.append('file', file.raw)
-            const res = await uploadDocument(formData, {
-              onUploadProgress: (progressEvent) => {
-                file.percentage = parseInt(
-                  (progressEvent.loaded / progressEvent.total) * 100
-                )
-              },
-            })
-            if (res.status === 200) {
-              file.attachment_id = res.data.data.id || 0
-              this.createDocument(file)
-            } else {
+
+            try {
+              const res = await uploadDocument(formData, {
+                onUploadProgress: (progressEvent) => {
+                  file.percentage = parseInt(
+                    (progressEvent.loaded / progressEvent.total) * 100
+                  )
+                },
+                // timeout: 1000 * 6,
+              })
+              if (res.status === 200) {
+                file.attachment_id = res.data.data.id || 0
+                this.createDocument(file)
+                this.totalSuccess++
+              } else {
+                file.progressStatus = 'exception'
+                file.error = res.data.message || res.statusText
+                this.$message.error(`《${file.name}》${file.error}`)
+                this.totalFailed++
+              }
+            } catch (error) {
               file.progressStatus = 'exception'
-              file.error = res.data.message
-              this.$message.error(
-                `《${file.name}》上传失败: ${res.data.message}`
-              )
+              file.error = '上传失败或超时，请重试'
+              this.$message.error(`《${file.name}》${file.error}`)
+              this.totalFailed++
+            }
+
+            this.totalDone++
+            if (this.totalDone === this.totalFiles) {
+              this.loading = false
             }
           })
         }
