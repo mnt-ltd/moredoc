@@ -123,6 +123,7 @@
                       <template slot="header">
                         操作 (<el-button
                           type="text"
+                          size="mini"
                           :disabled="loading"
                           @click="clearAllFiles"
                           >清空</el-button
@@ -426,49 +427,22 @@ export default {
             window.uploadDocumentCancel = []
           } catch (error) {}
 
-          // 跳过已上传成功的文件
-          this.fileList.map(async (file) => {
-            if (file.percentage === 100 && file.attachment_id) {
-              console.log('跳过已上传成功的文件', file.name)
-              return
-            }
-            file.error = ''
-            file.progressStatus = 'success'
-
-            const formData = new FormData()
-            formData.append('file', file.raw)
-
-            try {
-              const res = await uploadDocument(formData, {
-                onUploadProgress: (progressEvent) => {
-                  file.percentage = parseInt(
-                    (progressEvent.loaded / progressEvent.total) * 100
-                  )
-                },
-                // timeout: 1000 * 6,
+          // chrome 等浏览器同一域名下最多只能同时发起 6 个请求，所以这里将 fileList 拆分成多个数组，每个数组的长度为 2，以便控制并发，每次只同时上传 2 个文件
+          const fileList = this.fileList.reduce((prev, cur, index) => {
+            const i = Math.floor(index / 2)
+            prev[i] = prev[i] || []
+            prev[i].push(cur)
+            return prev
+          }, [])
+          console.log(fileList)
+          fileList.reduce(async (prev, cur) => {
+            await prev
+            await Promise.all(
+              cur.map(async (file) => {
+                await this.uploadDocument(file)
               })
-              if (res.status === 200) {
-                file.attachment_id = res.data.data.id || 0
-                this.createDocument(file)
-                this.totalSuccess++
-              } else {
-                file.progressStatus = 'exception'
-                file.error = res.data.message || res.statusText
-                this.$message.error(`《${file.name}》${file.error}`)
-                this.totalFailed++
-              }
-            } catch (error) {
-              file.progressStatus = 'exception'
-              file.error = '上传失败或超时，请重试'
-              this.$message.error(`《${file.name}》${file.error}`)
-              this.totalFailed++
-            }
-
-            this.totalDone++
-            if (this.totalDone === this.totalFiles) {
-              this.loading = false
-            }
-          })
+            )
+          }, Promise.resolve())
         }
       })
     },
@@ -479,6 +453,48 @@ export default {
       this.fileList = []
       this.filesMap = {}
       this.$refs.upload.clearFiles()
+    },
+    async uploadDocument(file) {
+      if (file.percentage === 100 && file.attachment_id) {
+        console.log('跳过已上传成功的文件', file.name)
+        return
+      }
+      file.error = ''
+      file.progressStatus = 'success'
+
+      const formData = new FormData()
+      formData.append('file', file.raw)
+
+      try {
+        const res = await uploadDocument(formData, {
+          onUploadProgress: (progressEvent) => {
+            file.percentage = parseInt(
+              (progressEvent.loaded / progressEvent.total) * 100
+            )
+          },
+          // timeout: 1000 * 6,
+        })
+        if (res.status === 200) {
+          file.attachment_id = res.data.data.id || 0
+          this.createDocument(file)
+          this.totalSuccess++
+        } else {
+          file.progressStatus = 'exception'
+          file.error = res.data.message || res.statusText
+          this.$message.error(`《${file.name}》${file.error}`)
+          this.totalFailed++
+        }
+      } catch (error) {
+        file.progressStatus = 'exception'
+        file.error = '上传失败或超时，请重试'
+        this.$message.error(`《${file.name}》${file.error}`)
+        this.totalFailed++
+      }
+
+      this.totalDone++
+      if (this.totalDone === this.totalFiles) {
+        this.loading = false
+      }
     },
     async createDocument(doc) {
       const createDocumentRequest = {
