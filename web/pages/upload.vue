@@ -434,7 +434,6 @@ export default {
             prev[i].push(cur)
             return prev
           }, [])
-          console.log(fileList)
           fileList.reduce(async (prev, cur) => {
             await prev
             await Promise.all(
@@ -456,7 +455,9 @@ export default {
     },
     async uploadDocument(file) {
       if (file.percentage === 100 && file.attachment_id) {
-        console.log('跳过已上传成功的文件', file.name)
+        // 不用再次上传
+        this.createDocument(file)
+        this.totalDone++
         return
       }
       file.error = ''
