@@ -169,7 +169,7 @@ export default {
         },
         {
           page: '/admin/article',
-          title: '单页管理',
+          title: '文章管理',
           icon: 'el-icon-discover',
         },
         {

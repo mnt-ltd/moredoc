@@ -25,7 +25,22 @@
         @selectRow="selectRow"
         @editRow="editRow"
         @deleteRow="deleteRow"
-      />
+      >
+        <!-- 查看文章 -->
+        <template slot="actions" slot-scope="scope">
+          <nuxt-link
+            target="_blank"
+            :to="{
+              name: 'article-id',
+              params: { id: scope.row.identifier },
+            }"
+          >
+            <el-button type="text" size="mini" icon="el-icon-view"
+              >查看</el-button
+            >
+          </nuxt-link>
+        </template>
+      </TableList>
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <div class="text-right">
@@ -93,7 +108,7 @@ export default {
   },
   head() {
     return {
-      title: `单页管理 - ${this.settings.system.sitename}`,
+      title: `文章管理 - ${this.settings.system.sitename}`,
     }
   },
   computed: {
