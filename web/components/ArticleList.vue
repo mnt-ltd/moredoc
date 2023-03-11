@@ -27,7 +27,10 @@
             ><i class="el-icon-view"></i>
             {{ article.view_count || 0 }} 浏览</span
           >
-          <span><i class="el-icon-user"></i> 魔豆文库</span>
+          <span
+            ><i class="el-icon-user"></i>
+            {{ article.autor || settings.system.sitename || '-' }}</span
+          >
           <!-- <span
             ><i class="el-icon-chat-dot-square"></i>
             {{ article.comment_count || 0 }} 评论</span
@@ -46,6 +49,7 @@
 </template>
 <script>
 import { formatDatetime, formatRelativeTime } from '~/utils/utils'
+import { mapGetters } from 'vuex'
 export default {
   props: {
     articles: {
@@ -60,6 +64,9 @@ export default {
       type: Boolean,
       default: false,
     },
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   methods: {
     formatRelativeTime,

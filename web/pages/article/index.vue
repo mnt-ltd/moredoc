@@ -79,7 +79,7 @@ export default {
     },
   },
   async created() {
-    await Promise.all([this.getArticles(), this.getPopulars()])
+    await Promise.all([this.getPopulars()])
   },
   methods: {
     pageChange(page) {

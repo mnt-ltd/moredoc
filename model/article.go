@@ -191,6 +191,8 @@ func (m *DBModel) GetArticleList(opt *OptionGetArticleList) (articleList []Artic
 	opt.SelectFields = m.FilterValidFields(tableName, opt.SelectFields...)
 	if len(opt.SelectFields) > 0 {
 		db = db.Select(opt.SelectFields)
+	} else {
+		db = db.Omit("content")
 	}
 
 	if len(opt.Sort) > 0 {
