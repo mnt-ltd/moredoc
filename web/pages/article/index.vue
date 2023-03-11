@@ -55,7 +55,7 @@ export default {
   name: 'PageArticleIndex',
   data() {
     return {
-      total: 100,
+      total: 0,
       size: 10,
       query: {
         page: 1,

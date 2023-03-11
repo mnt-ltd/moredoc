@@ -17,7 +17,10 @@
           </div>
           <div class="help-block text-muted article-info">
             <!-- 如果没有作者，则默认显示网站名称 -->
-            <span><i class="el-icon-user"></i> {{ article.author }}</span>
+            <span
+              ><i class="el-icon-user"></i>
+              {{ article.author || settings.system.sitename || '-' }}</span
+            >
             <span
               ><i class="el-icon-view"></i>
               {{ article.view_count || 0 }} 阅读</span
