@@ -7,6 +7,7 @@
         :show-create="false"
         :show-delete="false"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
       />
     </el-card>
@@ -82,10 +83,21 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        let search = { ...this.$route.query }
+        search.page = parseInt(this.$route.query.page) || 1
+        search.size = parseInt(this.$route.query.size) || 10
+        this.search = search
+        this.listPermission()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listPermission()
   },
   methods: {
     async listPermission() {
@@ -101,15 +113,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listPermission()
+      this.$router.push({
+        query: this.search,
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listPermission()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
       this.search = { ...this.search, page: 1, ...search }
-      this.listPermission()
+      this.$router.push({
+        query: this.search,
+      })
     },
     async editRow(row) {
       const res = await getPermission({ id: row.id })
