@@ -157,7 +157,7 @@ export default {
       this.listUser()
     },
     onSearch(search) {
-      this.search = { ...this.search, ...search }
+      this.search = { ...this.search, page: 1, ...search }
       this.search.page = 1
       this.listUser()
     },

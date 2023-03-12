@@ -7,6 +7,7 @@
         :show-create="true"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
         @onCreate="onCreate"
         @onDelete="batchDelete"
@@ -114,10 +115,22 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        this.search.page = parseInt(this.$route.query.page) || 1
+        this.search.size = parseInt(this.$route.query.size) || 10
+        this.search.wd = this.$route.query.wd || ''
+
+        this.listArticle()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listArticle()
+    // await this.listArticle()
   },
   methods: {
     async listArticle() {
@@ -133,15 +146,24 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listArticle()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listArticle()
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listArticle()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listArticle()
     },
     onSearch(search) {
       this.search = { ...this.search, page: 1, ...search }
-      this.listArticle()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listArticle()
     },
     onCreate() {
       this.article = { id: 0 }

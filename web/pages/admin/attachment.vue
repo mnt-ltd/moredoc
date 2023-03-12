@@ -151,7 +151,7 @@ export default {
       // this.listAttachment()
     },
     onSearch(search) {
-      this.search = { ...this.search, ...search }
+      this.search = { ...this.search, page: 1, ...search }
       this.$router.push({
         query: this.search,
       })
