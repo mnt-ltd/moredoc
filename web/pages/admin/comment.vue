@@ -7,6 +7,7 @@
         :show-create="false"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
         @onCreate="onCreate"
         @onDelete="batchDelete"
@@ -115,10 +116,28 @@ export default {
       return this.$store.state.setting.settings
     },
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        this.search.page = parseInt(this.$route.query.page) || 1
+        this.search.size = parseInt(this.$route.query.size) || 10
+        this.search.wd = this.$route.query.wd || ''
+        if (typeof this.$route.query.status === 'object') {
+          this.search.status = (this.$route.query.status || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.status) {
+          this.search.status = [parseInt(this.$route.query.status) || 0]
+        }
+        this.listComment()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listComment()
+    // await this.listComment()
   },
   methods: {
     async listComment() {
@@ -137,15 +156,24 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listComment()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listComment()
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listComment()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listComment()
     },
     onSearch(search) {
       this.search = { ...this.search, page: 1, ...search }
-      this.listComment()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listComment()
     },
     onCreate() {
       this.comment = { id: 0 }
