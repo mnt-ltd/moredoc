@@ -213,7 +213,6 @@ func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
 
 	attachment, err := s.saveFile(ctx, fileheader, true)
 	if err != nil {
-		os.Remove("." + attachment.Path)
 		ctx.JSON(http.StatusInternalServerError, ginResponse{Code: http.StatusInternalServerError, Message: err.Error(), Error: err.Error()})
 		return
 	}
@@ -310,7 +309,6 @@ func (s *AttachmentAPIService) UploadArticle(ctx *gin.Context) {
 	attachment, err := s.saveFile(ctx, fileHeader)
 	if err != nil {
 		s.logger.Error("saveFile", zap.Error(err))
-		os.Remove("." + attachment.Path)
 		ctx.JSON(http.StatusOK, map[string]interface{}{"errno": 1, "msg": err.Error()})
 		return
 	}
