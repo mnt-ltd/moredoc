@@ -7,6 +7,7 @@
         :show-create="false"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
         @onDelete="batchDelete"
       />
@@ -88,10 +89,40 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        this.search.page = parseInt(this.$route.query.page) || 1
+        this.search.size = parseInt(this.$route.query.size) || 10
+        this.search.wd = this.$route.query.wd || ''
+
+        // enable
+        if (typeof this.$route.query.enable === 'object') {
+          this.search.enable = (this.$route.query.enable || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.enable) {
+          this.search.enable = [parseInt(this.$route.query.enable) || 0]
+        }
+
+        // type
+        if (typeof this.$route.query.type === 'object') {
+          this.search.type = (this.$route.query.type || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.type) {
+          this.search.type = [parseInt(this.$route.query.type) || 0]
+        }
+
+        this.listAttachment()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listAttachment()
+    // await this.listAttachment()
   },
   methods: {
     async listAttachment() {
@@ -107,15 +138,24 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listAttachment()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listAttachment()
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listAttachment()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listAttachment()
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listAttachment()
+      this.search = { ...this.search, ...search }
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listAttachment()
     },
     async editRow(row) {
       const res = await getAttachment({ id: row.id })
@@ -199,8 +239,8 @@ export default {
           placeholder: '请选择是否合法',
           multiple: true,
           options: [
-            { label: '是', value: true },
-            { label: '否', value: false },
+            { label: '是', value: 1 },
+            { label: '否', value: 0 },
           ],
         },
       ]
