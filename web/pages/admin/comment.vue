@@ -64,7 +64,7 @@
       v-if="comment.id > 0"
       title="评论编审"
       :visible.sync="formCommentVisible"
-      width="640px"
+      width="520px"
     >
       <FormCommentCheck
         ref="formComment"
@@ -84,6 +84,7 @@ import {
 } from '~/api/comment'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
+import { parseQueryIntArray } from '~/utils/utils'
 export default {
   components: { TableList, FormSearch },
   layout: 'admin',
@@ -120,15 +121,12 @@ export default {
     '$route.query': {
       immediate: true,
       handler() {
-        this.search.page = parseInt(this.$route.query.page) || 1
-        this.search.size = parseInt(this.$route.query.size) || 10
-        this.search.wd = this.$route.query.wd || ''
-        if (typeof this.$route.query.status === 'object') {
-          this.search.status = (this.$route.query.status || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.status) {
-          this.search.status = [parseInt(this.$route.query.status) || 0]
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['status']),
         }
         this.listComment()
       },
@@ -137,7 +135,6 @@ export default {
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    // await this.listComment()
   },
   methods: {
     async listComment() {
@@ -159,21 +156,18 @@ export default {
       this.$router.push({
         query: this.search,
       })
-      // this.listComment()
     },
     handlePageChange(val) {
       this.search.page = val
       this.$router.push({
         query: this.search,
       })
-      // this.listComment()
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
+      this.search = { ...this.search, ...search, page: 1 }
       this.$router.push({
         query: this.search,
       })
-      // this.listComment()
     },
     onCreate() {
       this.comment = { id: 0 }

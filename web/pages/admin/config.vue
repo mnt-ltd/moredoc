@@ -85,9 +85,6 @@ export default {
       immediate: true,
     },
   },
-  // created() {
-  //   this.loadConfig()
-  // },
   methods: {
     handleClick(tab) {
       this.activeName = tab.name
@@ -96,7 +93,6 @@ export default {
           tab: tab.name,
         },
       })
-      // this.loadConfig()
     },
     async loadConfig() {
       const res = await listConfig({ category: [this.activeName] })

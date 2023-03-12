@@ -31,7 +31,7 @@
     <el-dialog
       :title="category.id ? '编辑分类' : '新增分类'"
       :visible.sync="formVisible"
-      :width="'640px'"
+      :width="'520px'"
     >
       <FormCategory
         ref="categoryForm"
@@ -48,7 +48,7 @@ import { listCategory, deleteCategory, getCategory } from '~/api/category'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormCategory from '~/components/FormCategory.vue'
-import { categoryToTrees } from '~/utils/utils'
+import { categoryToTrees, parseQueryIntArray } from '~/utils/utils'
 import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormCategory },
@@ -82,22 +82,11 @@ export default {
     '$route.query': {
       immediate: true,
       async handler() {
-        let search = { ...this.$route.query }
-
-        // 不传页码和每页数量，一次查询全部
-        // search.page = parseInt(this.$route.query.page) || 1
-        // search.size = parseInt(this.$route.query.size) || 10
-
-        // enable
-        if (typeof this.$route.query.enable === 'object') {
-          this.search.enable = (this.$route.query.enable || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.enable) {
-          this.search.enable = [parseInt(this.$route.query.enable) || 0]
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          ...parseQueryIntArray(this.$route.query, ['enable']),
         }
-
-        this.search = search
         await this.initTableListFields()
         this.listCategory()
       },
@@ -105,8 +94,6 @@ export default {
   },
   async created() {
     this.initSearchForm()
-    // this.initTableListFields()
-    // await this.listCategory()
   },
   methods: {
     async listCategory() {

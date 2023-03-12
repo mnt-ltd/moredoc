@@ -59,7 +59,7 @@
     <el-dialog
       :title="user.id ? '设置用户' : '新增用户'"
       :visible.sync="formUserVisible"
-      width="640px"
+      width="520px"
     >
       <FormUser
         ref="formUser"
@@ -71,7 +71,7 @@
     <el-dialog
       title="编辑用户"
       :visible.sync="formUserProfileVisible"
-      width="640px"
+      width="520px"
     >
       <FormUserProfile
         ref="formUserProfile"
@@ -86,6 +86,7 @@
 import { deleteUser, getUser, listUser } from '~/api/user'
 import { listGroup } from '~/api/group'
 import { userStatusOptions } from '~/utils/enum'
+import { parseQueryIntArray } from '~/utils/utils'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormUser from '~/components/FormUser.vue'
@@ -127,29 +128,14 @@ export default {
     '$route.query': {
       immediate: true,
       async handler() {
-        let search = { ...this.$route.query }
-        search.page = parseInt(this.$route.query.page) || 1
-        search.size = parseInt(this.$route.query.size) || 10
-
-        // group_id
-        if (typeof this.$route.query.group_id === 'object') {
-          search.group_id = (this.$route.query.group_id || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.group_id) {
-          search.group_id = [parseInt(this.$route.query.group_id) || 0]
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['group_id', 'status']),
         }
 
-        // status
-        if (typeof this.$route.query.status === 'object') {
-          search.status = (this.$route.query.status || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.status) {
-          search.status = [parseInt(this.$route.query.status) || 0]
-        }
-
-        this.search = search
         // 这里要执行下初始化，避免数据请求回来了，但是表格字段还没初始化，导致列表布局错乱
         await this.initTableListFields()
         this.listUser()
@@ -195,7 +181,7 @@ export default {
       })
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
+      this.search = { ...this.search, ...search, page: 1 }
       this.$router.push({
         query: this.search,
       })

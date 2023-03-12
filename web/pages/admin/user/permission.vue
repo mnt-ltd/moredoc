@@ -41,7 +41,7 @@
       </div>
     </el-card>
 
-    <el-dialog title="编辑附件" width="640px" :visible.sync="formVisible">
+    <el-dialog title="编辑附件" width="520px" :visible.sync="formVisible">
       <FormPermission :init-permission="permission" @success="formSuccess" />
     </el-dialog>
   </div>
@@ -87,10 +87,12 @@ export default {
     '$route.query': {
       immediate: true,
       handler() {
-        let search = { ...this.$route.query }
-        search.page = parseInt(this.$route.query.page) || 1
-        search.size = parseInt(this.$route.query.size) || 10
-        this.search = search
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+        }
         this.listPermission()
       },
     },
@@ -124,7 +126,7 @@ export default {
       })
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
+      this.search = { ...this.search, ...search, page: 1 }
       this.$router.push({
         query: this.search,
       })

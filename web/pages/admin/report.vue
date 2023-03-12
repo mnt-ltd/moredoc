@@ -47,7 +47,7 @@
     <el-dialog
       :title="report.id ? '编辑举报' : '新增举报'"
       :visible.sync="formReportVisible"
-      width="640px"
+      width="520px"
     >
       <FormReport
         ref="reportForm"
@@ -62,6 +62,7 @@
 <script>
 import { listReport, deleteReport } from '~/api/report'
 import { reportOptions } from '~/utils/enum'
+import { parseQueryIntArray } from '~/utils/utils'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormReport from '~/components/FormReport.vue'
@@ -99,22 +100,16 @@ export default {
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    // await this.listReport()
   },
   watch: {
     '$route.query': {
       handler() {
-        this.search.page = parseInt(this.$route.query.page) || 1
-        this.search.size = parseInt(this.$route.query.size) || 10
-        this.search.wd = this.$route.query.wd || ''
-
-        // 判断 this.$route.query.status 是否是数组，如果不是数组，转为数组
-        if (typeof this.$route.query.status === 'object') {
-          this.search.status = (this.$route.query.status || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.status) {
-          this.search.status = [parseInt(this.$route.query.status) || 0]
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['status']),
         }
         this.listReport()
       },
@@ -138,18 +133,15 @@ export default {
       this.$router.push({
         query: this.search,
       })
-      // this.listReport()
     },
     handlePageChange(val) {
       this.search.page = val
       this.$router.push({
         query: this.search,
       })
-      // this.listReport()
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      // this.listReport()
+      this.search = { ...this.search, ...search, page: 1 }
       this.$router.push({
         query: this.search,
       })

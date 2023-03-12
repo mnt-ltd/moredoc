@@ -119,10 +119,12 @@ export default {
     '$route.query': {
       immediate: true,
       handler() {
-        this.search.page = parseInt(this.$route.query.page) || 1
-        this.search.size = parseInt(this.$route.query.size) || 10
-        this.search.wd = this.$route.query.wd || ''
-
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+        }
         this.listArticle()
       },
     },
@@ -159,7 +161,7 @@ export default {
       // this.listArticle()
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
+      this.search = { ...this.search, ...search, page: 1 }
       this.$router.push({
         query: this.search,
       })

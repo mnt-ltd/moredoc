@@ -91,7 +91,7 @@ import {
 } from '~/api/document'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
-import { categoryToTrees } from '~/utils/utils'
+import { categoryToTrees, parseQueryIntArray } from '~/utils/utils'
 import { documentStatusOptions } from '~/utils/enum'
 import { mapGetters } from 'vuex'
 export default {
@@ -128,27 +128,14 @@ export default {
     '$route.query': {
       immediate: true,
       async handler() {
-        this.search.page = parseInt(this.$route.query.page) || 1
-        this.search.size = parseInt(this.$route.query.size) || 10
-        this.search.wd = this.$route.query.wd || ''
-
-        if (typeof this.$route.query.category_id === 'object') {
-          this.search.category_id = (this.$route.query.category_id || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.category_id) {
-          this.search.category_id = [parseInt(this.$route.query.category_id) || 0]
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['category_id', 'status']),
         }
 
-        if (typeof this.$route.query.status === 'object') {
-          this.search.status = (this.$route.query.status || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.status) {
-          this.search.status = [parseInt(this.$route.query.status) || 0]
-        }
-        
-        
         // 需要先加载分类数据
         if (this.trees.length === 0) {
           await this.listCategory()
@@ -210,19 +197,19 @@ export default {
     handleSizeChange(val) {
       this.search.size = val
       this.$router.push({
-        query: this.search
+        query: this.search,
       })
     },
     handlePageChange(val) {
       this.search.page = val
       this.$router.push({
-        query: this.search
+        query: this.search,
       })
     },
     onSearch(search) {
       this.search = { ...this.search, ...search, page: 1 }
       this.$router.push({
-        query: this.search
+        query: this.search,
       })
     },
     recoverRow(row) {

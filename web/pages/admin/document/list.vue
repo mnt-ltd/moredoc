@@ -97,7 +97,7 @@
         </el-pagination>
       </div>
     </el-card>
-    <el-dialog title="编辑文档" width="640px" :visible.sync="formVisible">
+    <el-dialog title="编辑文档" width="520px" :visible.sync="formVisible">
       <FormUpdateDocument
         :category-trees="trees"
         :init-document="document"
@@ -108,7 +108,7 @@
     <el-dialog
       title="推荐设置"
       :visible.sync="formDocumentRecommendVisible"
-      width="640px"
+      width="520px"
     >
       <FormDocumentRecommend :init-document="document" @success="formSuccess" />
     </el-dialog>
@@ -125,7 +125,11 @@ import {
 } from '~/api/document'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
-import { categoryToTrees } from '~/utils/utils'
+import {
+  categoryToTrees,
+  parseQueryIntArray,
+  parseQueryBoolArray,
+} from '~/utils/utils'
 import { documentStatusOptions, boolOptions } from '~/utils/enum'
 import FormUpdateDocument from '~/components/FormUpdateDocument.vue'
 import { mapGetters } from 'vuex'
@@ -165,39 +169,21 @@ export default {
     '$route.query': {
       immediate: true,
       async handler() {
-        this.search.page = parseInt(this.$route.query.page) || 1
-        this.search.size = parseInt(this.$route.query.size) || 10
-        this.search.wd = this.$route.query.wd || ''
-
-        if (typeof this.$route.query.category_id === 'object') {
-          this.search.category_id = (this.$route.query.category_id || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.category_id) {
-          this.search.category_id = [parseInt(this.$route.query.category_id) || 0]
+        let search = { ...this.search, ...this.$route.query }
+        search.page = parseInt(this.$route.query.page) || 1
+        search.size = parseInt(this.$route.query.size) || 10
+        search.wd = this.$route.query.wd || ''
+        this.search = {
+          ...search,
+          ...parseQueryIntArray(this.$route.query, ['category_id', 'status']),
+          ...parseQueryBoolArray(this.$route.query, ['is_recommend']),
         }
-
-        if (typeof this.$route.query.status === 'object') {
-          this.search.status = (this.$route.query.status || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.status) {
-          this.search.status = [parseInt(this.$route.query.status) || 0]
-        }
-        
-        if (typeof this.$route.query.is_recommend === 'object') {
-          this.search.is_recommend = (this.$route.query.is_recommend || []).map((item) =>
-            item=="true"
-          )
-        } else if (this.$route.query.is_recommend) {
-          this.search.is_recommend = [this.$route.query.is_recommend==="true" || false]
-        }
-        
 
         // 需要先加载分类数据
         if (this.trees.length === 0) {
           await this.listCategory()
         }
+
         await this.listDocument()
       },
     },
@@ -205,9 +191,6 @@ export default {
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    // // 需要先加载分类数据
-    // await this.listCategory()
-    // await this.listDocument()
   },
   methods: {
     async listCategory() {

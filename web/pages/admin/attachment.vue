@@ -43,7 +43,7 @@
       </div>
     </el-card>
 
-    <el-dialog title="编辑附件" width="640px" :visible.sync="formVisible">
+    <el-dialog title="编辑附件" width="520px" :visible.sync="formVisible">
       <FormAttachment :init-attachment="attachment" @success="formSuccess" />
     </el-dialog>
   </div>
@@ -59,6 +59,7 @@ import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormAttachment from '~/components/FormAttachment.vue'
 import { attachmentTypeOptions } from '~/utils/enum'
+import { parseQueryIntArray } from '~/utils/utils'
 import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormAttachment },
@@ -93,28 +94,13 @@ export default {
     '$route.query': {
       immediate: true,
       handler() {
-        this.search.page = parseInt(this.$route.query.page) || 1
-        this.search.size = parseInt(this.$route.query.size) || 10
-        this.search.wd = this.$route.query.wd || ''
-
-        // enable
-        if (typeof this.$route.query.enable === 'object') {
-          this.search.enable = (this.$route.query.enable || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.enable) {
-          this.search.enable = [parseInt(this.$route.query.enable) || 0]
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['enable', 'type']),
         }
-
-        // type
-        if (typeof this.$route.query.type === 'object') {
-          this.search.type = (this.$route.query.type || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.type) {
-          this.search.type = [parseInt(this.$route.query.type) || 0]
-        }
-
         this.listAttachment()
       },
     },
@@ -151,7 +137,7 @@ export default {
       // this.listAttachment()
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
+      this.search = { ...this.search, ...search, page: 1 }
       this.$router.push({
         query: this.search,
       })

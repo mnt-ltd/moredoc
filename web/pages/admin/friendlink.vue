@@ -47,7 +47,7 @@
     <el-dialog
       :title="friendlink.id ? '编辑友链' : '新增友链'"
       :visible.sync="formFriendlinkVisible"
-      width="640px"
+      width="520px"
     >
       <FormFriendlink
         ref="friendlinkForm"
@@ -64,6 +64,7 @@ import {
   deleteFriendlink,
   getFriendlink,
 } from '~/api/friendlink'
+import { parseQueryIntArray } from '~/utils/utils'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormFriendlink from '~/components/FormFriendlink.vue'
@@ -101,15 +102,12 @@ export default {
     '$route.query': {
       immediate: true,
       handler() {
-        this.search.page = parseInt(this.$route.query.page) || 1
-        this.search.size = parseInt(this.$route.query.size) || 10
-        this.search.wd = this.$route.query.wd || ''
-        if (typeof this.$route.query.enable === 'object') {
-          this.search.enable = (this.$route.query.enable || []).map((item) =>
-            parseInt(item)
-          )
-        } else if (this.$route.query.enable) {
-          this.search.enable = [parseInt(this.$route.query.enable) || 0]
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['enable']),
         }
         this.listFriendlink()
       },
@@ -135,23 +133,20 @@ export default {
     handleSizeChange(val) {
       this.search.size = val
       this.$router.push({
-        query: this.search
+        query: this.search,
       })
-      // this.listFriendlink()
     },
     handlePageChange(val) {
       this.search.page = val
       this.$router.push({
-        query: this.search
+        query: this.search,
       })
-      // this.listFriendlink()
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
+      this.search = { ...this.search, ...search, page: 1 }
       this.$router.push({
-        query: this.search
+        query: this.search,
       })
-      // this.listFriendlink()
     },
     onCreate() {
       this.friendlink = { id: 0 }
