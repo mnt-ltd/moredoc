@@ -225,6 +225,7 @@
             class="powered-by"
             >MOREDOC</el-link
           >
+          CE
           <span>{{ settings.system.version }}</span>
         </div>
       </div>

@@ -199,6 +199,8 @@ export default {
       if (res.status === 200) {
         const documents = res.data.document || []
         documents.forEach((item) => {
+          // 对于转换中的文档，禁止删除
+          item.disable_delete = item.status === 1
           ;(item.category_id || (item.category_id = [])).forEach((id) => {
             ;(item.category_name || (item.category_name = [])).push(
               this.categoryMap[id].title
