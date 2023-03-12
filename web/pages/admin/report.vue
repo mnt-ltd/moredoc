@@ -7,6 +7,7 @@
         :show-create="false"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
         @onCreate="onCreate"
         @onDelete="batchDelete"
@@ -98,7 +99,27 @@ export default {
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listReport()
+    // await this.listReport()
+  },
+  watch: {
+    '$route.query': {
+      handler() {
+        this.search.page = parseInt(this.$route.query.page) || 1
+        this.search.size = parseInt(this.$route.query.size) || 10
+        this.search.wd = this.$route.query.wd || ''
+
+        // 判断 this.$route.query.status 是否是数组，如果不是数组，转为数组
+        if (typeof this.$route.query.status === 'object') {
+          this.search.status = (this.$route.query.status || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.status) {
+          this.search.status = [parseInt(this.$route.query.status) || 0]
+        }
+        this.listReport()
+      },
+      immediate: true,
+    },
   },
   methods: {
     async listReport() {
@@ -114,15 +135,24 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listReport()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listReport()
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listReport()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listReport()
     },
     onSearch(search) {
       this.search = { ...this.search, page: 1, ...search }
-      this.listReport()
+      // this.listReport()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onCreate() {
       this.report = { id: 0 }
@@ -196,12 +226,12 @@ export default {
         {
           type: 'select',
           label: '状态',
-          name: 'enable',
+          name: 'status',
           placeholder: '请选择状态',
           multiple: true,
           options: [
-            { label: '启用', value: 1 },
-            { label: '禁用', value: 0 },
+            { label: '已处理', value: 1 },
+            { label: '未处理', value: 0 },
           ],
         },
       ]
