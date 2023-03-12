@@ -126,7 +126,7 @@ export default {
   watch: {
     '$route.query': {
       immediate: true,
-      handler() {
+      async handler() {
         let search = { ...this.$route.query }
         search.page = parseInt(this.$route.query.page) || 1
         search.size = parseInt(this.$route.query.size) || 10
@@ -150,6 +150,8 @@ export default {
         }
 
         this.search = search
+        // 这里要执行下初始化，避免数据请求回来了，但是表格字段还没初始化，导致列表布局错乱
+        await this.initTableListFields()
         this.listUser()
       },
     },
@@ -308,6 +310,7 @@ export default {
       ]
     },
     initTableListFields() {
+      if (this.listFields.length > 0) return
       this.listFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
         {
