@@ -5,6 +5,7 @@
         :fields="searchFormFields"
         :disabled-delete="selectedRows.length == 0"
         :loading="loading"
+        :default-search="search"
         @onSearch="onSearch"
         @onCreate="onCreate"
         @onDelete="batchDelete"
@@ -122,11 +123,42 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        let search = { ...this.$route.query }
+        search.page = parseInt(this.$route.query.page) || 1
+        search.size = parseInt(this.$route.query.size) || 10
+
+        // group_id
+        if (typeof this.$route.query.group_id === 'object') {
+          search.group_id = (this.$route.query.group_id || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.group_id) {
+          search.group_id = [parseInt(this.$route.query.group_id) || 0]
+        }
+
+        // status
+        if (typeof this.$route.query.status === 'object') {
+          search.status = (this.$route.query.status || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.status) {
+          search.status = [parseInt(this.$route.query.status) || 0]
+        }
+
+        this.search = search
+        this.listUser()
+      },
+    },
+  },
   async created() {
     await this.initSearchForm()
     await this.initTableListFields()
     await this.listGroup()
-    await this.listUser()
+    await this.initSearchForm() // 请求完成用户组数据之后再初始化下搜索表单，因为下拉枚举需要用到用户组数据
   },
   methods: {
     async listUser() {
@@ -150,16 +182,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listUser()
+      this.$router.push({
+        query: this.search,
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listUser()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
       this.search = { ...this.search, page: 1, ...search }
-      this.search.page = 1
-      this.listUser()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onCreate() {
       this.formUserVisible = true
