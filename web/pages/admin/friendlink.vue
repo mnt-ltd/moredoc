@@ -7,6 +7,7 @@
         :show-create="true"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
         @onCreate="onCreate"
         @onDelete="batchDelete"
@@ -77,7 +78,7 @@ export default {
       search: {
         wd: '',
         page: 1,
-        status: [],
+        enable: [],
         size: 10,
       },
       friendlinks: [],
@@ -96,10 +97,28 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        this.search.page = parseInt(this.$route.query.page) || 1
+        this.search.size = parseInt(this.$route.query.size) || 10
+        this.search.wd = this.$route.query.wd || ''
+        if (typeof this.$route.query.enable === 'object') {
+          this.search.enable = (this.$route.query.enable || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.enable) {
+          this.search.enable = [parseInt(this.$route.query.enable) || 0]
+        }
+        this.listFriendlink()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listFriendlink()
+    // await this.listFriendlink()
   },
   methods: {
     async listFriendlink() {
@@ -115,15 +134,24 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listFriendlink()
+      this.$router.push({
+        query: this.search
+      })
+      // this.listFriendlink()
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listFriendlink()
+      this.$router.push({
+        query: this.search
+      })
+      // this.listFriendlink()
     },
     onSearch(search) {
       this.search = { ...this.search, page: 1, ...search }
-      this.listFriendlink()
+      this.$router.push({
+        query: this.search
+      })
+      // this.listFriendlink()
     },
     onCreate() {
       this.friendlink = { id: 0 }
