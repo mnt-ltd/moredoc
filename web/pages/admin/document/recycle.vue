@@ -7,6 +7,7 @@
         :show-create="false"
         :show-delete="false"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
       >
         <template slot="buttons">
@@ -123,12 +124,42 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      async handler() {
+        this.search.page = parseInt(this.$route.query.page) || 1
+        this.search.size = parseInt(this.$route.query.size) || 10
+        this.search.wd = this.$route.query.wd || ''
+
+        if (typeof this.$route.query.category_id === 'object') {
+          this.search.category_id = (this.$route.query.category_id || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.category_id) {
+          this.search.category_id = [parseInt(this.$route.query.category_id) || 0]
+        }
+
+        if (typeof this.$route.query.status === 'object') {
+          this.search.status = (this.$route.query.status || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.status) {
+          this.search.status = [parseInt(this.$route.query.status) || 0]
+        }
+        
+        
+        // 需要先加载分类数据
+        if (this.trees.length === 0) {
+          await this.listCategory()
+        }
+        await this.listDocument()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    // 需要先加载分类数据
-    await this.listCategory()
-    await this.listDocument()
   },
   methods: {
     async listCategory() {
@@ -178,15 +209,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listDocument()
+      this.$router.push({
+        query: this.search
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listDocument()
+      this.$router.push({
+        query: this.search
+      })
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listDocument()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search
+      })
     },
     recoverRow(row) {
       this.$confirm(`您确定要要恢复【${row.title}】吗？`, '温馨提示', {

@@ -78,10 +78,35 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      async handler() {
+        let search = { ...this.$route.query }
+
+        // 不传页码和每页数量，一次查询全部
+        // search.page = parseInt(this.$route.query.page) || 1
+        // search.size = parseInt(this.$route.query.size) || 10
+
+        // enable
+        if (typeof this.$route.query.enable === 'object') {
+          this.search.enable = (this.$route.query.enable || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.enable) {
+          this.search.enable = [parseInt(this.$route.query.enable) || 0]
+        }
+
+        this.search = search
+        await this.initTableListFields()
+        this.listCategory()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
-    this.initTableListFields()
-    await this.listCategory()
+    // this.initTableListFields()
+    // await this.listCategory()
   },
   methods: {
     async listCategory() {
@@ -104,15 +129,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listCategory()
+      this.$router.push({
+        query: this.search,
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listCategory()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listCategory()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
     },
     onCreate() {
       this.category = {
@@ -199,13 +230,16 @@ export default {
           placeholder: '请选择状态',
           multiple: true,
           options: [
-            { label: '启用', value: true },
-            { label: '禁用', value: false },
+            { label: '启用', value: 1 },
+            { label: '禁用', value: 0 },
           ],
         },
       ]
     },
     initTableListFields() {
+      if (this.tableListFields.length > 0) {
+        return
+      }
       this.tableListFields = [
         { prop: 'title', label: '名称', minWidth: 120, fixed: 'left' },
         {
