@@ -76,13 +76,27 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
-  created() {
-    this.loadConfig()
+  watch: {
+    '$route.query': {
+      handler() {
+        this.activeName = this.$route.query.tab || 'system'
+        this.loadConfig()
+      },
+      immediate: true,
+    },
   },
+  // created() {
+  //   this.loadConfig()
+  // },
   methods: {
     handleClick(tab) {
       this.activeName = tab.name
-      this.loadConfig()
+      this.$router.push({
+        query: {
+          tab: tab.name,
+        },
+      })
+      // this.loadConfig()
     },
     async loadConfig() {
       const res = await listConfig({ category: [this.activeName] })
