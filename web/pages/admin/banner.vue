@@ -7,6 +7,7 @@
         :show-create="true"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onCreate="onCreate"
         @onSearch="onSearch"
         @onDelete="batchDelete"
@@ -94,10 +95,40 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        this.search.page = parseInt(this.$route.query.page) || 1
+        this.search.size = parseInt(this.$route.query.size) || 10
+        this.search.wd = this.$route.query.wd || ''
+
+        // enable
+        if (typeof this.$route.query.enable === 'object') {
+          this.search.enable = (this.$route.query.enable || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.enable) {
+          this.search.enable = [parseInt(this.$route.query.enable) || 0]
+        }
+
+        // type
+        if (typeof this.$route.query.type === 'object') {
+          this.search.type = (this.$route.query.type || []).map((item) =>
+            parseInt(item)
+          )
+        } else if (this.$route.query.type) {
+          this.search.type = [parseInt(this.$route.query.type) || 0]
+        }
+
+        this.listBanner()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listBanner()
+    // await this.listBanner()
   },
   methods: {
     async listBanner() {
@@ -113,15 +144,24 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listBanner()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listBanner()
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listBanner()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listBanner()
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listBanner()
+      this.search = { ...this.search, ...search }
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listBanner()
     },
     onCreate() {
       this.banner = {}
