@@ -33,6 +33,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// 文档
 type Document struct {
 	Id              int64       `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title           string      `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
@@ -333,6 +334,7 @@ func (m *Document) GetConvertError() string {
 	return ""
 }
 
+// 删除文档，放入回收站
 type DeleteDocumentRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -377,6 +379,7 @@ func (m *DeleteDocumentRequest) GetId() []int64 {
 	return nil
 }
 
+// 恢复文档
 type RecoverRecycleDocumentRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -421,6 +424,7 @@ func (m *RecoverRecycleDocumentRequest) GetId() []int64 {
 	return nil
 }
 
+// 查询文档
 type GetDocumentRequest struct {
 	Id         int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	WithAuthor bool  `protobuf:"varint,2,opt,name=with_author,json=withAuthor,proto3" json:"with_author,omitempty"`
@@ -473,6 +477,7 @@ func (m *GetDocumentRequest) GetWithAuthor() bool {
 	return false
 }
 
+// 文档列表
 type ListDocumentRequest struct {
 	Page        int64    `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_       int64    `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -589,6 +594,7 @@ func (m *ListDocumentRequest) GetLimit() int64 {
 	return 0
 }
 
+// 文档列表
 type ListDocumentReply struct {
 	Total    int64       `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Document []*Document `protobuf:"bytes,2,rep,name=document,proto3" json:"document,omitempty"`
@@ -641,6 +647,7 @@ func (m *ListDocumentReply) GetDocument() []*Document {
 	return nil
 }
 
+// 创建文档
 type CreateDocumentItem struct {
 	Title        string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
 	AttachmentId int64  `protobuf:"varint,2,opt,name=attachment_id,json=attachmentId,proto3" json:"attachment_id,omitempty"`
@@ -701,6 +708,7 @@ func (m *CreateDocumentItem) GetPrice() int32 {
 	return 0
 }
 
+// 创建文档
 type CreateDocumentRequest struct {
 	Overwrite  bool                  `protobuf:"varint,1,opt,name=overwrite,proto3" json:"overwrite,omitempty"`
 	CategoryId []int64               `protobuf:"varint,2,rep,packed,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
@@ -761,6 +769,7 @@ func (m *CreateDocumentRequest) GetDocument() []*CreateDocumentItem {
 	return nil
 }
 
+// 设置文档推荐
 type SetDocumentRecommendRequest struct {
 	Id   []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 	Type int32   `protobuf:"varint,2,opt,name=type,proto3" json:"type,omitempty"`
@@ -813,6 +822,7 @@ func (m *SetDocumentRecommendRequest) GetType() int32 {
 	return 0
 }
 
+// 查询文档（针对首页的查询）
 type ListDocumentForHomeRequest struct {
 	Limit int64 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
 }
@@ -857,6 +867,7 @@ func (m *ListDocumentForHomeRequest) GetLimit() int64 {
 	return 0
 }
 
+// 首页文档查询返回项
 type ListDocumentForHomeItem struct {
 	CategoryId    int64       `protobuf:"varint,1,opt,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
 	CategoryCover string      `protobuf:"bytes,2,opt,name=category_cover,json=categoryCover,proto3" json:"category_cover,omitempty"`
@@ -925,6 +936,7 @@ func (m *ListDocumentForHomeItem) GetDocument() []*Document {
 	return nil
 }
 
+// 查询文档（针对首页的查询）
 type ListDocumentForHomeResponse struct {
 	Document []*ListDocumentForHomeItem `protobuf:"bytes,1,rep,name=document,proto3" json:"document,omitempty"`
 }
@@ -1053,6 +1065,7 @@ func (m *SearchDocumentRequest) GetExt() string {
 	return ""
 }
 
+// 文档评分
 type DocumentScore struct {
 	Id         int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	DocumentId int64      `protobuf:"varint,2,opt,name=document_id,json=documentId,proto3" json:"document_id,omitempty"`

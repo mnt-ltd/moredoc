@@ -26,20 +26,20 @@
 <a name="api-v1-Category"></a>
 
 ### Category
-
+文档分类
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int32](#int32) |  |  |
-| parent_id | [int32](#int32) |  |  |
-| title | [string](#string) |  |  |
-| doc_count | [int32](#int32) |  |  |
-| sort | [int32](#int32) |  |  |
-| enable | [bool](#bool) |  |  |
+| id | [int32](#int32) |  | 分类ID |
+| parent_id | [int32](#int32) |  | 父分类ID |
+| title | [string](#string) |  | 分类标题 |
+| doc_count | [int32](#int32) |  | 文档数量 |
+| sort | [int32](#int32) |  | 排序，倒序排序，值越大越靠前 |
+| enable | [bool](#bool) |  | 是否启用 |
 | cover | [string](#string) |  | 分类封面 |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 创建时间 |
+| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 更新时间 |
 
 
 
@@ -49,7 +49,7 @@
 <a name="api-v1-DeleteCategoryRequest"></a>
 
 ### DeleteCategoryRequest
-
+删除分类请求
 
 
 | Field | Type | Label | Description |
@@ -64,7 +64,7 @@
 <a name="api-v1-GetCategoryRequest"></a>
 
 ### GetCategoryRequest
-
+获取分类请求
 
 
 | Field | Type | Label | Description |
@@ -79,13 +79,13 @@
 <a name="api-v1-ListCategoryReply"></a>
 
 ### ListCategoryReply
-
+分类列表响应
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| total | [int64](#int64) |  |  |
-| category | [Category](#api-v1-Category) | repeated |  |
+| total | [int64](#int64) |  | 总数 |
+| category | [Category](#api-v1-Category) | repeated | 分类列表 |
 
 
 
@@ -95,17 +95,17 @@
 <a name="api-v1-ListCategoryRequest"></a>
 
 ### ListCategoryRequest
-
+分类列表请求
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| page | [int64](#int64) |  |  |
-| size | [int64](#int64) |  |  |
-| parent_id | [int64](#int64) | repeated |  |
-| wd | [string](#string) |  |  |
-| enable | [bool](#bool) | repeated |  |
-| field | [string](#string) | repeated |  |
+| page | [int64](#int64) |  | 页码 |
+| size | [int64](#int64) |  | 每页数量 |
+| parent_id | [int64](#int64) | repeated | 父分类ID |
+| wd | [string](#string) |  | 搜索关键字 |
+| enable | [bool](#bool) | repeated | 是否启用 |
+| field | [string](#string) | repeated | 查询字段 |
 
 
 
@@ -121,15 +121,15 @@
 <a name="api-v1-CategoryAPI"></a>
 
 ### CategoryAPI
-
+文档分类API服务
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| CreateCategory | [Category](#api-v1-Category) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| UpdateCategory | [Category](#api-v1-Category) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| DeleteCategory | [DeleteCategoryRequest](#api-v1-DeleteCategoryRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| GetCategory | [GetCategoryRequest](#api-v1-GetCategoryRequest) | [Category](#api-v1-Category) |  |
-| ListCategory | [ListCategoryRequest](#api-v1-ListCategoryRequest) | [ListCategoryReply](#api-v1-ListCategoryReply) |  |
+| CreateCategory | [Category](#api-v1-Category) | [.google.protobuf.Empty](#google-protobuf-Empty) | 创建分类 |
+| UpdateCategory | [Category](#api-v1-Category) | [.google.protobuf.Empty](#google-protobuf-Empty) | 更新分类 |
+| DeleteCategory | [DeleteCategoryRequest](#api-v1-DeleteCategoryRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 删除分类 |
+| GetCategory | [GetCategoryRequest](#api-v1-GetCategoryRequest) | [Category](#api-v1-Category) | 获取分类 |
+| ListCategory | [ListCategoryRequest](#api-v1-ListCategoryRequest) | [ListCategoryReply](#api-v1-ListCategoryReply) | 分类列表 |
 
  
 

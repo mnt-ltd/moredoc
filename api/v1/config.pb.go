@@ -33,18 +33,20 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// 配置
 type Config struct {
-	Id          int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Label       string     `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
-	Name        string     `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Value       string     `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"`
-	Placeholder string     `protobuf:"bytes,5,opt,name=placeholder,proto3" json:"placeholder,omitempty"`
-	InputType   string     `protobuf:"bytes,6,opt,name=input_type,json=inputType,proto3" json:"input_type,omitempty"`
-	Category    string     `protobuf:"bytes,7,opt,name=category,proto3" json:"category,omitempty"`
-	Sort        int32      `protobuf:"varint,8,opt,name=sort,proto3" json:"sort,omitempty"`
-	Options     string     `protobuf:"bytes,9,opt,name=options,proto3" json:"options,omitempty"`
-	CreatedAt   *time.Time `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3,stdtime" json:"created_at,omitempty"`
-	UpdatedAt   *time.Time `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3,stdtime" json:"updated_at,omitempty"`
+	Id          int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Label       string `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
+	Name        string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Value       string `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"`
+	Placeholder string `protobuf:"bytes,5,opt,name=placeholder,proto3" json:"placeholder,omitempty"`
+	InputType   string `protobuf:"bytes,6,opt,name=input_type,json=inputType,proto3" json:"input_type,omitempty"`
+	// element-ui 的 el-input 的 type 属性
+	Category  string     `protobuf:"bytes,7,opt,name=category,proto3" json:"category,omitempty"`
+	Sort      int32      `protobuf:"varint,8,opt,name=sort,proto3" json:"sort,omitempty"`
+	Options   string     `protobuf:"bytes,9,opt,name=options,proto3" json:"options,omitempty"`
+	CreatedAt *time.Time `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3,stdtime" json:"created_at,omitempty"`
+	UpdatedAt *time.Time `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3,stdtime" json:"updated_at,omitempty"`
 }
 
 func (m *Config) Reset()         { *m = Config{} }
@@ -157,6 +159,7 @@ func (m *Config) GetUpdatedAt() *time.Time {
 	return nil
 }
 
+// 查询配置项请求
 type ListConfigRequest struct {
 	Category []string `protobuf:"bytes,1,rep,name=category,proto3" json:"category,omitempty"`
 }
@@ -201,6 +204,7 @@ func (m *ListConfigRequest) GetCategory() []string {
 	return nil
 }
 
+// 配置列表
 type Configs struct {
 	Config []*Config `protobuf:"bytes,1,rep,name=config,proto3" json:"config,omitempty"`
 }
@@ -463,7 +467,7 @@ func (m *ConfigSystem) GetVersion() string {
 	return ""
 }
 
-// 底链配置项
+// 底链配置项，为跳转的链接地址
 type ConfigFooter struct {
 	About     string `protobuf:"bytes,1,opt,name=about,proto3" json:"about,omitempty"`
 	Contact   string `protobuf:"bytes,2,opt,name=contact,proto3" json:"contact,omitempty"`
@@ -665,6 +669,7 @@ func (m *ConfigSecurity) GetLoginRequired() bool {
 	return false
 }
 
+// 系统配置
 type Settings struct {
 	System   *ConfigSystem   `protobuf:"bytes,1,opt,name=system,proto3" json:"system,omitempty"`
 	Footer   *ConfigFooter   `protobuf:"bytes,2,opt,name=footer,proto3" json:"footer,omitempty"`
@@ -725,6 +730,7 @@ func (m *Settings) GetSecurity() *ConfigSecurity {
 	return nil
 }
 
+// 依赖项
 type EnvDependent struct {
 	Name        string     `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
 	Description string     `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
@@ -817,6 +823,7 @@ func (m *EnvDependent) GetIsRequired() bool {
 	return false
 }
 
+// 依赖项列表
 type Envs struct {
 	Envs []*EnvDependent `protobuf:"bytes,1,rep,name=envs,proto3" json:"envs,omitempty"`
 }
@@ -861,6 +868,7 @@ func (m *Envs) GetEnvs() []*EnvDependent {
 	return nil
 }
 
+// 系统状态
 type Stats struct {
 	UserCount       int64  `protobuf:"varint,1,opt,name=user_count,json=userCount,proto3" json:"user_count,omitempty"`
 	DocumentCount   int64  `protobuf:"varint,2,opt,name=document_count,json=documentCount,proto3" json:"document_count,omitempty"`

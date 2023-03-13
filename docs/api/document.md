@@ -38,14 +38,14 @@
 <a name="api-v1-CreateDocumentItem"></a>
 
 ### CreateDocumentItem
-
+创建文档
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| title | [string](#string) |  |  |
-| attachment_id | [int64](#int64) |  |  |
-| price | [int32](#int32) |  |  |
+| title | [string](#string) |  | 文档标题 |
+| attachment_id | [int64](#int64) |  | 文档附件ID |
+| price | [int32](#int32) |  | 文档价格 |
 
 
 
@@ -55,14 +55,14 @@
 <a name="api-v1-CreateDocumentRequest"></a>
 
 ### CreateDocumentRequest
-
+创建文档
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| overwrite | [bool](#bool) |  |  |
-| category_id | [int64](#int64) | repeated |  |
-| document | [CreateDocumentItem](#api-v1-CreateDocumentItem) | repeated |  |
+| overwrite | [bool](#bool) |  | 是否覆盖。暂时用不到 |
+| category_id | [int64](#int64) | repeated | 文档分类ID |
+| document | [CreateDocumentItem](#api-v1-CreateDocumentItem) | repeated | 文档列表 |
 
 
 
@@ -72,7 +72,7 @@
 <a name="api-v1-DeleteDocumentRequest"></a>
 
 ### DeleteDocumentRequest
-
+删除文档，放入回收站
 
 
 | Field | Type | Label | Description |
@@ -87,44 +87,44 @@
 <a name="api-v1-Document"></a>
 
 ### Document
-
+文档
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) |  |  |
-| title | [string](#string) |  |  |
-| keywords | [string](#string) |  |  |
-| description | [string](#string) |  |  |
-| user_id | [int64](#int64) |  |  |
-| cover | [string](#string) |  |  |
-| width | [int32](#int32) |  |  |
-| height | [int32](#int32) |  |  |
-| preview | [int32](#int32) |  |  |
-| pages | [int32](#int32) |  |  |
-| uuid | [string](#string) |  |  |
-| download_count | [int32](#int32) |  |  |
-| view_count | [int32](#int32) |  |  |
-| favorite_count | [int32](#int32) |  |  |
-| comment_count | [int32](#int32) |  |  |
-| score | [int32](#int32) |  |  |
-| score_count | [int32](#int32) |  |  |
-| price | [int32](#int32) |  |  |
-| size | [int64](#int64) |  |  |
-| status | [int32](#int32) |  |  |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| deleted_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| recommend_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| deleted_user_id | [int64](#int64) |  |  |
-| username | [string](#string) |  |  |
-| category_id | [int64](#int64) | repeated |  |
-| deleted_username | [string](#string) |  |  |
-| ext | [string](#string) |  |  |
-| attachment | [Attachment](#api-v1-Attachment) |  |  |
-| user | [User](#api-v1-User) |  |  |
-| enable_gzip | [bool](#bool) |  |  |
-| convert_error | [string](#string) |  |  |
+| id | [int64](#int64) |  | 文档ID |
+| title | [string](#string) |  | 文档标题 |
+| keywords | [string](#string) |  | 文档关键字 |
+| description | [string](#string) |  | 文档描述 |
+| user_id | [int64](#int64) |  | 文档作者 |
+| cover | [string](#string) |  | 文档封面 |
+| width | [int32](#int32) |  | 文档宽度 |
+| height | [int32](#int32) |  | 文档高度 |
+| preview | [int32](#int32) |  | 文档可预览页数，0表示不限制 |
+| pages | [int32](#int32) |  | 文档页数 |
+| uuid | [string](#string) |  | 文档UUID |
+| download_count | [int32](#int32) |  | 文档下载次数 |
+| view_count | [int32](#int32) |  | 文档浏览次数 |
+| favorite_count | [int32](#int32) |  | 文档收藏次数 |
+| comment_count | [int32](#int32) |  | 文档评论次数 |
+| score | [int32](#int32) |  | 文档评分 |
+| score_count | [int32](#int32) |  | 文档评分次数 |
+| price | [int32](#int32) |  | 文档价格 |
+| size | [int64](#int64) |  | 文档大小 |
+| status | [int32](#int32) |  | 文档状态，见 web/utils/enum.js |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 文档创建时间 |
+| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 文档更新时间 |
+| deleted_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 文档删除时间 |
+| recommend_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 文档推荐时间 |
+| deleted_user_id | [int64](#int64) |  | 删除文档的用户 |
+| username | [string](#string) |  | 文档作者用户名 |
+| category_id | [int64](#int64) | repeated | 文档分类ID |
+| deleted_username | [string](#string) |  | 删除文档的用户名 |
+| ext | [string](#string) |  | 文档扩展名 |
+| attachment | [Attachment](#api-v1-Attachment) |  | 文档附件 |
+| user | [User](#api-v1-User) |  | 文档作者 |
+| enable_gzip | [bool](#bool) |  | 是否启用gzip压缩 |
+| convert_error | [string](#string) |  | 转换错误信息 |
 
 
 
@@ -134,7 +134,7 @@
 <a name="api-v1-DocumentScore"></a>
 
 ### DocumentScore
-
+文档评分
 
 
 | Field | Type | Label | Description |
@@ -142,7 +142,7 @@
 | id | [int64](#int64) |  |  |
 | document_id | [int64](#int64) |  |  |
 | user_id | [int64](#int64) |  |  |
-| score | [int32](#int32) |  |  |
+| score | [int32](#int32) |  | 评分 |
 | created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
 | updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
 
@@ -169,13 +169,13 @@
 <a name="api-v1-GetDocumentRequest"></a>
 
 ### GetDocumentRequest
-
+查询文档
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) |  |  |
-| with_author | [bool](#bool) |  |  |
+| id | [int64](#int64) |  | 文档ID |
+| with_author | [bool](#bool) |  | 是否查询作者信息 |
 
 
 
@@ -185,7 +185,7 @@
 <a name="api-v1-ListDocumentForHomeItem"></a>
 
 ### ListDocumentForHomeItem
-
+首页文档查询返回项
 
 
 | Field | Type | Label | Description |
@@ -203,7 +203,7 @@
 <a name="api-v1-ListDocumentForHomeRequest"></a>
 
 ### ListDocumentForHomeRequest
-
+查询文档（针对首页的查询）
 
 
 | Field | Type | Label | Description |
@@ -218,7 +218,7 @@
 <a name="api-v1-ListDocumentForHomeResponse"></a>
 
 ### ListDocumentForHomeResponse
-
+查询文档（针对首页的查询）
 
 
 | Field | Type | Label | Description |
@@ -233,13 +233,13 @@
 <a name="api-v1-ListDocumentReply"></a>
 
 ### ListDocumentReply
-
+文档列表
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| total | [int64](#int64) |  |  |
-| document | [Document](#api-v1-Document) | repeated |  |
+| total | [int64](#int64) |  | 文档总数 |
+| document | [Document](#api-v1-Document) | repeated | 文档列表 |
 
 
 
@@ -249,21 +249,21 @@
 <a name="api-v1-ListDocumentRequest"></a>
 
 ### ListDocumentRequest
-
+文档列表
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| page | [int64](#int64) |  |  |
-| size | [int64](#int64) |  |  |
-| wd | [string](#string) |  |  |
-| field | [string](#string) | repeated |  |
-| order | [string](#string) |  |  |
-| category_id | [int64](#int64) | repeated |  |
-| user_id | [int64](#int64) | repeated |  |
-| status | [int32](#int32) | repeated |  |
-| is_recommend | [bool](#bool) | repeated |  |
-| limit | [int64](#int64) |  |  |
+| page | [int64](#int64) |  | 页码 |
+| size | [int64](#int64) |  | 每页数量 |
+| wd | [string](#string) |  | 搜索关键字 |
+| field | [string](#string) | repeated | 查询字段 |
+| order | [string](#string) |  | 排序 |
+| category_id | [int64](#int64) | repeated | 分类ID |
+| user_id | [int64](#int64) | repeated | 用户ID |
+| status | [int32](#int32) | repeated | 文档状态 |
+| is_recommend | [bool](#bool) | repeated | 是否推荐 |
+| limit | [int64](#int64) |  | 查询数量显示。当该值大于0时，page和size无效 |
 
 
 
@@ -273,7 +273,7 @@
 <a name="api-v1-RecoverRecycleDocumentRequest"></a>
 
 ### RecoverRecycleDocumentRequest
-
+恢复文档
 
 
 | Field | Type | Label | Description |
@@ -325,12 +325,12 @@
 <a name="api-v1-SetDocumentRecommendRequest"></a>
 
 ### SetDocumentRecommendRequest
-
+设置文档推荐
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) | repeated |  |
+| id | [int64](#int64) | repeated | 文档ID |
 | type | [int32](#int32) |  | 0, 取消推荐，1:推荐 2:重新推荐 |
 
 

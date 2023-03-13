@@ -32,22 +32,24 @@
 <a name="api-v1-Config"></a>
 
 ### Config
-
+配置
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) |  |  |
-| label | [string](#string) |  |  |
-| name | [string](#string) |  |  |
-| value | [string](#string) |  |  |
-| placeholder | [string](#string) |  |  |
-| input_type | [string](#string) |  |  |
-| category | [string](#string) |  |  |
-| sort | [int32](#int32) |  |  |
-| options | [string](#string) |  |  |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
+| id | [int64](#int64) |  | 配置ID |
+| label | [string](#string) |  | 配置标签 |
+| name | [string](#string) |  | 配置名称 |
+| value | [string](#string) |  | 配置值 |
+| placeholder | [string](#string) |  | 配置占位符 |
+| input_type | [string](#string) |  | 输入类型，如：textarea、number、switch等，为 |
+| category | [string](#string) |  | element-ui 的 el-input 的 type 属性
+
+配置分类，如：system、footer、security等，见 web/utils/enum.js |
+| sort | [int32](#int32) |  | 排序，越小越靠前 |
+| options | [string](#string) |  | 配置项枚举，一个一行，如select的option选项，用 key=value 的形式 |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 创建时间 |
+| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 更新时间 |
 
 
 
@@ -62,10 +64,10 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| length | [int32](#int32) |  |  |
-| width | [int32](#int32) |  |  |
-| height | [int32](#int32) |  |  |
-| type | [string](#string) |  |  |
+| length | [int32](#int32) |  | 验证码长度 |
+| width | [int32](#int32) |  | 验证码宽度 |
+| height | [int32](#int32) |  | 验证码高度 |
+| type | [string](#string) |  | 验证码类型，见 web/utils/enum.js |
 
 
 
@@ -75,16 +77,16 @@
 <a name="api-v1-ConfigFooter"></a>
 
 ### ConfigFooter
-底链配置项
+底链配置项，为跳转的链接地址
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| about | [string](#string) |  |  |
-| contact | [string](#string) |  |  |
-| agreement | [string](#string) |  |  |
-| copyright | [string](#string) |  |  |
-| feedback | [string](#string) |  |  |
+| about | [string](#string) |  | 关于我们 |
+| contact | [string](#string) |  | 联系我们 |
+| agreement | [string](#string) |  | 用户协议、文库协议 |
+| copyright | [string](#string) |  | 版权声明 |
+| feedback | [string](#string) |  | 意见和建议反馈 |
 
 
 
@@ -99,16 +101,16 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| is_close | [bool](#bool) |  |  |
-| close_statement | [string](#string) |  |  |
-| enable_register | [bool](#bool) |  |  |
-| enable_captcha_login | [bool](#bool) |  |  |
-| enable_captcha_register | [bool](#bool) |  |  |
-| enable_captcha_comment | [bool](#bool) |  |  |
-| enable_captcha_find_password | [bool](#bool) |  |  |
-| enable_captcha_upload | [bool](#bool) |  |  |
-| max_document_size | [int32](#int32) |  |  |
-| document_allowed_ext | [string](#string) | repeated |  |
+| is_close | [bool](#bool) |  | 是否关闭站点 |
+| close_statement | [string](#string) |  | 关闭站点的说明，支持HTML |
+| enable_register | [bool](#bool) |  | 是否开放注册 |
+| enable_captcha_login | [bool](#bool) |  | 是否开启登录验证码 |
+| enable_captcha_register | [bool](#bool) |  | 是否开启注册验证码 |
+| enable_captcha_comment | [bool](#bool) |  | 是否开启评论验证码 |
+| enable_captcha_find_password | [bool](#bool) |  | 是否开启找回密码验证码 |
+| enable_captcha_upload | [bool](#bool) |  | 是否开启上传验证码 |
+| max_document_size | [int32](#int32) |  | 文档最大大小 |
+| document_allowed_ext | [string](#string) | repeated | 文档允许的扩展名 |
 | login_required | [bool](#bool) |  | 是否登录才能访问 |
 
 
@@ -124,19 +126,19 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| domain | [string](#string) |  |  |
-| title | [string](#string) |  |  |
-| keywords | [string](#string) |  |  |
-| description | [string](#string) |  |  |
-| logo | [string](#string) |  |  |
-| favicon | [string](#string) |  |  |
-| icp | [string](#string) |  |  |
-| analytics | [string](#string) |  |  |
-| sitename | [string](#string) |  |  |
-| copyright_start_year | [string](#string) |  |  |
-| register_background | [string](#string) |  |  |
-| login_background | [string](#string) |  |  |
-| recommend_words | [string](#string) | repeated |  |
+| domain | [string](#string) |  | 站点域名，如： https://moredoc.mnt.ltd |
+| title | [string](#string) |  | 站点标题，首页显示 |
+| keywords | [string](#string) |  | 站点关键词，SEO用 |
+| description | [string](#string) |  | 站点描述，SEO用 |
+| logo | [string](#string) |  | 站点logo |
+| favicon | [string](#string) |  | 站点favicon |
+| icp | [string](#string) |  | 站点备案号 |
+| analytics | [string](#string) |  | 站点统计代码，目前只支持百度统计 |
+| sitename | [string](#string) |  | 站点名称 |
+| copyright_start_year | [string](#string) |  | 站点版权起始年份，如：2018，则底部显示 2018 - 2023 |
+| register_background | [string](#string) |  | 注册页背景图 |
+| login_background | [string](#string) |  | 登录页背景图 |
+| recommend_words | [string](#string) | repeated | 推荐搜索词，首页展示 |
 | version | [string](#string) |  | 程序版本号 |
 
 
@@ -147,7 +149,7 @@
 <a name="api-v1-Configs"></a>
 
 ### Configs
-
+配置列表
 
 
 | Field | Type | Label | Description |
@@ -162,7 +164,7 @@
 <a name="api-v1-EnvDependent"></a>
 
 ### EnvDependent
-
+依赖项
 
 
 | Field | Type | Label | Description |
@@ -183,7 +185,7 @@
 <a name="api-v1-Envs"></a>
 
 ### Envs
-
+依赖项列表
 
 
 | Field | Type | Label | Description |
@@ -198,7 +200,7 @@
 <a name="api-v1-ListConfigRequest"></a>
 
 ### ListConfigRequest
-
+查询配置项请求
 
 
 | Field | Type | Label | Description |
@@ -213,14 +215,14 @@
 <a name="api-v1-Settings"></a>
 
 ### Settings
-
+系统配置
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| system | [ConfigSystem](#api-v1-ConfigSystem) |  |  |
-| footer | [ConfigFooter](#api-v1-ConfigFooter) |  |  |
-| security | [ConfigSecurity](#api-v1-ConfigSecurity) |  | ConfigCaptcha captcha = 4; |
+| system | [ConfigSystem](#api-v1-ConfigSystem) |  | 系统配置 |
+| footer | [ConfigFooter](#api-v1-ConfigFooter) |  | 底链配置 |
+| security | [ConfigSecurity](#api-v1-ConfigSecurity) |  | 安全配置 |
 
 
 
@@ -230,23 +232,23 @@
 <a name="api-v1-Stats"></a>
 
 ### Stats
-
+系统状态
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| user_count | [int64](#int64) |  |  |
-| document_count | [int64](#int64) |  |  |
-| category_count | [int64](#int64) |  |  |
-| article_count | [int64](#int64) |  |  |
-| comment_count | [int64](#int64) |  |  |
-| banner_count | [int64](#int64) |  |  |
-| friendlink_count | [int64](#int64) |  |  |
-| os | [string](#string) |  |  |
-| version | [string](#string) |  |  |
-| hash | [string](#string) |  |  |
-| build_at | [string](#string) |  |  |
-| report_count | [int64](#int64) |  |  |
+| user_count | [int64](#int64) |  | 用户数量 |
+| document_count | [int64](#int64) |  | 文档数量 |
+| category_count | [int64](#int64) |  | 分类数量 |
+| article_count | [int64](#int64) |  | 文章数量 |
+| comment_count | [int64](#int64) |  | 评论数量 |
+| banner_count | [int64](#int64) |  | banner数量 |
+| friendlink_count | [int64](#int64) |  | 友情链接数量 |
+| os | [string](#string) |  | 操作系统 |
+| version | [string](#string) |  | 程序版本号 |
+| hash | [string](#string) |  | 程序构建时的 git hash |
+| build_at | [string](#string) |  | 程序构建时间 |
+| report_count | [int64](#int64) |  | 举报数量 |
 
 
 
@@ -262,7 +264,7 @@
 <a name="api-v1-ConfigAPI"></a>
 
 ### ConfigAPI
-
+配置服务
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|

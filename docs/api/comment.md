@@ -28,13 +28,13 @@
 <a name="api-v1-CheckCommentRequest"></a>
 
 ### CheckCommentRequest
-
+审核评论，修改评论状态
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) | repeated |  |
-| status | [int32](#int32) |  |  |
+| id | [int64](#int64) | repeated | 评论ID |
+| status | [int32](#int32) |  | 状态，见 web/utils/enum.js 枚举 |
 
 
 
@@ -44,22 +44,22 @@
 <a name="api-v1-Comment"></a>
 
 ### Comment
-
+评论
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| id | [int64](#int64) |  |  |
-| parent_id | [int64](#int64) |  |  |
-| content | [string](#string) |  |  |
-| document_id | [int64](#int64) |  |  |
-| status | [int32](#int32) |  |  |
-| comment_count | [int32](#int32) |  |  |
-| user_id | [int64](#int64) |  |  |
-| user | [User](#api-v1-User) |  |  |
-| document_title | [string](#string) |  |  |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 创建时间 |
+| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 更新时间 |
+| id | [int64](#int64) |  | 评论ID |
+| parent_id | [int64](#int64) |  | 父评论ID |
+| content | [string](#string) |  | 评论内容 |
+| document_id | [int64](#int64) |  | 文档ID |
+| status | [int32](#int32) |  | 状态，见 web/utils/enum.js 枚举 |
+| comment_count | [int32](#int32) |  | 回复数量 |
+| user_id | [int64](#int64) |  | 用户ID |
+| user | [User](#api-v1-User) |  | 用户信息 |
+| document_title | [string](#string) |  | 文档标题 |
 
 
 
@@ -69,16 +69,16 @@
 <a name="api-v1-CreateCommentRequest"></a>
 
 ### CreateCommentRequest
-
+创建评论请求
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| document_id | [int64](#int64) |  |  |
-| parent_id | [int64](#int64) |  |  |
-| content | [string](#string) |  |  |
-| captcha_id | [string](#string) |  |  |
-| captcha | [string](#string) |  |  |
+| document_id | [int64](#int64) |  | 文档ID |
+| parent_id | [int64](#int64) |  | 父评论ID |
+| content | [string](#string) |  | 评论内容 |
+| captcha_id | [string](#string) |  | 验证码ID |
+| captcha | [string](#string) |  | 验证码 |
 
 
 
@@ -88,7 +88,7 @@
 <a name="api-v1-DeleteCommentRequest"></a>
 
 ### DeleteCommentRequest
-
+删除评论请求
 
 
 | Field | Type | Label | Description |
@@ -103,7 +103,7 @@
 <a name="api-v1-GetCommentRequest"></a>
 
 ### GetCommentRequest
-
+获取评论请求
 
 
 | Field | Type | Label | Description |
@@ -118,13 +118,13 @@
 <a name="api-v1-ListCommentReply"></a>
 
 ### ListCommentReply
-
+获取评论列表响应
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| total | [int64](#int64) |  |  |
-| comment | [Comment](#api-v1-Comment) | repeated |  |
+| total | [int64](#int64) |  | 总数 |
+| comment | [Comment](#api-v1-Comment) | repeated | 评论列表 |
 
 
 
@@ -134,21 +134,21 @@
 <a name="api-v1-ListCommentRequest"></a>
 
 ### ListCommentRequest
-
+获取评论列表请求
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| page | [int64](#int64) |  |  |
-| size | [int64](#int64) |  |  |
-| wd | [string](#string) |  |  |
-| field | [string](#string) | repeated |  |
-| order | [string](#string) |  |  |
-| status | [int32](#int32) | repeated |  |
-| document_id | [int64](#int64) |  |  |
-| user_id | [int64](#int64) |  |  |
-| parent_id | [int64](#int64) | repeated |  |
-| with_document_title | [bool](#bool) |  |  |
+| page | [int64](#int64) |  | 页码 |
+| size | [int64](#int64) |  | 每页数量 |
+| wd | [string](#string) |  | 搜索关键词 |
+| field | [string](#string) | repeated | 查询的数据字段 |
+| order | [string](#string) |  | 排序字段 |
+| status | [int32](#int32) | repeated | 状态，见 web/utils/enum.js 枚举 |
+| document_id | [int64](#int64) |  | 文档ID |
+| user_id | [int64](#int64) |  | 用户ID |
+| parent_id | [int64](#int64) | repeated | 父评论ID |
+| with_document_title | [bool](#bool) |  | 是否返回文档标题 |
 
 
 
@@ -164,11 +164,11 @@
 <a name="api-v1-CommentAPI"></a>
 
 ### CommentAPI
-
+评论服务
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| CreateComment | [CreateCommentRequest](#api-v1-CreateCommentRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| CreateComment | [CreateCommentRequest](#api-v1-CreateCommentRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 创建评论 |
 | UpdateComment | [Comment](#api-v1-Comment) | [.google.protobuf.Empty](#google-protobuf-Empty) | 更新评论，仅限管理员操作 |
 | DeleteComment | [DeleteCommentRequest](#api-v1-DeleteCommentRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 管理员或用户自己删除自己的评论 |
 | GetComment | [GetCommentRequest](#api-v1-GetCommentRequest) | [Comment](#api-v1-Comment) | 获取单个评论 |

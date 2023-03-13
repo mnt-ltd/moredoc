@@ -33,6 +33,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// 文档分类
 type Category struct {
 	Id        int32      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	ParentId  int32      `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
@@ -141,6 +142,7 @@ func (m *Category) GetUpdatedAt() *time.Time {
 	return nil
 }
 
+// 分类列表请求
 type ListCategoryRequest struct {
 	Page     int64    `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_    int64    `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -225,6 +227,7 @@ func (m *ListCategoryRequest) GetField() []string {
 	return nil
 }
 
+// 分类列表响应
 type ListCategoryReply struct {
 	Total    int64       `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Category []*Category `protobuf:"bytes,2,rep,name=category,proto3" json:"category,omitempty"`
@@ -277,6 +280,7 @@ func (m *ListCategoryReply) GetCategory() []*Category {
 	return nil
 }
 
+// 删除分类请求
 type DeleteCategoryRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -321,6 +325,7 @@ func (m *DeleteCategoryRequest) GetId() []int64 {
 	return nil
 }
 
+// 获取分类请求
 type GetCategoryRequest struct {
 	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
@@ -432,10 +437,15 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type CategoryAPIClient interface {
+	// 创建分类
 	CreateCategory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 更新分类
 	UpdateCategory(ctx context.Context, in *Category, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除分类
 	DeleteCategory(ctx context.Context, in *DeleteCategoryRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 获取分类
 	GetCategory(ctx context.Context, in *GetCategoryRequest, opts ...grpc.CallOption) (*Category, error)
+	// 分类列表
 	ListCategory(ctx context.Context, in *ListCategoryRequest, opts ...grpc.CallOption) (*ListCategoryReply, error)
 }
 
@@ -494,10 +504,15 @@ func (c *categoryAPIClient) ListCategory(ctx context.Context, in *ListCategoryRe
 
 // CategoryAPIServer is the server API for CategoryAPI service.
 type CategoryAPIServer interface {
+	// 创建分类
 	CreateCategory(context.Context, *Category) (*emptypb.Empty, error)
+	// 更新分类
 	UpdateCategory(context.Context, *Category) (*emptypb.Empty, error)
+	// 删除分类
 	DeleteCategory(context.Context, *DeleteCategoryRequest) (*emptypb.Empty, error)
+	// 获取分类
 	GetCategory(context.Context, *GetCategoryRequest) (*Category, error)
+	// 分类列表
 	ListCategory(context.Context, *ListCategoryRequest) (*ListCategoryReply, error)
 }
 

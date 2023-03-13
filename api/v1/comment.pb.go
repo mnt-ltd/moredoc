@@ -33,6 +33,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// 评论
 type Comment struct {
 	CreatedAt     *time.Time `protobuf:"bytes,1,opt,name=created_at,json=createdAt,proto3,stdtime" json:"created_at,omitempty"`
 	UpdatedAt     *time.Time `protobuf:"bytes,2,opt,name=updated_at,json=updatedAt,proto3,stdtime" json:"updated_at,omitempty"`
@@ -157,6 +158,7 @@ func (m *Comment) GetDocumentTitle() string {
 	return ""
 }
 
+// 审核评论，修改评论状态
 type CheckCommentRequest struct {
 	Id     []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 	Status int32   `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
@@ -209,6 +211,7 @@ func (m *CheckCommentRequest) GetStatus() int32 {
 	return 0
 }
 
+// 删除评论请求
 type DeleteCommentRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -253,6 +256,7 @@ func (m *DeleteCommentRequest) GetId() []int64 {
 	return nil
 }
 
+// 获取评论请求
 type GetCommentRequest struct {
 	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
@@ -297,6 +301,7 @@ func (m *GetCommentRequest) GetId() int64 {
 	return 0
 }
 
+// 获取评论列表请求
 type ListCommentRequest struct {
 	Page              int64    `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_             int64    `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -413,6 +418,7 @@ func (m *ListCommentRequest) GetWithDocumentTitle() bool {
 	return false
 }
 
+// 获取评论列表响应
 type ListCommentReply struct {
 	Total   int64      `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Comment []*Comment `protobuf:"bytes,2,rep,name=comment,proto3" json:"comment,omitempty"`
@@ -465,6 +471,7 @@ func (m *ListCommentReply) GetComment() []*Comment {
 	return nil
 }
 
+// 创建评论请求
 type CreateCommentRequest struct {
 	DocumentId int64  `protobuf:"varint,1,opt,name=document_id,json=documentId,proto3" json:"document_id,omitempty"`
 	ParentId   int64  `protobuf:"varint,2,opt,name=parent_id,json=parentId,proto3" json:"parent_id,omitempty"`
@@ -620,6 +627,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type CommentAPIClient interface {
+	// 创建评论
 	CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	// 更新评论，仅限管理员操作
 	UpdateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -697,6 +705,7 @@ func (c *commentAPIClient) CheckComment(ctx context.Context, in *CheckCommentReq
 
 // CommentAPIServer is the server API for CommentAPI service.
 type CommentAPIServer interface {
+	// 创建评论
 	CreateComment(context.Context, *CreateCommentRequest) (*emptypb.Empty, error)
 	// 更新评论，仅限管理员操作
 	UpdateComment(context.Context, *Comment) (*emptypb.Empty, error)

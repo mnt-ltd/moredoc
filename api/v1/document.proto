@@ -14,87 +14,103 @@ option go_package = "moredoc/api/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.v1";
 
+// 文档
 message Document {
-  int64 id = 1;
-  string title = 2;
-  string keywords = 3;
-  string description = 4;
-  int64 user_id = 5;
-  string cover = 6;
-  int32 width = 7;
-  int32 height = 8;
-  int32 preview = 9;
-  int32 pages = 10;
-  string uuid = 11;
-  int32 download_count = 12;
-  int32 view_count = 13;
-  int32 favorite_count = 14;
-  int32 comment_count = 15;
-  int32 score = 16;
-  int32 score_count = 17;
-  int32 price = 18;
-  int64 size = 19;
-  int32 status = 20;
-  google.protobuf.Timestamp created_at = 21 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 22 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp deleted_at = 23 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp recommend_at = 29 [ (gogoproto.stdtime) = true ];
-  int64 deleted_user_id = 24;
-  string username = 25;
-  repeated int64 category_id = 26;
-  string deleted_username = 27;
-  string ext = 28;
-  Attachment attachment = 30;
-  User user = 31;
-  bool enable_gzip = 32;
-  string convert_error = 33;
+  int64 id = 1;              // 文档ID
+  string title = 2;          // 文档标题
+  string keywords = 3;       // 文档关键字
+  string description = 4;    // 文档描述
+  int64 user_id = 5;         // 文档作者
+  string cover = 6;          // 文档封面
+  int32 width = 7;           // 文档宽度
+  int32 height = 8;          // 文档高度
+  int32 preview = 9;         // 文档可预览页数，0表示不限制
+  int32 pages = 10;          // 文档页数
+  string uuid = 11;          // 文档UUID
+  int32 download_count = 12; // 文档下载次数
+  int32 view_count = 13;     // 文档浏览次数
+  int32 favorite_count = 14; // 文档收藏次数
+  int32 comment_count = 15;  // 文档评论次数
+  int32 score = 16;          // 文档评分
+  int32 score_count = 17;    // 文档评分次数
+  int32 price = 18;          // 文档价格
+  int64 size = 19;           // 文档大小
+  int32 status = 20;         // 文档状态，见 web/utils/enum.js
+  google.protobuf.Timestamp created_at = 21
+      [ (gogoproto.stdtime) = true ]; // 文档创建时间
+  google.protobuf.Timestamp updated_at = 22
+      [ (gogoproto.stdtime) = true ]; // 文档更新时间
+  google.protobuf.Timestamp deleted_at = 23
+      [ (gogoproto.stdtime) = true ]; // 文档删除时间
+  google.protobuf.Timestamp recommend_at = 29
+      [ (gogoproto.stdtime) = true ]; // 文档推荐时间
+  int64 deleted_user_id = 24;         // 删除文档的用户
+  string username = 25;               // 文档作者用户名
+  repeated int64 category_id = 26;    // 文档分类ID
+  string deleted_username = 27;       // 删除文档的用户名
+  string ext = 28;                    // 文档扩展名
+  Attachment attachment = 30;         // 文档附件
+  User user = 31;                     // 文档作者
+  bool enable_gzip = 32;              // 是否启用gzip压缩
+  string convert_error = 33;          // 转换错误信息
 }
 
+// 删除文档，放入回收站
 message DeleteDocumentRequest { repeated int64 id = 1; }
+
+// 恢复文档
 message RecoverRecycleDocumentRequest { repeated int64 id = 1; }
 
+// 查询文档
 message GetDocumentRequest {
-  int64 id = 1;
-  bool with_author = 2;
+  int64 id = 1;         // 文档ID
+  bool with_author = 2; // 是否查询作者信息
 }
 
+// 文档列表
 message ListDocumentRequest {
-  int64 page = 1;
-  int64 size = 2;
-  string wd = 3;
-  repeated string field = 4;
-  string order = 5;
-  repeated int64 category_id = 6;
-  repeated int64 user_id = 7;
-  repeated int32 status = 8;
-  repeated bool is_recommend = 9;
-  int64 limit = 10;
+  int64 page = 1;                 // 页码
+  int64 size = 2;                 // 每页数量
+  string wd = 3;                  // 搜索关键字
+  repeated string field = 4;      // 查询字段
+  string order = 5;               // 排序
+  repeated int64 category_id = 6; // 分类ID
+  repeated int64 user_id = 7;     // 用户ID
+  repeated int32 status = 8;      // 文档状态
+  repeated bool is_recommend = 9; // 是否推荐
+  int64 limit = 10; // 查询数量显示。当该值大于0时，page和size无效
 }
 
+// 文档列表
 message ListDocumentReply {
-  int64 total = 1;
-  repeated Document document = 2;
+  int64 total = 1;                // 文档总数
+  repeated Document document = 2; // 文档列表
 }
 
+// 创建文档
 message CreateDocumentItem {
-  string title = 1;
-  int64 attachment_id = 2;
-  int32 price = 3;
+  string title = 1;        // 文档标题
+  int64 attachment_id = 2; // 文档附件ID
+  int32 price = 3;         // 文档价格
 }
 
+// 创建文档
 message CreateDocumentRequest {
-  bool overwrite = 1;
-  repeated int64 category_id = 2;
-  repeated CreateDocumentItem document = 3;
+  bool overwrite = 1;                       // 是否覆盖。暂时用不到
+  repeated int64 category_id = 2;           // 文档分类ID
+  repeated CreateDocumentItem document = 3; // 文档列表
 }
 
+// 设置文档推荐
 message SetDocumentRecommendRequest {
-  repeated int64 id = 1;
-  int32 type = 2; // 0, 取消推荐，1:推荐 2:重新推荐
+  repeated int64 id = 1; // 文档ID
+  int32 type = 2;        // 0, 取消推荐，1:推荐 2:重新推荐
 }
 
+// 查询文档（针对首页的查询）
 message ListDocumentForHomeRequest { int64 limit = 1; }
 
+// 首页文档查询返回项
 message ListDocumentForHomeItem {
   int64 category_id = 1;
   string category_cover = 2;
@@ -102,6 +118,7 @@ message ListDocumentForHomeItem {
   repeated Document document = 4;
 }
 
+// 查询文档（针对首页的查询）
 message ListDocumentForHomeResponse {
   repeated ListDocumentForHomeItem document = 1;
 }
@@ -115,11 +132,12 @@ message SearchDocumentRequest {
   string ext = 7;                 // 类型
 }
 
+// 文档评分
 message DocumentScore {
   int64 id = 1;
   int64 document_id = 2;
   int64 user_id = 3;
-  int32 score = 4;
+  int32 score = 4; // 评分
   google.protobuf.Timestamp created_at = 5 [ (gogoproto.stdtime) = true ];
   google.protobuf.Timestamp updated_at = 6 [ (gogoproto.stdtime) = true ];
 }
