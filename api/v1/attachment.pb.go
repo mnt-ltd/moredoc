@@ -33,12 +33,14 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// 附件
 type Attachment struct {
-	Id          int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Hash        string     `protobuf:"bytes,2,opt,name=hash,proto3" json:"hash,omitempty"`
-	UserId      int64      `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	TypeId      int64      `protobuf:"varint,4,opt,name=type_id,json=typeId,proto3" json:"type_id,omitempty"`
-	Type        int32      `protobuf:"varint,5,opt,name=type,proto3" json:"type,omitempty"`
+	Id     int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Hash   string `protobuf:"bytes,2,opt,name=hash,proto3" json:"hash,omitempty"`
+	UserId int64  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	TypeId int64  `protobuf:"varint,4,opt,name=type_id,json=typeId,proto3" json:"type_id,omitempty"`
+	Type   int32  `protobuf:"varint,5,opt,name=type,proto3" json:"type,omitempty"`
+	// 横幅，6: 分类封面，7: 配置
 	Enable      bool       `protobuf:"varint,6,opt,name=enable,proto3" json:"enable,omitempty"`
 	Path        string     `protobuf:"bytes,7,opt,name=path,proto3" json:"path,omitempty"`
 	Name        string     `protobuf:"bytes,8,opt,name=name,proto3" json:"name,omitempty"`
@@ -213,6 +215,7 @@ func (m *Attachment) GetUpdatedAt() *time.Time {
 	return nil
 }
 
+// 删除附件请求
 type DeleteAttachmentRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -257,6 +260,7 @@ func (m *DeleteAttachmentRequest) GetId() []int64 {
 	return nil
 }
 
+// 获取附件请求
 type GetAttachmentRequest struct {
 	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
@@ -301,6 +305,7 @@ func (m *GetAttachmentRequest) GetId() int64 {
 	return 0
 }
 
+// 列出附件请求
 type ListAttachmentRequest struct {
 	Page   int64   `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_  int64   `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -393,6 +398,7 @@ func (m *ListAttachmentRequest) GetExt() string {
 	return ""
 }
 
+// 列出附件响应
 type ListAttachmentReply struct {
 	Total      int64         `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Attachment []*Attachment `protobuf:"bytes,2,rep,name=attachment,proto3" json:"attachment,omitempty"`
@@ -515,9 +521,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type AttachmentAPIClient interface {
+	// 更新附件
 	UpdateAttachment(ctx context.Context, in *Attachment, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除附件。这里只是软删除，不会真正删除附件，默认24小时候会真正清除附件
 	DeleteAttachment(ctx context.Context, in *DeleteAttachmentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 查询附件
 	GetAttachment(ctx context.Context, in *GetAttachmentRequest, opts ...grpc.CallOption) (*Attachment, error)
+	// 列出附件
 	ListAttachment(ctx context.Context, in *ListAttachmentRequest, opts ...grpc.CallOption) (*ListAttachmentReply, error)
 }
 
@@ -567,9 +577,13 @@ func (c *attachmentAPIClient) ListAttachment(ctx context.Context, in *ListAttach
 
 // AttachmentAPIServer is the server API for AttachmentAPI service.
 type AttachmentAPIServer interface {
+	// 更新附件
 	UpdateAttachment(context.Context, *Attachment) (*emptypb.Empty, error)
+	// 删除附件。这里只是软删除，不会真正删除附件，默认24小时候会真正清除附件
 	DeleteAttachment(context.Context, *DeleteAttachmentRequest) (*emptypb.Empty, error)
+	// 查询附件
 	GetAttachment(context.Context, *GetAttachmentRequest) (*Attachment, error)
+	// 列出附件
 	ListAttachment(context.Context, *ListAttachmentRequest) (*ListAttachmentReply, error)
 }
 

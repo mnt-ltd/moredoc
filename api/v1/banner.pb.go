@@ -33,6 +33,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// banner，轮播图
 type Banner struct {
 	Id          int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title       string     `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
@@ -149,6 +150,7 @@ func (m *Banner) GetUpdatedAt() *time.Time {
 	return nil
 }
 
+// 删除横幅
 type DeleteBannerRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -193,6 +195,7 @@ func (m *DeleteBannerRequest) GetId() []int64 {
 	return nil
 }
 
+// 获取横幅
 type GetBannerRequest struct {
 	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
@@ -237,6 +240,7 @@ func (m *GetBannerRequest) GetId() int64 {
 	return 0
 }
 
+// 横幅列表请求
 type ListBannerRequest struct {
 	Page   int64    `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_  int64    `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -321,6 +325,7 @@ func (m *ListBannerRequest) GetField() []string {
 	return nil
 }
 
+// 横幅列表
 type ListBannerReply struct {
 	Total  int64     `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Banner []*Banner `protobuf:"bytes,2,rep,name=banner,proto3" json:"banner,omitempty"`
@@ -438,10 +443,15 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type BannerAPIClient interface {
+	// 创建横幅
 	CreateBanner(ctx context.Context, in *Banner, opts ...grpc.CallOption) (*Banner, error)
+	// 更新横幅
 	UpdateBanner(ctx context.Context, in *Banner, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除横幅
 	DeleteBanner(ctx context.Context, in *DeleteBannerRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 查询横幅
 	GetBanner(ctx context.Context, in *GetBannerRequest, opts ...grpc.CallOption) (*Banner, error)
+	// 横幅列表
 	ListBanner(ctx context.Context, in *ListBannerRequest, opts ...grpc.CallOption) (*ListBannerReply, error)
 }
 
@@ -500,10 +510,15 @@ func (c *bannerAPIClient) ListBanner(ctx context.Context, in *ListBannerRequest,
 
 // BannerAPIServer is the server API for BannerAPI service.
 type BannerAPIServer interface {
+	// 创建横幅
 	CreateBanner(context.Context, *Banner) (*Banner, error)
+	// 更新横幅
 	UpdateBanner(context.Context, *Banner) (*emptypb.Empty, error)
+	// 删除横幅
 	DeleteBanner(context.Context, *DeleteBannerRequest) (*emptypb.Empty, error)
+	// 查询横幅
 	GetBanner(context.Context, *GetBannerRequest) (*Banner, error)
+	// 横幅列表
 	ListBanner(context.Context, *ListBannerRequest) (*ListBannerReply, error)
 }
 
