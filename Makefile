@@ -2,9 +2,7 @@ GOPATH:=$(shell go env GOPATH)
 VERSION=$(shell git describe --tags --always)
 GITHASH=$(shell git rev-parse HEAD 2>/dev/null)
 BUILDAT=$(shell date +%FT%T%z)
-INTERNAL_PROTO_FILES=$(shell find internal -name *.proto)
 API_PROTO_FILES=$(shell find api/* -name *.proto)
-API_GO_FILES=$(shell find api -name *.go)
 LDFLAGS="-s -w -X moredoc/cmd.GitHash=${GITHASH} -X moredoc/cmd.BuildAt=${BUILDAT} -X moredoc/cmd.Version=${VERSION}"
 
 .PHONY: init
@@ -29,13 +27,15 @@ api:
 		$(API_PROTO_FILES)
 
 doc:
-	protoc --proto_path=. \
+	for file in $(API_PROTO_FILES); do \
+		protoc --proto_path=. \
 		--proto_path=./third_party \
 		--proto_path=./api \
-		--doc_out=docs \
-		--doc_opt=markdown,api.md \
+		--doc_out=docs/api \
+		--doc_opt=markdown,`basename $$file .proto`.md \
 		--openapi_out==paths=source_relative:docs \
-		$(API_PROTO_FILES)
+		$$file; \
+	done
 
 .PHONY: clean-api-go
 # clean api go file
