@@ -4,7 +4,6 @@
 ## Table of Contents
 
 - [api/v1/permission.proto](#api_v1_permission-proto)
-    - [DeletePermissionRequest](#api-v1-DeletePermissionRequest)
     - [GetPermissionReply](#api-v1-GetPermissionReply)
     - [GetPermissionRequest](#api-v1-GetPermissionRequest)
     - [ListPermissionReply](#api-v1-ListPermissionReply)
@@ -24,25 +23,10 @@
 
 
 
-<a name="api-v1-DeletePermissionRequest"></a>
-
-### DeletePermissionRequest
-
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) | repeated |  |
-
-
-
-
-
-
 <a name="api-v1-GetPermissionReply"></a>
 
 ### GetPermissionReply
-
+权限响应
 
 
 | Field | Type | Label | Description |
@@ -57,7 +41,7 @@
 <a name="api-v1-GetPermissionRequest"></a>
 
 ### GetPermissionRequest
-
+权限请求
 
 
 | Field | Type | Label | Description |
@@ -72,7 +56,7 @@
 <a name="api-v1-ListPermissionReply"></a>
 
 ### ListPermissionReply
-
+权限列表响应
 
 
 | Field | Type | Label | Description |
@@ -88,7 +72,7 @@
 <a name="api-v1-ListPermissionRequest"></a>
 
 ### ListPermissionRequest
-
+权限列表请求
 
 
 | Field | Type | Label | Description |
@@ -107,18 +91,18 @@
 <a name="api-v1-Permission"></a>
 
 ### Permission
-
+权限
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) |  |  |
-| method | [string](#string) |  |  |
-| path | [string](#string) |  |  |
-| title | [string](#string) |  |  |
-| description | [string](#string) |  |  |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
+| id | [int64](#int64) |  | 权限ID |
+| method | [string](#string) |  | 请求方法 |
+| path | [string](#string) |  | 请求路径 |
+| title | [string](#string) |  | 权限名称 |
+| description | [string](#string) |  | 权限描述 |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 创建时间 |
+| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 更新时间 |
 
 
 
@@ -134,13 +118,13 @@
 <a name="api-v1-PermissionAPI"></a>
 
 ### PermissionAPI
-
+权限API服务
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| UpdatePermission | [Permission](#api-v1-Permission) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| GetPermission | [GetPermissionRequest](#api-v1-GetPermissionRequest) | [Permission](#api-v1-Permission) |  |
-| ListPermission | [ListPermissionRequest](#api-v1-ListPermissionRequest) | [ListPermissionReply](#api-v1-ListPermissionReply) |  |
+| UpdatePermission | [Permission](#api-v1-Permission) | [.google.protobuf.Empty](#google-protobuf-Empty) | 更新权限信息。这里只能操作title和description |
+| GetPermission | [GetPermissionRequest](#api-v1-GetPermissionRequest) | [Permission](#api-v1-Permission) | 查询权限信息 |
+| ListPermission | [ListPermissionRequest](#api-v1-ListPermissionRequest) | [ListPermissionReply](#api-v1-ListPermissionReply) | 查询权限列表 |
 
  
 

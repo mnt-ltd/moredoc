@@ -26,7 +26,7 @@
 <a name="api-v1-DeleteFriendlinkRequest"></a>
 
 ### DeleteFriendlinkRequest
-
+删除友情链接
 
 
 | Field | Type | Label | Description |
@@ -41,19 +41,19 @@
 <a name="api-v1-Friendlink"></a>
 
 ### Friendlink
-
+友情链接
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int32](#int32) |  |  |
-| title | [string](#string) |  |  |
-| link | [string](#string) |  |  |
-| description | [string](#string) |  |  |
-| sort | [int32](#int32) |  |  |
-| enable | [bool](#bool) |  |  |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
+| id | [int32](#int32) |  | 主键 |
+| title | [string](#string) |  | 标题 |
+| link | [string](#string) |  | 链接 |
+| description | [string](#string) |  | 描述 |
+| sort | [int32](#int32) |  | 排序 |
+| enable | [bool](#bool) |  | 是否启用 |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 创建时间 |
+| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 更新时间 |
 
 
 
@@ -63,7 +63,7 @@
 <a name="api-v1-GetFriendlinkRequest"></a>
 
 ### GetFriendlinkRequest
-
+获取友情链接
 
 
 | Field | Type | Label | Description |
@@ -78,7 +78,7 @@
 <a name="api-v1-ListFriendlinkReply"></a>
 
 ### ListFriendlinkReply
-
+友情链接列表
 
 
 | Field | Type | Label | Description |
@@ -94,7 +94,7 @@
 <a name="api-v1-ListFriendlinkRequest"></a>
 
 ### ListFriendlinkRequest
-
+友情链接列表
 
 
 | Field | Type | Label | Description |
@@ -119,15 +119,15 @@
 <a name="api-v1-FriendlinkAPI"></a>
 
 ### FriendlinkAPI
-
+友情链接服务
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| CreateFriendlink | [Friendlink](#api-v1-Friendlink) | [Friendlink](#api-v1-Friendlink) |  |
-| UpdateFriendlink | [Friendlink](#api-v1-Friendlink) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| DeleteFriendlink | [DeleteFriendlinkRequest](#api-v1-DeleteFriendlinkRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| GetFriendlink | [GetFriendlinkRequest](#api-v1-GetFriendlinkRequest) | [Friendlink](#api-v1-Friendlink) |  |
-| ListFriendlink | [ListFriendlinkRequest](#api-v1-ListFriendlinkRequest) | [ListFriendlinkReply](#api-v1-ListFriendlinkReply) |  |
+| CreateFriendlink | [Friendlink](#api-v1-Friendlink) | [Friendlink](#api-v1-Friendlink) | 创建友情链接 |
+| UpdateFriendlink | [Friendlink](#api-v1-Friendlink) | [.google.protobuf.Empty](#google-protobuf-Empty) | 更新友情链接 |
+| DeleteFriendlink | [DeleteFriendlinkRequest](#api-v1-DeleteFriendlinkRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 删除友情链接 |
+| GetFriendlink | [GetFriendlinkRequest](#api-v1-GetFriendlinkRequest) | [Friendlink](#api-v1-Friendlink) | 获取友情链接 |
+| ListFriendlink | [ListFriendlinkRequest](#api-v1-ListFriendlinkRequest) | [ListFriendlinkReply](#api-v1-ListFriendlinkReply) | 获取友情链接 |
 
  
 

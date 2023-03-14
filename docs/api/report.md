@@ -25,7 +25,7 @@
 <a name="api-v1-DeleteReportRequest"></a>
 
 ### DeleteReportRequest
-
+删除举报请求
 
 
 | Field | Type | Label | Description |
@@ -40,7 +40,7 @@
 <a name="api-v1-ListReportReply"></a>
 
 ### ListReportReply
-
+举报列表响应
 
 
 | Field | Type | Label | Description |
@@ -56,7 +56,7 @@
 <a name="api-v1-ListReportRequest"></a>
 
 ### ListReportRequest
-
+举报列表请求
 
 
 | Field | Type | Label | Description |
@@ -76,21 +76,21 @@
 <a name="api-v1-Report"></a>
 
 ### Report
-这里是proto文件中的结构体，可以根据需要删除或者调整
+举报
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) |  |  |
-| document_id | [int64](#int64) |  |  |
-| user_id | [int64](#int64) |  |  |
-| reason | [int32](#int32) |  |  |
-| status | [bool](#bool) |  |  |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| document_title | [string](#string) |  |  |
-| remark | [string](#string) |  |  |
-| username | [string](#string) |  |  |
+| id | [int64](#int64) |  | 举报ID |
+| document_id | [int64](#int64) |  | 文档ID |
+| user_id | [int64](#int64) |  | 举报人ID |
+| reason | [int32](#int32) |  | 举报原因 |
+| status | [bool](#bool) |  | 举报处理状态 |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 举报时间 |
+| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 处理时间 |
+| document_title | [string](#string) |  | 文档标题 |
+| remark | [string](#string) |  | 处理备注 |
+| username | [string](#string) |  | 举报人 |
 
 
 
@@ -106,14 +106,14 @@
 <a name="api-v1-ReportAPI"></a>
 
 ### ReportAPI
-
+举报服务
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| CreateReport | [Report](#api-v1-Report) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| UpdateReport | [Report](#api-v1-Report) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| DeleteReport | [DeleteReportRequest](#api-v1-DeleteReportRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| ListReport | [ListReportRequest](#api-v1-ListReportRequest) | [ListReportReply](#api-v1-ListReportReply) |  |
+| CreateReport | [Report](#api-v1-Report) | [.google.protobuf.Empty](#google-protobuf-Empty) | 创建举报 |
+| UpdateReport | [Report](#api-v1-Report) | [.google.protobuf.Empty](#google-protobuf-Empty) | 更新举报，审核举报内容 |
+| DeleteReport | [DeleteReportRequest](#api-v1-DeleteReportRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 删除举报 |
+| ListReport | [ListReportRequest](#api-v1-ListReportRequest) | [ListReportReply](#api-v1-ListReportReply) | 获取举报列表 |
 
  
 

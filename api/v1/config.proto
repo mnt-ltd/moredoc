@@ -19,8 +19,7 @@ message Config {
   string name = 3;        // 配置名称
   string value = 4;       // 配置值
   string placeholder = 5; // 配置占位符
-  string input_type = 6; // 输入类型，如：textarea、number、switch等，为
-                         // element-ui 的 el-input 的 type 属性
+  string input_type = 6;  // 输入类型，如：textarea、number、switch等
   string category =
       7; // 配置分类，如：system、footer、security等，见 web/utils/enum.js
   int32 sort = 8; // 排序，越小越靠前

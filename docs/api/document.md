@@ -139,12 +139,12 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) |  |  |
-| document_id | [int64](#int64) |  |  |
-| user_id | [int64](#int64) |  |  |
-| score | [int32](#int32) |  | 评分 |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
+| id | [int64](#int64) |  | 评分ID |
+| document_id | [int64](#int64) |  | 文档ID |
+| user_id | [int64](#int64) |  | 用户ID |
+| score | [int32](#int32) |  | 评分，100~500，100为1分，500为5分 |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 评分时间 |
+| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 更新时间 |
 
 
 
@@ -154,7 +154,7 @@
 <a name="api-v1-DownloadDocumentReply"></a>
 
 ### DownloadDocumentReply
-
+文档下载
 
 
 | Field | Type | Label | Description |
@@ -190,10 +190,10 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| category_id | [int64](#int64) |  |  |
-| category_cover | [string](#string) |  |  |
-| category_name | [string](#string) |  |  |
-| document | [Document](#api-v1-Document) | repeated |  |
+| category_id | [int64](#int64) |  | 分类ID |
+| category_cover | [string](#string) |  | 分类封面 |
+| category_name | [string](#string) |  | 分类名称 |
+| document | [Document](#api-v1-Document) | repeated | 文档列表 |
 
 
 
@@ -223,7 +223,7 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| document | [ListDocumentForHomeItem](#api-v1-ListDocumentForHomeItem) | repeated |  |
+| document | [ListDocumentForHomeItem](#api-v1-ListDocumentForHomeItem) | repeated | 文档列表 |
 
 
 
@@ -288,14 +288,14 @@
 <a name="api-v1-SearchDocumentReply"></a>
 
 ### SearchDocumentReply
-
+文档搜索响应
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| total | [int64](#int64) |  |  |
+| total | [int64](#int64) |  | 文档总数 |
 | spend | [string](#string) |  | 搜索耗时 |
-| document | [Document](#api-v1-Document) | repeated |  |
+| document | [Document](#api-v1-Document) | repeated | 文档列表 |
 
 
 
@@ -305,14 +305,14 @@
 <a name="api-v1-SearchDocumentRequest"></a>
 
 ### SearchDocumentRequest
-
+文档搜索
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| page | [int32](#int32) |  |  |
-| size | [int32](#int32) |  |  |
-| wd | [string](#string) |  |  |
+| page | [int32](#int32) |  | 页码 |
+| size | [int32](#int32) |  | 每页数量 |
+| wd | [string](#string) |  | 搜索关键字 |
 | category_id | [int64](#int64) | repeated | 分类 |
 | sort | [string](#string) |  | 排序 |
 | ext | [string](#string) |  | 类型 |
@@ -347,20 +347,20 @@
 <a name="api-v1-DocumentAPI"></a>
 
 ### DocumentAPI
-
+文档服务
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| ListDocumentForHome | [ListDocumentForHomeRequest](#api-v1-ListDocumentForHomeRequest) | [ListDocumentForHomeResponse](#api-v1-ListDocumentForHomeResponse) |  |
-| SetDocumentRecommend | [SetDocumentRecommendRequest](#api-v1-SetDocumentRecommendRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| CreateDocument | [CreateDocumentRequest](#api-v1-CreateDocumentRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| UpdateDocument | [Document](#api-v1-Document) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| DeleteDocument | [DeleteDocumentRequest](#api-v1-DeleteDocumentRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| GetDocument | [GetDocumentRequest](#api-v1-GetDocumentRequest) | [Document](#api-v1-Document) |  |
-| GetRelatedDocuments | [Document](#api-v1-Document) | [ListDocumentReply](#api-v1-ListDocumentReply) |  |
-| DownloadDocument | [Document](#api-v1-Document) | [DownloadDocumentReply](#api-v1-DownloadDocumentReply) |  |
-| ListDocument | [ListDocumentRequest](#api-v1-ListDocumentRequest) | [ListDocumentReply](#api-v1-ListDocumentReply) |  |
-| SearchDocument | [SearchDocumentRequest](#api-v1-SearchDocumentRequest) | [SearchDocumentReply](#api-v1-SearchDocumentReply) |  |
+| ListDocumentForHome | [ListDocumentForHomeRequest](#api-v1-ListDocumentForHomeRequest) | [ListDocumentForHomeResponse](#api-v1-ListDocumentForHomeResponse) | 针对首页的文档查询 |
+| SetDocumentRecommend | [SetDocumentRecommendRequest](#api-v1-SetDocumentRecommendRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 设置文档推荐 |
+| CreateDocument | [CreateDocumentRequest](#api-v1-CreateDocumentRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 创建文档 |
+| UpdateDocument | [Document](#api-v1-Document) | [.google.protobuf.Empty](#google-protobuf-Empty) | 更新文档 |
+| DeleteDocument | [DeleteDocumentRequest](#api-v1-DeleteDocumentRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 删除文档 |
+| GetDocument | [GetDocumentRequest](#api-v1-GetDocumentRequest) | [Document](#api-v1-Document) | 查询文档 |
+| GetRelatedDocuments | [Document](#api-v1-Document) | [ListDocumentReply](#api-v1-ListDocumentReply) | 根据文档ID查询当前文档的相关文档 |
+| DownloadDocument | [Document](#api-v1-Document) | [DownloadDocumentReply](#api-v1-DownloadDocumentReply) | 根据文档ID，获取文档下载链接 |
+| ListDocument | [ListDocumentRequest](#api-v1-ListDocumentRequest) | [ListDocumentReply](#api-v1-ListDocumentReply) | 文档列表查询 |
+| SearchDocument | [SearchDocumentRequest](#api-v1-SearchDocumentRequest) | [SearchDocumentReply](#api-v1-SearchDocumentReply) | 文档搜索 |
 | SetDocumentScore | [DocumentScore](#api-v1-DocumentScore) | [.google.protobuf.Empty](#google-protobuf-Empty) | 设置文档评分 |
 | GetDocumentScore | [DocumentScore](#api-v1-DocumentScore) | [DocumentScore](#api-v1-DocumentScore) | 获取当前登录用户的文档评分 |
 | SetDocumentReconvert | [.google.protobuf.Empty](#google-protobuf-Empty) | [.google.protobuf.Empty](#google-protobuf-Empty) | 将文档一键设置为重转 |

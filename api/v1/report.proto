@@ -12,22 +12,26 @@ option go_package = "moredoc/api/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.v1";
 
-// 这里是proto文件中的结构体，可以根据需要删除或者调整
+// 举报
 message Report {
-  int64 id = 1;
-  int64 document_id = 2;
-  int64 user_id = 3;
-  int32 reason = 4;
-  bool status = 5;
-  google.protobuf.Timestamp created_at = 6 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 7 [ (gogoproto.stdtime) = true ];
-  string document_title = 8;
-  string remark = 9;
-  string username = 10;
+  int64 id = 1;          // 举报ID
+  int64 document_id = 2; // 文档ID
+  int64 user_id = 3;     // 举报人ID
+  int32 reason = 4;      // 举报原因
+  bool status = 5;       // 举报处理状态
+  google.protobuf.Timestamp created_at = 6
+      [ (gogoproto.stdtime) = true ]; // 举报时间
+  google.protobuf.Timestamp updated_at = 7
+      [ (gogoproto.stdtime) = true ]; // 处理时间
+  string document_title = 8;          // 文档标题
+  string remark = 9;                  // 处理备注
+  string username = 10;               // 举报人
 }
 
+// 删除举报请求
 message DeleteReportRequest { repeated int64 id = 1; }
 
+// 举报列表请求
 message ListReportRequest {
   int64 page = 1;
   int64 size = 2;
@@ -37,12 +41,16 @@ message ListReportRequest {
   repeated bool status = 6;
 }
 
+// 举报列表响应
 message ListReportReply {
   int64 total = 1;
   repeated Report report = 2;
 }
 
+// 举报服务
 service ReportAPI {
+
+  // 创建举报
   rpc CreateReport(Report) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post : '/api/v1/report',
@@ -50,6 +58,7 @@ service ReportAPI {
     };
   }
 
+  // 更新举报，审核举报内容
   rpc UpdateReport(Report) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/report',
@@ -57,12 +66,14 @@ service ReportAPI {
     };
   }
 
+  // 删除举报
   rpc DeleteReport(DeleteReportRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete : '/api/v1/report',
     };
   }
 
+  // 获取举报列表
   rpc ListReport(ListReportRequest) returns (ListReportReply) {
     option (google.api.http) = {
       get : '/api/v1/report/list',

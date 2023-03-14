@@ -35,10 +35,8 @@
 | hash | [string](#string) |  | 附件哈希值，MD5 |
 | user_id | [int64](#int64) |  | 上传用户ID |
 | type_id | [int64](#int64) |  | 附件类型ID，如果是文档类型，则为文档ID |
-| type | [int32](#int32) |  | 附件类型，0: 未知，1: 头像，2: 文档，3: 文章，4: 评论，5: |
-| enable | [bool](#bool) |  | 横幅，6: 分类封面，7: 配置
-
-是否启用 |
+| type | [int32](#int32) |  | 附件类型，见 web/utils/enum.js |
+| enable | [bool](#bool) |  | 是否启用 |
 | path | [string](#string) |  | 附件路径 |
 | name | [string](#string) |  | 附件名称 |
 | size | [int64](#int64) |  | 附件大小，单位：字节 |

@@ -33,6 +33,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// 用户信息
 type User struct {
 	LoginAt       *time.Time `protobuf:"bytes,19,opt,name=login_at,json=loginAt,proto3,stdtime" json:"login_at,omitempty"`
 	CreatedAt     *time.Time `protobuf:"bytes,20,opt,name=created_at,json=createdAt,proto3,stdtime" json:"created_at,omitempty"`
@@ -245,6 +246,7 @@ func (m *User) GetCreditCount() int32 {
 	return 0
 }
 
+// 用户注册登录请求
 type RegisterAndLoginRequest struct {
 	Username  string `protobuf:"bytes,1,opt,name=username,proto3" json:"username,omitempty" validate:"min=3,max=32"`
 	Password  string `protobuf:"bytes,2,opt,name=password,proto3" json:"password,omitempty" validate:"min=6"`
@@ -321,6 +323,7 @@ func (m *RegisterAndLoginRequest) GetEmail() string {
 	return ""
 }
 
+// 查询验证码请求
 type GetUserCaptchaRequest struct {
 	Type string `protobuf:"bytes,1,opt,name=type,proto3" json:"type,omitempty"`
 }
@@ -365,6 +368,7 @@ func (m *GetUserCaptchaRequest) GetType() string {
 	return ""
 }
 
+// 用户登录响应
 type LoginReply struct {
 	Token string `protobuf:"bytes,1,opt,name=token,proto3" json:"token,omitempty"`
 	User  *User  `protobuf:"bytes,2,opt,name=user,proto3" json:"user,omitempty"`
@@ -417,6 +421,7 @@ func (m *LoginReply) GetUser() *User {
 	return nil
 }
 
+// 删除用户
 type DeleteUserRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -461,6 +466,7 @@ func (m *DeleteUserRequest) GetId() []int64 {
 	return nil
 }
 
+// 获取用户信息
 type GetUserRequest struct {
 	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
@@ -505,6 +511,7 @@ func (m *GetUserRequest) GetId() int64 {
 	return 0
 }
 
+// 找回密码
 type FindPasswordRequest struct {
 	Email     string `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
 	Token     string `protobuf:"bytes,2,opt,name=token,proto3" json:"token,omitempty"`
@@ -581,6 +588,7 @@ func (m *FindPasswordRequest) GetCaptchaId() string {
 	return ""
 }
 
+// 用户列表请求
 type ListUserRequest struct {
 	Page    int64   `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_   int64   `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -681,6 +689,7 @@ func (m *ListUserRequest) GetLimit() int64 {
 	return 0
 }
 
+// 用户列表响应
 type ListUserReply struct {
 	Total int64   `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	User  []*User `protobuf:"bytes,2,rep,name=user,proto3" json:"user,omitempty"`
@@ -733,6 +742,7 @@ func (m *ListUserReply) GetUser() []*User {
 	return nil
 }
 
+// 验证码响应
 type GetUserCaptchaReply struct {
 	Enable  bool   `protobuf:"varint,1,opt,name=enable,proto3" json:"enable,omitempty"`
 	Id      string `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
@@ -862,6 +872,7 @@ func (m *UpdateUserPasswordRequest) GetNewPassword() string {
 	return ""
 }
 
+// 用户权限信息查询
 type GetUserPermissionsReply struct {
 	Permission []*Permission `protobuf:"bytes,1,rep,name=permission,proto3" json:"permission,omitempty"`
 }
@@ -906,6 +917,7 @@ func (m *GetUserPermissionsReply) GetPermission() []*Permission {
 	return nil
 }
 
+// 管理后台设置用户信息
 type SetUserRequest struct {
 	Id       int64   `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Username string  `protobuf:"bytes,2,opt,name=username,proto3" json:"username,omitempty" validate:"min=3,max=32"`
@@ -982,6 +994,7 @@ func (m *SetUserRequest) GetEmail() string {
 	return ""
 }
 
+// 用户动态
 type Dynamic struct {
 	Id        int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	UserId    int64      `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -1074,6 +1087,7 @@ func (m *Dynamic) GetUpdatedAt() *time.Time {
 	return nil
 }
 
+// 用户动态列表请求
 type ListUserDynamicRequest struct {
 	Page  int64 `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_ int64 `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -1134,6 +1148,7 @@ func (m *ListUserDynamicRequest) GetId() int64 {
 	return 0
 }
 
+// 用户动态列表响应
 type ListUserDynamicReply struct {
 	Total   int64      `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Dynamic []*Dynamic `protobuf:"bytes,2,rep,name=dynamic,proto3" json:"dynamic,omitempty"`
@@ -1186,6 +1201,7 @@ func (m *ListUserDynamicReply) GetDynamic() []*Dynamic {
 	return nil
 }
 
+// 用户签到
 type Sign struct {
 	Id        int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	UserId    int64      `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -1444,7 +1460,9 @@ type UserAPIClient interface {
 	SignToday(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Sign, error)
 	// 获取今日已签到记录
 	GetSignedToday(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*Sign, error)
+	// 找回密码：第一步，发送验证码
 	FindPasswordStepOne(ctx context.Context, in *FindPasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 找回密码：第二步，修改密码
 	FindPasswordStepTwo(ctx context.Context, in *FindPasswordRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
@@ -1655,7 +1673,9 @@ type UserAPIServer interface {
 	SignToday(context.Context, *emptypb.Empty) (*Sign, error)
 	// 获取今日已签到记录
 	GetSignedToday(context.Context, *emptypb.Empty) (*Sign, error)
+	// 找回密码：第一步，发送验证码
 	FindPasswordStepOne(context.Context, *FindPasswordRequest) (*emptypb.Empty, error)
+	// 找回密码：第二步，修改密码
 	FindPasswordStepTwo(context.Context, *FindPasswordRequest) (*emptypb.Empty, error)
 }
 

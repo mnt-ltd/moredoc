@@ -38,7 +38,7 @@
 <a name="api-v1-DeleteUserRequest"></a>
 
 ### DeleteUserRequest
-
+删除用户
 
 
 | Field | Type | Label | Description |
@@ -53,18 +53,18 @@
 <a name="api-v1-Dynamic"></a>
 
 ### Dynamic
-
+用户动态
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) |  |  |
-| user_id | [int64](#int64) |  |  |
-| content | [string](#string) |  |  |
+| id | [int64](#int64) |  | 动态ID |
+| user_id | [int64](#int64) |  | 用户ID |
+| content | [string](#string) |  | 内容 |
 | type | [int32](#int32) |  | 类型 |
-| username | [string](#string) |  |  |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
+| username | [string](#string) |  | 用户名 |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 创建时间 |
+| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 更新时间 |
 
 
 
@@ -74,16 +74,16 @@
 <a name="api-v1-FindPasswordRequest"></a>
 
 ### FindPasswordRequest
-
+找回密码
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| email | [string](#string) |  |  |
-| token | [string](#string) |  |  |
-| password | [string](#string) |  |  |
-| captcha | [string](#string) |  |  |
-| captcha_id | [string](#string) |  |  |
+| email | [string](#string) |  | 邮箱 |
+| token | [string](#string) |  | 签名token |
+| password | [string](#string) |  | 新密码 |
+| captcha | [string](#string) |  | 验证码 |
+| captcha_id | [string](#string) |  | 验证码ID |
 
 
 
@@ -93,15 +93,15 @@
 <a name="api-v1-GetUserCaptchaReply"></a>
 
 ### GetUserCaptchaReply
-
+验证码响应
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| enable | [bool](#bool) |  |  |
-| id | [string](#string) |  |  |
-| captcha | [string](#string) |  |  |
-| type | [string](#string) |  |  |
+| enable | [bool](#bool) |  | 是否启用验证码 |
+| id | [string](#string) |  | 验证码ID |
+| captcha | [string](#string) |  | 验证码 |
+| type | [string](#string) |  | 验证码类型 |
 
 
 
@@ -111,7 +111,7 @@
 <a name="api-v1-GetUserCaptchaRequest"></a>
 
 ### GetUserCaptchaRequest
-
+查询验证码请求
 
 
 | Field | Type | Label | Description |
@@ -126,7 +126,7 @@
 <a name="api-v1-GetUserPermissionsReply"></a>
 
 ### GetUserPermissionsReply
-
+用户权限信息查询
 
 
 | Field | Type | Label | Description |
@@ -141,7 +141,7 @@
 <a name="api-v1-GetUserRequest"></a>
 
 ### GetUserRequest
-
+获取用户信息
 
 
 | Field | Type | Label | Description |
@@ -156,13 +156,13 @@
 <a name="api-v1-ListUserDynamicReply"></a>
 
 ### ListUserDynamicReply
-
+用户动态列表响应
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| total | [int64](#int64) |  |  |
-| dynamic | [Dynamic](#api-v1-Dynamic) | repeated |  |
+| total | [int64](#int64) |  | 总数 |
+| dynamic | [Dynamic](#api-v1-Dynamic) | repeated | 动态列表 |
 
 
 
@@ -172,14 +172,14 @@
 <a name="api-v1-ListUserDynamicRequest"></a>
 
 ### ListUserDynamicRequest
-
+用户动态列表请求
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| page | [int64](#int64) |  |  |
-| size | [int64](#int64) |  |  |
-| id | [int64](#int64) |  |  |
+| page | [int64](#int64) |  | 页码 |
+| size | [int64](#int64) |  | 每页数量 |
+| id | [int64](#int64) |  | 用户ID |
 
 
 
@@ -189,13 +189,13 @@
 <a name="api-v1-ListUserReply"></a>
 
 ### ListUserReply
-
+用户列表响应
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| total | [int64](#int64) |  |  |
-| user | [User](#api-v1-User) | repeated |  |
+| total | [int64](#int64) |  | 总数 |
+| user | [User](#api-v1-User) | repeated | 用户列表 |
 
 
 
@@ -205,19 +205,19 @@
 <a name="api-v1-ListUserRequest"></a>
 
 ### ListUserRequest
-
+用户列表请求
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| page | [int64](#int64) |  |  |
-| size | [int64](#int64) |  |  |
-| wd | [string](#string) |  |  |
-| sort | [string](#string) |  |  |
-| id | [int64](#int64) | repeated |  |
-| group_id | [int64](#int64) | repeated |  |
-| status | [int32](#int32) | repeated |  |
-| limit | [int64](#int64) |  |  |
+| page | [int64](#int64) |  | 页码 |
+| size | [int64](#int64) |  | 每页数量 |
+| wd | [string](#string) |  | 搜索关键词 |
+| sort | [string](#string) |  | 排序字段 |
+| id | [int64](#int64) | repeated | 用户ID |
+| group_id | [int64](#int64) | repeated | 用户组ID |
+| status | [int32](#int32) | repeated | 用户状态 |
+| limit | [int64](#int64) |  | 请求数量限制，大于0时，page和size无效 |
 
 
 
@@ -227,7 +227,7 @@
 <a name="api-v1-LoginReply"></a>
 
 ### LoginReply
-
+用户登录响应
 
 
 | Field | Type | Label | Description |
@@ -243,16 +243,16 @@
 <a name="api-v1-RegisterAndLoginRequest"></a>
 
 ### RegisterAndLoginRequest
-
+用户注册登录请求
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| username | [string](#string) |  |  |
-| password | [string](#string) |  |  |
-| captcha | [string](#string) |  |  |
-| captcha_id | [string](#string) |  |  |
-| email | [string](#string) |  |  |
+| username | [string](#string) |  | 用户名 |
+| password | [string](#string) |  | 密码 |
+| captcha | [string](#string) |  | 验证码 |
+| captcha_id | [string](#string) |  | 验证码ID |
+| email | [string](#string) |  | 邮箱 |
 
 
 
@@ -262,16 +262,16 @@
 <a name="api-v1-SetUserRequest"></a>
 
 ### SetUserRequest
-
+管理后台设置用户信息
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) |  |  |
-| username | [string](#string) |  |  |
-| password | [string](#string) |  |  |
-| group_id | [int64](#int64) | repeated |  |
-| email | [string](#string) |  |  |
+| id | [int64](#int64) |  | 用户ID |
+| username | [string](#string) |  | 用户名 |
+| password | [string](#string) |  | 密码 |
+| group_id | [int64](#int64) | repeated | 用户组ID |
+| email | [string](#string) |  | 邮箱 |
 
 
 
@@ -281,16 +281,16 @@
 <a name="api-v1-Sign"></a>
 
 ### Sign
-
+用户签到
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) |  |  |
-| user_id | [int64](#int64) |  |  |
-| sign_at | [int32](#int32) |  |  |
-| ip | [string](#string) |  |  |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
+| id | [int64](#int64) |  | 签到ID |
+| user_id | [int64](#int64) |  | 用户ID |
+| sign_at | [int32](#int32) |  | 签到日期 |
+| ip | [string](#string) |  | 签到IP |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 创建时间 |
 | award | [int32](#int32) |  | 签到积分奖励 |
 
 
@@ -306,9 +306,9 @@
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) |  |  |
-| old_password | [string](#string) |  |  |
-| new_password | [string](#string) |  |  |
+| id | [int64](#int64) |  | 用户ID |
+| old_password | [string](#string) |  | 旧密码 |
+| new_password | [string](#string) |  | 新密码 |
 
 
 
@@ -318,33 +318,33 @@
 <a name="api-v1-User"></a>
 
 ### User
-
+用户信息
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| login_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| id | [int64](#int64) |  |  |
-| username | [string](#string) |  |  |
-| mobile | [string](#string) |  |  |
-| email | [string](#string) |  |  |
-| address | [string](#string) |  |  |
-| signature | [string](#string) |  |  |
-| last_login_ip | [string](#string) |  |  |
-| register_ip | [string](#string) |  |  |
-| doc_count | [int32](#int32) |  |  |
-| follow_count | [int32](#int32) |  |  |
-| fans_count | [int32](#int32) |  |  |
-| favorite_count | [int32](#int32) |  |  |
-| comment_count | [int32](#int32) |  |  |
-| status | [int32](#int32) |  |  |
-| avatar | [string](#string) |  |  |
-| identity | [string](#string) |  |  |
-| realname | [string](#string) |  |  |
-| group_id | [int64](#int64) | repeated |  |
-| credit_count | [int32](#int32) |  |  |
+| login_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 最后登录时间 |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 注册时间 |
+| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 更新时间 |
+| id | [int64](#int64) |  | 用户ID |
+| username | [string](#string) |  | 用户名 |
+| mobile | [string](#string) |  | 手机号 |
+| email | [string](#string) |  | 邮箱，唯一 |
+| address | [string](#string) |  | 地址 |
+| signature | [string](#string) |  | 个性签名 |
+| last_login_ip | [string](#string) |  | 最后登录IP |
+| register_ip | [string](#string) |  | 注册IP |
+| doc_count | [int32](#int32) |  | 文档数量 |
+| follow_count | [int32](#int32) |  | 关注数量 |
+| fans_count | [int32](#int32) |  | 粉丝数量 |
+| favorite_count | [int32](#int32) |  | 收藏数量 |
+| comment_count | [int32](#int32) |  | 评论数量 |
+| status | [int32](#int32) |  | 用户状态，见 web/utils/enum.js，当前没有使用 |
+| avatar | [string](#string) |  | 头像 |
+| identity | [string](#string) |  | 身份证 |
+| realname | [string](#string) |  | 真实姓名 |
+| group_id | [int64](#int64) | repeated | 用户组ID |
+| credit_count | [int32](#int32) |  | 积分 |
 
 
 
@@ -380,8 +380,8 @@
 | ListUserDynamic | [ListUserDynamicRequest](#api-v1-ListUserDynamicRequest) | [ListUserDynamicReply](#api-v1-ListUserDynamicReply) | 获取用户动态，包括获取关注的用户的动态 |
 | SignToday | [.google.protobuf.Empty](#google-protobuf-Empty) | [Sign](#api-v1-Sign) | 每日签到 |
 | GetSignedToday | [.google.protobuf.Empty](#google-protobuf-Empty) | [Sign](#api-v1-Sign) | 获取今日已签到记录 |
-| FindPasswordStepOne | [FindPasswordRequest](#api-v1-FindPasswordRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
-| FindPasswordStepTwo | [FindPasswordRequest](#api-v1-FindPasswordRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) |  |
+| FindPasswordStepOne | [FindPasswordRequest](#api-v1-FindPasswordRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 找回密码：第一步，发送验证码 |
+| FindPasswordStepTwo | [FindPasswordRequest](#api-v1-FindPasswordRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 找回密码：第二步，修改密码 |
 
  
 

@@ -1,4 +1,4 @@
-syntax="proto3";
+syntax = "proto3";
 
 import "google/protobuf/timestamp.proto";
 import "gogoproto/gogo.proto";
@@ -12,68 +12,79 @@ option go_package = "moredoc/api/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.v1";
 
+// 友情链接
 message Friendlink {
-    int32 id = 1;
-    string title = 2;
-    string link = 3;
-    string description = 4;
-    int32 sort = 5;
-    bool enable = 6;
-    google.protobuf.Timestamp created_at = 7 [ (gogoproto.stdtime) = true ];
-    google.protobuf.Timestamp updated_at = 8 [ (gogoproto.stdtime) = true ];
+  int32 id = 1;           // 主键
+  string title = 2;       // 标题
+  string link = 3;        // 链接
+  string description = 4; // 描述
+  int32 sort = 5;         // 排序
+  bool enable = 6;        // 是否启用
+  google.protobuf.Timestamp created_at = 7
+      [ (gogoproto.stdtime) = true ]; // 创建时间
+  google.protobuf.Timestamp updated_at = 8
+      [ (gogoproto.stdtime) = true ]; // 更新时间
 }
 
-message DeleteFriendlinkRequest {
-    repeated int64       id        = 1;
-}
+// 删除友情链接
+message DeleteFriendlinkRequest { repeated int64 id = 1; }
 
-message GetFriendlinkRequest {
-    int64 id = 1;
-}
+// 获取友情链接
+message GetFriendlinkRequest { int64 id = 1; }
 
+// 友情链接列表
 message ListFriendlinkRequest {
-    int32 page = 1;
-    int32 size = 2;
-    string wd = 3;
-    repeated bool enable = 4;
-    repeated string field = 5;
+  int32 page = 1;
+  int32 size = 2;
+  string wd = 3;
+  repeated bool enable = 4;
+  repeated string field = 5;
 }
 
+// 友情链接列表
 message ListFriendlinkReply {
-    repeated Friendlink friendlink = 1;
-    int64 total = 2;
+  repeated Friendlink friendlink = 1;
+  int64 total = 2;
 }
 
-service FriendlinkAPI{
-    rpc CreateFriendlink (Friendlink) returns (Friendlink){
-        option (google.api.http) = {
-            post: '/api/v1/friendlink',
-            body: '*',
-        };
-    }
+// 友情链接服务
+service FriendlinkAPI {
 
-    rpc UpdateFriendlink (Friendlink) returns (google.protobuf.Empty) {
-        option (google.api.http) = {
-            put: '/api/v1/friendlink',
-            body: '*',
-        };
-    }
+  // 创建友情链接
+  rpc CreateFriendlink(Friendlink) returns (Friendlink) {
+    option (google.api.http) = {
+      post : '/api/v1/friendlink',
+      body : '*',
+    };
+  }
 
-    rpc DeleteFriendlink (DeleteFriendlinkRequest) returns (google.protobuf.Empty){
-        option (google.api.http) = {
-            delete: '/api/v1/friendlink',
-        };
-    }
+  // 更新友情链接
+  rpc UpdateFriendlink(Friendlink) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/friendlink',
+      body : '*',
+    };
+  }
 
-    rpc GetFriendlink (GetFriendlinkRequest) returns (Friendlink){
-        option (google.api.http) = {
-            get: '/api/v1/friendlink',
-        };
-    }
+  // 删除友情链接
+  rpc DeleteFriendlink(DeleteFriendlinkRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/friendlink',
+    };
+  }
 
-    rpc ListFriendlink (ListFriendlinkRequest) returns (ListFriendlinkReply){
-        option (google.api.http) = {
-            get: '/api/v1/friendlink/list',
-        };
-    }
+  // 获取友情链接
+  rpc GetFriendlink(GetFriendlinkRequest) returns (Friendlink) {
+    option (google.api.http) = {
+      get : '/api/v1/friendlink',
+    };
+  }
+
+  // 获取友情链接
+  rpc ListFriendlink(ListFriendlinkRequest) returns (ListFriendlinkReply) {
+    option (google.api.http) = {
+      get : '/api/v1/friendlink/list',
+    };
+  }
 }

@@ -33,7 +33,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
-// 这里是proto文件中的结构体，可以根据需要删除或者调整
+// 举报
 type Report struct {
 	Id            int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	DocumentId    int64      `protobuf:"varint,2,opt,name=document_id,json=documentId,proto3" json:"document_id,omitempty"`
@@ -150,6 +150,7 @@ func (m *Report) GetUsername() string {
 	return ""
 }
 
+// 删除举报请求
 type DeleteReportRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -194,6 +195,7 @@ func (m *DeleteReportRequest) GetId() []int64 {
 	return nil
 }
 
+// 举报列表请求
 type ListReportRequest struct {
 	Page   int64    `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_  int64    `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -278,6 +280,7 @@ func (m *ListReportRequest) GetStatus() []bool {
 	return nil
 }
 
+// 举报列表响应
 type ListReportReply struct {
 	Total  int64     `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Report []*Report `protobuf:"bytes,2,rep,name=report,proto3" json:"report,omitempty"`
@@ -393,9 +396,13 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ReportAPIClient interface {
+	// 创建举报
 	CreateReport(ctx context.Context, in *Report, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 更新举报，审核举报内容
 	UpdateReport(ctx context.Context, in *Report, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除举报
 	DeleteReport(ctx context.Context, in *DeleteReportRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 获取举报列表
 	ListReport(ctx context.Context, in *ListReportRequest, opts ...grpc.CallOption) (*ListReportReply, error)
 }
 
@@ -445,9 +452,13 @@ func (c *reportAPIClient) ListReport(ctx context.Context, in *ListReportRequest,
 
 // ReportAPIServer is the server API for ReportAPI service.
 type ReportAPIServer interface {
+	// 创建举报
 	CreateReport(context.Context, *Report) (*emptypb.Empty, error)
+	// 更新举报，审核举报内容
 	UpdateReport(context.Context, *Report) (*emptypb.Empty, error)
+	// 删除举报
 	DeleteReport(context.Context, *DeleteReportRequest) (*emptypb.Empty, error)
+	// 获取举报列表
 	ListReport(context.Context, *ListReportRequest) (*ListReportReply, error)
 }
 

@@ -12,22 +12,26 @@ option go_package = "moredoc/api/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.v1";
 
+// 权限
 message Permission {
-  int64 id = 1;
-  string method = 2;
-  string path = 3;
-  string title = 4;
-  string description = 5;
-  google.protobuf.Timestamp created_at = 6 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 7 [ (gogoproto.stdtime) = true ];
+  int64 id = 1;           // 权限ID
+  string method = 2;      // 请求方法
+  string path = 3;        // 请求路径
+  string title = 4;       // 权限名称
+  string description = 5; // 权限描述
+  google.protobuf.Timestamp created_at = 6
+      [ (gogoproto.stdtime) = true ]; // 创建时间
+  google.protobuf.Timestamp updated_at = 7
+      [ (gogoproto.stdtime) = true ]; // 更新时间
 }
 
-message DeletePermissionRequest { repeated int64 id = 1; }
-
+// 权限请求
 message GetPermissionRequest { int64 id = 1; }
 
+// 权限响应
 message GetPermissionReply { Permission permission = 1; }
 
+// 权限列表请求
 message ListPermissionRequest {
   int64 page = 1;
   int64 size = 2;
@@ -36,17 +40,15 @@ message ListPermissionRequest {
   string path = 5;
 }
 
+// 权限列表响应
 message ListPermissionReply {
   int64 total = 1;
   repeated Permission permission = 2;
 }
 
-// message PermissionTree {
-//   Permission permission = 1;
-//   repeated PermissionTree children = 2;
-// }
-
+// 权限API服务
 service PermissionAPI {
+  // 更新权限信息。这里只能操作title和description
   rpc UpdatePermission(Permission) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/permission',
@@ -54,21 +56,17 @@ service PermissionAPI {
     };
   }
 
+  // 查询权限信息
   rpc GetPermission(GetPermissionRequest) returns (Permission) {
     option (google.api.http) = {
       get : '/api/v1/permission',
     };
   }
 
+  // 查询权限列表
   rpc ListPermission(ListPermissionRequest) returns (ListPermissionReply) {
     option (google.api.http) = {
       get : '/api/v1/permission/list',
     };
   }
-
-//   rpc ListPermissionTree(google.protobuf.Empty) returns (PermissionTree) {
-//     option (google.api.http) = {
-//       get : '/api/v1/permission/tree',
-//     };
-//   }
 }

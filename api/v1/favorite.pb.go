@@ -33,6 +33,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// 文档收藏
 type Favorite struct {
 	Id         int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	UserId     int64      `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
@@ -149,6 +150,7 @@ func (m *Favorite) GetUpdatedAt() *time.Time {
 	return nil
 }
 
+// 取消收藏
 type DeleteFavoriteRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -193,6 +195,7 @@ func (m *DeleteFavoriteRequest) GetId() []int64 {
 	return nil
 }
 
+// 查询用户的收藏
 type ListFavoriteRequest struct {
 	Page   int64 `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_  int64 `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -253,6 +256,7 @@ func (m *ListFavoriteRequest) GetUserId() int64 {
 	return 0
 }
 
+// 查询用户的收藏
 type ListFavoriteReply struct {
 	Total    int64       `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Favorite []*Favorite `protobuf:"bytes,2,rep,name=favorite,proto3" json:"favorite,omitempty"`
@@ -305,6 +309,7 @@ func (m *ListFavoriteReply) GetFavorite() []*Favorite {
 	return nil
 }
 
+// 根据文章id，查询用户是否有收藏某篇文档
 type GetFavoriteRequest struct {
 	DocumentId int64 `protobuf:"varint,1,opt,name=document_id,json=documentId,proto3" json:"document_id,omitempty"`
 }

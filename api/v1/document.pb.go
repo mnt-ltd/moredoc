@@ -981,6 +981,7 @@ func (m *ListDocumentForHomeResponse) GetDocument() []*ListDocumentForHomeItem {
 	return nil
 }
 
+// 文档搜索
 type SearchDocumentRequest struct {
 	Page       int32   `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_      int32   `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -1150,6 +1151,7 @@ func (m *DocumentScore) GetUpdatedAt() *time.Time {
 	return nil
 }
 
+// 文档搜索响应
 type SearchDocumentReply struct {
 	Total    int64       `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Spend    string      `protobuf:"bytes,2,opt,name=spend,proto3" json:"spend,omitempty"`
@@ -1210,6 +1212,7 @@ func (m *SearchDocumentReply) GetDocument() []*Document {
 	return nil
 }
 
+// 文档下载
 type DownloadDocumentReply struct {
 	Url string `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
 }
@@ -1394,15 +1397,25 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type DocumentAPIClient interface {
+	// 针对首页的文档查询
 	ListDocumentForHome(ctx context.Context, in *ListDocumentForHomeRequest, opts ...grpc.CallOption) (*ListDocumentForHomeResponse, error)
+	// 设置文档推荐
 	SetDocumentRecommend(ctx context.Context, in *SetDocumentRecommendRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 创建文档
 	CreateDocument(ctx context.Context, in *CreateDocumentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 更新文档
 	UpdateDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除文档
 	DeleteDocument(ctx context.Context, in *DeleteDocumentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 查询文档
 	GetDocument(ctx context.Context, in *GetDocumentRequest, opts ...grpc.CallOption) (*Document, error)
+	// 根据文档ID查询当前文档的相关文档
 	GetRelatedDocuments(ctx context.Context, in *Document, opts ...grpc.CallOption) (*ListDocumentReply, error)
+	// 根据文档ID，获取文档下载链接
 	DownloadDocument(ctx context.Context, in *Document, opts ...grpc.CallOption) (*DownloadDocumentReply, error)
+	// 文档列表查询
 	ListDocument(ctx context.Context, in *ListDocumentRequest, opts ...grpc.CallOption) (*ListDocumentReply, error)
+	// 文档搜索
 	SearchDocument(ctx context.Context, in *SearchDocumentRequest, opts ...grpc.CallOption) (*SearchDocumentReply, error)
 	// 设置文档评分
 	SetDocumentScore(ctx context.Context, in *DocumentScore, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -1539,15 +1552,25 @@ func (c *documentAPIClient) SetDocumentReconvert(ctx context.Context, in *emptyp
 
 // DocumentAPIServer is the server API for DocumentAPI service.
 type DocumentAPIServer interface {
+	// 针对首页的文档查询
 	ListDocumentForHome(context.Context, *ListDocumentForHomeRequest) (*ListDocumentForHomeResponse, error)
+	// 设置文档推荐
 	SetDocumentRecommend(context.Context, *SetDocumentRecommendRequest) (*emptypb.Empty, error)
+	// 创建文档
 	CreateDocument(context.Context, *CreateDocumentRequest) (*emptypb.Empty, error)
+	// 更新文档
 	UpdateDocument(context.Context, *Document) (*emptypb.Empty, error)
+	// 删除文档
 	DeleteDocument(context.Context, *DeleteDocumentRequest) (*emptypb.Empty, error)
+	// 查询文档
 	GetDocument(context.Context, *GetDocumentRequest) (*Document, error)
+	// 根据文档ID查询当前文档的相关文档
 	GetRelatedDocuments(context.Context, *Document) (*ListDocumentReply, error)
+	// 根据文档ID，获取文档下载链接
 	DownloadDocument(context.Context, *Document) (*DownloadDocumentReply, error)
+	// 文档列表查询
 	ListDocument(context.Context, *ListDocumentRequest) (*ListDocumentReply, error)
+	// 文档搜索
 	SearchDocument(context.Context, *SearchDocumentRequest) (*SearchDocumentReply, error)
 	// 设置文档评分
 	SetDocumentScore(context.Context, *DocumentScore) (*emptypb.Empty, error)

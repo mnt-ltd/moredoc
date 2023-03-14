@@ -26,7 +26,7 @@
 <a name="api-v1-DeleteFavoriteRequest"></a>
 
 ### DeleteFavoriteRequest
-
+取消收藏
 
 
 | Field | Type | Label | Description |
@@ -41,7 +41,7 @@
 <a name="api-v1-Favorite"></a>
 
 ### Favorite
-
+文档收藏
 
 
 | Field | Type | Label | Description |
@@ -65,7 +65,7 @@
 <a name="api-v1-GetFavoriteRequest"></a>
 
 ### GetFavoriteRequest
-
+根据文章id，查询用户是否有收藏某篇文档
 
 
 | Field | Type | Label | Description |
@@ -80,7 +80,7 @@
 <a name="api-v1-ListFavoriteReply"></a>
 
 ### ListFavoriteReply
-
+查询用户的收藏
 
 
 | Field | Type | Label | Description |
@@ -96,7 +96,7 @@
 <a name="api-v1-ListFavoriteRequest"></a>
 
 ### ListFavoriteRequest
-
+查询用户的收藏
 
 
 | Field | Type | Label | Description |

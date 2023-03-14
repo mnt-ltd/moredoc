@@ -29,7 +29,7 @@
 <a name="api-v1-DeleteGroupRequest"></a>
 
 ### DeleteGroupRequest
-
+删除用户组，可以批量删除
 
 
 | Field | Type | Label | Description |
@@ -44,7 +44,7 @@
 <a name="api-v1-GetGroupPermissionRequest"></a>
 
 ### GetGroupPermissionRequest
-
+获取用户组权限
 
 
 | Field | Type | Label | Description |
@@ -75,23 +75,23 @@
 <a name="api-v1-Group"></a>
 
 ### Group
-
+用户组，角色
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| id | [int64](#int64) |  |  |
-| title | [string](#string) |  |  |
-| color | [string](#string) |  |  |
-| is_default | [bool](#bool) |  |  |
-| is_display | [bool](#bool) |  |  |
-| description | [string](#string) |  |  |
-| user_count | [int32](#int32) |  |  |
-| sort | [int32](#int32) |  |  |
-| enable_upload | [bool](#bool) |  |  |
-| enable_comment_approval | [bool](#bool) |  |  |
-| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
-| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  |  |
+| id | [int64](#int64) |  | 用户组ID |
+| title | [string](#string) |  | 用户组名称 |
+| color | [string](#string) |  | 用户组颜色 |
+| is_default | [bool](#bool) |  | 是否是默认用户组 |
+| is_display | [bool](#bool) |  | 是否显示 |
+| description | [string](#string) |  | 用户组描述 |
+| user_count | [int32](#int32) |  | 用户组下的用户数量 |
+| sort | [int32](#int32) |  | 排序 |
+| enable_upload | [bool](#bool) |  | 是否允许上传文档 |
+| enable_comment_approval | [bool](#bool) |  | 是否需要审核评论 |
+| created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 创建时间 |
+| updated_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 更新时间 |
 
 
 
@@ -101,7 +101,7 @@
 <a name="api-v1-GroupPermissions"></a>
 
 ### GroupPermissions
-
+用户组权限
 
 
 | Field | Type | Label | Description |
@@ -116,7 +116,7 @@
 <a name="api-v1-ListGroupReply"></a>
 
 ### ListGroupReply
-
+用户组列表
 
 
 | Field | Type | Label | Description |
@@ -151,7 +151,7 @@
 <a name="api-v1-UpdateGroupPermissionRequest"></a>
 
 ### UpdateGroupPermissionRequest
-
+更新用户组权限
 
 
 | Field | Type | Label | Description |
@@ -180,8 +180,8 @@
 | CreateGroup | [Group](#api-v1-Group) | [Group](#api-v1-Group) | 创建用户组 |
 | UpdateGroup | [Group](#api-v1-Group) | [.google.protobuf.Empty](#google-protobuf-Empty) | 更新用户组 |
 | DeleteGroup | [DeleteGroupRequest](#api-v1-DeleteGroupRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 删除用户组 |
-| GetGroup | [GetGroupRequest](#api-v1-GetGroupRequest) | [Group](#api-v1-Group) | 获取用户组列表 |
-| ListGroup | [ListGroupRequest](#api-v1-ListGroupRequest) | [ListGroupReply](#api-v1-ListGroupReply) |  |
+| GetGroup | [GetGroupRequest](#api-v1-GetGroupRequest) | [Group](#api-v1-Group) | 获取用户组 |
+| ListGroup | [ListGroupRequest](#api-v1-ListGroupRequest) | [ListGroupReply](#api-v1-ListGroupReply) | 获取用户组列表 |
 | GetGroupPermission | [GetGroupPermissionRequest](#api-v1-GetGroupPermissionRequest) | [GroupPermissions](#api-v1-GroupPermissions) | 获取用户组权限列表 |
 | UpdateGroupPermission | [UpdateGroupPermissionRequest](#api-v1-UpdateGroupPermissionRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 更新用户组权限，给用户组设置权限 |
 

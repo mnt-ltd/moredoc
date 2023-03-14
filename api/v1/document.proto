@@ -112,21 +112,22 @@ message ListDocumentForHomeRequest { int64 limit = 1; }
 
 // 首页文档查询返回项
 message ListDocumentForHomeItem {
-  int64 category_id = 1;
-  string category_cover = 2;
-  string category_name = 3;
-  repeated Document document = 4;
+  int64 category_id = 1;          // 分类ID
+  string category_cover = 2;      // 分类封面
+  string category_name = 3;       // 分类名称
+  repeated Document document = 4; // 文档列表
 }
 
 // 查询文档（针对首页的查询）
 message ListDocumentForHomeResponse {
-  repeated ListDocumentForHomeItem document = 1;
+  repeated ListDocumentForHomeItem document = 1; // 文档列表
 }
 
+// 文档搜索
 message SearchDocumentRequest {
-  int32 page = 1;
-  int32 size = 2;
-  string wd = 3;
+  int32 page = 1;                 // 页码
+  int32 size = 2;                 // 每页数量
+  string wd = 3;                  // 搜索关键字
   repeated int64 category_id = 4; // 分类
   string sort = 5;                // 排序
   string ext = 7;                 // 类型
@@ -134,23 +135,30 @@ message SearchDocumentRequest {
 
 // 文档评分
 message DocumentScore {
-  int64 id = 1;
-  int64 document_id = 2;
-  int64 user_id = 3;
-  int32 score = 4; // 评分
-  google.protobuf.Timestamp created_at = 5 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 6 [ (gogoproto.stdtime) = true ];
+  int64 id = 1;          // 评分ID
+  int64 document_id = 2; // 文档ID
+  int64 user_id = 3;     // 用户ID
+  int32 score = 4;       // 评分，100~500，100为1分，500为5分
+  google.protobuf.Timestamp created_at = 5
+      [ (gogoproto.stdtime) = true ]; // 评分时间
+  google.protobuf.Timestamp updated_at = 6
+      [ (gogoproto.stdtime) = true ]; // 更新时间
 }
 
+// 文档搜索响应
 message SearchDocumentReply {
-  int64 total = 1;
-  string spend = 2; // 搜索耗时
-  repeated Document document = 3;
+  int64 total = 1;                // 文档总数
+  string spend = 2;               // 搜索耗时
+  repeated Document document = 3; // 文档列表
 }
 
+// 文档下载
 message DownloadDocumentReply { string url = 1; }
 
+// 文档服务
 service DocumentAPI {
+
+  // 针对首页的文档查询
   rpc ListDocumentForHome(ListDocumentForHomeRequest)
       returns (ListDocumentForHomeResponse) {
     option (google.api.http) = {
@@ -158,6 +166,7 @@ service DocumentAPI {
     };
   }
 
+  // 设置文档推荐
   rpc SetDocumentRecommend(SetDocumentRecommendRequest)
       returns (google.protobuf.Empty) {
     option (google.api.http) = {
@@ -166,6 +175,7 @@ service DocumentAPI {
     };
   }
 
+  // 创建文档
   rpc CreateDocument(CreateDocumentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post : '/api/v1/document',
@@ -173,6 +183,7 @@ service DocumentAPI {
     };
   }
 
+  // 更新文档
   rpc UpdateDocument(Document) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/document',
@@ -180,36 +191,42 @@ service DocumentAPI {
     };
   }
 
+  // 删除文档
   rpc DeleteDocument(DeleteDocumentRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete : '/api/v1/document',
     };
   }
 
+  // 查询文档
   rpc GetDocument(GetDocumentRequest) returns (Document) {
     option (google.api.http) = {
       get : '/api/v1/document',
     };
   }
 
+  // 根据文档ID查询当前文档的相关文档
   rpc GetRelatedDocuments(Document) returns (ListDocumentReply) {
     option (google.api.http) = {
       get : '/api/v1/document/related',
     };
   }
 
+  // 根据文档ID，获取文档下载链接
   rpc DownloadDocument(Document) returns (DownloadDocumentReply) {
     option (google.api.http) = {
       get : '/api/v1/document/download',
     };
   }
 
+  // 文档列表查询
   rpc ListDocument(ListDocumentRequest) returns (ListDocumentReply) {
     option (google.api.http) = {
       get : '/api/v1/document/list',
     };
   }
 
+  // 文档搜索
   rpc SearchDocument(SearchDocumentRequest) returns (SearchDocumentReply) {
     option (google.api.http) = {
       get : '/api/v1/document/search',

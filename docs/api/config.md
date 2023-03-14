@@ -42,10 +42,8 @@
 | name | [string](#string) |  | 配置名称 |
 | value | [string](#string) |  | 配置值 |
 | placeholder | [string](#string) |  | 配置占位符 |
-| input_type | [string](#string) |  | 输入类型，如：textarea、number、switch等，为 |
-| category | [string](#string) |  | element-ui 的 el-input 的 type 属性
-
-配置分类，如：system、footer、security等，见 web/utils/enum.js |
+| input_type | [string](#string) |  | 输入类型，如：textarea、number、switch等 |
+| category | [string](#string) |  | 配置分类，如：system、footer、security等，见 web/utils/enum.js |
 | sort | [int32](#int32) |  | 排序，越小越靠前 |
 | options | [string](#string) |  | 配置项枚举，一个一行，如select的option选项，用 key=value 的形式 |
 | created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 创建时间 |
