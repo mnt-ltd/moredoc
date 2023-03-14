@@ -12,41 +12,48 @@ option go_package = "moredoc/api/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.v1";
 
+// 文档分类
 message Category {
-  int32 id = 1;
-  int32 parent_id = 2;
-  string title = 3 [(gogoproto.moretags) = "validate:\"required\""];
-  int32 doc_count = 4;
-  int32 sort = 5;
-  bool enable = 6;
+  int32 id = 1;        // 分类ID
+  int32 parent_id = 2; // 父分类ID
+  string title = 3
+      [ (gogoproto.moretags) = "validate:\"required\"" ]; // 分类标题
+  int32 doc_count = 4;                                    // 文档数量
+  int32 sort = 5;   // 排序，倒序排序，值越大越靠前
+  bool enable = 6;  // 是否启用
   string cover = 9; // 分类封面
-  google.protobuf.Timestamp created_at = 7 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 8 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp created_at = 7
+      [ (gogoproto.stdtime) = true ]; // 创建时间
+  google.protobuf.Timestamp updated_at = 8
+      [ (gogoproto.stdtime) = true ]; // 更新时间
 }
 
+// 分类列表请求
 message ListCategoryRequest {
-  int64 page = 1;
-  int64 size = 2;
-  repeated int64 parent_id = 3;
-  string wd = 4;
-  repeated bool enable = 5;
-  repeated string field = 6;
+  int64 page = 1;               // 页码
+  int64 size = 2;               // 每页数量
+  repeated int64 parent_id = 3; // 父分类ID
+  string wd = 4;                // 搜索关键字
+  repeated bool enable = 5;     // 是否启用
+  repeated string field = 6;    // 查询字段
 }
 
+// 分类列表响应
 message ListCategoryReply {
-  int64 total = 1;
-  repeated Category category = 2;
+  int64 total = 1;                // 总数
+  repeated Category category = 2; // 分类列表
 }
 
-message DeleteCategoryRequest{
-    repeated int64 id = 1;
-}
+// 删除分类请求
+message DeleteCategoryRequest { repeated int64 id = 1; }
 
-message GetCategoryRequest{
-    int64 id = 1;
-}
+// 获取分类请求
+message GetCategoryRequest { int64 id = 1; }
 
+// 文档分类API服务
 service CategoryAPI {
+
+  // 创建分类
   rpc CreateCategory(Category) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post : '/api/v1/category',
@@ -54,6 +61,7 @@ service CategoryAPI {
     };
   }
 
+  // 更新分类
   rpc UpdateCategory(Category) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/category',
@@ -61,18 +69,21 @@ service CategoryAPI {
     };
   }
 
+  // 删除分类
   rpc DeleteCategory(DeleteCategoryRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete : '/api/v1/category',
     };
   }
 
+  // 获取分类
   rpc GetCategory(GetCategoryRequest) returns (Category) {
     option (google.api.http) = {
       get : '/api/v1/category',
     };
   }
 
+  // 分类列表
   rpc ListCategory(ListCategoryRequest) returns (ListCategoryReply) {
     option (google.api.http) = {
       get : '/api/v1/category/list',

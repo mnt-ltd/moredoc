@@ -82,20 +82,39 @@
             </el-alert>
             <div class="mgt-20px"></div>
           </template>
-          <div ref="docPages" class="doc-pages">
-            <el-image
-              v-for="(page, index) in pages"
-              :key="index + page.src"
-              :src="page.src"
-              :alt="page.alt"
-              lazy
-              class="doc-page"
-              :style="{
-                width: pageWidth + 'px',
-                height: pageHeight + 'px',
-              }"
-            >
-            </el-image>
+          <div ref="docPages" class="doc-pages" @contextmenu.prevent>
+            <div v-if="isMobile" v-viewer>
+              <el-image
+                v-for="(page, index) in pages"
+                :key="index + page.src"
+                :src="page.src"
+                :alt="page.alt"
+                :data-source="page.lazySrc"
+                lazy
+                class="doc-page"
+                :style="{
+                  width: pageWidth + 'px',
+                  height: pageHeight + 'px',
+                }"
+              >
+              </el-image>
+            </div>
+            <div v-else>
+              <el-image
+                v-for="(page, index) in pages"
+                :key="index + page.src"
+                :src="page.src"
+                :alt="page.alt"
+                :data-source="page.lazySrc"
+                lazy
+                class="doc-page"
+                :style="{
+                  width: pageWidth + 'px',
+                  height: pageHeight + 'px',
+                }"
+              >
+              </el-image>
+            </div>
           </div>
           <div class="doc-page-more text-center">
             <div>下载文档到本地，方便使用</div>
@@ -822,6 +841,9 @@ export default {
 }
 </script>
 <style lang="scss">
+.viewer-canvas > img {
+  background-color: #fff;
+}
 .page-document {
   .doc-main {
     overflow: auto;
@@ -970,6 +992,29 @@ export default {
 }
 
 @media screen and (max-width: $mobile-width) {
+  .el-image-viewer__wrapper {
+    .el-image-viewer__actions {
+      .el-icon-refresh-left,
+      .el-image-viewer__actions__divider,
+      .el-icon-refresh-right {
+        display: none;
+      }
+    }
+    .el-image-viewer__canvas {
+      display: block;
+      overflow: auto;
+      padding-top: 20px;
+      .el-image-viewer__img {
+        transform-origin: 0 0 !important;
+      }
+    }
+  }
+
+  .viewer-canvas > img {
+    // 调整到1.3被比较合适，这样可以在手机上看到更清晰的内容
+    transform: scale(1.3) !important;
+  }
+
   .page-document {
     .doc-left {
       width: 100% !important;

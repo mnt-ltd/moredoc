@@ -1,10 +1,19 @@
 package conf
 
+type LoggerConfig struct {
+	Filename   string
+	MaxSizeMB  int // 每份日志大小
+	MaxBackups int // 日志保留多少份
+	MaxAgeDays int // 保留多少天的日志
+	Comptress  bool
+}
+
 // Config app config
 type Config struct {
 	Level       string //
 	LogEncoding string // log encoding, json or console
-	Port        int    // listent port
+	Logger      LoggerConfig
+	Port        int // listent port
 	Database    Database
 	JWT         JWT
 }

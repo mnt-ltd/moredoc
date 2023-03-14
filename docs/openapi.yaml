@@ -10,6 +10,7 @@ paths:
         get:
             tags:
                 - ArticleAPI
+            description: 获取文章
             operationId: ArticleAPI_GetArticle
             parameters:
                 - name: id
@@ -37,6 +38,7 @@ paths:
         put:
             tags:
                 - ArticleAPI
+            description: 更新文章
             operationId: ArticleAPI_UpdateArticle
             requestBody:
                 content:
@@ -57,6 +59,7 @@ paths:
         post:
             tags:
                 - ArticleAPI
+            description: 创建文章
             operationId: ArticleAPI_CreateArticle
             requestBody:
                 content:
@@ -77,6 +80,7 @@ paths:
         delete:
             tags:
                 - ArticleAPI
+            description: 删除文章
             operationId: ArticleAPI_DeleteArticle
             parameters:
                 - name: id
@@ -100,6 +104,7 @@ paths:
         get:
             tags:
                 - ArticleAPI
+            description: 文章列表
             operationId: ArticleAPI_ListArticle
             parameters:
                 - name: page
@@ -143,6 +148,7 @@ paths:
         get:
             tags:
                 - AttachmentAPI
+            description: 查询附件
             operationId: AttachmentAPI_GetAttachment
             parameters:
                 - name: id
@@ -166,6 +172,7 @@ paths:
         put:
             tags:
                 - AttachmentAPI
+            description: 更新附件
             operationId: AttachmentAPI_UpdateAttachment
             requestBody:
                 content:
@@ -186,6 +193,7 @@ paths:
         delete:
             tags:
                 - AttachmentAPI
+            description: 删除附件。这里只是软删除，不会真正删除附件，默认24小时候会真正清除附件
             operationId: AttachmentAPI_DeleteAttachment
             parameters:
                 - name: id
@@ -209,6 +217,7 @@ paths:
         get:
             tags:
                 - AttachmentAPI
+            description: 列出附件
             operationId: AttachmentAPI_ListAttachment
             parameters:
                 - name: page
@@ -266,6 +275,7 @@ paths:
         get:
             tags:
                 - BannerAPI
+            description: 查询横幅
             operationId: BannerAPI_GetBanner
             parameters:
                 - name: id
@@ -289,6 +299,7 @@ paths:
         put:
             tags:
                 - BannerAPI
+            description: 更新横幅
             operationId: BannerAPI_UpdateBanner
             requestBody:
                 content:
@@ -309,6 +320,7 @@ paths:
         post:
             tags:
                 - BannerAPI
+            description: 创建横幅
             operationId: BannerAPI_CreateBanner
             requestBody:
                 content:
@@ -332,6 +344,7 @@ paths:
         delete:
             tags:
                 - BannerAPI
+            description: 删除横幅
             operationId: BannerAPI_DeleteBanner
             parameters:
                 - name: id
@@ -355,6 +368,7 @@ paths:
         get:
             tags:
                 - BannerAPI
+            description: 横幅列表
             operationId: BannerAPI_ListBanner
             parameters:
                 - name: page
@@ -407,6 +421,7 @@ paths:
         get:
             tags:
                 - CategoryAPI
+            description: 获取分类
             operationId: CategoryAPI_GetCategory
             parameters:
                 - name: id
@@ -430,6 +445,7 @@ paths:
         put:
             tags:
                 - CategoryAPI
+            description: 更新分类
             operationId: CategoryAPI_UpdateCategory
             requestBody:
                 content:
@@ -450,6 +466,7 @@ paths:
         post:
             tags:
                 - CategoryAPI
+            description: 创建分类
             operationId: CategoryAPI_CreateCategory
             requestBody:
                 content:
@@ -470,6 +487,7 @@ paths:
         delete:
             tags:
                 - CategoryAPI
+            description: 删除分类
             operationId: CategoryAPI_DeleteCategory
             parameters:
                 - name: id
@@ -493,6 +511,7 @@ paths:
         get:
             tags:
                 - CategoryAPI
+            description: 分类列表
             operationId: CategoryAPI_ListCategory
             parameters:
                 - name: page
@@ -590,6 +609,7 @@ paths:
         post:
             tags:
                 - CommentAPI
+            description: 创建评论
             operationId: CommentAPI_CreateComment
             requestBody:
                 content:
@@ -776,6 +796,7 @@ paths:
         get:
             tags:
                 - DocumentAPI
+            description: 查询文档
             operationId: DocumentAPI_GetDocument
             parameters:
                 - name: id
@@ -803,6 +824,7 @@ paths:
         put:
             tags:
                 - DocumentAPI
+            description: 更新文档
             operationId: DocumentAPI_UpdateDocument
             requestBody:
                 content:
@@ -823,6 +845,7 @@ paths:
         post:
             tags:
                 - DocumentAPI
+            description: 创建文档
             operationId: DocumentAPI_CreateDocument
             requestBody:
                 content:
@@ -843,6 +866,7 @@ paths:
         delete:
             tags:
                 - DocumentAPI
+            description: 删除文档
             operationId: DocumentAPI_DeleteDocument
             parameters:
                 - name: id
@@ -866,6 +890,7 @@ paths:
         get:
             tags:
                 - DocumentAPI
+            description: 根据文档ID，获取文档下载链接
             operationId: DocumentAPI_DownloadDocument
             parameters:
                 - name: id
@@ -1245,6 +1270,10 @@ paths:
                   in: query
                   schema:
                     type: boolean
+                - name: convertError
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -1262,6 +1291,7 @@ paths:
         get:
             tags:
                 - DocumentAPI
+            description: 针对首页的文档查询
             operationId: DocumentAPI_ListDocumentForHome
             parameters:
                 - name: limit
@@ -1286,6 +1316,7 @@ paths:
         get:
             tags:
                 - DocumentAPI
+            description: 文档列表查询
             operationId: DocumentAPI_ListDocument
             parameters:
                 - name: page
@@ -1361,6 +1392,7 @@ paths:
         put:
             tags:
                 - DocumentAPI
+            description: 设置文档推荐
             operationId: DocumentAPI_SetDocumentRecommend
             requestBody:
                 content:
@@ -1368,6 +1400,22 @@ paths:
                         schema:
                             $ref: '#/components/schemas/SetDocumentRecommendRequest'
                 required: true
+            responses:
+                "200":
+                    description: OK
+                    content: {}
+                default:
+                    description: Default error response
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/Status'
+    /api/v1/document/reconvert:
+        put:
+            tags:
+                - DocumentAPI
+            description: 将文档一键设置为重转
+            operationId: DocumentAPI_SetDocumentReconvert
             responses:
                 "200":
                     description: OK
@@ -1518,6 +1566,7 @@ paths:
         get:
             tags:
                 - DocumentAPI
+            description: 根据文档ID查询当前文档的相关文档
             operationId: DocumentAPI_GetRelatedDocuments
             parameters:
                 - name: id
@@ -1897,6 +1946,10 @@ paths:
                   in: query
                   schema:
                     type: boolean
+                - name: convertError
+                  in: query
+                  schema:
+                    type: string
             responses:
                 "200":
                     description: OK
@@ -1999,6 +2052,7 @@ paths:
         get:
             tags:
                 - DocumentAPI
+            description: 文档搜索
             operationId: DocumentAPI_SearchDocument
             parameters:
                 - name: page
@@ -2173,6 +2227,7 @@ paths:
         get:
             tags:
                 - FriendlinkAPI
+            description: 获取友情链接
             operationId: FriendlinkAPI_GetFriendlink
             parameters:
                 - name: id
@@ -2196,6 +2251,7 @@ paths:
         put:
             tags:
                 - FriendlinkAPI
+            description: 更新友情链接
             operationId: FriendlinkAPI_UpdateFriendlink
             requestBody:
                 content:
@@ -2216,6 +2272,7 @@ paths:
         post:
             tags:
                 - FriendlinkAPI
+            description: 创建友情链接
             operationId: FriendlinkAPI_CreateFriendlink
             requestBody:
                 content:
@@ -2239,6 +2296,7 @@ paths:
         delete:
             tags:
                 - FriendlinkAPI
+            description: 删除友情链接
             operationId: FriendlinkAPI_DeleteFriendlink
             parameters:
                 - name: id
@@ -2262,6 +2320,7 @@ paths:
         get:
             tags:
                 - FriendlinkAPI
+            description: 获取友情链接
             operationId: FriendlinkAPI_ListFriendlink
             parameters:
                 - name: page
@@ -2307,7 +2366,7 @@ paths:
         get:
             tags:
                 - GroupAPI
-            description: 获取用户组列表
+            description: 获取用户组
             operationId: GroupAPI_GetGroup
             parameters:
                 - name: id
@@ -2404,6 +2463,7 @@ paths:
         get:
             tags:
                 - GroupAPI
+            description: 获取用户组列表
             operationId: GroupAPI_ListGroup
             parameters:
                 - name: wd
@@ -2493,6 +2553,7 @@ paths:
         get:
             tags:
                 - PermissionAPI
+            description: 查询权限信息
             operationId: PermissionAPI_GetPermission
             parameters:
                 - name: id
@@ -2516,6 +2577,7 @@ paths:
         put:
             tags:
                 - PermissionAPI
+            description: 更新权限信息。这里只能操作title和description
             operationId: PermissionAPI_UpdatePermission
             requestBody:
                 content:
@@ -2537,6 +2599,7 @@ paths:
         get:
             tags:
                 - PermissionAPI
+            description: 查询权限列表
             operationId: PermissionAPI_ListPermission
             parameters:
                 - name: page
@@ -2603,6 +2666,7 @@ paths:
         put:
             tags:
                 - ReportAPI
+            description: 更新举报，审核举报内容
             operationId: ReportAPI_UpdateReport
             requestBody:
                 content:
@@ -2623,6 +2687,7 @@ paths:
         post:
             tags:
                 - ReportAPI
+            description: 创建举报
             operationId: ReportAPI_CreateReport
             requestBody:
                 content:
@@ -2643,6 +2708,7 @@ paths:
         delete:
             tags:
                 - ReportAPI
+            description: 删除举报
             operationId: ReportAPI_DeleteReport
             parameters:
                 - name: id
@@ -2666,6 +2732,7 @@ paths:
         get:
             tags:
                 - ReportAPI
+            description: 获取举报列表
             operationId: ReportAPI_ListReport
             parameters:
                 - name: page
@@ -2934,6 +3001,7 @@ paths:
         post:
             tags:
                 - UserAPI
+            description: 找回密码：第一步，发送验证码
             operationId: UserAPI_FindPasswordStepOne
             requestBody:
                 content:
@@ -2955,6 +3023,7 @@ paths:
         put:
             tags:
                 - UserAPI
+            description: 找回密码：第二步，修改密码
             operationId: UserAPI_FindPasswordStepTwo
             requestBody:
                 content:
@@ -3252,6 +3321,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+            description: 文章
         Attachment:
             type: object
             properties:
@@ -3300,6 +3370,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+            description: 附件
         Banner:
             type: object
             properties:
@@ -3328,6 +3399,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+            description: banner，轮播图
         Category:
             type: object
             properties:
@@ -3355,6 +3427,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+            description: 文档分类
         CheckCommentRequest:
             type: object
             properties:
@@ -3366,6 +3439,7 @@ components:
                 status:
                     type: integer
                     format: int32
+            description: 审核评论，修改评论状态
         Comment:
             type: object
             properties:
@@ -3399,6 +3473,7 @@ components:
                     $ref: '#/components/schemas/User'
                 documentTitle:
                     type: string
+            description: 评论
         Config:
             type: object
             properties:
@@ -3428,6 +3503,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+            description: 配置
         ConfigFooter:
             type: object
             properties:
@@ -3441,7 +3517,7 @@ components:
                     type: string
                 feedback:
                     type: string
-            description: 底链配置项
+            description: 底链配置项，为跳转的链接地址
         ConfigSecurity:
             type: object
             properties:
@@ -3468,6 +3544,8 @@ components:
                     type: array
                     items:
                         type: string
+                loginRequired:
+                    type: boolean
             description: 安全配置
         ConfigSystem:
             type: object
@@ -3510,6 +3588,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Config'
+            description: 配置列表
         CreateCommentRequest:
             type: object
             properties:
@@ -3525,6 +3604,7 @@ components:
                     type: string
                 captcha:
                     type: string
+            description: 创建评论请求
         CreateDocumentItem:
             type: object
             properties:
@@ -3536,6 +3616,7 @@ components:
                 price:
                     type: integer
                     format: int32
+            description: 创建文档
         CreateDocumentRequest:
             type: object
             properties:
@@ -3550,6 +3631,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/CreateDocumentItem'
+            description: 创建文档
         Document:
             type: object
             properties:
@@ -3640,6 +3722,9 @@ components:
                     $ref: '#/components/schemas/User'
                 enableGzip:
                     type: boolean
+                convertError:
+                    type: string
+            description: 文档
         DocumentScore:
             type: object
             properties:
@@ -3661,11 +3746,13 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+            description: 文档评分
         DownloadDocumentReply:
             type: object
             properties:
                 url:
                     type: string
+            description: 文档下载
         Dynamic:
             type: object
             properties:
@@ -3688,6 +3775,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+            description: 用户动态
         EnvDependent:
             type: object
             properties:
@@ -3706,6 +3794,7 @@ components:
                     type: string
                 isRequired:
                     type: boolean
+            description: 依赖项
         Envs:
             type: object
             properties:
@@ -3713,6 +3802,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/EnvDependent'
+            description: 依赖项列表
         Favorite:
             type: object
             properties:
@@ -3744,6 +3834,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+            description: 文档收藏
         FindPasswordRequest:
             type: object
             properties:
@@ -3757,6 +3848,7 @@ components:
                     type: string
                 captchaId:
                     type: string
+            description: 找回密码
         Friendlink:
             type: object
             properties:
@@ -3780,6 +3872,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+            description: 友情链接
         GetUserCaptchaReply:
             type: object
             properties:
@@ -3791,6 +3884,7 @@ components:
                     type: string
                 type:
                     type: string
+            description: 验证码响应
         GetUserPermissionsReply:
             type: object
             properties:
@@ -3798,6 +3892,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Permission'
+            description: 用户权限信息查询
         GoogleProtobufAny:
             type: object
             properties:
@@ -3838,6 +3933,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+            description: 用户组，角色
         GroupPermissions:
             type: object
             properties:
@@ -3846,6 +3942,7 @@ components:
                     items:
                         type: integer
                         format: int64
+            description: 用户组权限
         ListArticleReply:
             type: object
             properties:
@@ -3856,6 +3953,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Article'
+            description: 文章列表响应
         ListAttachmentReply:
             type: object
             properties:
@@ -3866,6 +3964,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Attachment'
+            description: 列出附件响应
         ListBannerReply:
             type: object
             properties:
@@ -3876,6 +3975,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Banner'
+            description: 横幅列表
         ListCategoryReply:
             type: object
             properties:
@@ -3886,6 +3986,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Category'
+            description: 分类列表响应
         ListCommentReply:
             type: object
             properties:
@@ -3896,6 +3997,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Comment'
+            description: 获取评论列表响应
         ListDocumentForHomeItem:
             type: object
             properties:
@@ -3910,6 +4012,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Document'
+            description: 首页文档查询返回项
         ListDocumentForHomeResponse:
             type: object
             properties:
@@ -3917,6 +4020,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/ListDocumentForHomeItem'
+            description: 查询文档（针对首页的查询）
         ListDocumentReply:
             type: object
             properties:
@@ -3927,6 +4031,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Document'
+            description: 文档列表
         ListFavoriteReply:
             type: object
             properties:
@@ -3937,6 +4042,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Favorite'
+            description: 查询用户的收藏
         ListFriendlinkReply:
             type: object
             properties:
@@ -3947,6 +4053,7 @@ components:
                 total:
                     type: integer
                     format: int64
+            description: 友情链接列表
         ListGroupReply:
             type: object
             properties:
@@ -3957,6 +4064,7 @@ components:
                 total:
                     type: integer
                     format: int64
+            description: 用户组列表
         ListPermissionReply:
             type: object
             properties:
@@ -3967,6 +4075,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Permission'
+            description: 权限列表响应
         ListReportReply:
             type: object
             properties:
@@ -3977,6 +4086,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Report'
+            description: 举报列表响应
         ListUserDynamicReply:
             type: object
             properties:
@@ -3987,6 +4097,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Dynamic'
+            description: 用户动态列表响应
         ListUserReply:
             type: object
             properties:
@@ -3997,6 +4108,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/User'
+            description: 用户列表响应
         LoginReply:
             type: object
             properties:
@@ -4004,6 +4116,7 @@ components:
                     type: string
                 user:
                     $ref: '#/components/schemas/User'
+            description: 用户登录响应
         Permission:
             type: object
             properties:
@@ -4024,6 +4137,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
+            description: 权限
         PongReply:
             type: object
             properties:
@@ -4040,6 +4154,7 @@ components:
                     items:
                         type: integer
                         format: int64
+            description: 恢复文档
         RegisterAndLoginRequest:
             type: object
             properties:
@@ -4053,6 +4168,7 @@ components:
                     type: string
                 email:
                     type: string
+            description: 用户注册登录请求
         Report:
             type: object
             properties:
@@ -4082,7 +4198,7 @@ components:
                     type: string
                 username:
                     type: string
-            description: 这里是proto文件中的结构体，可以根据需要删除或者调整
+            description: 举报
         SearchDocumentReply:
             type: object
             properties:
@@ -4095,6 +4211,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/Document'
+            description: 文档搜索响应
         SetDocumentRecommendRequest:
             type: object
             properties:
@@ -4106,6 +4223,7 @@ components:
                 type:
                     type: integer
                     format: int32
+            description: 设置文档推荐
         SetUserRequest:
             type: object
             properties:
@@ -4121,6 +4239,9 @@ components:
                     items:
                         type: integer
                         format: int64
+                email:
+                    type: string
+            description: 管理后台设置用户信息
         Settings:
             type: object
             properties:
@@ -4130,6 +4251,7 @@ components:
                     $ref: '#/components/schemas/ConfigFooter'
                 security:
                     $ref: '#/components/schemas/ConfigSecurity'
+            description: 系统配置
         Sign:
             type: object
             properties:
@@ -4150,6 +4272,7 @@ components:
                 award:
                     type: integer
                     format: int32
+            description: 用户签到
         Stats:
             type: object
             properties:
@@ -4185,6 +4308,7 @@ components:
                 reportCount:
                     type: integer
                     format: int64
+            description: 系统状态
         Status:
             type: object
             properties:
@@ -4212,6 +4336,7 @@ components:
                     items:
                         type: integer
                         format: int64
+            description: 更新用户组权限
         UpdateUserPasswordRequest:
             type: object
             properties:
@@ -4284,20 +4409,30 @@ components:
                 creditCount:
                     type: integer
                     format: int32
+            description: 用户信息
 tags:
     - name: ArticleAPI
+      description: 文章API服务
     - name: AttachmentAPI
       description: 附件服务。只有管理员才有权限操作
     - name: BannerAPI
+      description: 横幅API服务
     - name: CategoryAPI
+      description: 文档分类API服务
     - name: CommentAPI
+      description: 评论服务
     - name: ConfigAPI
+      description: 配置服务
     - name: DocumentAPI
+      description: 文档服务
     - name: FavoriteAPI
     - name: FriendlinkAPI
+      description: 友情链接服务
     - name: GroupAPI
     - name: HealthAPI
     - name: PermissionAPI
+      description: 权限API服务
     - name: RecycleAPI
     - name: ReportAPI
+      description: 举报服务
     - name: UserAPI

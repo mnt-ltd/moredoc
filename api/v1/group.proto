@@ -12,21 +12,25 @@ option go_package = "moredoc/api/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.v1";
 
+// 用户组，角色
 message Group {
-  int64 id = 1;
-  string title = 2;
-  string color = 3;
-  bool is_default = 4;
-  bool is_display = 5;
-  string description = 6;
-  int32 user_count = 7;
-  int32 sort = 8;
-  bool enable_upload = 11;
-  bool enable_comment_approval = 12;
-  google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
+  int64 id = 1;                      // 用户组ID
+  string title = 2;                  // 用户组名称
+  string color = 3;                  // 用户组颜色
+  bool is_default = 4;               // 是否是默认用户组
+  bool is_display = 5;               // 是否显示
+  string description = 6;            // 用户组描述
+  int32 user_count = 7;              // 用户组下的用户数量
+  int32 sort = 8;                    // 排序
+  bool enable_upload = 11;           // 是否允许上传文档
+  bool enable_comment_approval = 12; // 是否需要审核评论
+  google.protobuf.Timestamp created_at = 9
+      [ (gogoproto.stdtime) = true ]; // 创建时间
+  google.protobuf.Timestamp updated_at = 10
+      [ (gogoproto.stdtime) = true ]; // 更新时间
 }
 
+// 删除用户组，可以批量删除
 message DeleteGroupRequest { repeated int64 id = 1; }
 
 // 根据组名或者ID获取用户组
@@ -44,18 +48,22 @@ message ListGroupRequest {
   repeated string field = 5;
 }
 
+// 用户组列表
 message ListGroupReply {
   repeated Group group = 1;
   int64 total = 2;
 }
 
+// 获取用户组权限
 message GetGroupPermissionRequest { int64 id = 1; }
 
+// 更新用户组权限
 message UpdateGroupPermissionRequest {
   int64 group_id = 1;
   repeated int64 permission_id = 2;
 }
 
+// 用户组权限
 message GroupPermissions { repeated int64 permission_id = 1; }
 
 service GroupAPI {
@@ -82,13 +90,14 @@ service GroupAPI {
     };
   }
 
-  //   获取用户组列表
+  //   获取用户组
   rpc GetGroup(GetGroupRequest) returns (Group) {
     option (google.api.http) = {
       get : '/api/v1/group',
     };
   }
 
+  //  获取用户组列表
   rpc ListGroup(ListGroupRequest) returns (ListGroupReply) {
     option (google.api.http) = {
       get : '/api/v1/group/list',

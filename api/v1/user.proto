@@ -13,128 +13,154 @@ option go_package = "moredoc/api/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.v1";
 
+// 用户信息
 message User {
-  google.protobuf.Timestamp login_at = 19 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp created_at = 20 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 21 [ (gogoproto.stdtime) = true ];
-  int64 id = 1;
-  string username = 2;
-  string mobile = 3;
-  string email = 4;
-  string address = 5;
-  string signature = 6;
-  string last_login_ip = 7;
-  string register_ip = 8;
-  int32 doc_count = 9;
-  int32 follow_count = 10;
-  int32 fans_count = 11;
-  int32 favorite_count = 12;
-  int32 comment_count = 13;
-  int32 status = 14;
-  string avatar = 15;
-  string identity = 16;
-  string realname = 17;
-  repeated int64 group_id = 18;
-  int32 credit_count = 22;
+  google.protobuf.Timestamp login_at = 19
+      [ (gogoproto.stdtime) = true ]; // 最后登录时间
+  google.protobuf.Timestamp created_at = 20
+      [ (gogoproto.stdtime) = true ]; // 注册时间
+  google.protobuf.Timestamp updated_at = 21
+      [ (gogoproto.stdtime) = true ]; // 更新时间
+  int64 id = 1;                       // 用户ID
+  string username = 2;                // 用户名
+  string mobile = 3;                  // 手机号
+  string email = 4;                   // 邮箱，唯一
+  string address = 5;                 // 地址
+  string signature = 6;               // 个性签名
+  string last_login_ip = 7;           // 最后登录IP
+  string register_ip = 8;             // 注册IP
+  int32 doc_count = 9;                // 文档数量
+  int32 follow_count = 10;            // 关注数量
+  int32 fans_count = 11;              // 粉丝数量
+  int32 favorite_count = 12;          // 收藏数量
+  int32 comment_count = 13;           // 评论数量
+  int32 status = 14; // 用户状态，见 web/utils/enum.js，当前没有使用
+  string avatar = 15;           // 头像
+  string identity = 16;         // 身份证
+  string realname = 17;         // 真实姓名
+  repeated int64 group_id = 18; // 用户组ID
+  int32 credit_count = 22;      // 积分
 }
 
+// 用户注册登录请求
 message RegisterAndLoginRequest {
-  string username = 1 [ (gogoproto.moretags) = "validate:\"min=3,max=32\"" ];
-  string password = 2 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
-  string captcha = 3;
-  string captcha_id = 4;
-  string email = 5;
+  string username = 1
+      [ (gogoproto.moretags) = "validate:\"min=3,max=32\"" ]; // 用户名
+  string password = 2 [ (gogoproto.moretags) = "validate:\"min=6\"" ]; // 密码
+  string captcha = 3;    // 验证码
+  string captcha_id = 4; // 验证码ID
+  string email = 5;      // 邮箱
 }
 
+// 查询验证码请求
 message GetUserCaptchaRequest {
   string type =
       1; // 验证码类型：register、login、comment、find_password、upload
 }
 
+// 用户登录响应
 message LoginReply {
   string token = 1;
   User user = 2;
 }
 
+// 删除用户
 message DeleteUserRequest { repeated int64 id = 1; }
 
+// 获取用户信息
 message GetUserRequest { int64 id = 1; }
 
+// 找回密码
 message FindPasswordRequest {
-  string email = 1;
-  string token = 2;
-  string password = 3 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
-  string captcha = 4;
-  string captcha_id = 5;
+  string email = 1; // 邮箱
+  string token = 2; // 签名token
+  string password = 3 [ (gogoproto.moretags) = "validate:\"min=6\"" ]; // 新密码
+  string captcha = 4;    // 验证码
+  string captcha_id = 5; // 验证码ID
 }
 
+// 用户列表请求
 message ListUserRequest {
-  int64 page = 1;
-  int64 size = 2;
-  string wd = 3;
-  string sort = 4;
-  repeated int64 id = 5;
-  repeated int64 group_id = 6;
-  repeated int32 status = 7;
-  int64 limit = 8;
+  int64 page = 1;              // 页码
+  int64 size = 2;              // 每页数量
+  string wd = 3;               // 搜索关键词
+  string sort = 4;             // 排序字段
+  repeated int64 id = 5;       // 用户ID
+  repeated int64 group_id = 6; // 用户组ID
+  repeated int32 status = 7;   // 用户状态
+  int64 limit = 8; // 请求数量限制，大于0时，page和size无效
 }
 
+// 用户列表响应
 message ListUserReply {
-  int64 total = 1;
-  repeated User user = 2;
+  int64 total = 1;        // 总数
+  repeated User user = 2; // 用户列表
 }
 
+// 验证码响应
 message GetUserCaptchaReply {
-  bool enable = 1;
-  string id = 2;
-  string captcha = 3;
-  string type = 4;
+  bool enable = 1;    // 是否启用验证码
+  string id = 2;      // 验证码ID
+  string captcha = 3; // 验证码
+  string type = 4;    // 验证码类型
 }
 
 // 修改用户密码
 message UpdateUserPasswordRequest {
-  int64 id = 1;
-  string old_password = 2;
-  string new_password = 3 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
+  int64 id = 1;            // 用户ID
+  string old_password = 2; // 旧密码
+  string new_password = 3
+      [ (gogoproto.moretags) = "validate:\"min=6\"" ]; // 新密码
 }
 
+// 用户权限信息查询
 message GetUserPermissionsReply { repeated Permission permission = 1; }
 
+// 管理后台设置用户信息
 message SetUserRequest {
-  int64 id = 1;
-  string username = 2 [ (gogoproto.moretags) = "validate:\"min=3,max=32\"" ];
-  string password = 3 [ (gogoproto.moretags) = "validate:\"min=6\"" ];
-  repeated int64 group_id = 4;
+  int64 id = 1; // 用户ID
+  string username = 2
+      [ (gogoproto.moretags) = "validate:\"min=3,max=32\"" ]; // 用户名
+  string password = 3 [ (gogoproto.moretags) = "validate:\"min=6\"" ]; // 密码
+  repeated int64 group_id = 4; // 用户组ID
+  string email = 5;            // 邮箱
 }
 
+// 用户动态
 message Dynamic {
-  int64 id = 1;
-  int64 user_id = 2;
-  string content = 3;
-  int32 type = 4; // 类型
-  string username = 7;
-  google.protobuf.Timestamp created_at = 5 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 6 [ (gogoproto.stdtime) = true ];
+  int64 id = 1;        // 动态ID
+  int64 user_id = 2;   // 用户ID
+  string content = 3;  // 内容
+  int32 type = 4;      // 类型
+  string username = 7; // 用户名
+  google.protobuf.Timestamp created_at = 5
+      [ (gogoproto.stdtime) = true ]; // 创建时间
+  google.protobuf.Timestamp updated_at = 6
+      [ (gogoproto.stdtime) = true ]; // 更新时间
 }
 
+// 用户动态列表请求
 message ListUserDynamicRequest {
-  int64 page = 1;
-  int64 size = 2;
-  int64 id = 3;
+  int64 page = 1; // 页码
+  int64 size = 2; // 每页数量
+  int64 id = 3;   // 用户ID
 }
 
+// 用户动态列表响应
 message ListUserDynamicReply {
-  int64 total = 1;
-  repeated Dynamic dynamic = 2;
+  int64 total = 1;              // 总数
+  repeated Dynamic dynamic = 2; // 动态列表
 }
 
+// 用户签到
 message Sign {
-  int64 id = 1;
-  int64 user_id = 2;
-  int32 sign_at = 3;
-  string ip = 4;
-  google.protobuf.Timestamp created_at = 5 [ (gogoproto.stdtime) = true ];
-  int32 award = 6; // 签到积分奖励
+  int64 id = 1;      // 签到ID
+  int64 user_id = 2; // 用户ID
+  int32 sign_at = 3; // 签到日期
+  string ip = 4;     // 签到IP
+  google.protobuf.Timestamp created_at = 5
+      [ (gogoproto.stdtime) = true ]; // 创建时间
+  int32 award = 6;                    // 签到积分奖励
 }
 
 service UserAPI {
@@ -262,6 +288,7 @@ service UserAPI {
     };
   }
 
+  // 找回密码：第一步，发送验证码
   rpc FindPasswordStepOne(FindPasswordRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post : '/api/v1/user/findpassword/stepone',
@@ -269,6 +296,7 @@ service UserAPI {
     };
   }
 
+  // 找回密码：第二步，修改密码
   rpc FindPasswordStepTwo(FindPasswordRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/user/findpassword/steptwo',

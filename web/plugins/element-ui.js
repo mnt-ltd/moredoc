@@ -1,9 +1,28 @@
 import Vue from 'vue'
 import Element from 'element-ui'
 import hotkeys from 'hotkeys-js'
+import 'viewerjs/dist/viewer.css'
+import VueViewer from 'v-viewer'
 
 // import locale from 'element-ui/lib/locale/lang/en'
 // Vue.use(Element, { locale })
+Vue.use(VueViewer, {
+  defaultOptions: {
+    button: true,
+    navbar: false,
+    title: true,
+    toolbar: false,
+    tooltip: false,
+    movable: true,
+    zoomable: true,
+    rotatable: true,
+    scalable: true,
+    transition: true,
+    fullscreen: true,
+    keyboard: true,
+    url: 'data-source',
+  },
+})
 
 import zhLocale from 'element-ui/lib/locale/lang/zh-CN'
 

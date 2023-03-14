@@ -1,6 +1,7 @@
 package model
 
 import (
+	"bytes"
 	"fmt"
 	"moredoc/util/sitemap"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PuerkitoBio/goquery"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -106,6 +108,52 @@ func (m *DBModel) UpdateSitemap() (err error) {
 	}
 
 	return
+}
+
+// SEO
+func (m *DBModel) InitSEO() {
+	// 扫描dist目录下的所有HTML文件，将文件名作为SEO的关键字
+	cfg := m.GetConfigOfSystem()
+	dist := "dist"
+	pages := map[string]string{
+		"200.html":                "",
+		"404.html":                "404 - 页面未找到 - ",
+		"findpassword/index.html": "找回密码 - ",
+		"index.html":              "",
+		"login/index.html":        "用户登录 - ",
+		"register/index.html":     "用户注册 - ",
+		"search/index.html":       "文档搜索 - ",
+		"upload/index.html":       "文档上传 - ",
+	}
+	filepath.Walk(dist, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		path = filepath.ToSlash(path)
+		if filepath.Ext(path) == ".html" && !strings.HasPrefix(path, dist+"/admin") {
+			name := strings.TrimPrefix(path, dist+"/")
+			if defaultTitle, ok := pages[name]; ok {
+				m.logger.Debug("initSEO", zap.String("file", path))
+				bs, _ := os.ReadFile(path)
+				if doc, errDoc := goquery.NewDocumentFromReader(bytes.NewReader(bs)); errDoc != nil {
+					m.logger.Error("initSEO", zap.Error(errDoc), zap.String("file", path))
+				} else {
+					doc.Find("title").SetText(defaultTitle + cfg.Sitename)
+					doc.Find("meta[name='keywords']").SetAttr("content", cfg.Keywords)
+					doc.Find("meta[name='description']").SetAttr("content", cfg.Description)
+					doc.Find("meta[content='moredoc']").Remove()
+					doc.Find("meta[name='og:type']").Remove()
+					if htmlStr, errHtml := doc.Html(); errHtml == nil {
+						os.WriteFile(path, []byte(htmlStr), os.ModePerm)
+					}
+				}
+			}
+		}
+		return nil
+	})
 }
 
 func (m *DBModel) cronUpdateSitemap() {

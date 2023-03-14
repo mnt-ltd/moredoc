@@ -7,6 +7,7 @@
         :show-create="false"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
         @onCreate="onCreate"
         @onDelete="batchDelete"
@@ -63,7 +64,7 @@
       v-if="comment.id > 0"
       title="评论编审"
       :visible.sync="formCommentVisible"
-      width="640px"
+      width="520px"
     >
       <FormCommentCheck
         ref="formComment"
@@ -83,6 +84,7 @@ import {
 } from '~/api/comment'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
+import { parseQueryIntArray } from '~/utils/utils'
 export default {
   components: { TableList, FormSearch },
   layout: 'admin',
@@ -115,10 +117,24 @@ export default {
       return this.$store.state.setting.settings
     },
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['status']),
+        }
+        this.listComment()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listComment()
   },
   methods: {
     async listComment() {
@@ -137,15 +153,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listComment()
+      this.$router.push({
+        query: this.search,
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listComment()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listComment()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
     },
     onCreate() {
       this.comment = { id: 0 }

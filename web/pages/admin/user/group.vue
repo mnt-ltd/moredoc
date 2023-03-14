@@ -7,6 +7,7 @@
         :show-create="true"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onCreate="onCreate"
         @onDelete="batchDelete"
         @onSearch="onSearch"
@@ -57,7 +58,7 @@
     <el-dialog
       :title="group.id ? '编辑分组' : '新增分组'"
       :visible.sync="formGroupVisible"
-      width="640px"
+      width="520px"
     >
       <FormGroup :init-group="group" @success="success" />
     </el-dialog>
@@ -94,8 +95,6 @@ export default {
       search: {
         wd: '',
         page: 1,
-        status: [],
-        group_id: [],
         size: 10,
       },
       groups: [],
@@ -114,11 +113,25 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+        }
+        this.listGroup()
+      },
+    },
+  },
   async created() {
     this.initGroup()
     this.initSearchForm()
     this.initTableListFields()
-    await this.listGroup()
+    // await this.listGroup()
   },
   methods: {
     async listGroup() {
@@ -141,7 +154,9 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listGroup()
+      this.$router.push({
+        query: this.search,
+      })
     },
     updateGroupPermissionSuccess() {
       // 权限设置成功，需要：
@@ -152,12 +167,15 @@ export default {
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listGroup()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
-      this.search = search
-      this.search.page = 1
-      this.listGroup()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
     },
     onCreate() {
       this.initGroup()

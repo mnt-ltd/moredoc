@@ -7,6 +7,7 @@
         :show-create="false"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
         @onCreate="onCreate"
         @onDelete="batchDelete"
@@ -46,7 +47,7 @@
     <el-dialog
       :title="report.id ? '编辑举报' : '新增举报'"
       :visible.sync="formReportVisible"
-      width="640px"
+      width="520px"
     >
       <FormReport
         ref="reportForm"
@@ -61,6 +62,7 @@
 <script>
 import { listReport, deleteReport } from '~/api/report'
 import { reportOptions } from '~/utils/enum'
+import { parseQueryIntArray } from '~/utils/utils'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormReport from '~/components/FormReport.vue'
@@ -98,7 +100,21 @@ export default {
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listReport()
+  },
+  watch: {
+    '$route.query': {
+      handler() {
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['status']),
+        }
+        this.listReport()
+      },
+      immediate: true,
+    },
   },
   methods: {
     async listReport() {
@@ -114,15 +130,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listReport()
+      this.$router.push({
+        query: this.search,
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listReport()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listReport()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
     },
     onCreate() {
       this.report = { id: 0 }
@@ -196,12 +218,12 @@ export default {
         {
           type: 'select',
           label: '状态',
-          name: 'enable',
+          name: 'status',
           placeholder: '请选择状态',
           multiple: true,
           options: [
-            { label: '启用', value: 1 },
-            { label: '禁用', value: 0 },
+            { label: '已处理', value: 1 },
+            { label: '未处理', value: 0 },
           ],
         },
       ]

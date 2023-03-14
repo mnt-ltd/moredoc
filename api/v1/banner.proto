@@ -12,38 +12,48 @@ option go_package = "moredoc/api/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.v1";
 
+// banner，轮播图
 message Banner {
-  int64 id = 1;
-  string title = 2;
-  string path = 3;
-  int32 sort = 4;
-  bool enable = 5;
-  int32 type = 6;
-  string url = 7;
-  string description = 8;
-  google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
+  int64 id = 1;     // 主键
+  string title = 2; // 标题，名称
+  string path = 3;  // 图片地址
+  int32 sort = 4;   // 排序，值越大越靠前
+  bool enable = 5;  // 是否启用
+  int32 type = 6; // 类型，如PC横幅、小程序横幅等，见 web/utils/enum.js 中的枚举
+  string url = 7; // 跳转地址
+  string description = 8; // 描述
+  google.protobuf.Timestamp created_at = 9
+      [ (gogoproto.stdtime) = true ]; // 创建时间
+  google.protobuf.Timestamp updated_at = 10
+      [ (gogoproto.stdtime) = true ]; // 更新时间
 }
 
-message DeleteBannerRequest {repeated int64 id = 1; }
+// 删除横幅
+message DeleteBannerRequest { repeated int64 id = 1; }
 
+// 获取横幅
 message GetBannerRequest { int64 id = 1; }
 
+// 横幅列表请求
 message ListBannerRequest {
-  int64 page = 1;
-  int64 size = 2;
-  repeated int32 type = 3;
-  repeated bool enable = 4;
-  string wd = 5;
-  repeated string field = 6;
+  int64 page = 1;            // 页码
+  int64 size = 2;            // 每页数量
+  repeated int32 type = 3;   // 类型
+  repeated bool enable = 4;  // 是否启用
+  string wd = 5;             // 搜索关键字
+  repeated string field = 6; // 查询字段，不指定，则查询全部
 }
 
+// 横幅列表
 message ListBannerReply {
-  int64 total = 1;
-  repeated Banner banner = 2;
+  int64 total = 1;            // 总数
+  repeated Banner banner = 2; // 横幅数组
 }
 
+// 横幅API服务
 service BannerAPI {
+
+  // 创建横幅
   rpc CreateBanner(Banner) returns (Banner) {
     option (google.api.http) = {
       post : '/api/v1/banner',
@@ -51,6 +61,7 @@ service BannerAPI {
     };
   }
 
+  // 更新横幅
   rpc UpdateBanner(Banner) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/banner',
@@ -58,18 +69,21 @@ service BannerAPI {
     };
   }
 
+  // 删除横幅
   rpc DeleteBanner(DeleteBannerRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete : '/api/v1/banner',
     };
   }
 
+  // 查询横幅
   rpc GetBanner(GetBannerRequest) returns (Banner) {
     option (google.api.http) = {
       get : '/api/v1/banner',
     };
   }
 
+  // 横幅列表
   rpc ListBanner(ListBannerRequest) returns (ListBannerReply) {
     option (google.api.http) = {
       get : '/api/v1/banner/list',

@@ -219,6 +219,7 @@ export default {
   computed: {
     ...mapGetters('category', ['categories', 'categoryMap']),
     ...mapGetters('setting', ['settings']),
+    ...mapGetters('device', ['isMobile']),
   },
   watch: {
     filterText(val) {
@@ -458,6 +459,7 @@ export default {
       display: inline-block;
       margin-right: 20px;
       margin-bottom: 20px;
+      font-weight: normal;
     }
     margin-bottom: -20px;
   }

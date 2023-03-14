@@ -14,3 +14,5 @@ indexes
 sitemap
 !util/sitemap
 license.cert
+*.cert
+/logs

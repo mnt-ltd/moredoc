@@ -43,6 +43,10 @@ export default {
       type: Object,
       default: () => {},
     },
+    placeholder: {
+      type: String,
+      default: '请输入评论内容',
+    },
   },
   data() {
     return {

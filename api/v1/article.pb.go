@@ -33,6 +33,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// 文章
 type Article struct {
 	Id          int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Identifier  string     `protobuf:"bytes,2,opt,name=identifier,proto3" json:"identifier,omitempty"`
@@ -149,6 +150,7 @@ func (m *Article) GetUpdatedAt() *time.Time {
 	return nil
 }
 
+// 删除文章请求，传入单个或者多个文章ID
 type DeleteArticleRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -193,7 +195,7 @@ func (m *DeleteArticleRequest) GetId() []int64 {
 	return nil
 }
 
-// 根据ID或者文章标识获取文章
+// 根据ID或者文章标识获取文章，二选一
 type GetArticleRequest struct {
 	Id         int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Identifier string `protobuf:"bytes,2,opt,name=identifier,proto3" json:"identifier,omitempty"`
@@ -246,6 +248,7 @@ func (m *GetArticleRequest) GetIdentifier() string {
 	return ""
 }
 
+// 文章列表请求
 type ListArticleRequest struct {
 	Page  int64    `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_ int64    `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -322,6 +325,7 @@ func (m *ListArticleRequest) GetOrder() string {
 	return ""
 }
 
+// 文章列表响应
 type ListArticleReply struct {
 	Total   int64      `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Article []*Article `protobuf:"bytes,2,rep,name=article,proto3" json:"article,omitempty"`
@@ -439,10 +443,15 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ArticleAPIClient interface {
+	// 创建文章
 	CreateArticle(ctx context.Context, in *Article, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 更新文章
 	UpdateArticle(ctx context.Context, in *Article, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除文章
 	DeleteArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 获取文章
 	GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Article, error)
+	// 文章列表
 	ListArticle(ctx context.Context, in *ListArticleRequest, opts ...grpc.CallOption) (*ListArticleReply, error)
 }
 
@@ -501,10 +510,15 @@ func (c *articleAPIClient) ListArticle(ctx context.Context, in *ListArticleReque
 
 // ArticleAPIServer is the server API for ArticleAPI service.
 type ArticleAPIServer interface {
+	// 创建文章
 	CreateArticle(context.Context, *Article) (*emptypb.Empty, error)
+	// 更新文章
 	UpdateArticle(context.Context, *Article) (*emptypb.Empty, error)
+	// 删除文章
 	DeleteArticle(context.Context, *DeleteArticleRequest) (*emptypb.Empty, error)
+	// 获取文章
 	GetArticle(context.Context, *GetArticleRequest) (*Article, error)
+	// 文章列表
 	ListArticle(context.Context, *ListArticleRequest) (*ListArticleReply, error)
 }
 

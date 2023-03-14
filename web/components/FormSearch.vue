@@ -100,11 +100,25 @@ export default {
         return []
       },
     },
+    defaultSearch: {
+      type: Object,
+      default: () => {
+        return {}
+      },
+    },
   },
   data() {
     return {
       search: {},
     }
+  },
+  watch: {
+    defaultSearch: {
+      handler(val) {
+        this.search = { ...val }
+      },
+      immediate: true,
+    },
   },
   methods: {
     onSearch() {

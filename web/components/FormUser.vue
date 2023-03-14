@@ -31,6 +31,16 @@
         ></el-input>
       </el-form-item>
       <el-form-item
+        label="邮箱"
+        prop="email"
+        :rules="[
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' },
+        ]"
+      >
+        <el-input v-model="user.email" placeholder="请输入邮箱"></el-input>
+      </el-form-item>
+      <el-form-item
         label="角色"
         prop="group_id"
         :rules="[{ required: true, message: '请选择角色', trigger: 'blur' }]"
@@ -77,6 +87,7 @@ export default {
       default: () => {
         return {
           id: 0,
+          email: '',
           username: '',
           password: '',
           group_id: [],

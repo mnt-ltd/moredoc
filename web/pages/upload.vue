@@ -50,17 +50,14 @@
                 <el-form-item>
                   <el-upload
                     ref="upload"
-                    class="upload-demo"
                     drag
+                    multiple
                     :action="'/api/v1/upload/document'"
                     :headers="{ authorization: `bearer ${token}` }"
                     :show-file-list="false"
-                    :on-success="onSuccess"
-                    :on-error="onError"
-                    multiple
                     :disabled="loading || !canIUploadDocument"
                     :auto-upload="false"
-                    :on-change="handleChange"
+                    :on-change="onChange"
                     :file-list="fileList"
                   >
                     <i class="el-icon-upload"></i>
@@ -74,6 +71,11 @@
                     style="width: 100%"
                     max-height="480"
                   >
+                    <el-table-column prop="title" label="#" width="50">
+                      <template slot-scope="scope">
+                        {{ scope.$index + 1 }}
+                      </template>
+                    </el-table-column>
                     <el-table-column prop="title" label="文件" min-width="180">
                       <template slot-scope="scope">
                         <el-input v-model="scope.row.title" :disabled="loading">
@@ -81,6 +83,20 @@
                             scope.row.ext
                           }}</template></el-input
                         >
+                        <div v-if="scope.row.error">
+                          <el-progress
+                            :key="scope.row.name"
+                            :percentage="scope.row.percentage"
+                            status="exception"
+                          ></el-progress>
+                          <small class="el-link el-link--danger error-tips">{{
+                            scope.row.error
+                          }}</small>
+                        </div>
+                        <el-progress
+                          v-else-if="scope.row.percentage > 0"
+                          :percentage="scope.row.percentage"
+                        ></el-progress>
                       </template>
                     </el-table-column>
                     <el-table-column prop="size" label="大小" width="100">
@@ -107,6 +123,7 @@
                       <template slot="header">
                         操作 (<el-button
                           type="text"
+                          size="mini"
                           :disabled="loading"
                           @click="clearAllFiles"
                           >清空</el-button
@@ -127,14 +144,6 @@
                   </el-table>
                 </el-form-item>
                 <el-form-item style="margin-bottom: 0">
-                  <el-progress
-                    v-if="loading"
-                    :percentage="percentAge"
-                    :text-inside="true"
-                    :stroke-width="12"
-                    status="success"
-                  ></el-progress>
-                  <div v-if="loading" class="mgt-20px"></div>
                   <el-button
                     v-if="canIUploadDocument"
                     type="primary"
@@ -247,6 +256,7 @@ import { mapActions, mapGetters } from 'vuex'
 import { formatBytes } from '~/utils/utils'
 import { createDocument } from '~/api/document'
 import { canIUploadDocument } from '~/api/user'
+import { uploadDocument } from '~/api/attachment'
 export default {
   data() {
     return {
@@ -296,6 +306,10 @@ export default {
       pptExt: [],
       excelExt: [],
       otherExt: [],
+      totalFiles: 0, // 总个数
+      totalFailed: 0, // 失败个数
+      totalSuccess: 0, // 成功个数
+      totalDone: 0, // 完成个数
     }
   },
   head() {
@@ -353,7 +367,7 @@ export default {
   methods: {
     formatBytes,
     ...mapActions('user', ['getUser']),
-    handleChange(file) {
+    onChange(file) {
       const name = file.name.toLowerCase()
       const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase()
       if (!this.allowExt.includes(ext)) {
@@ -381,9 +395,14 @@ export default {
           title: file.name.substring(0, file.name.lastIndexOf('.')),
           ext,
           price: this.document.price || 0,
+          progressStatus: 'success',
+          error: '',
+          percentage: 0,
+          attachment_id: 0,
         }
         this.filesMap[name] = item
         this.fileList.push(item)
+        this.totalFiles = this.fileList.length
       }
     },
     handleRemove(index) {
@@ -398,13 +417,31 @@ export default {
             this.$message.error('请先选择要上传的文档')
             return
           }
+
+          this.totalFiles = this.fileList.length
+          this.totalDone = 0
           this.loading = true
-          if (this.percentAge === 100) {
-            // 直接创建文档
-            this.createDocuments()
-          } else {
-            this.$refs.upload.submit()
-          }
+          try {
+            // 取消之前上传的请求，不然一直pending，新请求会没法发送
+            window.uploadDocumentCancel.map((c) => c())
+            window.uploadDocumentCancel = []
+          } catch (error) {}
+
+          // chrome 等浏览器同一域名下最多只能同时发起 6 个请求，所以这里将 fileList 拆分成多个数组，每个数组的长度为 2，以便控制并发，每次只同时上传 2 个文件
+          const fileList = this.fileList.reduce((prev, cur, index) => {
+            const i = Math.floor(index / 2)
+            prev[i] = prev[i] || []
+            prev[i].push(cur)
+            return prev
+          }, [])
+          fileList.reduce(async (prev, cur) => {
+            await prev
+            await Promise.all(
+              cur.map(async (file) => {
+                await this.uploadDocument(file)
+              })
+            )
+          }, Promise.resolve())
         }
       })
     },
@@ -416,56 +453,79 @@ export default {
       this.filesMap = {}
       this.$refs.upload.clearFiles()
     },
-    onError(err) {
-      this.loading = false
+    async uploadDocument(file) {
+      if (file.percentage === 100 && file.attachment_id) {
+        // 不用再次上传
+        this.createDocument(file)
+        this.totalDone++
+        return
+      }
+      file.error = ''
+      file.progressStatus = 'success'
+
+      const formData = new FormData()
+      formData.append('file', file.raw)
+
       try {
-        const message = JSON.parse(err.message)
-        this.$message.error(message.error)
+        const res = await uploadDocument(formData, {
+          onUploadProgress: (progressEvent) => {
+            file.percentage = parseInt(
+              (progressEvent.loaded / progressEvent.total) * 100
+            )
+          },
+          // timeout: 1000 * 6,
+        })
+        if (res.status === 200) {
+          file.attachment_id = res.data.data.id || 0
+          this.createDocument(file)
+          this.totalSuccess++
+        } else {
+          file.progressStatus = 'exception'
+          file.error = res.data.message || res.statusText
+          this.$message.error(`《${file.name}》${file.error}`)
+          this.totalFailed++
+        }
       } catch (error) {
-        this.$message.error(err.message)
+        file.progressStatus = 'exception'
+        file.error = '上传失败或超时，请重试'
+        this.$message.error(`《${file.name}》${file.error}`)
+        this.totalFailed++
+      }
+
+      this.totalDone++
+      if (this.totalDone === this.totalFiles) {
+        this.loading = false
       }
     },
-    // TODO: 优化：因网络问题失败或者没有权限等情况，可以正常重试
-    onSuccess(res, file, fileList) {
-      const length = fileList.length
-      const successItems = fileList.filter(
-        (item) => item.response && item.response.code === 200
-      )
-      let percentAge = (successItems.length / length) * 100
-      this.percentAge = percentAge.toFixed(2)
-      if (percentAge === 100) {
-        this.createDocuments()
-      }
-    },
-    async createDocuments() {
+    async createDocument(doc) {
       const createDocumentRequest = {
         overwrite: this.document.overwrite,
         category_id: this.document.category_id,
-        document: this.fileList.map((item) => {
-          return {
-            title: item.title,
-            price: item.price,
-            attachment_id: item.response.data.id,
-          }
-        }),
+        document: [
+          {
+            title: doc.title,
+            price: doc.price,
+            attachment_id: doc.attachment_id,
+          },
+        ],
       }
       const res = await createDocument(createDocumentRequest)
       if (res.status === 200) {
-        this.$message.success('上传成功')
-        this.loading = false
-        this.percentAge = 0
-        this.fileList = []
-        this.filesMap = {}
-        this.document = {
-          category_id: [],
-          price: 0,
-          overwrite: false,
-        }
-        this.$refs.upload.clearFiles()
-        this.getUser()
+        // 从 fileList 中剔除 attachment_id 与当前文档相同的文档
+        this.$message.success(`《${doc.title}》上传成功`)
+        this.fileList = this.fileList.filter((item) => {
+          return item.attachment_id !== doc.attachment_id && doc.attachment_id
+        })
+
+        // 过滤 filesMap 中的文档
+        this.filesMap = Object.keys(this.filesMap).reduce((acc, key) => {
+          if (this.filesMap[key].attachment_id !== doc.attachment_id) {
+            acc[key] = this.filesMap[key]
+          }
+          return acc
+        }, {})
       } else {
-        this.$message.error(res.data.message || '上传失败')
-        this.loading = false
+        this.$message.error(`《${doc.title}》上传失败 ` + res.data.message)
       }
     },
   },
@@ -477,6 +537,14 @@ export default {
     .el-input-number {
       width: 120px;
     }
+  }
+  .el-progress {
+    position: absolute;
+    width: 100%;
+    bottom: -1px;
+  }
+  .error-tips {
+    font-size: 12px;
   }
   .upload-tips {
     line-height: 180%;

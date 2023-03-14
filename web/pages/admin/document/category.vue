@@ -31,7 +31,7 @@
     <el-dialog
       :title="category.id ? '编辑分类' : '新增分类'"
       :visible.sync="formVisible"
-      :width="'640px'"
+      :width="'520px'"
     >
       <FormCategory
         ref="categoryForm"
@@ -48,7 +48,7 @@ import { listCategory, deleteCategory, getCategory } from '~/api/category'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormCategory from '~/components/FormCategory.vue'
-import { categoryToTrees } from '~/utils/utils'
+import { categoryToTrees, parseQueryIntArray } from '~/utils/utils'
 import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormCategory },
@@ -78,10 +78,22 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      async handler() {
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          ...parseQueryIntArray(this.$route.query, ['enable']),
+        }
+        await this.initTableListFields()
+        this.listCategory()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
-    this.initTableListFields()
-    await this.listCategory()
   },
   methods: {
     async listCategory() {
@@ -104,15 +116,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listCategory()
+      this.$router.push({
+        query: this.search,
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listCategory()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listCategory()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
     },
     onCreate() {
       this.category = {
@@ -199,13 +217,16 @@ export default {
           placeholder: '请选择状态',
           multiple: true,
           options: [
-            { label: '启用', value: true },
-            { label: '禁用', value: false },
+            { label: '启用', value: 1 },
+            { label: '禁用', value: 0 },
           ],
         },
       ]
     },
     initTableListFields() {
+      if (this.tableListFields.length > 0) {
+        return
+      }
       this.tableListFields = [
         { prop: 'title', label: '名称', minWidth: 120, fixed: 'left' },
         {

@@ -7,6 +7,7 @@
         :show-create="true"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
         @onCreate="onCreate"
         @onDelete="batchDelete"
@@ -25,7 +26,22 @@
         @selectRow="selectRow"
         @editRow="editRow"
         @deleteRow="deleteRow"
-      />
+      >
+        <!-- 查看文章 -->
+        <template slot="actions" slot-scope="scope">
+          <nuxt-link
+            target="_blank"
+            :to="{
+              name: 'article-id',
+              params: { id: scope.row.identifier },
+            }"
+          >
+            <el-button type="text" size="mini" icon="el-icon-view"
+              >查看</el-button
+            >
+          </nuxt-link>
+        </template>
+      </TableList>
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <div class="text-right">
@@ -93,16 +109,30 @@ export default {
   },
   head() {
     return {
-      title: `单页管理 - ${this.settings.system.sitename}`,
+      title: `文章管理 - ${this.settings.system.sitename}`,
     }
   },
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+        }
+        this.listArticle()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listArticle()
+    // await this.listArticle()
   },
   methods: {
     async listArticle() {
@@ -118,15 +148,24 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listArticle()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listArticle()
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listArticle()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listArticle()
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listArticle()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listArticle()
     },
     onCreate() {
       this.article = { id: 0 }

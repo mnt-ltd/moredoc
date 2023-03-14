@@ -119,11 +119,24 @@
         <el-input v-model="user.captcha" placeholder="请输入验证码"></el-input>
       </el-form-item>
       <el-form-item class="register">
+        <el-alert
+          v-if="
+            settings && settings.security && !settings.security.enable_register
+          "
+          title="网站暂未开放用户注册"
+          type="warning"
+          :closable="false"
+          show-icon
+          style="margin-bottom: 10px"
+        ></el-alert>
         <el-button
           type="primary"
           class="btn-block btn-register"
           icon="el-icon-check"
           @click="execRegister"
+          :disabled="
+            settings && settings.security && !settings.security.enable_register
+          "
           :loading="loading"
           >立即注册</el-button
         >
@@ -138,7 +151,7 @@
   </div>
 </template>
 <script>
-import { mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 import { getUserCaptcha } from '~/api/user'
 export default {
   name: 'FormRegister',
@@ -163,6 +176,9 @@ export default {
       },
       loading: false,
     }
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   created() {
     this.loadCaptcha()

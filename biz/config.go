@@ -47,6 +47,7 @@ func (s *ConfigAPIService) UpdateConfig(ctx context.Context, req *pb.Configs) (*
 		fmt.Println(err.Error())
 	}
 
+	doesUpdateSEO := false
 	isEmail := false
 	for idx, cfg := range cfgs {
 		if cfg.Category == model.ConfigCategoryEmail && cfg.Name == model.ConfigEmailPassword && cfg.Value == "******" {
@@ -54,6 +55,9 @@ func (s *ConfigAPIService) UpdateConfig(ctx context.Context, req *pb.Configs) (*
 			cfgs[idx].Value = s.dbModel.GetConfigOfEmail(model.ConfigEmailPassword).Password
 		}
 		isEmail = isEmail || cfg.Category == model.ConfigCategoryEmail
+		if cfg.Category == model.ConfigCategorySystem {
+			doesUpdateSEO = true
+		}
 	}
 
 	err = s.dbModel.UpdateConfigs(cfgs, "value")
@@ -69,6 +73,10 @@ func (s *ConfigAPIService) UpdateConfig(ctx context.Context, req *pb.Configs) (*
 				return nil, status.Error(codes.Internal, "邮件发送失败:"+err.Error())
 			}
 		}
+	}
+
+	if doesUpdateSEO {
+		s.dbModel.InitSEO()
 	}
 
 	return &emptypb.Empty{}, nil

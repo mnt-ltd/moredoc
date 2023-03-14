@@ -7,30 +7,35 @@
         :show-create="false"
         :show-delete="false"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
       >
         <template slot="buttons">
-          <el-button
-            type="success"
-            icon="el-icon-refresh-left"
-            :disabled="selectedRow.length === 0"
-            @click="batchRecover"
-            >恢复选中</el-button
-          >
-          <el-button
-            type="warning"
-            icon="el-icon-close"
-            :disabled="selectedRow.length === 0"
-            @click="batchDelete"
-            >删除选中</el-button
-          >
-          <el-button
-            type="danger"
-            :disabled="selectedRow.length > 0"
-            icon="el-icon-delete"
-            @click="clearAll"
-            >清空回收站</el-button
-          >
+          <el-form-item>
+            <el-button
+              type="success"
+              icon="el-icon-refresh-left"
+              :disabled="selectedRow.length === 0"
+              @click="batchRecover"
+              >恢复选中</el-button
+            > </el-form-item
+          ><el-form-item>
+            <el-button
+              type="warning"
+              icon="el-icon-close"
+              :disabled="selectedRow.length === 0"
+              @click="batchDelete"
+              >删除选中</el-button
+            > </el-form-item
+          ><el-form-item>
+            <el-button
+              type="danger"
+              :disabled="selectedRow.length > 0"
+              icon="el-icon-delete"
+              @click="clearAll"
+              >清空回收站</el-button
+            >
+          </el-form-item>
         </template>
       </FormSearch>
     </el-card>
@@ -86,7 +91,7 @@ import {
 } from '~/api/document'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
-import { categoryToTrees } from '~/utils/utils'
+import { categoryToTrees, parseQueryIntArray } from '~/utils/utils'
 import { documentStatusOptions } from '~/utils/enum'
 import { mapGetters } from 'vuex'
 export default {
@@ -119,12 +124,29 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      async handler() {
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['category_id', 'status']),
+        }
+
+        // 需要先加载分类数据
+        if (this.trees.length === 0) {
+          await this.listCategory()
+        }
+        await this.listDocument()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    // 需要先加载分类数据
-    await this.listCategory()
-    await this.listDocument()
   },
   methods: {
     async listCategory() {
@@ -174,15 +196,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listDocument()
+      this.$router.push({
+        query: this.search,
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listDocument()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listDocument()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
     },
     recoverRow(row) {
       this.$confirm(`您确定要要恢复【${row.title}】吗？`, '温馨提示', {

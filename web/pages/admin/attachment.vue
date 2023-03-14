@@ -7,6 +7,7 @@
         :show-create="false"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
         @onDelete="batchDelete"
       />
@@ -42,7 +43,7 @@
       </div>
     </el-card>
 
-    <el-dialog title="编辑附件" width="640px" :visible.sync="formVisible">
+    <el-dialog title="编辑附件" width="520px" :visible.sync="formVisible">
       <FormAttachment :init-attachment="attachment" @success="formSuccess" />
     </el-dialog>
   </div>
@@ -58,6 +59,7 @@ import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormAttachment from '~/components/FormAttachment.vue'
 import { attachmentTypeOptions } from '~/utils/enum'
+import { parseQueryIntArray } from '~/utils/utils'
 import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormAttachment },
@@ -88,10 +90,25 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['enable', 'type']),
+        }
+        this.listAttachment()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listAttachment()
+    // await this.listAttachment()
   },
   methods: {
     async listAttachment() {
@@ -107,15 +124,24 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listAttachment()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listAttachment()
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listAttachment()
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listAttachment()
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listAttachment()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
+      // this.listAttachment()
     },
     async editRow(row) {
       const res = await getAttachment({ id: row.id })
@@ -199,8 +225,8 @@ export default {
           placeholder: '请选择是否合法',
           multiple: true,
           options: [
-            { label: '是', value: true },
-            { label: '否', value: false },
+            { label: '是', value: 1 },
+            { label: '否', value: 0 },
           ],
         },
       ]

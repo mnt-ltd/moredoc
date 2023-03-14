@@ -1,6 +1,56 @@
 <template>
   <div class="page-admin-dashboard">
     <el-card shadow="never">
+      <div slot="header">
+        <span>授权信息</span>
+      </div>
+      <el-descriptions class="margin-top" :column="2" border>
+        <el-descriptions-item>
+          <template slot="label">
+            <i class="el-icon-tickets"></i>
+            最大文档数
+          </template>
+          不限
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template slot="label">
+            <i class="el-icon-user"></i>
+            最大用户数
+          </template>
+          不限
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template slot="label">
+            <i class="el-icon-cpu"></i>
+            授权协议
+          </template>
+          Apache License 2.0
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template slot="label">
+            <i class="el-icon-time"></i>
+            授权截止日期
+          </template>
+          <span>-</span>
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template slot="label">
+            <i class="el-icon-guide"></i>
+            授权类型
+          </template>
+          <span class="opensource">
+            <span>魔豆文库 · 社区版</span>
+            （<a
+              href="https://www.bookstack.cn/read/moredoc/price.md"
+              target="_blank"
+              class="el-link el-link--primary"
+              >版本划分与定价策略 <i class="el-icon-top-right"></i> </a
+            >）
+          </span>
+        </el-descriptions-item>
+      </el-descriptions>
+    </el-card>
+    <el-card shadow="never" class="mgt-20px">
       <div slot="header">数据统计</div>
       <el-descriptions class="margin-top" :column="3" border>
         <el-descriptions-item>
@@ -76,12 +126,12 @@
         empty-text="您暂无权限查看环境依赖情况"
       >
         <el-table-column prop="name" label="名称" width="100"> </el-table-column
-        ><el-table-column prop="is_required" label="是否必需" width="100">
+        ><el-table-column prop="is_required" label="是否必须" width="100">
           <template slot-scope="scope">
             <el-tag v-if="scope.row.is_required" effect="danger" size="small"
-              >必需安装</el-tag
+              >必须安装</el-tag
             >
-            <el-tag effect="info" size="small" v-else>非必需</el-tag>
+            <el-tag effect="info" size="small" v-else>非必须</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="is_installed" label="安装" width="100">

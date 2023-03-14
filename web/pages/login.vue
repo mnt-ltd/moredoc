@@ -10,11 +10,20 @@
     "
   >
     <div>
-      <el-card shadow="never">
+      <el-card
+        shadow="never"
+        :class="settings.security.is_close ? 'close-box' : ''"
+      >
         <div slot="header" class="clearfix">
-          <span>用户登录</span>
+          <span v-if="user.id > 0 && settings.security.is_close">网站关闭</span>
+          <span v-else>用户登录</span>
         </div>
-        <form-login></form-login>
+        <div v-if="settings.security.is_close" class="close-tips">
+          <div v-html="settings.security.close_statement"></div>
+        </div>
+        <form-login
+          v-if="!(user.id > 0 && settings.security.is_close)"
+        ></form-login>
       </el-card>
     </div>
   </div>
@@ -44,6 +53,7 @@ export default {
   },
   computed: {
     ...mapGetters('setting', ['settings']),
+    ...mapGetters('user', ['user']),
   },
 }
 </script>
@@ -62,6 +72,18 @@ export default {
     max-width: 100%;
     margin: 100px auto;
     margin-right: 0;
+    &.close-box {
+      margin-right: auto;
+      width: 640px;
+      .close-tips {
+        margin-bottom: 20px;
+        border: 1px dashed #f60;
+        padding: 20px;
+        border-radius: 4px;
+        line-height: 180%;
+        font-size: 15px;
+      }
+    }
     .el-card__body {
       padding-bottom: 0;
     }

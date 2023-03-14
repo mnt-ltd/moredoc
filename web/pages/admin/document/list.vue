@@ -7,10 +7,29 @@
         :show-create="true"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
         @onCreate="onCreate"
         @onDelete="batchDelete"
-      />
+      >
+        <template slot="buttons">
+          <el-form-item>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="将转换失败的文档一键重置为待转换状态，以便重新转换"
+              placement="top"
+            >
+              <el-button
+                type="warning"
+                @click="reconvertDocument"
+                icon="el-icon-refresh"
+                >失败重转</el-button
+              >
+            </el-tooltip>
+          </el-form-item>
+        </template>
+      </FormSearch>
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <TableList
@@ -29,6 +48,25 @@
         @deleteRow="deleteRow"
       >
         <template slot="actions" slot-scope="scope">
+          <el-tooltip
+            v-if="scope.row.convert_error && scope.row.status === 3"
+            class="item"
+            effect="dark"
+            placement="top"
+          >
+            <div slot="content">
+              <div class="tooltip-box">
+                {{ scope.row.convert_error }}
+              </div>
+            </div>
+            <el-button
+              type="text"
+              size="small"
+              class="text-warning"
+              icon="el-icon-error"
+              >转换失败原因</el-button
+            >
+          </el-tooltip>
           <el-button
             type="text"
             size="small"
@@ -59,7 +97,7 @@
         </el-pagination>
       </div>
     </el-card>
-    <el-dialog title="编辑文档" width="640px" :visible.sync="formVisible">
+    <el-dialog title="编辑文档" width="520px" :visible.sync="formVisible">
       <FormUpdateDocument
         :category-trees="trees"
         :init-document="document"
@@ -70,7 +108,7 @@
     <el-dialog
       title="推荐设置"
       :visible.sync="formDocumentRecommendVisible"
-      width="640px"
+      width="520px"
     >
       <FormDocumentRecommend :init-document="document" @success="formSuccess" />
     </el-dialog>
@@ -79,10 +117,19 @@
 
 <script>
 import { listCategory } from '~/api/category'
-import { deleteDocument, getDocument, listDocument } from '~/api/document'
+import {
+  deleteDocument,
+  getDocument,
+  listDocument,
+  setDocumentReconvert,
+} from '~/api/document'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
-import { categoryToTrees } from '~/utils/utils'
+import {
+  categoryToTrees,
+  parseQueryIntArray,
+  parseQueryBoolArray,
+} from '~/utils/utils'
 import { documentStatusOptions, boolOptions } from '~/utils/enum'
 import FormUpdateDocument from '~/components/FormUpdateDocument.vue'
 import { mapGetters } from 'vuex'
@@ -118,12 +165,32 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      async handler() {
+        let search = { ...this.search, ...this.$route.query }
+        search.page = parseInt(this.$route.query.page) || 1
+        search.size = parseInt(this.$route.query.size) || 10
+        search.wd = this.$route.query.wd || ''
+        this.search = {
+          ...search,
+          ...parseQueryIntArray(this.$route.query, ['category_id', 'status']),
+          ...parseQueryBoolArray(this.$route.query, ['is_recommend']),
+        }
+
+        // 需要先加载分类数据
+        if (this.trees.length === 0) {
+          await this.listCategory()
+        }
+
+        await this.listDocument()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    // 需要先加载分类数据
-    await this.listCategory()
-    await this.listDocument()
   },
   methods: {
     async listCategory() {
@@ -157,6 +224,8 @@ export default {
       if (res.status === 200) {
         const documents = res.data.document || []
         documents.forEach((item) => {
+          // 对于转换中的文档，禁止删除
+          item.disable_delete = item.status === 1
           ;(item.category_id || (item.category_id = [])).forEach((id) => {
             ;(item.category_name || (item.category_name = [])).push(
               this.categoryMap[id].title
@@ -173,15 +242,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listDocument()
+      this.$router.push({
+        query: this.search,
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listDocument()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listDocument()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
     },
     onCreate() {
       // 新增，跳转到前台文档上传页面
@@ -189,6 +264,15 @@ export default {
         path: '/upload',
       })
       window.open(routeUrl.href, '_blank')
+    },
+    async reconvertDocument() {
+      const res = await setDocumentReconvert()
+      if (res.status === 200) {
+        this.$message.success('提交成功，请耐心等待重新转换')
+        this.listDocument()
+      } else {
+        this.$message.error(res.data.message || '操作失败')
+      }
     },
     viewRow(row) {
       // 查看，跳转到前台文档详情页面
@@ -345,4 +429,9 @@ export default {
   },
 }
 </script>
-<style></style>
+<style lang="scss" scoped>
+.tooltip-box {
+  max-width: 300px;
+  word-break: break-all;
+}
+</style>

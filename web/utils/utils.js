@@ -177,3 +177,28 @@ const extMapIcon = {
 export function getIcon(ext) {
   return extMapIcon[ext] || 'other'
 }
+
+// 解析 $route.query 中的数组
+export function parseQueryIntArray(query, keys) {
+  const result = {}
+  keys.forEach((key) => {
+    if (typeof query[key] === 'object') {
+      result[key] = (query[key] || []).map((item) => parseInt(item))
+    } else if (query[key]) {
+      result[key] = [parseInt(query[key]) || 0]
+    }
+  })
+  return result
+}
+
+export function parseQueryBoolArray(query, keys) {
+  const result = {}
+  keys.forEach((key) => {
+    if (typeof query[key] === 'object') {
+      result[key] = (query[key] || []).map((item) => item === 'true')
+    } else if (query[key]) {
+      result[key] = [query[key] === 'true']
+    }
+  })
+  return result
+}

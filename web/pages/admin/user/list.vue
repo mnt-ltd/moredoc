@@ -5,6 +5,7 @@
         :fields="searchFormFields"
         :disabled-delete="selectedRows.length == 0"
         :loading="loading"
+        :default-search="search"
         @onSearch="onSearch"
         @onCreate="onCreate"
         @onDelete="batchDelete"
@@ -58,7 +59,7 @@
     <el-dialog
       :title="user.id ? '设置用户' : '新增用户'"
       :visible.sync="formUserVisible"
-      width="640px"
+      width="520px"
     >
       <FormUser
         ref="formUser"
@@ -70,7 +71,7 @@
     <el-dialog
       title="编辑用户"
       :visible.sync="formUserProfileVisible"
-      width="640px"
+      width="520px"
     >
       <FormUserProfile
         ref="formUserProfile"
@@ -85,6 +86,7 @@
 import { deleteUser, getUser, listUser } from '~/api/user'
 import { listGroup } from '~/api/group'
 import { userStatusOptions } from '~/utils/enum'
+import { parseQueryIntArray } from '~/utils/utils'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormUser from '~/components/FormUser.vue'
@@ -122,11 +124,29 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      async handler() {
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['group_id', 'status']),
+        }
+
+        // 这里要执行下初始化，避免数据请求回来了，但是表格字段还没初始化，导致列表布局错乱
+        await this.initTableListFields()
+        this.listUser()
+      },
+    },
+  },
   async created() {
     await this.initSearchForm()
     await this.initTableListFields()
     await this.listGroup()
-    await this.listUser()
+    await this.initSearchForm() // 请求完成用户组数据之后再初始化下搜索表单，因为下拉枚举需要用到用户组数据
   },
   methods: {
     async listUser() {
@@ -150,16 +170,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listUser()
+      this.$router.push({
+        query: this.search,
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listUser()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
-      this.search = { ...this.search, ...search }
-      this.search.page = 1
-      this.listUser()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
     },
     onCreate() {
       this.formUserVisible = true
@@ -271,6 +296,7 @@ export default {
       ]
     },
     initTableListFields() {
+      if (this.listFields.length > 0) return
       this.listFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
         {

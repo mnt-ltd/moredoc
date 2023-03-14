@@ -12,48 +12,56 @@ option go_package = "moredoc/api/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.v1";
 
+// 附件
 message Attachment {
-  int64 id = 1;
-  string hash = 2;
-  int64 user_id = 3;
-  int64 type_id = 4;
-  int32 type = 5;
-  bool enable = 6;
-  string path = 7;
-  string name = 8;
-  int64 size = 9;
-  int64 width = 10;
-  int64 height = 11;
-  string ext = 12;
-  string ip = 13;
-  string username = 16; // 用户名称
-  string type_name = 17; // 附件类型名称
+  int64 id = 1;      // 附件ID
+  string hash = 2;   // 附件哈希值，MD5
+  int64 user_id = 3; // 上传用户ID
+  int64 type_id = 4; // 附件类型ID，如果是文档类型，则为文档ID
+  int32 type = 5;    // 附件类型，见 web/utils/enum.js
+  bool enable = 6;   // 是否启用
+  string path = 7;   // 附件路径
+  string name = 8;   // 附件名称
+  int64 size = 9;    // 附件大小，单位：字节
+  int64 width = 10;  // 附件宽度，单位：像素。针对图片附件
+  int64 height = 11; // 附件高度，单位：像素。针对图片附件
+  string ext = 12;   // 扩展名，如：.docx
+  string ip = 13;    // 上传IP地址
+  string username = 16;    // 用户名称
+  string type_name = 17;   // 附件类型名称
   string description = 18; // 附件描述、备注
-  google.protobuf.Timestamp created_at = 14 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 15 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp created_at = 14
+      [ (gogoproto.stdtime) = true ]; // 创建时间
+  google.protobuf.Timestamp updated_at = 15
+      [ (gogoproto.stdtime) = true ]; // 更新时间
 }
 
+// 删除附件请求
 message DeleteAttachmentRequest { repeated int64 id = 1; }
 
+// 获取附件请求
 message GetAttachmentRequest { int64 id = 1; }
 
+// 列出附件请求
 message ListAttachmentRequest {
-  int64 page = 1;
-  int64 size = 2;
-  string wd = 3;     // 搜索关键字
-  repeated bool enable = 4;
+  int64 page = 1;             // 页码
+  int64 size = 2;             // 每页数量
+  string wd = 3;              // 搜索关键字
+  repeated bool enable = 4;   // 是否启用
   repeated int64 user_id = 5; // 用户ID
   repeated int64 type = 6;    // 类型
-  string ext = 7;            // 扩展名
+  string ext = 7;             // 扩展名
 }
 
+// 列出附件响应
 message ListAttachmentReply {
   int64 total = 1;
   repeated Attachment attachment = 2;
 }
 
-  // 附件服务。只有管理员才有权限操作
+// 附件服务。只有管理员才有权限操作
 service AttachmentAPI {
+  // 更新附件
   rpc UpdateAttachment(Attachment) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/attachment',
@@ -61,6 +69,7 @@ service AttachmentAPI {
     };
   }
 
+  // 删除附件。这里只是软删除，不会真正删除附件，默认24小时候会真正清除附件
   rpc DeleteAttachment(DeleteAttachmentRequest)
       returns (google.protobuf.Empty) {
     option (google.api.http) = {
@@ -68,12 +77,14 @@ service AttachmentAPI {
     };
   }
 
+  // 查询附件
   rpc GetAttachment(GetAttachmentRequest) returns (Attachment) {
     option (google.api.http) = {
       get : '/api/v1/attachment',
     };
   }
 
+  // 列出附件
   rpc ListAttachment(ListAttachmentRequest) returns (ListAttachmentReply) {
     option (google.api.http) = {
       get : '/api/v1/attachment/list',

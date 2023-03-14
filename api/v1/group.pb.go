@@ -33,6 +33,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// 用户组，角色
 type Group struct {
 	Id                    int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title                 string     `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
@@ -165,6 +166,7 @@ func (m *Group) GetUpdatedAt() *time.Time {
 	return nil
 }
 
+// 删除用户组，可以批量删除
 type DeleteGroupRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -339,6 +341,7 @@ func (m *ListGroupRequest) GetField() []string {
 	return nil
 }
 
+// 用户组列表
 type ListGroupReply struct {
 	Group []*Group `protobuf:"bytes,1,rep,name=group,proto3" json:"group,omitempty"`
 	Total int64    `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
@@ -391,6 +394,7 @@ func (m *ListGroupReply) GetTotal() int64 {
 	return 0
 }
 
+// 获取用户组权限
 type GetGroupPermissionRequest struct {
 	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
@@ -435,6 +439,7 @@ func (m *GetGroupPermissionRequest) GetId() int64 {
 	return 0
 }
 
+// 更新用户组权限
 type UpdateGroupPermissionRequest struct {
 	GroupId      int64   `protobuf:"varint,1,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 	PermissionId []int64 `protobuf:"varint,2,rep,packed,name=permission_id,json=permissionId,proto3" json:"permission_id,omitempty"`
@@ -487,6 +492,7 @@ func (m *UpdateGroupPermissionRequest) GetPermissionId() []int64 {
 	return nil
 }
 
+// 用户组权限
 type GroupPermissions struct {
 	PermissionId []int64 `protobuf:"varint,1,rep,packed,name=permission_id,json=permissionId,proto3" json:"permission_id,omitempty"`
 }
@@ -615,8 +621,9 @@ type GroupAPIClient interface {
 	UpdateGroup(ctx context.Context, in *Group, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	//   删除用户组
 	DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	//   获取用户组列表
+	//   获取用户组
 	GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*Group, error)
+	//  获取用户组列表
 	ListGroup(ctx context.Context, in *ListGroupRequest, opts ...grpc.CallOption) (*ListGroupReply, error)
 	//  获取用户组权限列表
 	GetGroupPermission(ctx context.Context, in *GetGroupPermissionRequest, opts ...grpc.CallOption) (*GroupPermissions, error)
@@ -703,8 +710,9 @@ type GroupAPIServer interface {
 	UpdateGroup(context.Context, *Group) (*emptypb.Empty, error)
 	//   删除用户组
 	DeleteGroup(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error)
-	//   获取用户组列表
+	//   获取用户组
 	GetGroup(context.Context, *GetGroupRequest) (*Group, error)
+	//  获取用户组列表
 	ListGroup(context.Context, *ListGroupRequest) (*ListGroupReply, error)
 	//  获取用户组权限列表
 	GetGroupPermission(context.Context, *GetGroupPermissionRequest) (*GroupPermissions, error)

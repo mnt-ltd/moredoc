@@ -12,41 +12,50 @@ option go_package = "moredoc/api/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.v1";
 
+// 文章
 message Article {
-  int64 id = 1;
-  string identifier = 2;
-  string author = 3;
-  int64 view_count = 4;
-  string title = 5;
-  string keywords = 6;
-  string description = 7;
-  string content = 8;
-  google.protobuf.Timestamp created_at = 9 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 10 [ (gogoproto.stdtime) = true ];
+  int64 id = 1;          // 文章ID
+  string identifier = 2; // 文章唯一标识
+  string author = 3; // 文章作者。如果为空，则使用网站名称作为作者
+  int64 view_count = 4;   // 文章浏览次数
+  string title = 5;       // 文章标题
+  string keywords = 6;    // 文章关键字
+  string description = 7; // 文章描述
+  string content = 8;     // 文章内容
+  google.protobuf.Timestamp created_at = 9
+      [ (gogoproto.stdtime) = true ]; // 文章创建时间
+  google.protobuf.Timestamp updated_at = 10
+      [ (gogoproto.stdtime) = true ]; // 文章更新时间
 }
 
+// 删除文章请求，传入单个或者多个文章ID
 message DeleteArticleRequest { repeated int64 id = 1; }
 
-// 根据ID或者文章标识获取文章
-message GetArticleRequest { 
-    int64 id = 1;
-    string identifier = 2;
- }
+// 根据ID或者文章标识获取文章，二选一
+message GetArticleRequest {
+  int64 id = 1;          // 文章ID
+  string identifier = 2; // 文章唯一标识
+}
 
+// 文章列表请求
 message ListArticleRequest {
-  int64 page = 1;
-  int64 size = 2;
-  string wd = 3;
-  repeated string field = 4;
-  string order = 5;
+  int64 page = 1;            // 页码
+  int64 size = 2;            // 每页数量
+  string wd = 3;             // 搜索关键字
+  repeated string field = 4; // 查询字段
+  string order = 5;          // 排序字段，根据指定的字段倒序排序
 }
 
+// 文章列表响应
 message ListArticleReply {
-  int64 total = 1;
-  repeated Article article = 2;
+  int64 total = 1;              // 文章总数
+  repeated Article article = 2; // 文章列表
 }
 
+// 文章API服务
 service ArticleAPI {
+
+  // 创建文章
   rpc CreateArticle(Article) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post : '/api/v1/article',
@@ -54,6 +63,7 @@ service ArticleAPI {
     };
   }
 
+  // 更新文章
   rpc UpdateArticle(Article) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/article',
@@ -61,18 +71,21 @@ service ArticleAPI {
     };
   }
 
+  // 删除文章
   rpc DeleteArticle(DeleteArticleRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete : '/api/v1/article',
     };
   }
 
+  // 获取文章
   rpc GetArticle(GetArticleRequest) returns (Article) {
     option (google.api.http) = {
       get : '/api/v1/article',
     };
   }
 
+  // 文章列表
   rpc ListArticle(ListArticleRequest) returns (ListArticleReply) {
     option (google.api.http) = {
       get : '/api/v1/article/list',

@@ -14,7 +14,7 @@ import (
 	"moredoc/model"
 	"moredoc/util"
 	"moredoc/util/filetil"
-	"moredoc/util/gse"
+	"moredoc/util/segword/jieba"
 
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
@@ -89,7 +89,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 
 		doc := model.Document{
 			Title:    doc.Title,
-			Keywords: strings.Join(gse.SegWords(doc.Title), ","),
+			Keywords: strings.Join(jieba.SegWords(doc.Title), ","),
 			UserId:   userCliams.UserId,
 			// UUID:     uuid.Must(uuid.NewV4()).String(),
 			Score:  300,
@@ -474,6 +474,11 @@ func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList) (*pb
 			}
 		}
 
+		for docId, errStr := range s.dbModel.GetConvertError(docIds...) {
+			index := docIndexMap[docId]
+			pbDocs[index].ConvertError = errStr
+		}
+
 		for _, docUser := range docUsers {
 			indexes := userIndexesMap[docUser.Id]
 			for _, index := range indexes {
@@ -608,9 +613,8 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Document) (res *pb.DownloadDocumentReply, err error) {
 	cfg := s.dbModel.GetConfigOfDownload()
 	userClaims, err := s.checkLogin(ctx)
-	if err != nil && !cfg.EnableGuestDownload {
-		// 未登录且不允许游客下载
-		return res, status.Errorf(codes.Unauthenticated, err.Error())
+	if err != nil && !cfg.EnableGuestDownload { // 未登录且不允许游客下载
+		return res, err
 	}
 
 	var userId int64
@@ -738,6 +742,22 @@ func (s *DocumentAPIService) SetDocumentScore(ctx context.Context, req *pb.Docum
 	err = s.dbModel.CreateDocumentScore(&score)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "评分失败：%s", err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+// SetDocumentReconvert
+func (s *DocumentAPIService) SetDocumentReconvert(ctx context.Context, req *emptypb.Empty) (res *emptypb.Empty, err error) {
+	_, err = s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 更新文档状态
+	err = s.dbModel.SetDocumentReconvert()
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "更新文档状态失败：%s", err.Error())
 	}
 
 	return &emptypb.Empty{}, nil

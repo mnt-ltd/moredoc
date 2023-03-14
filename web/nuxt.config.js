@@ -10,7 +10,8 @@ export default {
         name: 'viewport',
         content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0',
       },
-      { hid: 'description', name: 'description', content: '' },
+      { name: 'keywords', content: '' },
+      { name: 'description', content: '' },
       { name: 'format-detection', content: 'telephone=no' },
     ],
     link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
@@ -66,6 +67,10 @@ export default {
     // Workaround to avoid enforcing hard-coded localhost:3000: https://github.com/nuxt-community/axios-module/issues/308
     baseURL: '/',
     proxy: true,
+  },
+  server: {
+    port: 3000, // default: 3000
+    host: '0.0.0.0', // default: localhost
   },
   proxy: {
     '/api': {

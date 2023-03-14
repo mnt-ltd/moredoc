@@ -33,6 +33,7 @@ var _ = time.Kitchen
 // proto package needs to be updated.
 const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
+// 友情链接
 type Friendlink struct {
 	Id          int32      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title       string     `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
@@ -133,6 +134,7 @@ func (m *Friendlink) GetUpdatedAt() *time.Time {
 	return nil
 }
 
+// 删除友情链接
 type DeleteFriendlinkRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
 }
@@ -177,6 +179,7 @@ func (m *DeleteFriendlinkRequest) GetId() []int64 {
 	return nil
 }
 
+// 获取友情链接
 type GetFriendlinkRequest struct {
 	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
@@ -221,6 +224,7 @@ func (m *GetFriendlinkRequest) GetId() int64 {
 	return 0
 }
 
+// 友情链接列表
 type ListFriendlinkRequest struct {
 	Page   int32    `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
 	Size_  int32    `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
@@ -297,6 +301,7 @@ func (m *ListFriendlinkRequest) GetField() []string {
 	return nil
 }
 
+// 友情链接列表
 type ListFriendlinkReply struct {
 	Friendlink []*Friendlink `protobuf:"bytes,1,rep,name=friendlink,proto3" json:"friendlink,omitempty"`
 	Total      int64         `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
@@ -413,10 +418,15 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type FriendlinkAPIClient interface {
+	// 创建友情链接
 	CreateFriendlink(ctx context.Context, in *Friendlink, opts ...grpc.CallOption) (*Friendlink, error)
+	// 更新友情链接
 	UpdateFriendlink(ctx context.Context, in *Friendlink, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 删除友情链接
 	DeleteFriendlink(ctx context.Context, in *DeleteFriendlinkRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 获取友情链接
 	GetFriendlink(ctx context.Context, in *GetFriendlinkRequest, opts ...grpc.CallOption) (*Friendlink, error)
+	// 获取友情链接
 	ListFriendlink(ctx context.Context, in *ListFriendlinkRequest, opts ...grpc.CallOption) (*ListFriendlinkReply, error)
 }
 
@@ -475,10 +485,15 @@ func (c *friendlinkAPIClient) ListFriendlink(ctx context.Context, in *ListFriend
 
 // FriendlinkAPIServer is the server API for FriendlinkAPI service.
 type FriendlinkAPIServer interface {
+	// 创建友情链接
 	CreateFriendlink(context.Context, *Friendlink) (*Friendlink, error)
+	// 更新友情链接
 	UpdateFriendlink(context.Context, *Friendlink) (*emptypb.Empty, error)
+	// 删除友情链接
 	DeleteFriendlink(context.Context, *DeleteFriendlinkRequest) (*emptypb.Empty, error)
+	// 获取友情链接
 	GetFriendlink(context.Context, *GetFriendlinkRequest) (*Friendlink, error)
+	// 获取友情链接
 	ListFriendlink(context.Context, *ListFriendlinkRequest) (*ListFriendlinkReply, error)
 }
 

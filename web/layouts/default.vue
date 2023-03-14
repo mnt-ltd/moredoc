@@ -225,6 +225,7 @@
             class="powered-by"
             >MOREDOC</el-link
           >
+          CE
           <span>{{ settings.system.version }}</span>
         </div>
       </div>
@@ -357,7 +358,7 @@ import { categoryToTrees } from '~/utils/utils'
 import { getSignedToday, signToday } from '~/api/user'
 export default {
   components: { UserAvatar, FormUserinfo },
-  middleware: ['analytic'],
+  middleware: ['checkFront', 'analytic'],
   data() {
     return {
       search: {
@@ -542,6 +543,10 @@ export default {
       margin-left: 5px;
       color: #bdc3c7 !important;
     }
+  }
+  .el-breadcrumb__inner a,
+  .el-breadcrumb__inner.is-link {
+    font-weight: normal;
   }
   padding-top: 60px;
   .el-card {

@@ -12,80 +12,91 @@ option go_package = "moredoc/api/v1;v1";
 option java_multiple_files = true;
 option java_package = "api.v1";
 
+// 配置
 message Config {
-  int64 id = 1;
-  string label = 2;
-  string name = 3;
-  string value = 4;
-  string placeholder = 5;
-  string input_type = 6;
-  string category = 7;
-  int32 sort = 8;
-  string options = 9;
-  google.protobuf.Timestamp created_at = 10 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 11 [ (gogoproto.stdtime) = true ];
+  int64 id = 1;           // 配置ID
+  string label = 2;       // 配置标签
+  string name = 3;        // 配置名称
+  string value = 4;       // 配置值
+  string placeholder = 5; // 配置占位符
+  string input_type = 6;  // 输入类型，如：textarea、number、switch等
+  string category =
+      7; // 配置分类，如：system、footer、security等，见 web/utils/enum.js
+  int32 sort = 8; // 排序，越小越靠前
+  string options =
+      9; // 配置项枚举，一个一行，如select的option选项，用 key=value 的形式
+  google.protobuf.Timestamp created_at = 10
+      [ (gogoproto.stdtime) = true ]; // 创建时间
+  google.protobuf.Timestamp updated_at = 11
+      [ (gogoproto.stdtime) = true ]; // 更新时间
 }
 
+// 查询配置项请求
 message ListConfigRequest { repeated string category = 1; }
 
+// 配置列表
 message Configs { repeated Config config = 1; }
 
 // 验证码配置
 message ConfigCaptcha {
-  int32 length = 1;
-  int32 width = 2;
-  int32 height = 3;
-  string type = 4;
+  int32 length = 1; // 验证码长度
+  int32 width = 2;  // 验证码宽度
+  int32 height = 3; // 验证码高度
+  string type = 4;  // 验证码类型，见 web/utils/enum.js
 }
 
 // 系统配置项
 message ConfigSystem {
-  string domain = 1;
-  string title = 2;
-  string keywords = 3;
-  string description = 4;
-  string logo = 5;
-  string favicon = 6;
-  string icp = 7;
-  string analytics = 8;
-  string sitename = 9;
-  string copyright_start_year = 10;
-  string register_background = 11;
-  string login_background = 12;
-  repeated string recommend_words = 13;
-  string version = 14; // 程序版本号
+  string domain = 1;      // 站点域名，如： https://moredoc.mnt.ltd
+  string title = 2;       // 站点标题，首页显示
+  string keywords = 3;    // 站点关键词，SEO用
+  string description = 4; // 站点描述，SEO用
+  string logo = 5;        // 站点logo
+  string favicon = 6;     // 站点favicon
+  string icp = 7;         // 站点备案号
+  string analytics = 8;   // 站点统计代码，目前只支持百度统计
+  string sitename = 9;    // 站点名称
+  string copyright_start_year =
+      10; // 站点版权起始年份，如：2018，则底部显示 2018 - 2023
+  string register_background = 11;      // 注册页背景图
+  string login_background = 12;         // 登录页背景图
+  repeated string recommend_words = 13; // 推荐搜索词，首页展示
+  string version = 14;                  // 程序版本号
 }
 
-// 底链配置项
+// 底链配置项，为跳转的链接地址
 message ConfigFooter {
-  string about = 1;
-  string contact = 2;
-  string agreement = 3;
-  string copyright = 4;
-  string feedback = 5;
+  string about = 1;     // 关于我们
+  string contact = 2;   // 联系我们
+  string agreement = 3; // 用户协议、文库协议
+  string copyright = 4; // 版权声明
+  string feedback = 5;  // 意见和建议反馈
 }
 
 // 安全配置
 message ConfigSecurity {
-  bool is_close = 1;
-  string close_statement = 2;
-  bool enable_register = 3;
-  bool enable_captcha_login = 4;
-  bool enable_captcha_register = 5;
-  bool enable_captcha_comment = 6;
-  bool enable_captcha_find_password = 7;
-  bool enable_captcha_upload = 8;
-  int32 max_document_size = 9;
-  repeated string document_allowed_ext = 10;
+  bool is_close = 1;                     // 是否关闭站点
+  string close_statement = 2;            // 关闭站点的说明，支持HTML
+  bool enable_register = 3;              // 是否开放注册
+  bool enable_captcha_login = 4;         // 是否开启登录验证码
+  bool enable_captcha_register = 5;      // 是否开启注册验证码
+  bool enable_captcha_comment = 6;       // 是否开启评论验证码
+  bool enable_captcha_find_password = 7; // 是否开启找回密码验证码
+  bool enable_captcha_upload = 8;        // 是否开启上传验证码
+  int32 max_document_size = 9;           // 文档最大大小
+  repeated string document_allowed_ext = 10; // 文档允许的扩展名
+  bool login_required = 11;                  // 是否登录才能访问
 }
 
+// 系统配置
 message Settings {
-  ConfigSystem system = 1;
-  ConfigFooter footer = 2;
-  ConfigSecurity security = 3;
+  ConfigSystem system = 1;     // 系统配置
+  ConfigFooter footer = 2;     // 底链配置
+  ConfigSecurity security = 3; // 安全配置
   // ConfigCaptcha captcha = 4;
 }
 
+// 依赖项
 message EnvDependent {
   string name = 1;        // 依赖名称
   string description = 2; // 依赖描述
@@ -97,24 +108,28 @@ message EnvDependent {
   bool is_required = 7;               // 是否必须
 }
 
+// 依赖项列表
 message Envs { repeated EnvDependent envs = 1; }
 
+// 系统状态
 message Stats {
-  int64 user_count = 1;
-  int64 document_count = 2;
-  int64 category_count = 3;
-  int64 article_count = 4;
-  int64 comment_count = 5;
-  int64 banner_count = 6;
-  int64 friendlink_count = 7;
-  string os = 8;
-  string version = 9;
-  string hash = 10;
-  string build_at = 11;
-  int64 report_count = 12;
+  int64 user_count = 1;       // 用户数量
+  int64 document_count = 2;   // 文档数量
+  int64 category_count = 3;   // 分类数量
+  int64 article_count = 4;    // 文章数量
+  int64 comment_count = 5;    // 评论数量
+  int64 banner_count = 6;     // banner数量
+  int64 friendlink_count = 7; // 友情链接数量
+  string os = 8;              // 操作系统
+  string version = 9;         // 程序版本号
+  string hash = 10;           // 程序构建时的 git hash
+  string build_at = 11;       // 程序构建时间
+  int64 report_count = 12;    // 举报数量
 }
 
+// 配置服务
 service ConfigAPI {
+
   // 获取系统配置（针对所有用户，只读）
   rpc GetSettings(google.protobuf.Empty) returns (Settings) {
     option (google.api.http) = {

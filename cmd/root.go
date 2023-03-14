@@ -27,6 +27,7 @@ import (
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var (
@@ -103,21 +104,17 @@ func initConfig() {
 		fmt.Println("viper.Unmarshal", err)
 	}
 
-	initLogger(cfg.Level, cfg.LogEncoding)
+	initLogger(cfg.Level, cfg.LogEncoding, cfg.Logger)
 
 	cfg.Database.Prefix = "mnt_"
 
 	logger.Info("config", zap.Any("config", cfg))
 }
 
-func initLogger(level, LogEncoding string, paths ...string) {
+func initLogger(level, LogEncoding string, logCfg ...conf.LoggerConfig) {
 	var err error
 
 	cfg := zap.NewProductionConfig()
-	cfg.Encoding = "console"
-	if LogEncoding != "console" {
-		cfg.Encoding = "json"
-	}
 	cfg.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
 
 	lv := zap.InfoLevel
@@ -134,17 +131,44 @@ func initLogger(level, LogEncoding string, paths ...string) {
 		lv = zap.InfoLevel
 	}
 
-	cfg.Level.SetLevel(lv)
+	if len(logCfg) == 0 || logCfg[0].Filename == "" {
+		cfg.Encoding = "console"
+		if LogEncoding != "console" {
+			cfg.Encoding = "json"
+		}
+		cfg.Level.SetLevel(lv)
 
-	if len(paths) == 0 {
-		paths = append(paths, "stdout")
+		paths := []string{"stdout"}
+		cfg.ErrorOutputPaths = paths
+		cfg.OutputPaths = paths
+		logger, err = cfg.Build()
+		if err != nil {
+			logger.Fatal("zap build", zap.Error(err))
+		}
+		return
 	}
 
-	cfg.ErrorOutputPaths = paths
-	cfg.OutputPaths = paths
+	w := zapcore.AddSync(&lumberjack.Logger{
+		Filename:   logCfg[0].Filename,
+		MaxSize:    logCfg[0].MaxSizeMB, // megabytes
+		MaxBackups: logCfg[0].MaxBackups,
+		MaxAge:     logCfg[0].MaxAgeDays, // days
+		Compress:   logCfg[0].Comptress,
+	})
 
-	logger, err = cfg.Build()
-	if err != nil {
-		logger.Fatal("zap build", zap.Error(err))
+	enc := zapcore.NewConsoleEncoder(cfg.EncoderConfig)
+	if LogEncoding != "console" {
+		enc = zapcore.NewJSONEncoder(cfg.EncoderConfig)
 	}
+	core := zapcore.NewCore(
+		enc,
+		w,
+		lv,
+	)
+
+	logger = zap.New(
+		core,
+		zap.AddCaller(),
+		// zap.AddCallerSkip(1),
+	)
 }

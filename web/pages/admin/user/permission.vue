@@ -7,6 +7,7 @@
         :show-create="false"
         :show-delete="false"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onSearch="onSearch"
       />
     </el-card>
@@ -40,7 +41,7 @@
       </div>
     </el-card>
 
-    <el-dialog title="编辑附件" width="640px" :visible.sync="formVisible">
+    <el-dialog title="编辑附件" width="520px" :visible.sync="formVisible">
       <FormPermission :init-permission="permission" @success="formSuccess" />
     </el-dialog>
   </div>
@@ -82,10 +83,23 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+        }
+        this.listPermission()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listPermission()
   },
   methods: {
     async listPermission() {
@@ -101,15 +115,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listPermission()
+      this.$router.push({
+        query: this.search,
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listPermission()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listPermission()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
     },
     async editRow(row) {
       const res = await getPermission({ id: row.id })

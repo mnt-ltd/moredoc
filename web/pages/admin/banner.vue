@@ -7,6 +7,7 @@
         :show-create="true"
         :show-delete="true"
         :disabled-delete="selectedRow.length === 0"
+        :default-search="search"
         @onCreate="onCreate"
         @onSearch="onSearch"
         @onDelete="batchDelete"
@@ -45,7 +46,7 @@
     </el-card>
 
     <el-dialog
-      width="640px"
+      width="520px"
       :title="banner.id > 0 ? '编辑横幅' : '新增横幅'"
       :visible.sync="formVisible"
     >
@@ -64,6 +65,7 @@ import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormBanner from '~/components/FormBanner.vue'
 import { bannerTypeOptions } from '~/utils/enum'
+import { parseQueryIntArray } from '~/utils/utils'
 import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormBanner },
@@ -94,10 +96,24 @@ export default {
   computed: {
     ...mapGetters('setting', ['settings']),
   },
+  watch: {
+    '$route.query': {
+      immediate: true,
+      handler() {
+        this.search = {
+          ...this.search,
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 10,
+          ...parseQueryIntArray(this.$route.query, ['enable', 'type']),
+        }
+        this.listBanner()
+      },
+    },
+  },
   async created() {
     this.initSearchForm()
     this.initTableListFields()
-    await this.listBanner()
   },
   methods: {
     async listBanner() {
@@ -113,15 +129,21 @@ export default {
     },
     handleSizeChange(val) {
       this.search.size = val
-      this.listBanner()
+      this.$router.push({
+        query: this.search,
+      })
     },
     handlePageChange(val) {
       this.search.page = val
-      this.listBanner()
+      this.$router.push({
+        query: this.search,
+      })
     },
     onSearch(search) {
-      this.search = { ...this.search, page: 1, ...search }
-      this.listBanner()
+      this.search = { ...this.search, ...search, page: 1 }
+      this.$router.push({
+        query: this.search,
+      })
     },
     onCreate() {
       this.banner = {}
