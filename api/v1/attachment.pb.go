@@ -35,12 +35,11 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // 附件
 type Attachment struct {
-	Id     int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Hash   string `protobuf:"bytes,2,opt,name=hash,proto3" json:"hash,omitempty"`
-	UserId int64  `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	TypeId int64  `protobuf:"varint,4,opt,name=type_id,json=typeId,proto3" json:"type_id,omitempty"`
-	Type   int32  `protobuf:"varint,5,opt,name=type,proto3" json:"type,omitempty"`
-	// 横幅，6: 分类封面，7: 配置
+	Id          int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Hash        string     `protobuf:"bytes,2,opt,name=hash,proto3" json:"hash,omitempty"`
+	UserId      int64      `protobuf:"varint,3,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	TypeId      int64      `protobuf:"varint,4,opt,name=type_id,json=typeId,proto3" json:"type_id,omitempty"`
+	Type        int32      `protobuf:"varint,5,opt,name=type,proto3" json:"type,omitempty"`
 	Enable      bool       `protobuf:"varint,6,opt,name=enable,proto3" json:"enable,omitempty"`
 	Path        string     `protobuf:"bytes,7,opt,name=path,proto3" json:"path,omitempty"`
 	Name        string     `protobuf:"bytes,8,opt,name=name,proto3" json:"name,omitempty"`

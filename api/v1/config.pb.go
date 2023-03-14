@@ -35,18 +35,17 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // 配置
 type Config struct {
-	Id          int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Label       string `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
-	Name        string `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
-	Value       string `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"`
-	Placeholder string `protobuf:"bytes,5,opt,name=placeholder,proto3" json:"placeholder,omitempty"`
-	InputType   string `protobuf:"bytes,6,opt,name=input_type,json=inputType,proto3" json:"input_type,omitempty"`
-	// element-ui 的 el-input 的 type 属性
-	Category  string     `protobuf:"bytes,7,opt,name=category,proto3" json:"category,omitempty"`
-	Sort      int32      `protobuf:"varint,8,opt,name=sort,proto3" json:"sort,omitempty"`
-	Options   string     `protobuf:"bytes,9,opt,name=options,proto3" json:"options,omitempty"`
-	CreatedAt *time.Time `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3,stdtime" json:"created_at,omitempty"`
-	UpdatedAt *time.Time `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3,stdtime" json:"updated_at,omitempty"`
+	Id          int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Label       string     `protobuf:"bytes,2,opt,name=label,proto3" json:"label,omitempty"`
+	Name        string     `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
+	Value       string     `protobuf:"bytes,4,opt,name=value,proto3" json:"value,omitempty"`
+	Placeholder string     `protobuf:"bytes,5,opt,name=placeholder,proto3" json:"placeholder,omitempty"`
+	InputType   string     `protobuf:"bytes,6,opt,name=input_type,json=inputType,proto3" json:"input_type,omitempty"`
+	Category    string     `protobuf:"bytes,7,opt,name=category,proto3" json:"category,omitempty"`
+	Sort        int32      `protobuf:"varint,8,opt,name=sort,proto3" json:"sort,omitempty"`
+	Options     string     `protobuf:"bytes,9,opt,name=options,proto3" json:"options,omitempty"`
+	CreatedAt   *time.Time `protobuf:"bytes,10,opt,name=created_at,json=createdAt,proto3,stdtime" json:"created_at,omitempty"`
+	UpdatedAt   *time.Time `protobuf:"bytes,11,opt,name=updated_at,json=updatedAt,proto3,stdtime" json:"updated_at,omitempty"`
 }
 
 func (m *Config) Reset()         { *m = Config{} }
