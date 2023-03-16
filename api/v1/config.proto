@@ -62,6 +62,7 @@ message ConfigSystem {
   string login_background = 12;         // 登录页背景图
   repeated string recommend_words = 13; // 推荐搜索词，首页展示
   string version = 14;                  // 程序版本号
+  string credit_name = 15;              // 积分名称
 }
 
 // 底链配置项，为跳转的链接地址

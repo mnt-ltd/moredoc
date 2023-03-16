@@ -68,7 +68,7 @@ func (m *DBModel) CreateFavorite(favorite *Favorite) (err error) {
 		return
 	}
 
-	cfgScore := m.GetConfigOfScore(ConfigScoreDocumentCollected, ConfigScoreDocumentCollectedLimit)
+	cfgScore := m.GetConfigOfScore(ConfigScoreDocumentCollected, ConfigScoreDocumentCollectedLimit, ConfigScoreCreditName)
 	if cfgScore.DocumentCollected > 0 && cfgScore.DocumentCollectedLimit > 0 {
 		var todayFavoriteCount int64
 		tx.Model(&Favorite{}).Where("user_id = ? and created_at >= ?", favorite.UserId, time.Now().Format("2006-01-02")).Count(&todayFavoriteCount)
@@ -86,7 +86,7 @@ func (m *DBModel) CreateFavorite(favorite *Favorite) (err error) {
 		err = tx.Create(&Dynamic{
 			UserId:  doc.UserId,
 			Type:    DynamicTypeFavorite,
-			Content: fmt.Sprintf(`分享的文档《<a href="/document/%d">%s</a>》被其他用户收藏，获得 %d 魔豆奖励`, doc.Id, doc.Title, cfgScore.DocumentCollected),
+			Content: fmt.Sprintf(`分享的文档《<a href="/document/%d">%s</a>》被其他用户收藏，获得 %d %s奖励`, doc.Id, doc.Title, cfgScore.DocumentCollected, cfgScore.CreditName),
 		}).Error
 		if err != nil {
 			m.logger.Error("CreateFavorite", zap.Error(err))

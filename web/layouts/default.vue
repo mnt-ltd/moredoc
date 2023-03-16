@@ -377,9 +377,7 @@ export default {
   head() {
     return {
       title:
-        this.settings.system.title ||
-        this.settings.system.sitename ||
-        '魔豆文库',
+        this.settings.system.title || this.settings.system.sitename || '文库',
       keywords: this.settings.system.keywords,
       description: this.settings.system.description,
       // favicon
@@ -448,7 +446,11 @@ export default {
         const sign = res.data || { id: 1 }
         this.sign = sign
         this.getUser()
-        this.$message.success(`签到成功，获得 ${sign.award || 0} 个魔豆奖励`)
+        this.$message.success(
+          `签到成功，获得 ${sign.award || 0} ${
+            this.settings.system.credit_name || '魔豆'
+          }奖励`
+        )
       } else {
         this.$message.error(res.message || res.data.message)
       }

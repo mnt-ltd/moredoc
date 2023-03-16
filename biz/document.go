@@ -657,7 +657,7 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 
 	user, _ := s.dbModel.GetUser(userId)
 	if doc.UserId != userId && user.CreditCount < doc.Price {
-		return res, status.Errorf(codes.PermissionDenied, "魔豆不足，无法下载")
+		return res, status.Errorf(codes.PermissionDenied, fmt.Sprintf("%s不足，无法下载", s.dbModel.GetCreditName()))
 	}
 
 	// 用户可以免费下载自己的文档

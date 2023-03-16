@@ -22,7 +22,7 @@
           </div>
         </el-col>
         <el-col :span="8"
-          ><div>魔豆</div>
+          ><div>{{ settings.system.credit_name || '魔豆' }}</div>
           <div class="el-link el-link--primary">
             {{ user.credit_count || 0 }}
           </div>
@@ -38,6 +38,7 @@
   </div>
 </template>
 <script>
+import { mapGetters } from 'vuex'
 // 用户信息卡片
 export default {
   name: 'UserCard',
@@ -69,6 +70,9 @@ export default {
     return {}
   },
   async created() {},
+  computed: {
+    ...mapGetters('setting', ['settings']),
+  },
   methods: {},
 }
 </script>

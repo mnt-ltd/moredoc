@@ -35,7 +35,7 @@ func (m *DBModel) CreateSign(userId int64, ip string) (sign *Sign, err error) {
 		SignAt: signAt,
 	}
 
-	cfg := m.GetConfigOfScore(ConfigScoreSignIn)
+	cfg := m.GetConfigOfScore(ConfigScoreSignIn, ConfigScoreCreditName)
 	sign.Award = cfg.SignIn
 
 	tx := m.db.Begin()
@@ -61,7 +61,7 @@ func (m *DBModel) CreateSign(userId int64, ip string) (sign *Sign, err error) {
 			m.logger.Error("CreateSign Update", zap.Error(err))
 			return
 		}
-		content = fmt.Sprintf("签到成功，获得 %d 个魔豆奖励", cfg.SignIn)
+		content = fmt.Sprintf("签到成功，获得 %d %s奖励", cfg.SignIn, cfg.CreditName)
 	}
 
 	dynamic := Dynamic{

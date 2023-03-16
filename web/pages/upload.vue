@@ -39,7 +39,12 @@
                     placeholder="请选择文档分类"
                   ></el-cascader>
                 </el-form-item>
-                <el-form-item label="默认售价（魔豆）" prop="price">
+                <el-form-item
+                  :label="`默认售价（${
+                    settings.system.credit_name || '魔豆'
+                  }）`"
+                  prop="price"
+                >
                   <el-input-number
                     v-model="document.price"
                     :min="0"
@@ -106,7 +111,7 @@
                     </el-table-column>
                     <el-table-column
                       prop="price"
-                      label="售价(魔豆)"
+                      :label="`售价(${settings.system.credit_name || '魔豆'})`"
                       width="130"
                     >
                       <template slot-scope="scope">

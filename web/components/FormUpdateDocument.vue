@@ -43,7 +43,10 @@
           </el-form-item>
         </el-col>
         <el-col :span="12" :xs="24">
-          <el-form-item label="价格(魔豆)" prop="price">
+          <el-form-item
+            :label="`价格(${settings.system.credit_name || '魔豆'})`"
+            prop="price"
+          >
             <el-input-number
               v-model.number="document.price"
               placeholder="文档价格"
@@ -106,6 +109,7 @@
 <script>
 import { updateDocument } from '~/api/document'
 import { documentStatusOptions } from '~/utils/enum'
+import { mapGetters } from 'vuex'
 export default {
   name: 'FormUpdateDocument',
   props: {
@@ -141,6 +145,9 @@ export default {
       },
       immediate: true,
     },
+  },
+  computed: {
+    ...mapGetters('setting', ['settings']),
   },
   created() {
     this.documentStatusOptions = documentStatusOptions.map((item) => {

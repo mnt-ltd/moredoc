@@ -104,7 +104,7 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 	}
 
 	// 用户积分
-	cfgScore := s.dbModel.GetConfigOfScore(model.ConfigScoreRegister)
+	cfgScore := s.dbModel.GetConfigOfScore(model.ConfigScoreRegister, model.ConfigScoreCreditName)
 	user.CreditCount = int(cfgScore.Register)
 	if err = s.dbModel.CreateUser(user, group.Id); err != nil {
 		s.logger.Error("CreateUser", zap.Error(err))
@@ -116,7 +116,7 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 		s.dbModel.CreateDynamic(&model.Dynamic{
 			UserId:  user.Id,
 			Type:    model.DynamicTypeRegister,
-			Content: fmt.Sprintf("成功注册成网站会员，获得 %d 魔豆奖励", cfgScore.Register),
+			Content: fmt.Sprintf("成功注册成网站会员，获得 %d %s奖励", cfgScore.Register, cfgScore.CreditName),
 		})
 	}
 

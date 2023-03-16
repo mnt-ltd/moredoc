@@ -322,7 +322,9 @@
             <el-button-group class="float-right">
               <el-button type="primary" icon="el-icon-coin" class="btn-coin"
                 >{{ document.price || 0
-                }}<span class="hidden-xs-only"> 个魔豆</span></el-button
+                }}<span class="hidden-xs-only">
+                  {{ settings.system.credit_name || '魔豆' }}</span
+                ></el-button
               >
               <el-button
                 type="primary"

@@ -4,13 +4,9 @@
       :class="isCollapse ? 'layout-aside-collapsed' : ''"
       :width="'240px'"
     >
-      <div class="logo" @click="gohome" title="魔豆文库管理后台">
-        <img
-          v-if="isCollapse"
-          src="/static/images/logo-icon.png"
-          alt="魔豆文库"
-        />
-        <img v-else src="/static/images/logo.png" alt="魔豆文库" />
+      <div class="logo" @click="gohome" title="文库管理后台">
+        <img v-if="isCollapse" src="/static/images/logo-icon.png" />
+        <img v-else src="/static/images/logo.png" />
       </div>
       <transition
         :duration="{ enter: 800, leave: 800 }"
@@ -203,9 +199,7 @@ export default {
   head() {
     return {
       title:
-        this.settings.system.title ||
-        this.settings.system.sitename ||
-        '魔豆文库',
+        this.settings.system.title || this.settings.system.sitename || '文库',
       link: [
         {
           rel: 'icon',

@@ -274,7 +274,7 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 		docCateMap[docCate.DocumentId] = append(docCateMap[docCate.DocumentId], docCate.CategoryId)
 	}
 
-	cfgScore := m.GetConfigOfScore(ConfigScoreDeleteDocument)
+	cfgScore := m.GetConfigOfScore(ConfigScoreDeleteDocument, ConfigScoreCreditName)
 
 	sess := m.db.Begin()
 	defer func() {
@@ -350,7 +350,7 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 			if score < 0 {
 				score = -score
 			}
-			dynamic.Content += fmt.Sprintf("，扣除了 %d 魔豆", score)
+			dynamic.Content += fmt.Sprintf("，扣除了 %d %s", score, cfgScore.CreditName)
 			err = sess.Model(modelUser).Where("id = ?", doc.UserId).Update("credit_count", gorm.Expr("credit_count - ?", score)).Error
 			if err != nil {
 				m.logger.Error("DeleteDocument", zap.Error(err))
@@ -536,7 +536,7 @@ func (m *DBModel) CreateDocuments(documents []Document, categoryIds []int64) (do
 		}
 		content := fmt.Sprintf(`上传了文档《<a href="/document/%d">%s</a>》`, doc.Id, html.EscapeString(doc.Title))
 		if award > 0 {
-			content += fmt.Sprintf(`，获得了 %d 个魔豆奖励`, award)
+			content += fmt.Sprintf(`，获得了 %d %s奖励`, award, m.GetCreditName())
 		}
 		dynamics = append(dynamics, Dynamic{
 			UserId:  doc.UserId,

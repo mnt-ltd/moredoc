@@ -110,7 +110,9 @@
               <span>{{ user.favorite_count || 0 }}</span>
             </el-col>
             <el-col :span="8">
-              <div><small>魔豆</small></div>
+              <div>
+                <small>{{ settings.system.credit_name || '魔豆' }}</small>
+              </div>
               <span>{{ user.credit_count || 0 }}</span>
             </el-col>
           </el-row>
@@ -384,7 +386,11 @@ export default {
         const sign = res.data || { id: 1 }
         this.sign = sign
         this.getUser()
-        this.$message.success(`签到成功，获得 ${sign.award || 0} 个魔豆奖励`)
+        this.$message.success(
+          `签到成功，获得 ${sign.award || 0} ${
+            this.settings.system.credit_name || '魔豆'
+          }奖励`
+        )
       } else {
         this.$message.error(res.message || res.data.message)
       }

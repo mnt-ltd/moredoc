@@ -152,7 +152,9 @@
                   >
                   </el-rate>
                   <span class="float-right"
-                    >{{ doc.price || 0 }} 魔豆 | {{ doc.pages || '-' }} 页 |
+                    >{{ doc.price || 0 }}
+                    {{ settings.system.credit_name || '魔豆' }} |
+                    {{ doc.pages || '-' }} 页 |
                     {{ formatBytes(doc.size) }}
                     <span class="hidden-xs-only"
                       >| {{ formatRelativeTime(doc.created_at) }}</span
@@ -166,7 +168,6 @@
             v-if="total > 0"
             :current-page="query.page"
             :page-size="query.size"
-            layout="total,  prev, pager, next, jumper"
             :layout="
               isMobile
                 ? 'total, prev, pager, next'

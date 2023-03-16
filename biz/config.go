@@ -144,6 +144,7 @@ func (s *ConfigAPIService) GetSettings(ctx context.Context, req *emptypb.Empty) 
 		}
 	}
 	res.System.Version = util.Version
+	res.System.CreditName = s.dbModel.GetConfigOfScore(model.ConfigScoreCreditName).CreditName
 	footer := s.dbModel.GetConfigOfFooter()
 	if err := util.CopyStruct(&footer, res.Footer); err != nil {
 		s.logger.Error("util.CopyStruct", zap.Any("footer", footer), zap.Any("res.Footer", res.Footer), zap.Error(err))
