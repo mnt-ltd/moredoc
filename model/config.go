@@ -205,6 +205,7 @@ const (
 	ConfigSystemLoginBackground     = "login_background"
 	ConfigSystemRegistrerBackground = "register_background"
 	ConfigSystemIcp                 = "icp"
+	ConfigSystemSecIcp              = "sec_icp"
 	ConfigSystemAnalytics           = "analytics"
 	ConfigSystemCopyrightStartYear  = "copyright_start_year"
 )
@@ -219,6 +220,7 @@ type ConfigSystem struct {
 	Favicon                         string   `json:"favicon"`              // favicon
 	ConfigSystemRegistrerBackground string   `json:"register_background"`  // 注册页面背景图
 	ConfigSystemLoginBackground     string   `json:"login_background"`     // 登录页面背景图
+	SecICP                          string   `json:"sec_icp"`              // 网站备案
 	ICP                             string   `json:"icp"`                  // 网站备案
 	Analytics                       string   `json:"analytics"`            // 统计代码
 	CopyrightStartYear              string   `json:"copyright_start_year"` // 版权年
@@ -447,9 +449,12 @@ func (m *DBModel) GetConfigOfSystem(name ...string) (config ConfigSystem) {
 	}
 
 	data := m.convertConfig2Map(confgis)
+	// 注意：推荐的关键字，要特殊处理下
+	if recommendWords, ok := data[ConfigSystemRecommendWords]; ok {
+		data[ConfigSystemRecommendWords] = strings.Split(recommendWords.(string), ",")
+	}
 	bytes, _ := json.Marshal(data)
 	json.Unmarshal(bytes, &config)
-
 	return
 }
 
@@ -598,6 +603,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySystem, Name: ConfigSystemFavicon, Label: "网站Favicon", Value: "", Placeholder: "请上传一张方方正正的小图片作为网站favicon，建议为 .ico 的图片", InputType: InputTypeImage, Sort: 61, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemRegistrerBackground, Label: "注册页背景图", Value: "", Placeholder: "请上传一张图片作为注册页背景图", InputType: InputTypeImage, Sort: 62, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemLoginBackground, Label: "登录页背景图", Value: "", Placeholder: "请上传一张图片作为登录页背景图", InputType: InputTypeImage, Sort: 63, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemSecIcp, Label: "京公网安备", Value: "", Placeholder: "请输入您网站的京公网安备备案号", InputType: InputTypeText, Sort: 68, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemIcp, Label: "网站备案号", Value: "", Placeholder: "请输入您网站的备案号", InputType: InputTypeText, Sort: 69, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "https://moredoc.mnt.ltd", Placeholder: "请输入您网站的域名访问地址，带 https:// 或 http:// 如 https://moredoc.mnt.ltd，用以生成网站地图sitemap", InputType: InputTypeText, Sort: 70, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemCopyrightStartYear, Label: "版权起始年", Value: "2019", Placeholder: "请输入您网站版权起始年，如：2019，则前台会显示如 ©2019 - 20xx 的字样", InputType: InputTypeText, Sort: 80, Options: ""},

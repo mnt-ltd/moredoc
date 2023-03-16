@@ -204,14 +204,27 @@
             >站点地图</el-link
           >
         </div>
-        <div v-if="settings.system.icp">
+        <div v-if="settings.system.icp || settings.system.sec_icp">
           <el-link
             :underline="false"
+            v-if="settings.system.icp"
             type="white"
             target="_blank"
             :title="settings.system.icp"
             href="https://beian.miit.gov.cn/"
             >{{ settings.system.icp }}</el-link
+          >
+          <el-link
+            :underline="false"
+            v-if="settings.system.sec_icp"
+            type="white"
+            target="_blank"
+            :title="settings.system.sec_icp"
+            :href="`http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=${settings.system.sec_icp.replace(
+              /[^\d]/g,
+              ''
+            )}`"
+            >{{ settings.system.sec_icp }}</el-link
           >
         </div>
         <div>
