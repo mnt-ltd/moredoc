@@ -400,6 +400,7 @@ export default {
       downloading: false,
       documentId: parseInt(this.$route.params.id) || 0,
       pages: [],
+      pagesPerRead: 10,
       pageHeight: 0,
       pageWidth: 0,
       currentPage: 1,
@@ -771,7 +772,7 @@ export default {
       }
     },
     continueRead() {
-      let end = this.pages.length + 5
+      let end = this.pages.length + this.pagesPerRead
       if (end > this.document.preview) {
         end = this.document.preview
       }
