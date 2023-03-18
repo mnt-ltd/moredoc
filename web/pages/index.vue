@@ -50,7 +50,7 @@
       <el-col :span="6" class="float-right right-at-recommend">
         <el-card class="text-center stat-info" shadow="never">
           <el-row>
-            <el-col :span="12">
+            <el-col :span="settings.display.show_register_user_count ? 12 : 24">
               <small>收录文档</small>
               <div>
                 <span class="el-link el-link--primary">{{
@@ -58,7 +58,7 @@
                 }}</span>
               </div>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="12" v-if="settings.display.show_register_user_count">
               <small>注册用户</small>
               <div>
                 <span class="el-link el-link--primary">{{
@@ -221,7 +221,10 @@
         </el-card>
       </el-col>
     </el-row>
-    <div class="categories mgt-20px">
+    <div
+      class="categories mgt-20px"
+      v-if="settings.display.show_index_categories"
+    >
       <el-row :gutter="20">
         <div
           v-for="(category, index) in categoryTrees"

@@ -772,7 +772,9 @@ export default {
       }
     },
     continueRead() {
-      let end = this.pages.length + this.pagesPerRead
+      let pagesPerRead =
+        this.settings.display.pages_per_read || this.pagesPerRead
+      let end = this.pages.length + pagesPerRead
       if (end > this.document.preview) {
         end = this.document.preview
       }

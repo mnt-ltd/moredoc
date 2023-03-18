@@ -36,6 +36,8 @@ const (
 	ConfigCategoryDownload = "download"
 	// 积分规则
 	ConfigCategoryScore = "score"
+	// 显示配置
+	ConfigCategoryDisplay = "display"
 )
 
 const (
@@ -379,6 +381,42 @@ type ConfigScore struct {
 	DocumentCommentedLimit int32  `json:"document_commented_limit"` // 文档被评论获得积分次数限制
 }
 
+const (
+	ConfigDisplayShowRegisterUserCount = "show_register_user_count" // 是否显示注册用户数量
+	ConfigDisplayVirtualRegisterCount  = "virtual_register_count"   // 虚拟注册用户数量
+	ConfigDisplayShowIndexCategories   = "show_index_categories"    // 是否显示首页分类
+	ConfigDisplayPagesPerRead          = "pages_per_read"           // 每次阅读的页数
+	ConfigDisplayCopyrightStatement    = "copyright_statement"      // 在页面最底部的版权声明
+)
+
+type ConfigDisplay struct {
+	ShowRegisterUserCount bool   `json:"show_register_user_count"` // 是否显示注册用户数量
+	VirtualRegisterCount  int64  `json:"virtual_register_count"`   // 虚拟注册用户数量
+	ShowIndexCategories   bool   `json:"show_index_categories"`    // 是否显示首页分类
+	PagesPerRead          int32  `json:"pages_per_read"`           // 每次阅读的页数
+	CopyrightStatement    string `json:"copyright_statement"`      // 在页面最底部的版权声明
+}
+
+func (m *DBModel) GetConfigOfDisplay(name ...string) (config ConfigDisplay) {
+	var configs []Config
+
+	db := m.db
+	if len(name) > 0 {
+		db = db.Where("name IN (?)", name)
+	}
+	err := db.Where("category = ?", ConfigCategoryDisplay).Find(&configs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetConfigOfDisplay", zap.Error(err))
+	}
+
+	data := m.convertConfig2Map(configs)
+
+	bytes, _ := json.Marshal(data)
+	json.Unmarshal(bytes, &config)
+
+	return
+}
+
 func (m *DBModel) GetConfigOfFooter() (config ConfigFooter) {
 	var configs []Config
 	err := m.db.Where("category = ?", ConfigCategoryFooter).Find(&configs).Error
@@ -616,7 +654,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryCaptcha, Name: ConfigCaptchaType, Label: "验证码类型", Value: "digit", Placeholder: "请选择验证码类型，默认为数字", InputType: InputTypeSelect, Sort: 16, Options: captcha.CaptchaTypeOptions},
 
 		// 安全配置项
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityMaxDocumentSize, Label: "最大文档大小(MB)", Value: "50", Placeholder: "允许用户上传的最大文档大小，默认为50，即50MB。配置时仍需注意NGINX等反向代理服务所允许传输的最大大小", InputType: InputTypeNumber, Sort: 1, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityMaxDocumentSize, Label: "最大文档大小(MB)", Value: "50", Placeholder: "允许用户上传的最大文档大小，默认为50，即50MB。配置时仍需配置反向代理服务所允许传输的最大大小，如nginx的client_max_body_size值！", InputType: InputTypeNumber, Sort: 1, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityCommentInterval, Label: "评论时间间隔", Value: "10", Placeholder: "用户评论时间间隔，单位为秒。0表示不限制。", InputType: InputTypeNumber, Sort: 2, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityDocumentRelatedDuration, Label: "文档的【相关文档】有效期", Value: "7", Placeholder: "文档的相关联文档的有效期，默认为7，即7天，0或小于0，表示不开启相关文档功能", InputType: InputTypeNumber, Sort: 15, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityDocumentAllowedExt, Label: "允许上传的文档类型", Value: "", Placeholder: "留空表示允许程序所支持的全部文档类型", InputType: InputTypeSelectMulti, Sort: 3, Options: strings.Join(filetil.GetDocumentExts(), "\n")},
@@ -674,6 +712,13 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryEmail, Name: ConfigEmailDuration, Label: "邮件有效期", Value: "30", Placeholder: "找回密码时链接有效期，默认为30，表示30分钟", InputType: InputTypeNumber, Sort: 80, Options: ""},
 		{Category: ConfigCategoryEmail, Name: ConfigEmailSecret, Label: "签名密钥", Value: "moredoc", Placeholder: "找回密码链接签名密钥", InputType: InputTypeText, Sort: 80, Options: ""},
 		{Category: ConfigCategoryEmail, Name: ConfigEmailTestEmail, Label: "测试邮箱", Value: "", Placeholder: "用于每次变更配置时保存发送测试邮件", InputType: InputTypeText, Sort: 90, Options: ""},
+
+		// 展示配置
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowRegisterUserCount, Label: "是否显示注册用户数", Value: "true", Placeholder: "网站首页，是否显示注册用户数", InputType: InputTypeSwitch, Sort: 10, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayVirtualRegisterCount, Label: "网站虚拟注册用户数", Value: "0", Placeholder: "网站首页显示的用户数=真实注册用户数+虚拟注册用户数", InputType: InputTypeNumber, Sort: 20, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowIndexCategories, Label: "是否显示横栏分类", Value: "true", Placeholder: "网站首页中间横栏位置，是否显示分类", InputType: InputTypeSwitch, Sort: 30, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayPagesPerRead, Label: "文档【继续阅读】的页数", Value: "5", Placeholder: "用户阅读文档，每次点击继续阅读按钮时阅读的页数，默认为5，表示5页", InputType: InputTypeNumber, Sort: 40, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayCopyrightStatement, Label: "版权声明", Value: "本站文档数据由用户上传，仅供学习交流，如侵犯您的权益，请联系我们进行删除。", Placeholder: "网站最底部版权声明，支持HTML", InputType: InputTypeTextarea, Sort: 50, Options: ""},
 	}
 
 	for _, cfg := range cfgs {

@@ -75,6 +75,13 @@ message ConfigFooter {
   string feedback = 5;  // 意见和建议反馈
 }
 
+message ConfigDisplay {
+  bool show_register_user_count = 1; // 是否显示注册用户数量
+  bool show_index_categories = 2;    // 是否显示首页分类
+  int32 pages_per_read = 3;          // 每次阅读的页数
+  string copyright_statement = 4;    // 在页面最底部的版权声明
+}
+
 // 安全配置
 message ConfigSecurity {
   bool is_close = 1;                     // 是否关闭站点
@@ -95,7 +102,7 @@ message Settings {
   ConfigSystem system = 1;     // 系统配置
   ConfigFooter footer = 2;     // 底链配置
   ConfigSecurity security = 3; // 安全配置
-  // ConfigCaptcha captcha = 4;
+  ConfigDisplay display = 4;   // 显示配置
 }
 
 // 依赖项

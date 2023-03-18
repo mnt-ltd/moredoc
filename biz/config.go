@@ -119,6 +119,7 @@ func (s *ConfigAPIService) GetSettings(ctx context.Context, req *emptypb.Empty) 
 		System:   &pb.ConfigSystem{},
 		Footer:   &pb.ConfigFooter{},
 		Security: &pb.ConfigSecurity{},
+		Display:  &pb.ConfigDisplay{},
 	}
 
 	// captcha := s.dbModel.GetConfigOfCaptcha()
@@ -155,6 +156,11 @@ func (s *ConfigAPIService) GetSettings(ctx context.Context, req *emptypb.Empty) 
 		s.logger.Error("util.CopyStruct", zap.Any("security", security), zap.Any("res.Security", res.Security), zap.Error(err))
 	}
 
+	display := s.dbModel.GetConfigOfDisplay()
+	if err := util.CopyStruct(&display, res.Display); err != nil {
+		s.logger.Error("util.CopyStruct", zap.Any("display", display), zap.Any("res.Display", res.Display), zap.Error(err))
+	}
+
 	return res, nil
 }
 
@@ -174,6 +180,7 @@ func (s *ConfigAPIService) GetStats(ctx context.Context, req *emptypb.Empty) (re
 	}
 	res.Os, _ = util.GetOSRelease()
 	res.UserCount, _ = s.dbModel.CountUser()
+	res.UserCount += s.dbModel.GetConfigOfDisplay(model.ConfigDisplayVirtualRegisterCount).VirtualRegisterCount
 	res.DocumentCount, _ = s.dbModel.CountDocument()
 	_, errPermission := s.checkPermission(ctx)
 	if errPermission == nil {

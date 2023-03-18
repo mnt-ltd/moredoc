@@ -1,6 +1,6 @@
 <template>
   <el-card shadow="never">
-    <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
+    <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane
         v-for="item in categories"
         :key="'category-' + item.value"
@@ -36,6 +36,10 @@ export default {
         {
           label: '系统配置',
           value: 'system',
+        },
+        {
+          label: '展示配置',
+          value: 'display',
         },
         {
           label: '底链配置',

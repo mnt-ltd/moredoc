@@ -227,6 +227,12 @@
             >{{ settings.system.sec_icp }}</el-link
           >
         </div>
+        <div v-if="settings.display.copyright_statement">
+          <div
+            class="el-link el-link--default"
+            v-html="settings.display.copyright_statement"
+          ></div>
+        </div>
         <div>
           Powered By
           <el-link
