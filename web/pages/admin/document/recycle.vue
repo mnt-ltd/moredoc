@@ -177,12 +177,13 @@ export default {
         search.category_id = search.category_id[search.category_id.length - 1]
       }
       const res = await listRecycleDocument(search)
+      this.loading = false
       if (res.status === 200) {
         const documents = res.data.document || []
         documents.forEach((item) => {
           ;(item.category_id || (item.category_id = [])).forEach((id) => {
             ;(item.category_name || (item.category_name = [])).push(
-              this.categoryMap[id].title
+              this.categoryMap[id].title || '-' // 有可能分类已经被删除
             )
           })
         })
@@ -192,7 +193,6 @@ export default {
       } else {
         this.$message.error(res.data.message)
       }
-      this.loading = false
     },
     handleSizeChange(val) {
       this.search.size = val
