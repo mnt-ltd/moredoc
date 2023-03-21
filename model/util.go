@@ -132,23 +132,27 @@ func (m *DBModel) InitSEO() {
 		if info.IsDir() {
 			return nil
 		}
+
 		path = filepath.ToSlash(path)
-		if filepath.Ext(path) == ".html" && !strings.HasPrefix(path, dist+"/admin") {
+		if filepath.Ext(path) == ".html" {
 			name := strings.TrimPrefix(path, dist+"/")
-			if defaultTitle, ok := pages[name]; ok {
-				m.logger.Debug("initSEO", zap.String("file", path))
-				bs, _ := os.ReadFile(path)
-				if doc, errDoc := goquery.NewDocumentFromReader(bytes.NewReader(bs)); errDoc != nil {
-					m.logger.Error("initSEO", zap.Error(errDoc), zap.String("file", path))
-				} else {
-					doc.Find("title").SetText(defaultTitle + cfg.Sitename)
-					doc.Find("meta[name='keywords']").SetAttr("content", cfg.Keywords)
-					doc.Find("meta[name='description']").SetAttr("content", cfg.Description)
-					doc.Find("meta[content='moredoc']").Remove()
-					doc.Find("meta[name='og:type']").Remove()
-					if htmlStr, errHtml := doc.Html(); errHtml == nil {
-						os.WriteFile(path, []byte(htmlStr), os.ModePerm)
-					}
+			defaultTitle, ok := pages[name]
+			if !ok && strings.HasPrefix(path, dist+"/admin") {
+				defaultTitle = "管理后台 - "
+			}
+
+			m.logger.Debug("initSEO", zap.String("file", path), zap.String("title", defaultTitle))
+			bs, _ := os.ReadFile(path)
+			if doc, errDoc := goquery.NewDocumentFromReader(bytes.NewReader(bs)); errDoc != nil {
+				m.logger.Error("initSEO", zap.Error(errDoc), zap.String("file", path))
+			} else {
+				doc.Find("title").SetText(defaultTitle + cfg.Sitename)
+				doc.Find("meta[name='keywords']").SetAttr("content", cfg.Keywords)
+				doc.Find("meta[name='description']").SetAttr("content", cfg.Description)
+				doc.Find("meta[content='moredoc']").Remove()
+				doc.Find("meta[name='og:type']").Remove()
+				if htmlStr, errHtml := doc.Html(); errHtml == nil {
+					os.WriteFile(path, []byte(htmlStr), os.ModePerm)
 				}
 			}
 		}
