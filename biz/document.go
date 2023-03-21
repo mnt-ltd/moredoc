@@ -568,8 +568,13 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 		Size:      int(req.Size_),
 		QueryIn:   make(map[string][]interface{}),
 	}
+
 	opt.Size = util.LimitRange(opt.Size, 10, 10)
-	opt.Page = util.LimitRange(opt.Page, 1, 100)
+	opt.Page = util.LimitRange(opt.Page, 1, 10000) // 最大默认1w页，等同于不限制页数
+	maxPages := s.dbModel.GetConfigOfDisplay(model.ConfigDisplayMaxSearchPages).MaxSearchPages
+	if maxPages > 0 {
+		opt.Page = util.LimitRange(opt.Page, 1, int(maxPages))
+	}
 	if req.Wd == "" {
 		return res, nil
 	}
@@ -600,6 +605,11 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 		return res, status.Errorf(codes.Internal, "搜索文档失败：%s", err)
 	}
 	util.CopyStruct(&docs, &res.Document)
+
+	if maxPages > 0 && total > int64(maxPages)*int64(opt.Size) {
+		total = int64(maxPages) * int64(opt.Size)
+	}
+
 	res.Total = total
 	res.Spend = fmt.Sprintf("%.3f", time.Since(now).Seconds())
 	return res, nil

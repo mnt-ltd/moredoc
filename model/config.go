@@ -387,6 +387,7 @@ const (
 	ConfigDisplayShowIndexCategories   = "show_index_categories"    // 是否显示首页分类
 	ConfigDisplayPagesPerRead          = "pages_per_read"           // 每次阅读的页数
 	ConfigDisplayCopyrightStatement    = "copyright_statement"      // 在页面最底部的版权声明
+	ConfigDisplayMaxSearchPages        = "max_search_pages"         // 搜索结果最大页数
 )
 
 type ConfigDisplay struct {
@@ -394,6 +395,7 @@ type ConfigDisplay struct {
 	VirtualRegisterCount  int64  `json:"virtual_register_count"`   // 虚拟注册用户数量
 	ShowIndexCategories   bool   `json:"show_index_categories"`    // 是否显示首页分类
 	PagesPerRead          int32  `json:"pages_per_read"`           // 每次阅读的页数
+	MaxSearchPages        int32  `json:"max_search_pages"`         // 搜索结果最大页数
 	CopyrightStatement    string `json:"copyright_statement"`      // 在页面最底部的版权声明
 }
 
@@ -718,7 +720,8 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayVirtualRegisterCount, Label: "网站虚拟注册用户数", Value: "0", Placeholder: "网站首页显示的用户数=真实注册用户数+虚拟注册用户数", InputType: InputTypeNumber, Sort: 20, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowIndexCategories, Label: "是否显示横栏分类", Value: "true", Placeholder: "网站首页中间横栏位置，是否显示分类", InputType: InputTypeSwitch, Sort: 30, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayPagesPerRead, Label: "文档【继续阅读】的页数", Value: "5", Placeholder: "用户阅读文档，每次点击继续阅读按钮时阅读的页数，默认为5，表示5页", InputType: InputTypeNumber, Sort: 40, Options: ""},
-		{Category: ConfigCategoryDisplay, Name: ConfigDisplayCopyrightStatement, Label: "版权声明", Value: "本站文档数据由用户上传，仅供学习交流，如侵犯您的权益，请联系我们进行删除。", Placeholder: "网站最底部版权声明，支持HTML", InputType: InputTypeTextarea, Sort: 50, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayMaxSearchPages, Label: "文档搜索结果最大页数", Value: "100", Placeholder: "搜索结果，默认最大展示100页，0表示不限制", InputType: InputTypeNumber, Sort: 50, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayCopyrightStatement, Label: "版权声明", Value: "本站文档数据由用户上传，仅供学习交流，如侵犯您的权益，请联系我们进行删除。", Placeholder: "网站最底部版权声明，支持HTML", InputType: InputTypeTextarea, Sort: 60, Options: ""},
 	}
 
 	for _, cfg := range cfgs {
