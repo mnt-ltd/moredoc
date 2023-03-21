@@ -5,9 +5,7 @@ import (
 )
 
 var (
-	store  = base64Captcha.DefaultMemStore
-	width  = 240
-	height = 60
+	store = base64Captcha.DefaultMemStore
 	// sourceChinese      = strings.Join(strings.Split("欢迎使用由深圳市摩枫网络科技有限公司基于阿帕奇开源协议的魔豆文库系统", ""), ",")
 	sourceString       = "1234567890qwertyuioplkjhgfdsazxcvbnm"
 	CaptchaTypeOptions = "string:字符串\nmath:算术\ndigit:数字\naudio:语音"
@@ -22,12 +20,18 @@ const (
 )
 
 // GenerateCaptcha 生成验证码
-func GenerateCaptcha(captchaType string) (id, b64s string, err error) {
+func GenerateCaptcha(captchaType string, length, width, height int) (id, b64s string, err error) {
+	if width <= 0 {
+		width = 240
+	}
+	if height <= 0 {
+		height = 60
+	}
 	var driver base64Captcha.Driver
 	switch captchaType {
 	case "audio":
 		driver = &base64Captcha.DriverAudio{
-			Length:   6,
+			Length:   length,
 			Language: "zh",
 		}
 	case "string":
@@ -36,7 +40,7 @@ func GenerateCaptcha(captchaType string) (id, b64s string, err error) {
 			Width:           width,
 			Source:          sourceString,
 			ShowLineOptions: base64Captcha.OptionShowHollowLine | base64Captcha.OptionShowSlimeLine | base64Captcha.OptionShowSineLine,
-			Length:          6,
+			Length:          length,
 		}
 	case "math":
 		driver = &base64Captcha.DriverMath{
@@ -62,7 +66,7 @@ func GenerateCaptcha(captchaType string) (id, b64s string, err error) {
 			Width:    width,
 			DotCount: 80,
 			MaxSkew:  1,
-			Length:   6,
+			Length:   length,
 		}
 	}
 	return base64Captcha.NewCaptcha(driver, store).Generate()

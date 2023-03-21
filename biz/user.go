@@ -463,7 +463,7 @@ func (s *UserAPIService) GetUserCaptcha(ctx context.Context, req *pb.GetUserCapt
 	}
 
 	if res.Enable {
-		res.Id, res.Captcha, err = captcha.GenerateCaptcha(cfgCaptcha.Type)
+		res.Id, res.Captcha, err = captcha.GenerateCaptcha(cfgCaptcha.Type, cfgCaptcha.Length, cfgCaptcha.Width, cfgCaptcha.Height)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, err.Error())
 		}
