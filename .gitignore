@@ -16,3 +16,4 @@ sitemap
 license.cert
 *.cert
 /logs
+/util/cloudstore
