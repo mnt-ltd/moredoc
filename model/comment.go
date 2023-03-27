@@ -3,6 +3,7 @@ package model
 import (
 	// "fmt"
 	// "strings"
+	"errors"
 	"strings"
 	"time"
 
@@ -182,7 +183,8 @@ func (m *DBModel) DeleteComment(ids []int64, limitUserId ...int64) (err error) {
 	condStr := strings.Join(cond, " and ")
 	tx.Where(condStr, args...).Select("id", "parent_id", "document_id", "user_id").Find(&comments)
 	if len(comments) == 0 {
-		return
+		err = errors.New("评论不存在或没有权限删除")
+		return err
 	}
 
 	err = tx.Where(condStr, args...).Delete(&Comment{}).Error

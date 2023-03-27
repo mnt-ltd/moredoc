@@ -119,7 +119,7 @@ func (s *CommentAPIService) DeleteComment(ctx context.Context, req *pb.DeleteCom
 
 	err = s.dbModel.DeleteComment(req.Id, userIds...)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "删除评论失败")
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
