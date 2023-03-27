@@ -166,6 +166,7 @@ func (s *DocumentAPIService) DeleteDocument(ctx context.Context, req *pb.DeleteD
 			WithCount:    false,
 			SelectFields: []string{"id"},
 			Ids:          util.Slice2Interface(req.Id),
+			QueryIn:      map[string][]interface{}{"user_id": {userClaims.UserId}},
 		})
 
 		if len(userDocs) == 0 {
