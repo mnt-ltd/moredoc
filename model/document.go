@@ -251,8 +251,6 @@ func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Do
 }
 
 // DeleteDocument 删除数据
-// TODO: 删除数据之后，存在 document_id 的关联表，需要删除对应数据，同时相关表的统计数值，也要随着减少
-// TODO: 如果是删除文档，则文档所属分类以及用户的文档数量都需要减1（需要判断文档是否是禁用再做处理）
 func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ...bool) (err error) {
 	var (
 		docs                  []Document

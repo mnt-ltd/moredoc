@@ -160,6 +160,7 @@ func (s *DocumentAPIService) DeleteDocument(ctx context.Context, req *pb.DeleteD
 		return nil, err
 	}
 
+	errNoPermission := status.Errorf(codes.PermissionDenied, "文档不存在或没有删除权限")
 	ids := req.Id
 	if err != nil { // 普通用户，只能删除自己创建的文档
 		userDocs, _, _ := s.dbModel.GetDocumentList(&model.OptionGetDocumentList{
@@ -170,12 +171,16 @@ func (s *DocumentAPIService) DeleteDocument(ctx context.Context, req *pb.DeleteD
 		})
 
 		if len(userDocs) == 0 {
-			return &emptypb.Empty{}, nil
+			return &emptypb.Empty{}, errNoPermission
 		}
 
 		for _, doc := range userDocs {
 			ids = append(ids, doc.Id)
 		}
+	}
+
+	if len(ids) == 0 {
+		return &emptypb.Empty{}, errNoPermission
 	}
 
 	err = s.dbModel.DeleteDocument(ids, userClaims.UserId)
