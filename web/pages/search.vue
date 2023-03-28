@@ -241,6 +241,7 @@ export default {
       ],
       searchSorts: [
         { label: '默认排序', value: 'default' },
+        { label: '最新排序', value: 'latest' },
         { label: '页数排序', value: 'pages' },
         { label: '评分排序', value: 'score' },
         { label: '大小排序', value: 'size' },

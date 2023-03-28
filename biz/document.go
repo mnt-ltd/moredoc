@@ -607,7 +607,11 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 	}
 
 	if req.Sort != "" {
-		opt.Sort = []string{req.Sort}
+		if req.Sort == "latest" {
+			opt.Sort = []string{"id"}
+		} else {
+			opt.Sort = []string{req.Sort}
+		}
 	}
 
 	docs, total, err := s.dbModel.GetDocumentList(opt)
