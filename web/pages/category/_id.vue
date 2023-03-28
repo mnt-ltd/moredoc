@@ -3,42 +3,43 @@
     <el-row>
       <el-col :span="24">
         <el-card shadow="never" ref="breadcrumb">
-          <template v-if="categoryChildren.length > 0">
-            <div slot="header" class="clearfix">
-              <el-breadcrumb separator="/">
-                <el-breadcrumb-item>
-                  <nuxt-link to="/"><i class="fa fa-home"></i> 首页</nuxt-link>
-                </el-breadcrumb-item>
-                <el-breadcrumb-item
-                  v-for="item in breadcrumbs"
-                  :key="'bread1-' + item.id"
-                >
-                  <el-dropdown v-if="item.siblings.length > 0">
-                    <span class="el-dropdown-link">
-                      {{ item.title
-                      }}<i class="el-icon-arrow-down el-icon--right"></i>
-                    </span>
-                    <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item
-                        v-for="ss in item.siblings"
-                        :key="'s1-' + ss.id"
-                      >
-                        <nuxt-link
-                          class="el-link el-link--default block"
-                          :class="{
-                            'el-link--primary': ss.id === item.id,
-                          }"
-                          :to="`/category/${ss.id}`"
-                          >{{ ss.title }}</nuxt-link
-                        ></el-dropdown-item
-                      >
-                    </el-dropdown-menu>
-                  </el-dropdown>
-                  <span v-else>{{ item.title }}</span>
-                </el-breadcrumb-item>
-              </el-breadcrumb>
-            </div>
-            <div class="category-children">
+          <div slot="header" class="clearfix">
+            <el-breadcrumb separator="/">
+              <el-breadcrumb-item>
+                <nuxt-link to="/"><i class="fa fa-home"></i> 首页</nuxt-link>
+              </el-breadcrumb-item>
+              <el-breadcrumb-item
+                v-for="item in breadcrumbs"
+                :key="'bread1-' + item.id"
+              >
+                <el-dropdown v-if="item.siblings.length > 0">
+                  <span class="el-dropdown-link">
+                    {{ item.title
+                    }}<i class="el-icon-arrow-down el-icon--right"></i>
+                  </span>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item
+                      v-for="ss in item.siblings"
+                      :key="'s1-' + ss.id"
+                    >
+                      <nuxt-link
+                        class="el-link el-link--default block"
+                        :class="{
+                          'el-link--primary': ss.id === item.id,
+                        }"
+                        :to="`/category/${ss.id}`"
+                        >{{ ss.title }}</nuxt-link
+                      ></el-dropdown-item
+                    >
+                  </el-dropdown-menu>
+                </el-dropdown>
+                <span v-else>{{ item.title }}</span>
+              </el-breadcrumb-item>
+            </el-breadcrumb>
+          </div>
+          <div class="item-row" v-if="categoryChildren.length > 0">
+            <div class="item-name">分类</div>
+            <div class="item-content">
               <nuxt-link
                 v-for="child in categoryChildren"
                 :key="'tree-' + child.id"
@@ -48,39 +49,25 @@
                 >{{ child.title }}</nuxt-link
               >
             </div>
-          </template>
-          <el-breadcrumb v-else separator="/">
-            <el-breadcrumb-item>
-              <nuxt-link to="/"><i class="fa fa-home"></i> 首页</nuxt-link>
-            </el-breadcrumb-item>
-            <el-breadcrumb-item
-              v-for="item in breadcrumbs"
-              :key="'bread2-' + item.id"
-            >
-              <el-dropdown v-if="item.siblings.length > 0">
-                <span class="el-dropdown-link">
-                  {{ item.title
-                  }}<i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item
-                    v-for="ss in item.siblings"
-                    :key="'s2-' + ss.id"
-                  >
-                    <nuxt-link
-                      class="el-link el-link--default block"
-                      :class="{
-                        'el-link--primary': ss.id === item.id,
-                      }"
-                      :to="`/category/${ss.id}`"
-                      >{{ ss.title }}</nuxt-link
-                    ></el-dropdown-item
-                  >
-                </el-dropdown-menu>
-              </el-dropdown>
-              <span v-else>{{ item.title }}</span>
-            </el-breadcrumb-item>
-          </el-breadcrumb>
+          </div>
+          <div class="item-row">
+            <div class="item-name">类型</div>
+            <div class="item-content">
+              <nuxt-link
+                v-for="item in exts"
+                :key="item.value"
+                :to="{ query: { ext: item.value } }"
+                class="el-link"
+                :class="
+                  item.value === $route.query.ext ||
+                  (!item.value && !$route.query.ext)
+                    ? 'el-link--primary'
+                    : 'el-link--default'
+                "
+                >{{ item.label }}</nuxt-link
+              >
+            </div>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -197,6 +184,15 @@ export default {
       cardWidth: 0,
       title: '',
       hasExpand: false,
+      exts: [
+        { label: '不限', value: '' },
+        { label: 'PDF', value: 'pdf' },
+        { label: 'World', value: 'doc' },
+        { label: 'PPT', value: 'ppt' },
+        { label: 'Excel', value: 'xls' },
+        { label: 'TXT', value: 'txt' },
+        { label: '其它', value: 'other' },
+      ],
     }
   },
   head() {
@@ -326,6 +322,7 @@ export default {
       this.$router.push({
         path: `/category/${this.categoryId}`,
         query: {
+          ...this.$route.query,
           sort: tab.name,
         },
       })
@@ -376,6 +373,7 @@ export default {
         page: this.query.page,
         size: this.size,
         category_id: this.categoryId,
+        ext: this.$route.query.ext,
         field: [
           'id',
           'title',
@@ -427,58 +425,33 @@ export default {
       font-weight: normal;
     }
   }
-  .categories {
-    .el-card__header {
-      padding-top: 0;
-      padding-bottom: 0;
-      .header-title {
-        line-height: 56px;
-        span {
-          cursor: pointer;
-        }
-      }
-      .el-input {
-        top: 10px;
-        .el-input__inner {
-          height: 35px;
-          line-height: 35px;
-        }
-      }
+  .item-row {
+    display: flex;
+    .item-name {
+      width: 60px;
+      font-size: 15px;
+      color: #bbb;
     }
-    .el-tree-node__content {
-      height: 35px;
+    .item-content {
+      flex: 1;
     }
-    [role='treeitem'][aria-expanded='true'] > .el-tree-node__content {
-      background-color: #f5f7fa;
-      color: #409eff;
-      font-weight: bold;
-    }
-  }
-  .category-children {
     a {
       display: inline-block;
       margin-right: 20px;
       margin-bottom: 20px;
       font-weight: normal;
     }
-    margin-bottom: -20px;
+    &:last-of-type {
+      margin-bottom: -20px;
+    }
   }
+
   .doc-list-data {
     min-height: 200px;
     .no-data {
       text-align: center;
       font-size: 14px;
       color: #aaa;
-    }
-  }
-  .categories-none-expand {
-    .el-card__body {
-      .el-tree-node__expand-icon.is-leaf {
-        display: none;
-      }
-      .el-tree-node__label {
-        padding-left: 5px;
-      }
     }
   }
   .doc-list {

@@ -287,6 +287,10 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 		opt.QueryIn["user_id"] = []interface{}{req.UserId[0]}
 	}
 
+	if exts := filetil.GetExts(req.Ext); len(exts) > 0 {
+		opt.QueryIn["ext"] = util.Slice2Interface(exts)
+	}
+
 	_, err := s.checkPermission(ctx)
 	if err == nil { // 有权限，则不限页数
 		if req.Wd != "" {
