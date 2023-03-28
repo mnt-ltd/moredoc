@@ -490,7 +490,7 @@ export default {
     .el-col-18 {
       width: 100% !important;
     }
-    .category-children {
+    .item-row {
       padding-bottom: 7px;
       a {
         margin-right: 10px;
