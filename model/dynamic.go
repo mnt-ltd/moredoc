@@ -10,7 +10,7 @@ import (
 type Dynamic struct {
 	Id        int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	UserId    int64      `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);size:20;default:0;index:idx_user_id;comment:;"`
-	Content   string     `form:"content" json:"content,omitempty" gorm:"column:content;type:tinytext;comment:内容，存储JSON;"`
+	Content   string     `form:"content" json:"content,omitempty" gorm:"column:content;type:text;comment:内容;"`
 	Type      int        `form:"type" json:"type,omitempty" gorm:"column:type;type:smallint(6);size:6;default:0;comment:类型;index:idx_type;"`
 	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
