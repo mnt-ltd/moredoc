@@ -455,7 +455,7 @@ export default {
           {
             ...this.getGaugeOption(
               'CPU',
-              res.data.cpu.percent.toFixed(2) || '0.00'
+              (res.data.cpu.percent || 0).toFixed(2) || '0.00'
             ),
             labels: [
               {
@@ -499,7 +499,7 @@ export default {
           gauges.push({
             ...this.getGaugeOption(
               '磁盘 ' + disk.disk_name,
-              disk.percent.toFixed(2) || '0.00'
+              (disk.percent || 0).toFixed(2) || '0.00'
             ),
             labels: [
               {
