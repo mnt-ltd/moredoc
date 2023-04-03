@@ -280,6 +280,7 @@ func (s *ConfigAPIService) GetDeviceInfo(ctx context.Context, req *emptypb.Empty
 		s.logger.Error("util.CopyStruct", zap.Any("cpu", cpu), zap.Any("res.Cpu", res.Cpu), zap.Error(err))
 		return
 	}
+	res.Cpu.Cores = int32(runtime.NumCPU())
 
 	mem := device.GetMemory()
 	err = util.CopyStruct(&mem, res.Memory)

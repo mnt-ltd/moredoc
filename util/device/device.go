@@ -49,12 +49,12 @@ func GetMemory() (memInfo MemInfo) {
 }
 
 func GetDisk() (diskInfos []DiskInfo) {
-	states, _ := disk.IOCounters()
-	for key := range states {
-		usage, _ := disk.Usage(key)
+	stats, _ := disk.Partitions(true)
+	for _, stat := range stats {
+		usage, _ := disk.Usage(stat.Device)
 		if usage != nil {
 			diskInfos = append(diskInfos, DiskInfo{
-				DiskName: key,
+				DiskName: stat.Device,
 				Total:    usage.Total,
 				Used:     usage.Used,
 				Free:     usage.Free,
