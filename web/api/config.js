@@ -44,3 +44,10 @@ export const getEnvs = () => {
     method: 'get',
   })
 }
+
+export const getDevice = () => {
+  return service({
+    url: '/api/v1/device',
+    method: 'get',
+  })
+}

@@ -19,6 +19,7 @@
     "@wangeditor/editor-for-vue": "^1.0.2",
     "@wangeditor/plugin-md": "^1.0.0",
     "core-js": "^3.19.3",
+    "echarts": "^5.4.2",
     "element-ui": "^2.15.10",
     "hotkeys-js": "^3.10.0",
     "nuxt": "^2.15.8",
@@ -27,6 +28,7 @@
     "v-viewer": "^1.6.4",
     "vue": "^2.6.14",
     "vue-color": "^2.8.1",
+    "vue-echarts": "^6.5.4",
     "vue-lazyload": "^3.0.0-rc.2",
     "vue-marquee-text-component": "^1.2.0",
     "vue-server-renderer": "^2.6.14",
@@ -37,6 +39,7 @@
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.3",
+    "@nuxtjs/composition-api": "^0.33.1",
     "@nuxtjs/eslint-config": "^8.0.0",
     "@nuxtjs/eslint-module": "^3.0.2",
     "@nuxtjs/style-resources": "^1.2.1",

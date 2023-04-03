@@ -136,6 +136,40 @@ message Stats {
   int64 report_count = 12;    // 举报数量
 }
 
+message CPUInfo {
+  int32 cores = 1;       // CPU核心数
+  string model_name = 2; // CPU型号
+  float mhz = 3;         // CPU主频
+  float percent = 4;     // CPU使用率
+}
+
+message MemoryInfo {
+  int64 total = 1;     // 总内存
+  int64 available = 2; // 可用内存
+  int64 used = 3;      // 已用内存
+  int64 free = 4;      // 空闲内存
+  float percent = 5;   // 内存使用率
+}
+
+message DiskInfo {
+  string disk_name = 1; // 磁盘名称
+  int64 total = 2;      // 总空间
+  int64 used = 3;       // 已用空间
+  int64 free = 4;       // 空闲空间
+  float percent = 5;    // 磁盘使用率
+}
+
+message DeviceInfo {
+  CPUInfo cpu = 1;            // CPU信息
+  MemoryInfo memory = 2;      // 内存信息
+  repeated DiskInfo disk = 3; // 磁盘信息
+                              // string os = 4;           // 操作系统
+                              // string os_version = 5;   // 操作系统版本
+                              // string kernel = 6;       // 内核版本
+                              // string hostname = 7;     // 主机名
+                              // string architecture = 8; // 架构
+}
+
 // 配置服务
 service ConfigAPI {
 
@@ -179,6 +213,13 @@ service ConfigAPI {
   rpc UpdateSitemap(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/api/v1/sitemap"
+    };
+  }
+
+  // 获取设备信息
+  rpc GetDeviceInfo(google.protobuf.Empty) returns (DeviceInfo) {
+    option (google.api.http) = {
+      get : "/api/v1/device"
     };
   }
 }

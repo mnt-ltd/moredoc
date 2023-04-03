@@ -1,6 +1,30 @@
 <template>
   <div class="page-admin-dashboard">
     <el-card shadow="never">
+      <div slot="header">状态</div>
+      <el-row :gutter="20" class="gauges">
+        <el-col
+          :span="6"
+          :xs="12"
+          :sm="8"
+          :md="6"
+          :lg="6"
+          v-for="(gauge, index) in gauges"
+          :key="'gauge' + index"
+        >
+          <v-chart class="chart" autoresize :option="gauge" />
+          <div class="text-center">
+            <ul>
+              <li v-for="item in gauge.labels" :key="item">
+                <small v-if="item.label">{{ item.label }} : </small
+                >{{ item.value }}
+              </li>
+            </ul>
+          </div>
+        </el-col>
+      </el-row>
+    </el-card>
+    <el-card shadow="never" class="mgt-20px">
       <div slot="header">
         <span>授权信息</span>
       </div>
@@ -265,8 +289,30 @@
 </template>
 
 <script>
-import { getStats, getEnvs, updateSitemap } from '~/api/config'
-import { formatDatetime } from '~/utils/utils'
+import { getStats, getEnvs, updateSitemap, getDevice } from '~/api/config'
+import { formatDatetime, formatBytes } from '~/utils/utils'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { PieChart, GaugeChart } from 'echarts/charts'
+import { UniversalTransition } from 'echarts/features'
+import {
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent,
+} from 'echarts/components'
+import VChart from 'vue-echarts'
+
+use([
+  CanvasRenderer,
+  PieChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GaugeChart,
+  UniversalTransition,
+  GridComponent,
+])
 
 export default {
   layout: 'admin',
@@ -274,6 +320,9 @@ export default {
     return {
       title: `面板 - ${this.settings.system.sitename}`,
     }
+  },
+  components: {
+    VChart,
   },
   data() {
     return {
@@ -296,6 +345,8 @@ export default {
       },
       envs: [],
       loading: false,
+      gauges: [],
+      devices: [],
     }
   },
   computed: {
@@ -304,10 +355,17 @@ export default {
     },
   },
   created() {
-    Promise.all([this.getStats(), this.getEnvs()])
+    this.initDevice()
+    Promise.all([this.getStats(), this.getEnvs(), this.loopGetDevice()])
   },
   methods: {
     formatDatetime,
+    loopGetDevice() {
+      this.getDevice()
+      setInterval(() => {
+        this.getDevice()
+      }, 5000)
+    },
     async getStats() {
       const res = await getStats()
       if (res.status === 200) {
@@ -334,6 +392,193 @@ export default {
       this.loading = false
       this.$message.error(res.data.message || '更新失败')
     },
+    initDevice() {
+      const gauges = [
+        {
+          ...this.getGaugeOption('CPU', '0.00'),
+          labels: [
+            {
+              label: 'Cores',
+              value: '-',
+            },
+            {
+              label: 'Mhz',
+              value: '-',
+            },
+            {
+              label: '',
+              value: '-',
+            },
+          ],
+        },
+        {
+          ...this.getGaugeOption('内存', '0.00'),
+          labels: [
+            {
+              label: 'Total',
+              value: '-',
+            },
+            {
+              label: 'Used',
+              value: '-',
+            },
+            {
+              label: 'Free',
+              value: '-',
+            },
+          ],
+        },
+      ]
+      gauges.push({
+        ...this.getGaugeOption('磁盘', '0.00'),
+        labels: [
+          {
+            label: 'Total',
+            value: '-',
+          },
+          {
+            label: 'Used',
+            value: '-',
+          },
+          {
+            label: 'Free',
+            value: '-',
+          },
+        ],
+      })
+      this.gauges = gauges
+    },
+    async getDevice() {
+      const res = await getDevice()
+      if (res.status === 200) {
+        const gauges = [
+          {
+            ...this.getGaugeOption(
+              'CPU',
+              res.data.cpu.percent.toFixed(2) || '0.00'
+            ),
+            labels: [
+              {
+                label: 'Cores',
+                value: res.data.cpu.cores,
+              },
+              {
+                label: 'Mhz',
+                value: res.data.cpu.mhz,
+              },
+              {
+                label: '',
+                value: res.data.cpu.model_name,
+              },
+            ],
+          },
+          {
+            ...this.getGaugeOption(
+              '内存',
+              ((res.data.memory.used / res.data.memory.total) * 100).toFixed(
+                2
+              ) || '0.00'
+            ),
+            labels: [
+              {
+                label: 'Total',
+                value: formatBytes(res.data.memory.total),
+              },
+              {
+                label: 'Used',
+                value: formatBytes(res.data.memory.used),
+              },
+              {
+                label: 'Free',
+                value: formatBytes(res.data.memory.free),
+              },
+            ],
+          },
+        ]
+        for (let disk of res.data.disk || []) {
+          gauges.push({
+            ...this.getGaugeOption(
+              '磁盘 ' + disk.disk_name,
+              disk.percent.toFixed(2) || '0.00'
+            ),
+            labels: [
+              {
+                label: 'Total',
+                value: formatBytes(disk.total),
+              },
+              {
+                label: 'Used',
+                value: formatBytes(disk.used),
+              },
+              {
+                label: 'Free',
+                value: formatBytes(disk.free),
+              },
+            ],
+          })
+        }
+        this.gauges = gauges
+      }
+    },
+    getGaugeOption(name, percent) {
+      return {
+        series: [
+          {
+            type: 'gauge',
+            axisLine: {
+              lineStyle: {
+                width: 10,
+                color: [
+                  [0.3, '#67e0e3'],
+                  [0.7, '#37a2da'],
+                  [1, '#fd666d'],
+                ],
+              },
+            },
+            pointer: {
+              itemStyle: {
+                color: 'inherit',
+              },
+            },
+            axisTick: {
+              distance: -30,
+              length: 8,
+              lineStyle: {
+                color: '#fff',
+                width: 2,
+              },
+            },
+            splitLine: {
+              distance: -15,
+              length: 20,
+              lineStyle: {
+                color: '#fff',
+                width: 4,
+              },
+            },
+            axisLabel: {
+              color: 'inherit',
+              distance: 10,
+              fontSize: 14,
+            },
+            detail: {
+              valueAnimation: true,
+              formatter: '{value} %',
+              color: 'inherit',
+              fontSize: 20,
+              offsetCenter: [0, '85%'],
+            },
+            data: [
+              {
+                value: percent,
+                name: name,
+                fontSize: 14,
+              },
+            ],
+          },
+        ],
+      }
+    },
   },
 }
 </script>
@@ -349,6 +594,27 @@ export default {
   }
   .opensource .el-link {
     margin-top: -3px;
+  }
+  .chart {
+    height: 234px;
+  }
+  .gauges {
+    min-height: 294px;
+    font-size: 14px;
+    ul,
+    li {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    small {
+      color: #999;
+    }
+    li {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 }
 </style>

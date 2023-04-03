@@ -11,6 +11,7 @@ import (
 	"moredoc/middleware/auth"
 	"moredoc/model"
 	"moredoc/util"
+	"moredoc/util/device"
 
 	"github.com/PuerkitoBio/goquery"
 	"go.uber.org/zap"
@@ -265,4 +266,39 @@ func (s *ConfigAPIService) GetEnvs(ctx context.Context, req *emptypb.Empty) (res
 	}
 	res.Envs = envs
 	return
+}
+
+func (s *ConfigAPIService) GetDeviceInfo(ctx context.Context, req *emptypb.Empty) (res *pb.DeviceInfo, err error) {
+	res = &pb.DeviceInfo{
+		Cpu:    &pb.CPUInfo{},
+		Memory: &pb.MemoryInfo{},
+	}
+	cpu := device.GetCPU()
+
+	err = util.CopyStruct(&cpu, res.Cpu)
+	if err != nil {
+		s.logger.Error("util.CopyStruct", zap.Any("cpu", cpu), zap.Any("res.Cpu", res.Cpu), zap.Error(err))
+		return
+	}
+
+	mem := device.GetMemory()
+	err = util.CopyStruct(&mem, res.Memory)
+	if err != nil {
+		s.logger.Error("util.CopyStruct", zap.Any("mem", mem), zap.Any("res.Memory", res.Memory), zap.Error(err))
+		return
+	}
+
+	disks := device.GetDisk()
+	if len(disks) > 0 {
+		for _, disk := range disks {
+			pbDisk := &pb.DiskInfo{}
+			err = util.CopyStruct(&disk, pbDisk)
+			if err != nil {
+				s.logger.Error("util.CopyStruct", zap.Any("disk", disk), zap.Any("res.Disk", res.Disk), zap.Error(err))
+				return
+			}
+			res.Disk = append(res.Disk, pbDisk)
+		}
+	}
+	return res, nil
 }
