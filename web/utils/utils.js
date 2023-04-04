@@ -110,7 +110,7 @@ export function formatBytes(bytes, decimals = 2) {
 
   const i = Math.floor(Math.log(bytes) / Math.log(k))
 
-  return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  return `${(bytes / Math.pow(k, i)).toFixed(dm)} ${sizes[i]}`
 }
 
 // categoryToTrees 分类转树形结构

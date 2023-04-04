@@ -1,7 +1,7 @@
 <template>
   <div class="page-admin-dashboard">
     <el-card shadow="never">
-      <div slot="header">状态</div>
+      <div slot="header">服务器状态</div>
       <el-row :gutter="20" class="gauges">
         <el-col
           :span="6"
@@ -15,7 +15,7 @@
           <v-chart class="chart" autoresize :option="gauge" />
           <div class="text-center">
             <ul>
-              <li v-for="item in gauge.labels" :key="item">
+              <li v-for="(item, index) in gauge.labels" :key="'label-' + index">
                 <small v-if="item.label">{{ item.label }} : </small
                 >{{ item.value }}
               </li>
@@ -415,15 +415,15 @@ export default {
           ...this.getGaugeOption('内存', '0.00'),
           labels: [
             {
-              label: 'Total',
-              value: '-',
-            },
-            {
               label: 'Used',
               value: '-',
             },
             {
               label: 'Free',
+              value: '-',
+            },
+            {
+              label: 'Total',
               value: '-',
             },
           ],
@@ -433,15 +433,15 @@ export default {
         ...this.getGaugeOption('磁盘', '0.00'),
         labels: [
           {
-            label: 'Total',
-            value: '-',
-          },
-          {
             label: 'Used',
             value: '-',
           },
           {
             label: 'Free',
+            value: '-',
+          },
+          {
+            label: 'Total',
             value: '-',
           },
         ],

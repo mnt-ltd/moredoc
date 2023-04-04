@@ -196,15 +196,15 @@ func (m *DBModel) cronCleanInvalidAttachment() {
 			hashes                          []string
 			hashMap                         = make(map[string]struct{})
 			ids                             []int64
-			beforeHour, _                   = strconv.Atoi(os.Getenv("MOREDOC_CLEAN_ATTACHMENT")) // 默认为每天凌晨0点更新站点地图
+			retentionMinute                 = m.GetConfigOfSecurity(ConfigSecurityAttachmentRetentionMinute).AttachmentRetentionMinute
 		)
 
-		if beforeHour <= 0 {
-			beforeHour = 24
+		if retentionMinute < 0 {
+			retentionMinute = 0
 		}
 
 		// 1. 找出已被标记删除的附件
-		m.db.Unscoped().Where("deleted_at IS NOT NULL").Where("deleted_at < ?", time.Now().Add(-time.Duration(beforeHour)*time.Hour)).Limit(100).Find(&deletedAttachemnts)
+		m.db.Unscoped().Where("deleted_at IS NOT NULL").Where("deleted_at < ?", time.Now().Add(-time.Duration(retentionMinute)*time.Minute)).Limit(100).Find(&deletedAttachemnts)
 		if len(deletedAttachemnts) == 0 {
 			m.logger.Info("cronCleanInvalidAttachment，end...")
 			time.Sleep(sleepDuration)

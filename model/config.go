@@ -242,12 +242,14 @@ const (
 	ConfigSecurityDocumentRelatedDuration   = "document_related_duration"    // 相关文档有效期，默认为7天，最小值为1
 	ConfigSecurityDocumentAllowedExt        = "document_allowed_ext"         // 允许上传的文档类型
 	ConfigSecurityLoginRequired             = "login_required"               // 是否需要登录才能查看文档
+	ConfigSecurityAttachmentRetentionMinute = "attachment_retention_minute"  // 被删除的附件，保留时长，单位分钟
 )
 
 type ConfigSecurity struct {
 	MaxDocumentSize           int32    `json:"max_document_size"`            // 允许上传的最大文档大小
 	CommentInterval           int32    `json:"comment_interval"`             // 评论时间间隔, 单位秒
 	DocumentRelatedDuration   int32    `json:"document_related_duration"`    // 相关文档有效期，默认为7天，最小值为1
+	AttachmentRetentionMinute int32    `json:"attachment_retention_minute"`  // 被删除的附件，保留时长，单位分钟
 	IsClose                   bool     `json:"is_close"`                     // 是否闭站
 	CloseStatement            string   `json:"close_statement"`              // 闭站说明
 	EnableRegister            bool     `json:"enable_register"`              // 是否启用注册
@@ -659,7 +661,8 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityMaxDocumentSize, Label: "最大文档大小(MB)", Value: "50", Placeholder: "允许用户上传的最大文档大小，默认为50，即50MB。配置时仍需配置反向代理服务所允许传输的最大大小，如nginx的client_max_body_size值！", InputType: InputTypeNumber, Sort: 1, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityCommentInterval, Label: "评论时间间隔", Value: "10", Placeholder: "用户评论时间间隔，单位为秒。0表示不限制。", InputType: InputTypeNumber, Sort: 2, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityDocumentRelatedDuration, Label: "文档的【相关文档】有效期", Value: "7", Placeholder: "文档的相关联文档的有效期，默认为7，即7天，0或小于0，表示不开启相关文档功能", InputType: InputTypeNumber, Sort: 15, Options: ""},
-		{Category: ConfigCategorySecurity, Name: ConfigSecurityDocumentAllowedExt, Label: "允许上传的文档类型", Value: "", Placeholder: "留空表示允许程序所支持的全部文档类型", InputType: InputTypeSelectMulti, Sort: 3, Options: strings.Join(filetil.GetDocumentExts(), "\n")},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityAttachmentRetentionMinute, Label: "从回收站清除的文档文件保留时长", Value: "1440", Placeholder: "单位为分钟，默认为1440，即24小时。文档被从回收站清除之后，文档文件并未真正删除，用以规避操作失误的情况。设为 0 则表示即时删除文档文件，用以释放存储空间。", InputType: InputTypeNumber, Sort: 16, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityDocumentAllowedExt, Label: "允许上传的文档类型", Value: "", Placeholder: "留空表示允许程序所支持的全部文档类型", InputType: InputTypeSelectMulti, Sort: 30, Options: strings.Join(filetil.GetDocumentExts(), "\n")},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityIsClose, Label: "是否关闭网站", Value: "false", Placeholder: "请选择是否关闭网站", InputType: InputTypeSwitch, Sort: 160, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityCloseStatement, Label: "闭站说明", Value: closeStatement, Placeholder: "关闭网站后，页面提示内容（支持HTML）", InputType: InputTypeTextarea, Sort: 170, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableRegister, Label: "是否允许注册", Value: "true", Placeholder: "请选择是否允许用户注册", InputType: InputTypeSwitch, Sort: 18, Options: ""},
