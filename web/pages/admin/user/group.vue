@@ -58,7 +58,7 @@
     <el-dialog
       :title="group.id ? '编辑分组' : '新增分组'"
       :visible.sync="formGroupVisible"
-      width="520px"
+      width="640px"
     >
       <FormGroup :init-group="group" @success="success" />
     </el-dialog>

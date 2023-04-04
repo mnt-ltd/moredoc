@@ -59,7 +59,7 @@
     <el-dialog
       :title="user.id ? '设置用户' : '新增用户'"
       :visible.sync="formUserVisible"
-      width="520px"
+      width="640px"
     >
       <FormUser
         ref="formUser"
@@ -71,7 +71,7 @@
     <el-dialog
       title="编辑用户"
       :visible.sync="formUserProfileVisible"
-      width="520px"
+      width="640px"
     >
       <FormUserProfile
         ref="formUserProfile"

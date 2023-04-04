@@ -68,7 +68,7 @@ export default {
     margin: 0 auto;
   }
   .el-card {
-    width: 520px;
+    width: 640px;
     max-width: 100%;
     margin: 100px auto;
     margin-right: 0;

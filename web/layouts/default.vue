@@ -252,7 +252,7 @@
     <el-dialog
       title="个人资料"
       :visible.sync="userinfoDialogVisible"
-      :width="isMobile ? '95%' : '520px'"
+      :width="isMobile ? '95%' : '640px'"
     >
       <form-userinfo v-if="userinfoDialogVisible" />
     </el-dialog>

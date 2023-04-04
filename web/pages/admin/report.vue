@@ -47,7 +47,7 @@
     <el-dialog
       :title="report.id ? '编辑举报' : '新增举报'"
       :visible.sync="formReportVisible"
-      width="520px"
+      width="640px"
     >
       <FormReport
         ref="reportForm"

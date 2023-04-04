@@ -23,11 +23,7 @@
         ></el-cascader>
       </el-form-item>
       <el-form-item label="文档列表" class="document-list">
-        <ul>
-          <li v-for="document in documents" :key="'doc-' + document.id">
-            {{ document.title }}
-          </li>
-        </ul>
+        <DocumentSimpleList :target="'_blank'" :docs="documents" />
       </el-form-item>
       <el-form-item>
         <el-button
@@ -77,13 +73,20 @@ export default {
     async setDocumentsCategory() {
       this.$refs.form.validate(async (valid) => {
         if (valid) {
-          this.form.document_id = this.documents.map((item) => item.id)
-          const res = await setDocumentsCategory(this.form)
-          console.log(res)
-          if (res.status === 200) {
-            this.$message.success('修改成功')
-            this.$emit('success', res.data)
-          }
+          this.$confirm('您确定要批量修改文档分类吗？', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning',
+          })
+            .then(async () => {
+              this.form.document_id = this.documents.map((item) => item.id)
+              const res = await setDocumentsCategory(this.form)
+              if (res.status === 200) {
+                this.$message.success('修改成功')
+                this.$emit('success', res.data)
+              }
+            })
+            .catch(() => {})
         }
       })
     },

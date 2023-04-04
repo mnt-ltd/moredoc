@@ -2,7 +2,11 @@
   <div class="com-document-simple-list">
     <ul>
       <li v-for="doc in docs" :key="'doc-' + doc.id">
-        <nuxt-link :to="`/document/${doc.id}`" class="el-link el-link--default">
+        <nuxt-link
+          :target="target"
+          :to="`/document/${doc.id}`"
+          class="el-link el-link--default"
+        >
           <img
             :src="'/static/images/' + getIcon(doc.ext) + '_24.png'"
             :alt="getIcon(doc.ext) + '文档'"
@@ -22,6 +26,10 @@ export default {
     docs: {
       type: Array,
       default: () => [],
+    },
+    target: {
+      type: String,
+      default: '',
     },
   },
   data() {

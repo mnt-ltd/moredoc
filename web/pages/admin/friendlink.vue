@@ -47,7 +47,7 @@
     <el-dialog
       :title="friendlink.id ? '编辑友链' : '新增友链'"
       :visible.sync="formFriendlinkVisible"
-      width="520px"
+      width="640px"
     >
       <FormFriendlink
         ref="friendlinkForm"

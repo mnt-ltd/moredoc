@@ -348,7 +348,7 @@
     <el-dialog
       title="举报文档"
       :visible.sync="reportVisible"
-      :width="isMobile ? '95%' : '520px'"
+      :width="isMobile ? '95%' : '640px'"
     >
       <FormReport
         ref="reportForm"

@@ -31,7 +31,7 @@
     <el-dialog
       :title="category.id ? '编辑分类' : '新增分类'"
       :visible.sync="formVisible"
-      :width="'520px'"
+      :width="'640px'"
     >
       <FormCategory
         ref="categoryForm"

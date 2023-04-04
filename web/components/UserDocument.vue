@@ -105,7 +105,7 @@
     <el-dialog
       title="编辑文档"
       :visible.sync="updateDocumentVisible"
-      :width="isMobile ? '95%' : '520px'"
+      :width="isMobile ? '95%' : '640px'"
     >
       <FormUpdateDocument
         :category-trees="categoryTrees"

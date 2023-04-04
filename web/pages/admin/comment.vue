@@ -64,7 +64,7 @@
       v-if="comment.id > 0"
       title="评论编审"
       :visible.sync="formCommentVisible"
-      width="520px"
+      width="640px"
     >
       <FormCommentCheck
         ref="formComment"
