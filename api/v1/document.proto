@@ -67,6 +67,11 @@ message GetDocumentRequest {
   bool with_author = 2; // 是否查询作者信息
 }
 
+message SetDocumentsCategoryRequest {
+  repeated int64 document_id = 1; // 文档ID
+  repeated int64 category_id = 2; // 分类ID
+}
+
 // 文档列表
 message ListDocumentRequest {
   int64 page = 1;                 // 页码
@@ -254,6 +259,15 @@ service DocumentAPI {
       returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/document/reconvert',
+    };
+  }
+
+  // 批量更新文档分类
+  rpc SetDocumentsCategory(SetDocumentsCategoryRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/document/category',
+      body : '*',
     };
   }
 }

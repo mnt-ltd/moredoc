@@ -292,8 +292,6 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 	}
 
 	for _, doc := range docs {
-		// 文档不是禁用状态，且未被逻辑删除，则需要减少用户、分类下的文档统计数量
-		// if doc.Status != DocumentStatusDisabled && doc.DeletedAt == nil {
 		if doc.DeletedAt == nil {
 			err = sess.Model(modelUser).Where("id = ?", doc.UserId).Update("doc_count", gorm.Expr("doc_count - ?", 1)).Error
 			if err != nil {
@@ -762,6 +760,59 @@ func (m *DBModel) CountDocument(status ...int) (count int64, err error) {
 	err = db.Count(&count).Error
 	if err != nil {
 		m.logger.Error("CountDocument", zap.Error(err))
+	}
+	return
+}
+
+func (m *DBModel) SetDocumentsCategory(documentId, categoryId []int64) (err error) {
+	tx := m.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	for _, id := range documentId {
+		// 1. 旧的文档分类，减少计数
+		var docCates []DocumentCategory
+		m.db.Model(&DocumentCategory{}).Where("document_id = ?", id).Find(&docCates)
+		for _, cate := range docCates {
+			err = tx.Model(&Category{}).Where("id = ?", cate.CategoryId).Update("doc_count", gorm.Expr("doc_count - ?", 1)).Error
+			if err != nil {
+				m.logger.Error("SetDocumentsCategory", zap.Error(err))
+				return
+			}
+		}
+
+		// 2. 删除旧的分类
+		err = tx.Model(&DocumentCategory{}).Where("document_id = ?", id).Delete(&DocumentCategory{}).Error
+		if err != nil {
+			m.logger.Error("SetDocumentsCategory", zap.Error(err))
+			return
+		}
+
+		// 3. 添加新的分类
+		docCates = []DocumentCategory{}
+		for _, cid := range categoryId {
+			docCates = append(docCates, DocumentCategory{
+				DocumentId: id,
+				CategoryId: cid,
+			})
+		}
+		err = tx.Create(&docCates).Error
+		if err != nil {
+			m.logger.Error("SetDocumentsCategory", zap.Error(err))
+			return
+		}
+
+		// 4. 更新文档分类统计
+		err = tx.Model(&Category{}).Where("id in (?)", categoryId).Update("doc_count", gorm.Expr("doc_count + ?", 1)).Error
+		if err != nil {
+			m.logger.Error("SetDocumentsCategory", zap.Error(err))
+			return
+		}
 	}
 	return
 }

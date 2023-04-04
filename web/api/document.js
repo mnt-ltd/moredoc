@@ -135,3 +135,11 @@ export const setDocumentScore = (data) => {
     data,
   })
 }
+
+export const setDocumentsCategory = (data) => {
+  return service({
+    url: '/api/v1/document/category',
+    method: 'put',
+    data,
+  })
+}

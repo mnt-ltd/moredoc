@@ -28,6 +28,22 @@
               >
             </el-tooltip>
           </el-form-item>
+          <el-form-item>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="批量修改选中的文档分类"
+              placement="top"
+            >
+              <el-button
+                type="success"
+                @click="batchUpdateDocumentsCategory"
+                :disabled="selectedRow.length === 0"
+                icon="el-icon-edit"
+                >批量分类</el-button
+              >
+            </el-tooltip>
+          </el-form-item>
         </template>
       </FormSearch>
     </el-card>
@@ -106,6 +122,18 @@
       />
     </el-dialog>
     <el-dialog
+      title="批量分类"
+      width="520px"
+      :visible.sync="formDocumentsCategoryVisible"
+    >
+      <FormUpdateDocumentsCategory
+        v-if="formDocumentsCategoryVisible"
+        :category-trees="trees"
+        :documents="categoryDocuments"
+        @success="formSuccess"
+      />
+    </el-dialog>
+    <el-dialog
       title="推荐设置"
       :visible.sync="formDocumentRecommendVisible"
       width="520px"
@@ -155,6 +183,8 @@ export default {
       documentStatusOptions,
       boolOptions,
       document: { id: 0 },
+      formDocumentsCategoryVisible: false,
+      categoryDocuments: [],
     }
   },
   head() {
@@ -302,6 +332,7 @@ export default {
     formSuccess() {
       this.formVisible = false
       this.formDocumentRecommendVisible = false
+      this.formDocumentsCategoryVisible = false
       this.listDocument()
     },
     batchDelete() {
@@ -325,6 +356,10 @@ export default {
           }
         })
         .catch(() => {})
+    },
+    batchUpdateDocumentsCategory() {
+      this.categoryDocuments = this.selectedRow
+      this.formDocumentsCategoryVisible = true
     },
     deleteRow(row) {
       this.$confirm(
