@@ -55,10 +55,10 @@
       </el-row>
     </div>
     <el-row :gutter="20" class="mgt-20px">
-      <el-col :span="4" class="search-left">
+      <el-col :span="4" class="search-left-col">
         <!-- 空 card 占位，以便设置position:fixed -->
         <div class="emptyblock"></div>
-        <div ref="searchLeft">
+        <div ref="searchLeft" class="scroll">
           <el-card shadow="never">
             <div slot="header" class="clearfix">
               <span>类型</span>
@@ -110,7 +110,7 @@
           </el-card>
         </div>
       </el-col>
-      <el-col :span="14" class="search-main">
+      <el-col :span="14" class="search-main" ref="searchMain">
         <el-card v-loading="loading" shadow="never">
           <div slot="header">
             本次搜索耗时
@@ -182,7 +182,7 @@
         </el-card>
       </el-col>
       <el-col v-if="keywords.length > 0" :span="6" class="search-right">
-        <div ref="searchRight">
+        <div ref="searchRight" class="scroll">
           <el-card shadow="never">
             <div slot="header" class="clearfix">
               <span>相关搜索词</span>
@@ -332,10 +332,18 @@ export default {
       const scrollTop =
         document.documentElement.scrollTop || document.body.scrollTop
       const searchLeft = this.$refs.searchLeft
+      const searchMain = this.$refs.searchMain
       const searchRight = this.$refs.searchRight
       const searchBox = this.$refs.searchBox
 
       if (searchLeft) {
+        let maxHeight = 0
+        try {
+          maxHeight = searchMain.$el.offsetHeight - scrollTop - 70
+        } catch (error) {
+          console.log(error)
+        }
+
         if (this.searchLeftWidth === 0) {
           this.searchLeftWidth = searchLeft.offsetWidth
           this.searchRightWidth = searchRight.offsetWidth
@@ -349,6 +357,11 @@ export default {
           searchLeft.style.top = top
           searchLeft.style.zIndex = zIndex
           searchLeft.style.width = this.searchLeftWidth + 'px'
+          if (maxHeight > 0) {
+            searchLeft.style.maxHeight = maxHeight + 'px'
+            searchRight.style.maxHeight = maxHeight + 'px'
+          }
+
           searchRight.style.position = fixed
           searchRight.style.top = top
           searchRight.style.zIndex = zIndex
@@ -449,7 +462,19 @@ export default {
       margin-top: 5px;
     }
   }
-  .search-left {
+  .scroll {
+    overflow: auto;
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 3px;
+    }
+  }
+  .search-left-col {
     .el-card:first-of-type {
       .el-card__body {
         padding-bottom: 0;
@@ -571,7 +596,7 @@ export default {
       }
     }
 
-    .search-left {
+    .search-left-col {
       padding-left: 0 !important;
       padding-right: 0 !important;
       width: 100%;
