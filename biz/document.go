@@ -793,9 +793,13 @@ func (s *DocumentAPIService) SetDocumentsCategory(ctx context.Context, req *pb.S
 		return nil, err
 	}
 
+	if len(req.DocumentId) == 0 || len(req.CategoryId) == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "文档ID和分类ID均不能为空")
+	}
+
 	err = s.dbModel.SetDocumentsCategory(req.DocumentId, req.CategoryId)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "更新文档分类失败：%s", err.Error())
+		return nil, status.Errorf(codes.Internal, "设置文档分类失败：%s", err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
