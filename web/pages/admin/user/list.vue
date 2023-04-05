@@ -285,14 +285,15 @@ export default {
             }
           }),
         },
-        {
-          type: 'select',
-          label: '状态',
-          name: 'status',
-          placeholder: '请选择用户状态',
-          multiple: true,
-          options: this.userStatusOptions,
-        },
+        // 暂时屏蔽
+        // {
+        //   type: 'select',
+        //   label: '状态',
+        //   name: 'status',
+        //   placeholder: '请选择用户状态',
+        //   multiple: true,
+        //   options: this.userStatusOptions,
+        // },
       ]
     },
     initTableListFields() {
