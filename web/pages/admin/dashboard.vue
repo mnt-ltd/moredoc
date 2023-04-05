@@ -362,8 +362,8 @@ export default {
     formatDatetime,
     loopGetDevice() {
       this.getDevice()
-      setInterval(() => {
-        this.getDevice()
+      setTimeout(() => {
+        this.loopGetDevice()
       }, 5000)
     },
     async getStats() {
