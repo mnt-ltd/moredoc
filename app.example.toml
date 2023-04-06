@@ -1,14 +1,23 @@
-# 程序运行级别：debug、info、warn、error
-level="debug"
+# 程序运行级别：debug、info、warn、error，生产环境使用 info及其以上级别
+level = "debug"
+
 # 日志编码方式，支持：json、console
-logEncoding="console"
-port="8880"
+logEncoding = "console"
+
+# 程序运行端口
+port = "8880"
+
+# 数据库配置
 [database]
-    driver="mysql"
-    dsn="root:root@tcp(localhost:3306)/moredoc?charset=utf8mb4&loc=Local&parseTime=true"
-    showSQL=true
-    maxOpen=10
-    maxIdle=10
+    driver = "mysql"
+    dsn = "root:root@tcp(localhost:3306)/moredoc?charset=utf8mb4&loc=Local&parseTime=true"
+    showSQL = true
+    maxOpen = 10
+    maxIdle = 10
+
+# JSON Web Token 配置
 [jwt]
-    secret="moredoc"
-    expireDays=365
+    # 生成 token 的密钥，请务必修改！！！
+    secret = "moredoc"
+    # token 过期时间
+    expireDays = 365
