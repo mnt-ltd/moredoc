@@ -493,7 +493,17 @@ func (m *DBModel) GetConfigOfSystem(name ...string) (config ConfigSystem) {
 	data := m.convertConfig2Map(confgis)
 	// 注意：推荐的关键字，要特殊处理下
 	if recommendWords, ok := data[ConfigSystemRecommendWords]; ok {
-		data[ConfigSystemRecommendWords] = strings.Split(recommendWords.(string), ",")
+		var words []string
+		if rws, ok := recommendWords.(string); ok {
+			for _, word := range strings.Split(rws, ",") {
+				word = strings.TrimSpace(word)
+				if word == "" {
+					continue
+				}
+				words = append(words, word)
+			}
+		}
+		data[ConfigSystemRecommendWords] = words
 	}
 	bytes, _ := json.Marshal(data)
 	json.Unmarshal(bytes, &config)
