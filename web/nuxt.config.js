@@ -53,7 +53,7 @@ export default {
     // https://go.nuxtjs.dev/axios
     '@nuxtjs/axios',
     // https://go.nuxtjs.dev/pwa
-    // '@nuxtjs/pwa',
+    '@nuxtjs/pwa',
   ],
 
   // 路由切换了，回到页面顶部

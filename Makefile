@@ -55,18 +55,24 @@ builddarwin:
 	cp -r dist release/${VERSION}/darwin
 	cp -r dictionary release/${VERSION}/darwin
 	cp -r app.example.toml release/${VERSION}/darwin
+	rm -rf release/${VERSION}/darwin/dist/_nuxt/icons
+	rm -rf release/${VERSION}/darwin/dist/_nuxt/manifest*
 
 buildlinux:
 	GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/linux
 	cp -r dictionary release/${VERSION}/linux
 	cp -r app.example.toml release/${VERSION}/linux
+	rm -rf release/${VERSION}/linux/dist/_nuxt/icons
+	rm -rf release/${VERSION}/linux/dist/_nuxt/manifest*
 
 buildwin:
 	GOOS=windows GOARCH=amd64 go build -v -o release/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/windows
 	cp -r dictionary release/${VERSION}/windows
 	cp -r app.example.toml release/${VERSION}/windows
+	rm -rf release/${VERSION}/windows/dist/_nuxt/icons
+	rm -rf release/${VERSION}/windows/dist/_nuxt/manifest*
 
 # show help
 help:
