@@ -187,9 +187,9 @@ export default {
       exts: [
         { label: '不限', value: '' },
         { label: 'PDF', value: 'pdf' },
-        { label: 'World', value: 'doc' },
+        { label: 'DOC', value: 'doc' },
         { label: 'PPT', value: 'ppt' },
-        { label: 'Excel', value: 'xls' },
+        { label: 'XLS', value: 'xls' },
         { label: 'TXT', value: 'txt' },
         { label: '其它', value: 'other' },
       ],
