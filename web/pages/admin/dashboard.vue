@@ -490,7 +490,9 @@ export default {
               },
               {
                 label: 'Free',
-                value: formatBytes(res.data.memory.free),
+                value: formatBytes(
+                  res.data.memory.total - res.data.memory.used
+                ),
               },
             ],
           },

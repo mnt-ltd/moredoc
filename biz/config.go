@@ -289,6 +289,8 @@ func (s *ConfigAPIService) GetDeviceInfo(ctx context.Context, req *emptypb.Empty
 		return
 	}
 
+	res.Memory.Free = res.Memory.Total - res.Memory.Used
+
 	disks := device.GetDisk()
 	if len(disks) > 0 {
 		for _, disk := range disks {
