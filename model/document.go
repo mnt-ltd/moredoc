@@ -648,6 +648,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 	localFile := strings.TrimLeft(attachment.Path, "./")
 
 	cvt := converter.NewConverter(m.logger, timeout)
+	defer cvt.Clean() // 清除缓存目录
 	dstPDF, err := cvt.ConvertToPDF(localFile)
 	if err != nil {
 		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
@@ -723,7 +724,6 @@ func (m *DBModel) ConvertDocument() (err error) {
 		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
 		m.logger.Error("ConvertDocument", zap.Error(err))
 	}
-	cvt.Clean()
 	return
 }
 
