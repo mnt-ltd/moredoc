@@ -307,6 +307,8 @@ func (m *DBModel) loopCovertDocument() {
 	if convertDocumentRunning {
 		return
 	}
+	// 清空缓存目录
+	os.RemoveAll("cache/convert")
 	convertDocumentRunning = true
 	sleep := 10 * time.Second
 	m.db.Model(&Document{}).Where("status = ?", DocumentStatusConverting).Update("status", DocumentStatusPending)
