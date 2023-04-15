@@ -238,6 +238,13 @@ func (s *ConfigAPIService) GetEnvs(ctx context.Context, req *emptypb.Empty) (res
 			IsRequired:  true,
 		},
 		{
+			// inkscape
+			Name:        "Inkscape",
+			Description: "Inkscape是一个自由开源的矢量图形编辑器。在mupdf处理PDF出现兼容问题失败时，自动切换inkscape来处理。",
+			Cmd:         "inkscape",
+			IsRequired:  false,
+		},
+		{
 			Name:        "SVGO",
 			Description: "SVGO 是一个基于 Node.js 的工具，用于优化 SVG 矢量图形文件。魔豆文库用于压缩svg图片大小。",
 			Cmd:         "svgo",

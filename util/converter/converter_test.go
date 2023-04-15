@@ -67,6 +67,17 @@ func TestConvertOfficeToPDF(t *testing.T) {
 	}
 }
 
+func TestCountPages(t *testing.T) {
+	pdfFile := "../../cache/test.pdf"
+	pages, err := converter.CountPDFPages(pdfFile)
+	if err != nil {
+		t.Errorf("CountPages() error = %v", err)
+		return
+	}
+
+	t.Log(pages)
+}
+
 func TestConvertEPUBToPDF(t *testing.T) {
 	type args struct {
 		src     string

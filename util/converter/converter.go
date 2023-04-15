@@ -3,6 +3,7 @@ package converter
 import (
 	"bytes"
 	"compress/gzip"
+	"errors"
 	"fmt"
 	"moredoc/util"
 	"moredoc/util/command"
@@ -15,6 +16,7 @@ import (
 
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
+	"rsc.io/pdf"
 )
 
 const (
@@ -22,6 +24,7 @@ const (
 	ebookConvert = "ebook-convert"
 	svgo         = "svgo"
 	mutool       = "mutool"
+	inkscape     = "inkscape"
 	dirDteFmt    = "2006/01/02"
 )
 
@@ -180,6 +183,16 @@ func (c *Converter) PDFToPDF(src string) (dst string, err error) {
 
 // ext 可选值： .png, .svg
 func (c *Converter) convertPDFToPage(src string, fromPage, toPage int, ext string) (pages []Page, err error) {
+	defer func() {
+		if err != nil {
+			// 尝试使用 inkscape 转换
+			pages, err = c.convertPDFToPageByInkscape(src, fromPage, toPage, ext)
+			if err != nil {
+				c.logger.Error("convert pdf to page by inkscape", zap.String("cmd", inkscape), zap.Error(err))
+			}
+		}
+	}()
+
 	pageRange := fmt.Sprintf("%d-%d", fromPage, toPage)
 	cacheFileFormat := c.workspace + "/%d" + ext
 	args := []string{
@@ -203,6 +216,36 @@ func (c *Converter) convertPDFToPage(src string, fromPage, toPage int, ext strin
 			c.logger.Error("convert pdf to page", zap.String("cmd", mutool), zap.Strings("args", args), zap.Error(err))
 			break
 		}
+		pages = append(pages, Page{
+			PageNum:  fromPage + i,
+			PagePath: pagePath,
+		})
+	}
+	return
+}
+
+func (c *Converter) convertPDFToPageByInkscape(src string, fromPage, toPage int, ext string) (pages []Page, err error) {
+	cacheFileFormat := c.workspace + "/%d" + ext
+
+	for i := 0; i <= toPage-fromPage; i++ {
+		pagePath := fmt.Sprintf(cacheFileFormat, i+1)
+		args := []string{
+			"-o", pagePath,
+			"--pdf-page", fmt.Sprintf("%d", fromPage+i),
+			"--pdf-poppler",
+		}
+
+		_, err = command.ExecCommand(inkscape, args, c.timeout)
+		if err != nil {
+			c.logger.Error("convert pdf to page", zap.String("cmd", inkscape), zap.Strings("args", args), zap.Error(err))
+			return
+		}
+
+		if _, err = os.Stat(pagePath); err != nil {
+			c.logger.Error("convert pdf to page", zap.String("cmd", inkscape), zap.Strings("args", args), zap.Error(err))
+			break
+		}
+
 		pages = append(pages, Page{
 			PageNum:  fromPage + i,
 			PagePath: pagePath,
@@ -251,6 +294,15 @@ func (c *Converter) convertToPDFByCalibre(src string) (dst string, err error) {
 }
 
 func (c *Converter) CountPDFPages(file string) (pages int, err error) {
+	defer func() {
+		if err != nil {
+			if pages, err = countPDFPagesV2(file); err != nil {
+				c.logger.Error("count pdf pages", zap.Error(err))
+				return
+			}
+		}
+	}()
+
 	args := []string{
 		"show",
 		file,
@@ -275,6 +327,45 @@ func (c *Converter) CountPDFPages(file string) (pages int, err error) {
 				return
 			}
 		}
+	}
+	return
+}
+
+func countPDFPagesV2(file string) (pages int, err error) {
+	// 优先使用这种PDF分页统计的方式，如果PDF版本比支持，则再使用下一种PDF统计方式。所以这里报错了的话，不返回
+	pages, err = getPdfPages(file)
+	if err == nil {
+		return
+	}
+
+	var p []byte
+	p, err = os.ReadFile(file)
+	if err != nil {
+		return
+	}
+
+	content := string(p)
+	arr := strings.Split(content, "/Pages")
+	l := len(arr)
+	if l > 0 {
+		arr = strings.Split(arr[l-1], "endobj")
+		if l = len(arr); l > 0 {
+			return len(strings.Split(arr[0], "0 R")) - 1, nil
+		}
+		return 0, fmt.Errorf(`%v:"endobj"分割时失败`, file)
+	}
+	return 0, fmt.Errorf(`%v:"/Pages"分割时失败`, file)
+}
+
+func getPdfPages(file string) (pages int, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New(fmt.Sprintf("%v", r))
+			return
+		}
+	}()
+	if reader, err := pdf.Open(file); err == nil {
+		pages = reader.NumPage()
 	}
 	return
 }
