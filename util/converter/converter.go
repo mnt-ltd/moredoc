@@ -235,6 +235,8 @@ func (c *Converter) convertPDFToPageByInkscape(src string, fromPage, toPage int,
 			"--pdf-poppler",
 		}
 
+		args = append(args, src)
+
 		_, err = command.ExecCommand(inkscape, args, c.timeout)
 		if err != nil {
 			c.logger.Error("convert pdf to page", zap.String("cmd", inkscape), zap.Strings("args", args), zap.Error(err))
