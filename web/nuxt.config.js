@@ -102,5 +102,7 @@ export default {
   build: {
     postcss: null,
     transpile: [/^element-ui/],
+    // 提取CSS到外部文件
+    extractCSS: true,
   },
 }
