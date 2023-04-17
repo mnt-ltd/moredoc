@@ -36,9 +36,9 @@ RUN addgroup --gid $gid --system moredoc\
 # change to moredoc user
 USER moredoc
 WORKDIR /home/moredoc
-ENV VERSION ce_v1.2.1
+ENV VERSION ce_v1.3.0
 # Get and Unpack Tomcat
-RUN wget https://github.com/mnt-ltd/moredoc/releases/download/v1.2.1/moredoc_${VERSION}_linux_amd64.zip -O ~/moredoc_${VERSION}_linux_amd64.zip
+RUN wget https://github.com/mnt-ltd/moredoc/releases/download/v1.3.0/moredoc_${VERSION}_linux_amd64.zip -O ~/moredoc_${VERSION}_linux_amd64.zip
 RUN cd ~/ && \ 
   mkdir $basedir && \
   unzip -n ~/moredoc_${VERSION}_linux_amd64.zip -d $basedir/
