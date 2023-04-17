@@ -55,4 +55,4 @@ jobs:
           context: docker
           file: docker/Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/moredoc:Linux_ce_v1.2.0
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/moredoc:Linux_ce_v1.2.1
