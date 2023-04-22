@@ -83,12 +83,7 @@ export default {
       this.activeTab = tab.name
     },
     pageChange(page) {
-      this.query.page = page
       this.$router.push({
-        name: 'user-id',
-        params: {
-          id: this.userId,
-        },
         query: {
           page,
         },

@@ -139,7 +139,7 @@ export default {
       loading: false,
       query: {
         page: parseInt(this.$route.query.page) || 1,
-        size: 15,
+        size: 20,
       },
       updateDocumentVisible: false,
       document: { id: 0 },

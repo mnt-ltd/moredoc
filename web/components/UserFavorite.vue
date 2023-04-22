@@ -74,6 +74,7 @@
       :small="isMobile"
       :total="total"
       class="mgt-20px"
+      @current-change="pageChange"
     >
     </el-pagination>
   </div>
@@ -103,7 +104,7 @@ export default {
       loading: false,
       query: {
         page: parseInt(this.$route.query.page) || 1,
-        size: 15,
+        size: 20,
       },
     }
   },
@@ -128,7 +129,7 @@ export default {
       this.loading = true
       const res = await listFavorite({
         page: this.query.page,
-        size: 15,
+        size: this.query.size,
         user_id: this.userId,
       })
       if (res.status === 200) {
@@ -159,6 +160,13 @@ export default {
           }
         })
         .catch(() => {})
+    },
+    pageChange(page) {
+      this.$router.push({
+        query: {
+          page,
+        },
+      })
     },
   },
 }
