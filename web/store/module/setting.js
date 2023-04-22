@@ -6,6 +6,7 @@ export const setting = {
       system: {},
       footer: {},
       security: {},
+      display: {},
     },
   },
   mutations: {

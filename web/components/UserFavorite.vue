@@ -44,7 +44,12 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="70" fixed="right">
+        <el-table-column
+          label="操作"
+          width="70"
+          fixed="right"
+          v-if="userId === user.id"
+        >
           <template slot-scope="scope">
             <el-tooltip content="移除收藏" placement="top">
               <el-button
@@ -113,6 +118,7 @@ export default {
     },
   },
   computed: {
+    ...mapGetters('user', ['user']),
     ...mapGetters('device', ['isMobile']),
   },
   methods: {
