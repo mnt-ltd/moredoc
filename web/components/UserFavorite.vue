@@ -1,68 +1,66 @@
 <template>
   <div class="com-user-favorite">
-    <el-card shadow="never">
-      <el-table v-loading="loading" :data="favorites" style="width: 100%">
-        <el-table-column prop="title" label="文档" min-width="300" fixed="left">
-          <template slot-scope="scope">
-            <nuxt-link
-              target="_blank"
-              :to="{
-                name: 'document-id',
-                params: { id: scope.row.document_id },
-              }"
-              class="el-link el-link--default doc-title"
+    <el-table v-loading="loading" :data="favorites" style="width: 100%">
+      <el-table-column prop="title" label="文档" min-width="300" fixed="left">
+        <template slot-scope="scope">
+          <nuxt-link
+            target="_blank"
+            :to="{
+              name: 'document-id',
+              params: { id: scope.row.document_id },
+            }"
+            class="el-link el-link--default doc-title"
+          >
+            <img :src="`/static/images/${scope.row.icon}_24.png`" alt="" />
+            {{ scope.row.title }}
+          </nuxt-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="score" label="评分" width="110">
+        <template slot-scope="scope">
+          <el-rate
+            :value="scope.row.score || 0.0"
+            disabled
+            score-template="{value}"
+          ></el-rate>
+        </template>
+      </el-table-column>
+      <el-table-column prop="page" label="页数" width="70">
+        <template slot-scope="scope">{{ scope.row.pages || '-' }}</template>
+      </el-table-column>
+      <el-table-column prop="size" label="大小" width="100">
+        <template slot-scope="scope">{{
+          formatBytes(scope.row.size)
+        }}</template>
+      </el-table-column>
+      <el-table-column prop="created_at" label="收藏时间" width="160">
+        <template slot-scope="scope">
+          <el-tooltip
+            :content="formatDatetime(scope.row.created_at)"
+            placement="top"
+          >
+            <span>{{ formatRelativeTime(scope.row.created_at) }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="操作"
+        width="70"
+        fixed="right"
+        v-if="userId === user.id"
+      >
+        <template slot-scope="scope">
+          <el-tooltip content="移除收藏" placement="top">
+            <el-button
+              type="text"
+              icon="el-icon-delete"
+              @click="removeFavorite(scope.row)"
+              >移除</el-button
             >
-              <img :src="`/static/images/${scope.row.icon}_24.png`" alt="" />
-              {{ scope.row.title }}
-            </nuxt-link>
-          </template>
-        </el-table-column>
-        <el-table-column prop="score" label="评分" width="110">
-          <template slot-scope="scope">
-            <el-rate
-              :value="scope.row.score || 0.0"
-              disabled
-              score-template="{value}"
-            ></el-rate>
-          </template>
-        </el-table-column>
-        <el-table-column prop="page" label="页数" width="70">
-          <template slot-scope="scope">{{ scope.row.pages || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="size" label="大小" width="100">
-          <template slot-scope="scope">{{
-            formatBytes(scope.row.size)
-          }}</template>
-        </el-table-column>
-        <el-table-column prop="created_at" label="收藏时间" width="160">
-          <template slot-scope="scope">
-            <el-tooltip
-              :content="formatDatetime(scope.row.created_at)"
-              placement="top"
-            >
-              <span>{{ formatRelativeTime(scope.row.created_at) }}</span>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="操作"
-          width="70"
-          fixed="right"
-          v-if="userId === user.id"
-        >
-          <template slot-scope="scope">
-            <el-tooltip content="移除收藏" placement="top">
-              <el-button
-                type="text"
-                icon="el-icon-delete"
-                @click="removeFavorite(scope.row)"
-                >移除</el-button
-              >
-            </el-tooltip>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+    </el-table>
     <el-pagination
       v-if="total > 0"
       :current-page="query.page"
@@ -75,6 +73,7 @@
       :pager-count="isMobile ? 5 : 7"
       :small="isMobile"
       :total="total"
+      class="mgt-20px"
     >
     </el-pagination>
   </div>
@@ -167,35 +166,6 @@ export default {
 
 <style lang="scss">
 .com-user-favorite {
-  .el-card {
-    .el-card__header {
-      padding-left: 0;
-      font-weight: 400;
-    }
-    .el-card__body {
-      padding: 15px 0 20px 0;
-    }
-  }
-  .float-right {
-    position: relative;
-    top: -20px;
-  }
-  .el-table {
-    margin-top: -1px;
-  }
-  .el-tabs__header {
-    margin-bottom: 0;
-  }
-  .el-tabs__nav-wrap::after {
-    background-color: transparent;
-  }
-  .el-tabs__item {
-    height: 60px;
-    line-height: 60px;
-  }
-  .el-tabs__item.is-active {
-    border-top: 0 !important;
-  }
   .doc-title {
     display: block;
     white-space: nowrap;

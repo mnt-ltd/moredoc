@@ -1,29 +1,27 @@
 <template>
   <div class="com-user-dynamic">
-    <el-card shadow="never">
-      <el-table v-loading="loading" :data="dynamics" style="width: 100%">
-        <el-table-column
-          prop="created_at"
-          label="时间"
-          :width="isMobile ? 90 : 160"
-        >
-          <template slot-scope="scope">
-            <el-tooltip
-              :content="formatDatetime(scope.row.created_at)"
-              placement="top"
-            >
-              <span>{{ formatRelativeTime(scope.row.created_at) }}</span>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column prop="title" label="内容">
-          <template slot-scope="scope">
-            <!-- eslint-disable-next-line vue/no-v-html -->
-            <span v-html="scope.row.content"></span>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+    <el-table v-loading="loading" :data="dynamics" style="width: 100%">
+      <el-table-column
+        prop="created_at"
+        label="时间"
+        :width="isMobile ? 90 : 160"
+      >
+        <template slot-scope="scope">
+          <el-tooltip
+            :content="formatDatetime(scope.row.created_at)"
+            placement="top"
+          >
+            <span>{{ formatRelativeTime(scope.row.created_at) }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column prop="title" label="内容">
+        <template slot-scope="scope">
+          <!-- eslint-disable-next-line vue/no-v-html -->
+          <span v-html="scope.row.content"></span>
+        </template>
+      </el-table-column>
+    </el-table>
     <el-pagination
       v-if="total > 0"
       :current-page="query.page"
@@ -37,6 +35,7 @@
       :small="isMobile"
       :total="total"
       @current-change="pageChange"
+      class="mgt-20px"
     >
     </el-pagination>
   </div>
@@ -111,29 +110,6 @@ export default {
 
 <style lang="scss">
 .com-user-dynamic {
-  .el-card {
-    .el-card__header {
-      padding-left: 0;
-      font-weight: 400;
-    }
-    .el-card__body {
-      padding: 18px 0 20px;
-    }
-  }
-
-  .el-tabs__header {
-    margin-bottom: 0;
-  }
-  .el-tabs__nav-wrap::after {
-    background-color: transparent;
-  }
-  .el-tabs__item {
-    height: 60px;
-    line-height: 60px;
-  }
-  .el-tabs__item.is-active {
-    border-top: 0 !important;
-  }
   .doc-title {
     display: block;
     white-space: nowrap;

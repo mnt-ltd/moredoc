@@ -83,11 +83,12 @@
                 <el-dropdown-item command="me"
                   ><i class="fa fa-user-o"></i> 个人中心</el-dropdown-item
                 >
-                <el-dropdown-item command="profile"
+                <!-- <el-dropdown-item command="profile"
                   ><i class="fa fa-edit"></i> 个人资料</el-dropdown-item
-                >
+                > -->
                 <el-dropdown-item command="upload"
-                  ><i class="fa fa-cloud-upload"></i>上传文档</el-dropdown-item
+                  ><i class="el-icon-upload2 dropdown-upload"></i
+                  >上传文档</el-dropdown-item
                 >
                 <el-dropdown-item v-if="allowPages.length > 0" command="admin">
                   <i class="el-icon-box"></i> 管理后台</el-dropdown-item
@@ -252,13 +253,6 @@
         </div>
       </div>
     </el-footer>
-    <el-dialog
-      title="个人资料"
-      :visible.sync="userinfoDialogVisible"
-      :width="isMobile ? '95%' : '640px'"
-    >
-      <form-userinfo v-if="userinfoDialogVisible" />
-    </el-dialog>
     <el-drawer
       :visible.sync="menuDrawerVisible"
       size="60%"
@@ -329,16 +323,8 @@
             </div>
           </li>
           <li>
-            <div
-              class="el-link el-link--default"
-              @click="userinfoDialogVisible = !userinfoDialogVisible"
-            >
-              <i class="fa fa-edit"></i> &nbsp;个人资料
-            </div>
-          </li>
-          <li>
             <div @click="goToLink(`/upload`)" class="el-link el-link--default">
-              <i class="fa fa-cloud-upload"></i> &nbsp;上传文档
+              <i class="el-icon-upload2"></i> 上传文档
             </div>
           </li>
           <li>
@@ -391,7 +377,6 @@ export default {
       search: {
         wd: '',
       },
-      userinfoDialogVisible: false,
       friendlinks: [],
       timeouter: null,
       currentYear: new Date().getFullYear(),
@@ -519,9 +504,6 @@ export default {
           break
         case 'me':
           this.$router.push(`/me`)
-          break
-        case 'profile':
-          this.userinfoDialogVisible = true
           break
         case 'admin':
           this.$router.push('/admin')
@@ -712,6 +694,10 @@ export default {
     }
   }
 }
+.dropdown-upload {
+  font-size: 17px;
+  margin-left: -2px;
+}
 .page {
   width: $default-width;
   min-width: $min-width !important;
@@ -784,6 +770,9 @@ export default {
         }
         & > li {
           margin: 5px 0;
+        }
+        .el-icon-upload2 {
+          font-size: 17px;
         }
       }
       .el-collapse {

@@ -67,7 +67,7 @@ export default {
   },
   head() {
     return {
-      title: `[个人主页]${this.user.username} - ${this.settings.system.sitename}`,
+      title: `[个人主页] ${this.user.username} - ${this.settings.system.sitename}`,
       meta: [
         {
           hid: 'keywords',
@@ -118,6 +118,9 @@ export default {
   .user-tabs {
     & > .el-tabs__content {
       min-height: calc(100vh - 280px);
+    }
+    .el-tabs__header {
+      margin-bottom: 20px;
     }
   }
 }

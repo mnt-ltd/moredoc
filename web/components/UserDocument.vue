@@ -1,92 +1,88 @@
 <template>
   <div class="com-user-document">
-    <el-card shadow="never">
-      <el-table v-loading="loading" :data="docs" style="width: 100%">
-        <el-table-column prop="title" label="名称" min-width="300">
-          <template slot-scope="scope">
-            <nuxt-link
-              target="_blank"
-              :to="{
-                name: 'document-id',
-                params: { id: scope.row.id },
-              }"
-              class="el-link el-link--default doc-title"
-            >
-              <img :src="`/static/images/${scope.row.icon}_24.png`" alt="" />
-              {{ scope.row.title }}
-            </nuxt-link>
-          </template>
-        </el-table-column>
-        <el-table-column prop="score" label="评分" width="110">
-          <template slot-scope="scope">
-            <el-rate
-              :value="scope.row.score || 0.0"
-              disabled
-              score-template="{value}"
-            ></el-rate>
-          </template>
-        </el-table-column>
-        <el-table-column prop="view_count" label="浏览" width="70">
-          <template slot-scope="scope">{{
-            scope.row.view_count || 0
-          }}</template>
-        </el-table-column>
-        <el-table-column prop="download_count" label="下载" width="70">
-          <template slot-scope="scope">{{
-            scope.row.download_count || 0
-          }}</template>
-        </el-table-column>
-        <el-table-column prop="favorite_count" label="收藏" width="70">
-          <template slot-scope="scope">{{
-            scope.row.favorite_count || 0
-          }}</template>
-        </el-table-column>
-        <el-table-column prop="page" label="页数" width="70">
-          <template slot-scope="scope">{{ scope.row.pages || '-' }}</template>
-        </el-table-column>
-        <el-table-column prop="page" label="价格" width="70">
-          <template slot-scope="scope">{{ scope.row.price || '0' }}</template>
-        </el-table-column>
-        <el-table-column prop="size" label="大小" width="100">
-          <template slot-scope="scope">{{
-            formatBytes(scope.row.size)
-          }}</template>
-        </el-table-column>
-        <el-table-column prop="created_at" label="上传" width="100">
-          <template slot-scope="scope">
-            <el-tooltip
-              :content="formatDatetime(scope.row.created_at)"
-              placement="top"
-            >
-              <span>{{ formatRelativeTime(scope.row.created_at) }}</span>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column
-          v-if="userId === user.id"
-          label="操作"
-          width="70"
-          fixed="right"
-        >
-          <template slot-scope="scope">
-            <el-tooltip content="编辑文档" placement="top">
-              <el-button
-                type="text"
-                @click="updateDocument(scope.row)"
-                icon="el-icon-edit"
-              ></el-button>
-            </el-tooltip>
-            <el-tooltip content="删除文档" placement="top">
-              <el-button
-                type="text"
-                icon="el-icon-delete"
-                @click="deleteDocument(scope.row)"
-              ></el-button>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-card>
+    <el-table v-loading="loading" :data="docs" style="width: 100%">
+      <el-table-column prop="title" label="名称" min-width="300">
+        <template slot-scope="scope">
+          <nuxt-link
+            target="_blank"
+            :to="{
+              name: 'document-id',
+              params: { id: scope.row.id },
+            }"
+            class="el-link el-link--default doc-title"
+          >
+            <img :src="`/static/images/${scope.row.icon}_24.png`" alt="" />
+            {{ scope.row.title }}
+          </nuxt-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="score" label="评分" width="110">
+        <template slot-scope="scope">
+          <el-rate
+            :value="scope.row.score || 0.0"
+            disabled
+            score-template="{value}"
+          ></el-rate>
+        </template>
+      </el-table-column>
+      <el-table-column prop="view_count" label="浏览" width="70">
+        <template slot-scope="scope">{{ scope.row.view_count || 0 }}</template>
+      </el-table-column>
+      <el-table-column prop="download_count" label="下载" width="70">
+        <template slot-scope="scope">{{
+          scope.row.download_count || 0
+        }}</template>
+      </el-table-column>
+      <el-table-column prop="favorite_count" label="收藏" width="70">
+        <template slot-scope="scope">{{
+          scope.row.favorite_count || 0
+        }}</template>
+      </el-table-column>
+      <el-table-column prop="page" label="页数" width="70">
+        <template slot-scope="scope">{{ scope.row.pages || '-' }}</template>
+      </el-table-column>
+      <el-table-column prop="page" label="价格" width="70">
+        <template slot-scope="scope">{{ scope.row.price || '0' }}</template>
+      </el-table-column>
+      <el-table-column prop="size" label="大小" width="100">
+        <template slot-scope="scope">{{
+          formatBytes(scope.row.size)
+        }}</template>
+      </el-table-column>
+      <el-table-column prop="created_at" label="上传" width="100">
+        <template slot-scope="scope">
+          <el-tooltip
+            :content="formatDatetime(scope.row.created_at)"
+            placement="top"
+          >
+            <span>{{ formatRelativeTime(scope.row.created_at) }}</span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column
+        v-if="userId === user.id"
+        label="操作"
+        width="70"
+        fixed="right"
+      >
+        <template slot-scope="scope">
+          <el-tooltip content="编辑文档" placement="top">
+            <el-button
+              type="text"
+              @click="updateDocument(scope.row)"
+              icon="el-icon-edit"
+            ></el-button>
+          </el-tooltip>
+          <el-tooltip content="删除文档" placement="top">
+            <el-button
+              type="text"
+              icon="el-icon-delete"
+              @click="deleteDocument(scope.row)"
+            ></el-button>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+    </el-table>
     <el-pagination
       v-if="total > 0"
       :current-page="query.page"
@@ -100,6 +96,7 @@
       :small="isMobile"
       :total="total"
       @current-change="pageChange"
+      class="mgt-20px"
     >
     </el-pagination>
     <el-dialog
@@ -233,33 +230,6 @@ export default {
 
 <style lang="scss">
 .com-user-document {
-  .el-card {
-    .el-card__header {
-      padding-left: 0;
-      font-weight: 400;
-    }
-    .el-card__body {
-      padding: 15px 0 20px 0;
-      a {
-        line-height: 40px;
-        display: inline-block;
-        max-width: 100%;
-      }
-    }
-  }
-  .el-tabs__header {
-    margin-bottom: 0;
-  }
-  .el-tabs__nav-wrap::after {
-    background-color: transparent;
-  }
-  .el-tabs__item {
-    height: 60px;
-    line-height: 60px;
-  }
-  .el-tabs__item.is-active {
-    border-top: 0 !important;
-  }
   .doc-title {
     display: block;
     white-space: nowrap;

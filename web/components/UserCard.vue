@@ -108,9 +108,9 @@ export default {
         margin-top: 5px;
       }
       .el-col {
-        border-right: 1px solid #ddd;
+        border-right: 1px solid #eee;
         &:first-child {
-          border-left: 1px solid #ddd;
+          border-left: 1px solid #eee;
         }
       }
     }

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <user-dynamic :user-id="user.id" />
+    <user-favorite :user-id="user.id" />
   </div>
 </template>
 <script>
@@ -10,9 +10,6 @@ export default {
       type: Object,
       default: () => ({}),
     },
-  },
-  data() {
-    return {}
   },
 }
 </script>
