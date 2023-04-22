@@ -1,7 +1,7 @@
 <template>
   <div class="com-user-card2">
     <el-row :gutter="20">
-      <el-col :span="16">
+      <el-col :span="16" :xs="24">
         <div class="user">
           <div class="user-card-avatar">
             <nuxt-link :to="'/user/' + user.id">
@@ -16,7 +16,7 @@
           </div>
         </div>
       </el-col>
-      <el-col :span="8">
+      <el-col :span="8" :xs="24">
         <div class="user-card-stat">
           <el-row class="help-block">
             <el-col :span="8">
@@ -130,6 +130,19 @@ export default {
   .signature {
     margin-top: 10px;
     font-size: 13px;
+  }
+}
+
+@media screen and (max-width: $mobile-width) {
+  .user-card-stat {
+    margin-top: 20px;
+    .help-block {
+      font-size: 12px;
+      .el-link {
+        font-size: 14px;
+        margin-top: 8px;
+      }
+    }
   }
 }
 </style>
