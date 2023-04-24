@@ -92,7 +92,7 @@ export default {
     async getDynamics() {
       if (this.loading) return
       this.loading = true
-      const res = await getDynamics({ ...this.query, id: this.userId })
+      const res = await getDynamics({ ...this.query })
       if (res.status === 200) {
         this.dynamics = res.data.dynamic || []
         this.total = res.data.total || 0
