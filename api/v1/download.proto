@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+// import "google/api/annotations.proto";
+// import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Download {
+  int64 id = 1;
+  int64 user_id = 2;
+  int64 document_id = 3;
+  string ip = 4;
+  bool is_pay = 5;
+  google.protobuf.Timestamp created_at = 6 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 7 [ (gogoproto.stdtime) = true ];
+  string title = 8;
+  string ext = 9;
+  int32 score = 10;
+  int64 size = 11;
+  int32 pages = 12;
+}
+
+// message DeleteDownloadRequest { repeated int64 id = 1; }
+
+// message GetDownloadRequest { int64 id = 1; }
+
+message ListDownloadRequest {
+  int64 page = 1;
+  int64 size = 2;
+  string wd = 3;
+  repeated string field = 4;
+  string order = 5;
+}
+
+message ListDownloadReply {
+  int64 total = 1;
+  repeated Download download = 2;
+}
+
+service DownloadAPI {
+  //   rpc CreateDownload(Download) returns (Download) {
+  //     option (google.api.http) = {
+  //       post : '/api/v1/download',
+  //       body : '*',
+  //     };
+  //   }
+
+  //   rpc UpdateDownload(Download) returns (google.protobuf.Empty) {
+  //     option (google.api.http) = {
+  //       put : '/api/v1/download',
+  //       body : '*',
+  //     };
+  //   }
+
+  //   rpc DeleteDownload(DeleteDownloadRequest) returns (google.protobuf.Empty)
+  //   {
+  //     option (google.api.http) = {
+  //       delete : '/api/v1/download',
+  //     };
+  //   }
+
+  //   rpc GetDownload(GetDownloadRequest) returns (Download) {
+  //     option (google.api.http) = {
+  //       get : '/api/v1/download',
+  //     };
+  //   }
+
+  //   rpc ListDownload(ListDownloadRequest) returns (ListDownloadReply) {
+  //     option (google.api.http) = {
+  //       get : '/api/v1/download/list',
+  //     };
+  //   }
+}

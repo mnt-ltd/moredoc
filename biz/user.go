@@ -724,3 +724,28 @@ func (s *UserAPIService) FindPasswordStepTwo(ctx context.Context, req *v1.FindPa
 
 	return &emptypb.Empty{}, nil
 }
+
+// 列表下载 ListUserDownload
+func (s *UserAPIService) ListUserDownload(ctx context.Context, req *v1.ListUserDownloadRequest) (res *v1.ListUserDownloadReply, err error) {
+	userClaims, err := checkGRPCLogin(s.dbModel, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 查询下载列表
+	opt := &model.OptionGetDownloadList{
+		QueryIn:   make(map[string][]interface{}),
+		Page:      int(req.Page),
+		Size:      int(req.Size_),
+		WithCount: true,
+	}
+
+	s.logger.Debug("ListUserDownload", zap.Any("opt", opt))
+
+	opt.QueryIn["user_id"] = []interface{}{userClaims.UserId}
+	downloads, total, err := s.dbModel.GetDownloadList(opt)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+	return &v1.ListUserDownloadReply{Download: downloads, Total: total}, nil
+}

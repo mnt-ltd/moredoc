@@ -2,7 +2,7 @@ package model
 
 import (
 	"fmt"
-	"strings"
+	v1 "moredoc/api/v1"
 	"time"
 
 	"go.uber.org/zap"
@@ -79,53 +79,32 @@ func (m *DBModel) GetDownload(id interface{}, fields ...string) (download Downlo
 }
 
 type OptionGetDownloadList struct {
-	Page         int
-	Size         int
-	WithCount    bool                      // 是否返回总数
-	Ids          []interface{}             // id列表
-	SelectFields []string                  // 查询字段
-	QueryRange   map[string][2]interface{} // map[field][]{min,max}
-	QueryIn      map[string][]interface{}  // map[field][]{value1,value2,...}
-	QueryLike    map[string][]interface{}  // map[field][]{value1,value2,...}
-	Sort         []string
+	Page      int
+	Size      int
+	WithCount bool                     // 是否返回总数
+	Ids       []interface{}            // id列表
+	QueryIn   map[string][]interface{} // map[field][]{value1,value2,...}
 }
 
 // GetDownloadList 获取Download列表
-func (m *DBModel) GetDownloadList(opt OptionGetDownloadList) (downloadList []Download, total int64, err error) {
+func (m *DBModel) GetDownloadList(opt *OptionGetDownloadList) (downloadList []*v1.Download, total int64, err error) {
+	var (
+		tableDownload = Download{}.TableName()
+		tableDocument = Document{}.TableName()
+	)
+
 	db := m.db.Model(&Download{})
-
-	for field, rangeValue := range opt.QueryRange {
-		fields := m.FilterValidFields(Download{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		if rangeValue[0] != nil {
-			db = db.Where(fmt.Sprintf("%s >= ?", field), rangeValue[0])
-		}
-		if rangeValue[1] != nil {
-			db = db.Where(fmt.Sprintf("%s <= ?", field), rangeValue[1])
-		}
-	}
-
-	for field, values := range opt.QueryIn {
-		fields := m.FilterValidFields(Download{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(fmt.Sprintf("%s in (?)", field), values)
-	}
-
-	for field, values := range opt.QueryLike {
-		fields := m.FilterValidFields(Download{}.TableName(), field)
-		if len(fields) == 0 {
-			continue
-		}
-		db = db.Where(strings.TrimSuffix(fmt.Sprintf(strings.Join(make([]string, len(values)+1), "%s like ? or"), field), "or"), values...)
-	}
-
+	db = m.generateQueryIn(db, tableDownload+" "+tableDownload /* 加上表别名，防止字段冲突 */, opt.QueryIn)
 	if len(opt.Ids) > 0 {
-		db = db.Where("id in (?)", opt.Ids)
+		db = db.Where(fmt.Sprintf("%s.id in (?)", tableDownload), opt.Ids)
 	}
+
+	db = db.Joins(
+		fmt.Sprintf(
+			"left join %s on %s.document_id = %s.id",
+			tableDocument, tableDownload, tableDocument,
+		)).
+		Where(fmt.Sprintf("%s.id > ?", tableDocument), 0)
 
 	if opt.WithCount {
 		err = db.Count(&total).Error
@@ -135,30 +114,9 @@ func (m *DBModel) GetDownloadList(opt OptionGetDownloadList) (downloadList []Dow
 		}
 	}
 
-	opt.SelectFields = m.FilterValidFields(Download{}.TableName(), opt.SelectFields...)
-	if len(opt.SelectFields) > 0 {
-		db = db.Select(opt.SelectFields)
-	}
-
-	if len(opt.Sort) > 0 {
-		var sorts []string
-		for _, sort := range opt.Sort {
-			slice := strings.Split(sort, " ")
-			if len(m.FilterValidFields(Download{}.TableName(), slice[0])) == 0 {
-				continue
-			}
-
-			if len(slice) == 2 {
-				sorts = append(sorts, fmt.Sprintf("%s %s", slice[0], slice[1]))
-			} else {
-				sorts = append(sorts, fmt.Sprintf("%s desc", slice[0]))
-			}
-		}
-		if len(sorts) > 0 {
-			db = db.Order(strings.Join(sorts, ","))
-		}
-	}
-
+	// size 为了避免字段冲突，加上了后缀_，即 size_
+	db = db.Select(fmt.Sprintf("%s.*, %s.*, %s.size as size_", tableDocument, tableDownload, tableDocument))
+	db = db.Order(fmt.Sprintf("%s.id desc", tableDownload))
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 
 	err = db.Find(&downloadList).Error

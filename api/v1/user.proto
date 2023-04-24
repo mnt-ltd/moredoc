@@ -6,6 +6,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "api/v1/permission.proto";
+import "api/v1/download.proto";
 
 package api.v1;
 
@@ -164,6 +165,16 @@ message Sign {
   int32 award = 6;                    // 签到积分奖励
 }
 
+message ListUserDownloadRequest {
+  int64 page = 1; // 页码
+  int64 size = 2; // 每页数量
+}
+
+message ListUserDownloadReply {
+  int64 total = 1;                // 总数
+  repeated Download download = 2; // 下载列表
+}
+
 service UserAPI {
   // 用户注册
   rpc Register(RegisterAndLoginRequest) returns (LoginReply) {
@@ -286,6 +297,14 @@ service UserAPI {
   rpc GetSignedToday(google.protobuf.Empty) returns (Sign) {
     option (google.api.http) = {
       get : '/api/v1/user/sign',
+    };
+  }
+
+  // 查询用户的下载记录
+  rpc ListUserDownload(ListUserDownloadRequest)
+      returns (ListUserDownloadReply) {
+    option (google.api.http) = {
+      get : '/api/v1/user/download',
     };
   }
 

@@ -103,6 +103,14 @@ export const getDynamics = (params) => {
   })
 }
 
+export const getUserDownloads = (params) => {
+  return service({
+    url: '/api/v1/user/download',
+    method: 'get',
+    params,
+  })
+}
+
 export const getUserPermissions = (params) => {
   return service({
     url: '/api/v1/user/permission',
