@@ -130,7 +130,7 @@ export default {
       const res = await listFavorite({
         page: this.query.page,
         size: this.query.size,
-        user_id: this.userId,
+        // user_id: this.userId,
       })
       if (res.status === 200) {
         let favorites = res.data.favorite || []

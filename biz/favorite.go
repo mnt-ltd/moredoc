@@ -87,16 +87,9 @@ func (s *FavoriteAPIService) GetFavorite(ctx context.Context, req *pb.GetFavorit
 
 // 获取用户自身的收藏列表
 func (s *FavoriteAPIService) ListFavorite(ctx context.Context, req *pb.ListFavoriteRequest) (*pb.ListFavoriteReply, error) {
-	documentStatus := []int{model.DocumentStatusConverted, model.DocumentStatusConverting, model.DocumentStatusPending, model.DocumentStatusFailed}
-	userId := req.UserId
 	userClaims, err := s.checkLogin(ctx)
-	if err == nil {
-		if req.UserId == userClaims.UserId {
-			documentStatus = []int{}
-		}
-		if userId <= 0 {
-			userId = userClaims.UserId
-		}
+	if err != nil {
+		return nil, err
 	}
 
 	favorites, total, err := s.dbModel.GetFavoriteList(&model.OptionGetFavoriteList{
@@ -104,9 +97,9 @@ func (s *FavoriteAPIService) ListFavorite(ctx context.Context, req *pb.ListFavor
 		Size:      int(req.Size_),
 		WithCount: true,
 		QueryIn: map[string][]interface{}{
-			"user_id": {userId},
+			"user_id": {userClaims.UserId},
 		},
-	}, documentStatus...)
+	})
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "获取失败:"+err.Error())
 	}
