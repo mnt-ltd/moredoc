@@ -74,6 +74,22 @@ buildwin:
 	rm -rf release/${VERSION}/windows/dist/_nuxt/icons
 	rm -rf release/${VERSION}/windows/dist/_nuxt/manifest*
 
+buildlinuxarm:
+	GOOS=linux GOARCH=arm go build -v -o release/${VERSION}/linux-arm/moredoc -ldflags ${LDFLAGS}
+	cp -r dist release/${VERSION}/linux-arm
+	cp -r dictionary release/${VERSION}/linux-arm
+	cp -r app.example.toml release/${VERSION}/linux-arm
+	rm -rf release/${VERSION}/linux-arm/dist/_nuxt/icons
+	rm -rf release/${VERSION}/linux-arm/dist/_nuxt/manifest*
+
+buildwinarm:
+	GOOS=windows GOARCH=arm go build -v -o release/${VERSION}/windows-arm/moredoc.exe -ldflags ${LDFLAGS}
+	cp -r dist release/${VERSION}/windows-arm
+	cp -r dictionary release/${VERSION}/windows-arm
+	cp -r app.example.toml release/${VERSION}/windows-arm
+	rm -rf release/${VERSION}/windows-arm/dist/_nuxt/icons
+	rm -rf release/${VERSION}/windows-arm/dist/_nuxt/manifest*
+
 # show help
 help:
 	@echo ''
