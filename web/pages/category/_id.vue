@@ -492,6 +492,9 @@ export default {
     }
     .item-row {
       padding-bottom: 7px;
+      .item-name {
+        width: 50px;
+      }
       a {
         margin-right: 10px;
         margin-bottom: 10px;
@@ -515,7 +518,7 @@ export default {
 </style>
 <style scoped lang="scss">
 @media screen and (max-width: $mobile-width) {
-  :deep .com-document-list {
+  :deep(.com-document-list) {
     // h3 {
     //   a {
     //     white-space: inherit;

@@ -229,19 +229,18 @@ export default {
       }
       this.tableListFields = [
         { prop: 'title', label: '名称', minWidth: 120, fixed: 'left' },
+        { prop: 'icon', label: '图标', width: 48, type: 'image' },
         {
           prop: 'enable',
           label: '是否启用',
           width: 80,
           type: 'bool',
-          fixed: 'left',
         },
         {
           prop: 'sort',
           label: '排序',
           width: 80,
           type: 'number',
-          fixed: 'left',
         },
         { prop: 'cover', label: '封面', width: 100, type: 'image' },
         { prop: 'doc_count', label: '文档数', width: 80, type: 'number' },

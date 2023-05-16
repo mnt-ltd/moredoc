@@ -26,6 +26,7 @@ message Category {
       [ (gogoproto.stdtime) = true ]; // 创建时间
   google.protobuf.Timestamp updated_at = 8
       [ (gogoproto.stdtime) = true ]; // 更新时间
+  string icon = 10;                   // 分类图标
 }
 
 // 分类列表请求

@@ -29,6 +29,23 @@
             category.parent_id === 0 ||
             category.parent_id.length === 0)
         "
+        label="分类图标(请上传长宽比为1:1的小图片)"
+        class="form-item-cover"
+      >
+        <UploadImage
+          :action="'/api/v1/upload/category'"
+          :image="category.icon"
+          :width="'48px'"
+          @success="successUploadIcon"
+        />
+      </el-form-item>
+      <el-form-item
+        v-if="
+          category.id > 0 &&
+          (!category.parent_id ||
+            category.parent_id === 0 ||
+            category.parent_id.length === 0)
+        "
         label="分类封面(一级分类才需要上传)"
         class="form-item-cover"
       >
@@ -106,7 +123,14 @@ export default {
     initCategory: {
       type: Object,
       default: () => {
-        return {}
+        return {
+          id: 0,
+          title: '',
+          sort: 0,
+          enable: false,
+          cover: '',
+          icon: '',
+        }
       },
     },
     trees: {
@@ -125,6 +149,7 @@ export default {
         sort: 0,
         enable: false,
         cover: '',
+        icon: '',
       },
     }
   },
@@ -133,7 +158,8 @@ export default {
       handler(val) {
         if (!val.sort) val.sort = 0
         if (!val.cover) val.cover = ''
-        this.category = val
+        if (!val.icon) val.icon = ''
+        this.category = { ...val }
       },
       immediate: true,
     },
@@ -200,6 +226,9 @@ export default {
     },
     successUpload(res) {
       this.category.cover = res.data.path
+    },
+    successUploadIcon(res) {
+      this.category.icon = res.data.path
     },
   },
 }

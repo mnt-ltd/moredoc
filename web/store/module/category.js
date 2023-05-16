@@ -25,7 +25,15 @@ export const category = {
   actions: {
     async getCategories({ commit }) {
       const res = await listCategory({
-        field: ['id', 'title', 'parent_id', 'cover', 'doc_count', 'enable'],
+        field: [
+          'id',
+          'title',
+          'parent_id',
+          'icon',
+          'cover',
+          'doc_count',
+          'enable',
+        ],
       })
       if (res.status === 200) {
         commit('setCategories', res.data.category || [])

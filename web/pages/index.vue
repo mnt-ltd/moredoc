@@ -233,6 +233,11 @@
           <el-col v-if="index < 4" :span="6">
             <el-card class="box-card" shadow="never">
               <div slot="header" class="clearfix">
+                <img
+                  :src="category.icon || '/static/images/logo-icon.png'"
+                  :alt="category.title"
+                  class="category-icon"
+                />
                 <strong>{{ category.title }}</strong>
               </div>
               <nuxt-link
@@ -501,6 +506,12 @@ export default {
 
   .categories {
     background-color: #fff;
+    .category-icon {
+      width: 22px;
+      height: 22px;
+      position: relative;
+      top: 5px;
+    }
     .el-row {
       margin: 0 auto !important;
       width: $default-width;
