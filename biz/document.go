@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"fmt"
+	"html"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -700,6 +701,12 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 	if err != nil {
 		return res, status.Errorf(codes.Internal, "创建下载失败：%s", err.Error())
 	}
+
+	s.dbModel.CreateDynamic(&model.Dynamic{
+		UserId:  userId,
+		Type:    model.DynamicTypeDownload,
+		Content: fmt.Sprintf(`下载了文档《<a href="/document/%d">%s</a>》`, doc.Id, html.EscapeString(doc.Title)),
+	})
 
 	link, err := s.generateDownloadURL(doc, cfg, attachment.Hash)
 	if err != nil {

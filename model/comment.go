@@ -4,6 +4,8 @@ import (
 	// "fmt"
 	// "strings"
 	"errors"
+	"fmt"
+	"html"
 	"strings"
 	"time"
 
@@ -36,6 +38,9 @@ func (Comment) TableName() string {
 
 // CreateComment 创建Comment
 func (m *DBModel) CreateComment(comment *Comment) (err error) {
+	doc := &Document{}
+	m.db.Where("id = ?", comment.DocumentId).Select("id", "title").Find(doc)
+
 	tx := m.db.Begin()
 	defer func() {
 		if err != nil {
@@ -65,6 +70,10 @@ func (m *DBModel) CreateComment(comment *Comment) (err error) {
 		return
 	}
 
+	dynamic := &Dynamic{
+		UserId: comment.UserId,
+		Type:   DynamicTypeComment,
+	}
 	// 更新上级评论的评论数
 	if comment.ParentId > 0 {
 		err = tx.Model(&Comment{}).Where("id = ?", comment.ParentId).Update("comment_count", gorm.Expr("comment_count + ?", 1)).Error
@@ -72,6 +81,15 @@ func (m *DBModel) CreateComment(comment *Comment) (err error) {
 			m.logger.Error("CreateComment", zap.Error(err))
 			return
 		}
+		dynamic.Content = fmt.Sprintf(`在文档《<a href="/document/%d">%s</a>》中回复了评论`, doc.Id, html.EscapeString(doc.Title))
+	} else {
+		dynamic.Content = fmt.Sprintf(`评论了文档《<a href="/document/%d">%s</a>》`, doc.Id, html.EscapeString(doc.Title))
+	}
+
+	// 增加评论动态
+	err = tx.Create(dynamic).Error
+	if err != nil {
+		m.logger.Error("CreateComment", zap.Error(err))
 	}
 
 	return
