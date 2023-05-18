@@ -28,14 +28,30 @@
                   ><i class="el-icon-s-home"></i> 首页</nuxt-link
                 >
               </el-breadcrumb-item>
-              <el-breadcrumb-item
-                v-for="breadcrumb in breadcrumbs"
-                :key="'bread-' + breadcrumb.id"
-              >
-                <nuxt-link :to="`/category/${breadcrumb.id}`">{{
-                  breadcrumb.title
-                }}</nuxt-link>
-              </el-breadcrumb-item>
+              <template v-if="breadcrumbs.length < 3">
+                <el-breadcrumb-item
+                  v-for="breadcrumb in breadcrumbs"
+                  :key="'bread-' + breadcrumb.id"
+                >
+                  <nuxt-link :to="`/category/${breadcrumb.id}`">{{
+                    breadcrumb.title
+                  }}</nuxt-link>
+                </el-breadcrumb-item>
+              </template>
+              <template v-else>
+                <el-breadcrumb-item>
+                  <nuxt-link :to="`/category/${breadcrumbs[0].id}`">{{
+                    breadcrumbs[0].title
+                  }}</nuxt-link>
+                </el-breadcrumb-item>
+                <el-breadcrumb-item>...</el-breadcrumb-item>
+                <el-breadcrumb-item>
+                  <nuxt-link
+                    :to="`/category/${breadcrumbs[breadcrumbs.length - 1].id}`"
+                    >{{ breadcrumbs[breadcrumbs.length - 1].title }}</nuxt-link
+                  >
+                </el-breadcrumb-item>
+              </template>
               <el-breadcrumb-item>文档阅览</el-breadcrumb-item>
             </el-breadcrumb>
             <div class="float-right doc-info">
@@ -295,17 +311,17 @@
                   @click="zoomIn"
                 ></el-button>
               </el-tooltip>
-              <el-tooltip content="上一页">
+              <el-tooltip content="上一页" class="hidden-xs-only">
                 <el-button
                   icon="el-icon-arrow-up"
                   :disabled="currentPage === 1"
                   @click="prevPage"
                 ></el-button>
               </el-tooltip>
-              <el-tooltip content="当前页数/总页数">
+              <el-tooltip content="当前页数/总页数" class="hidden-xs-only">
                 <el-button>{{ currentPage }}/{{ document.pages }}</el-button>
               </el-tooltip>
-              <el-tooltip content="下一页">
+              <el-tooltip content="下一页" class="hidden-xs-only">
                 <el-button
                   icon="el-icon-arrow-down"
                   :disabled="currentPage === document.preview"
@@ -322,7 +338,7 @@
             <el-button-group class="float-right">
               <el-button type="primary" icon="el-icon-coin" class="btn-coin"
                 >{{ document.price || 0
-                }}<span class="hidden-xs-only">
+                }}<span>
                   {{ settings.system.credit_name || '魔豆' }}</span
                 ></el-button
               >
@@ -331,7 +347,7 @@
                 icon="el-icon-download"
                 :loading="downloading"
                 @click="downloadDocument"
-                >下载<span class="hidden-xs-only"
+                >下载文档<span class="hidden-xs-only"
                   >({{ formatBytes(document.size) }})</span
                 >
               </el-button>
@@ -520,9 +536,28 @@ export default {
         })
       }
 
-      this.breadcrumbs = (doc.category_id || []).map((id) => {
-        return this.categoryMap[id]
+      let breadcrumbs = []
+      let tmpBreadcrumbs = (doc.category_id || []).map((id) => {
+        let breadcrumb = this.categoryMap[id]
+        if (!breadcrumb.parent_id) {
+          breadcrumbs.push(breadcrumb)
+        }
+        return breadcrumb
       })
+
+      let length= tmpBreadcrumbs.length
+      for (let j = 0; j < length; j++) {
+        for (let i = 0; i < tmpBreadcrumbs.length; i++) {
+          let breadcrumb = tmpBreadcrumbs[i]
+          if (breadcrumb.parent_id === breadcrumbs[breadcrumbs.length - 1].id) {
+            breadcrumbs.push(breadcrumb)
+            tmpBreadcrumbs.splice(i, 1)
+            break
+          }
+        }
+      }
+
+      this.breadcrumbs = breadcrumbs
 
       doc.icon = getIcon(doc.ext)
       this.pages = pages
@@ -889,6 +924,11 @@ export default {
     }
     .el-breadcrumb__inner {
       color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 60px;
+      display: inline-block;
     }
   }
   .doc-info {
@@ -1016,8 +1056,7 @@ export default {
   }
 
   .viewer-canvas > img {
-    // 调整到1.3被比较合适，这样可以在手机上看到更清晰的内容
-    transform: scale(1.3) !important;
+    transform: scale(1.2) !important;
   }
 
   .page-document {
@@ -1062,7 +1101,7 @@ export default {
         padding-left: 5px;
       }
       .el-card .el-button {
-        padding: 19px 10px;
+        padding: 19px 15px;
       }
     }
   }
