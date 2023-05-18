@@ -202,3 +202,32 @@ export function parseQueryBoolArray(query, keys) {
   })
   return result
 }
+
+// 是否需要登录。针对关闭站点访问、或登录访问限制
+export function requireLogin(settings, user, route, permissions = []) {
+  if (settings.security && settings.security.login_required && !user.id) {
+    // 未登录，且开启了登录访问限制
+    if (
+      !(
+        route.name === 'login' ||
+        route.name === 'register' ||
+        route.name === 'findpassword'
+      )
+    ) {
+      return true
+    }
+  }
+
+  if (settings.security && settings.security.is_close) {
+    // 1. 用户未登录，跳转到登录页面
+    if (user.id === 0 && route.name !== 'login') {
+      return true
+    }
+
+    // 用户已登录，如果不是管理员
+    if (user.id !== 0 && permissions.length === 0 && route.name !== 'login') {
+      return true
+    }
+  }
+  return false
+}

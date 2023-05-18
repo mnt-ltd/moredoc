@@ -545,7 +545,7 @@ export default {
         return breadcrumb
       })
 
-      let length= tmpBreadcrumbs.length
+      let length = tmpBreadcrumbs.length
       for (let j = 0; j < length; j++) {
         for (let i = 0; i < tmpBreadcrumbs.length; i++) {
           let breadcrumb = tmpBreadcrumbs[i]
@@ -927,7 +927,7 @@ export default {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: 60px;
+      max-width: 90px;
       display: inline-block;
     }
   }

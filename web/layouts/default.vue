@@ -1,5 +1,5 @@
 <template>
-  <el-container class="layout-default">
+  <el-container class="layout-default" v-loading="loading">
     <el-header v-if="$route.name !== 'search' || isMobile">
       <div>
         <el-menu
@@ -367,7 +367,7 @@ import { mapGetters, mapActions } from 'vuex'
 import UserAvatar from '~/components/UserAvatar.vue'
 import FormUserinfo from '~/components/FormUserinfo.vue'
 import { listFriendlink } from '~/api/friendlink'
-import { categoryToTrees } from '~/utils/utils'
+import { categoryToTrees, requireLogin } from '~/utils/utils'
 import { getSignedToday, signToday } from '~/api/user'
 export default {
   components: { UserAvatar, FormUserinfo },
@@ -384,6 +384,7 @@ export default {
       menuDrawerVisible: false,
       sign: { id: 0 },
       activeCollapse: 'categories',
+      loading: false,
     }
   },
   head() {
@@ -403,12 +404,13 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('user', ['user', 'token', 'allowPages']),
+    ...mapGetters('user', ['user', 'token', 'allowPages', 'permissions']),
     ...mapGetters('setting', ['settings']),
     ...mapGetters('category', ['categories']),
     ...mapGetters('device', ['isMobile']),
   },
   async created() {
+    this.loading = true
     const [res] = await Promise.all([
       listFriendlink({
         enable: true,
@@ -417,6 +419,7 @@ export default {
       this.getCategories(),
       this.getSettings(),
     ])
+
     if (res.status === 200) {
       this.friendlinks = res.data.friendlink
     }
@@ -424,6 +427,11 @@ export default {
       (item) => item.enable
     )
     this.loopUpdate()
+    this.loading = false
+    if (requireLogin(this.settings, this.user, this.$route, this.permissions)) {
+      this.$router.push('/login')
+      return
+    }
   },
   mounted() {
     this.handleResize()
