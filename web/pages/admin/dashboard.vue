@@ -264,7 +264,7 @@
             <li>
               Gitee：
               <a
-                href="https://git.mnt.ltd"
+                href="https://gitee.com/mnt-ltd/moredoc"
                 class="el-link el-link--primary"
                 target="_blank"
                 title="Gitee"
