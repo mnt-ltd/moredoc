@@ -127,6 +127,19 @@ export const user = {
       }
       return res
     },
+    refreshUser({ commit, state }) {
+      try {
+        const moredoc = JSON.parse(localStorage.getItem('moredoc'))
+        if (!moredoc.user.token || state.token !== moredoc.user.token) {
+          commit('setUser', moredoc.user.user || {})
+          commit('setToken', moredoc.user.token || '')
+          commit('setPermissions', moredoc.user.permissions || [])
+          commit('setAllowPages', moredoc.user.allowPages || [])
+        }
+      } catch (error) {
+        console.log(error)
+      }
+    },
   },
   getters: {
     user(state) {

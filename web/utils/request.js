@@ -32,9 +32,9 @@ service.interceptors.response.use(
     return response
   },
   (error) => {
-    // if (error.response.status === 401) {
-    //   store().commit('user/logout')
-    // }
+    if (error.response.status === 401) {
+      store().commit('user/logout')
+    }
     // let message = error.response.data.message || error.response.statusText
     // Message({
     //   showClose: true,
