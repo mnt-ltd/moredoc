@@ -498,7 +498,7 @@ export default {
   methods: {
     formatDatetime,
     formatBytes,
-    ...mapActions('user', ['getUser']),
+    ...mapActions('user', ['getUser', 'refreshUser']),
     async getDocument() {
       const res = await getDocument({
         id: this.documentId,
@@ -662,6 +662,8 @@ export default {
       this.$refs.commentList.getComments()
     },
     async downloadDocument() {
+      await this.refreshUser()
+
       this.downloading = true
       const res = await downloadDocument({
         id: this.documentId,

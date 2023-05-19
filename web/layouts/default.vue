@@ -437,6 +437,9 @@ export default {
     this.handleResize()
     window.addEventListener('resize', this.handleResize)
   },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.handleResize)
+  },
   methods: {
     ...mapActions('category', ['getCategories']),
     ...mapActions('setting', ['getSettings']),
