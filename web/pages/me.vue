@@ -1,7 +1,7 @@
 <template>
   <div class="page page-me">
     <el-row :gutter="20">
-      <el-col :span="6">
+      <el-col :span="6" class="part-left">
         <el-card shadow="never">
           <user-card :user="user" />
           <nuxt-link to="/upload">
@@ -9,10 +9,30 @@
               type="primary"
               icon="el-icon-upload2"
               class="btn-block mgt-20px"
+              v-if="!isMobile"
               >上传文档</el-button
             >
           </nuxt-link>
+          <el-tabs
+            v-if="isMobile"
+            v-model="defaultActive.value"
+            class="mgt-20px"
+            type="card"
+            @tab-click="tabClick"
+          >
+            <el-tab-pane
+              v-for="item in tabs"
+              :key="item.value"
+              :name="item.value"
+              :label="item.label"
+            >
+              <span slot="label">
+                <i :class="item.icon"></i> {{ item.label }}</span
+              >
+            </el-tab-pane>
+          </el-tabs>
           <el-menu
+            v-else
             class="mgt-20px"
             :router="true"
             :default-active="defaultActive.value"
@@ -28,7 +48,7 @@
           </el-menu>
         </el-card>
       </el-col>
-      <el-col :span="18">
+      <el-col :span="18" class="part-right">
         <el-card shadow="never">
           <div slot="header">{{ defaultActive.label }}</div>
           <div class="nuxt-child">
@@ -46,6 +66,7 @@ export default {
   computed: {
     ...mapGetters('user', ['user']),
     ...mapGetters('setting', ['settings']),
+    ...mapGetters('device', ['isMobile']),
   },
   data() {
     return {
@@ -101,6 +122,15 @@ export default {
       immediate: true,
     },
   },
+  methods: {
+    tabClick(tab) {
+      this.defaultActive = {
+        value: tab.name,
+        label: tab.label,
+      }
+      this.$router.push(tab.name)
+    },
+  },
 }
 </script>
 <style lang="scss">
@@ -117,6 +147,18 @@ export default {
   }
   .nuxt-child {
     min-height: calc(100vh - 190px);
+  }
+}
+
+@media screen and (max-width: $mobile-width) {
+  .page-me {
+    .part-left {
+      width: 100%;
+    }
+    .part-right {
+      margin-top: -20px;
+      width: 100%;
+    }
   }
 }
 </style>

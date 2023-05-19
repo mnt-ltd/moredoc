@@ -1,7 +1,7 @@
 <template>
   <div class="com-user-download">
     <el-table v-loading="loading" :data="downloads" style="width: 100%">
-      <el-table-column prop="title" label="文档" min-width="300" fixed="left">
+      <el-table-column prop="title" label="文档" min-width="200">
         <template slot-scope="scope">
           <nuxt-link
             target="_blank"
