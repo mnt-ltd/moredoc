@@ -860,8 +860,8 @@ export default {
         const score = res.data.score / 100 || null
         this.score = score
         if (score) this.disabledScore = true
-      } else {
-        this.$message.error(res.data.message)
+        // } else {
+        //   this.$message.error(res.data.message)
       }
     },
     genQrcode() {

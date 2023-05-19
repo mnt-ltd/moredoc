@@ -347,6 +347,7 @@ export default {
       loading: false,
       gauges: [],
       devices: [],
+      timeouter: null,
     }
   },
   computed: {
@@ -358,11 +359,15 @@ export default {
     this.initDevice()
     Promise.all([this.getStats(), this.getEnvs(), this.loopGetDevice()])
   },
+  beforeDestroy() {
+    clearTimeout(this.timeouter)
+  },
   methods: {
     formatDatetime,
     loopGetDevice() {
       this.getDevice()
-      setTimeout(() => {
+      clearTimeout(this.timeouter)
+      this.timeouter = setTimeout(() => {
         this.loopGetDevice()
       }, 5000)
     },

@@ -30,7 +30,7 @@ export const user = {
       state.user = user
     },
     mergeUser(state, user) {
-      state.user = Object.assign(state.user, user)
+      state.user = { ...state.user, ...user }
     },
     setToken(state, token) {
       state.token = token
@@ -39,6 +39,7 @@ export const user = {
       state.user = {}
       state.token = ''
       state.permissions = []
+      state.allowPages = []
       localStorage.clear()
     },
     setPermissions(state, permissions) {
