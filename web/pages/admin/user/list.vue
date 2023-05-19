@@ -18,11 +18,11 @@
         :loading="loading"
         :fields="listFields"
         :show-actions="true"
-        :show-view="true"
+        :show-view="false"
         :show-edit="true"
         :show-delete="true"
         :show-select="true"
-        :actions-min-width="140"
+        :actions-min-width="100"
         @editRow="editRow"
         @viewRow="viewRow"
         @deleteRow="deleteRow"
@@ -86,7 +86,7 @@
 import { deleteUser, getUser, listUser } from '~/api/user'
 import { listGroup } from '~/api/group'
 import { userStatusOptions } from '~/utils/enum'
-import { parseQueryIntArray } from '~/utils/utils'
+import { parseQueryIntArray, genLinkHTML } from '~/utils/utils'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormUser from '~/components/FormUser.vue'
@@ -107,6 +107,7 @@ export default {
       },
       formUserVisible: false,
       formUserProfileVisible: false,
+      formRechargeVisible: false,
       groups: [],
       users: [],
       user: { id: 0 },
@@ -153,7 +154,11 @@ export default {
       this.loading = true
       const res = await listUser(this.search)
       if (res.status === 200) {
-        this.users = res.data.user
+        let users = res.data.user || []
+        users.map((item) => {
+          item.username_html = genLinkHTML(item.username, `/user/${item.id}`)
+        })
+        this.users = users
         this.total = res.data.total
       } else {
         this.$message.error(res.data.message)
@@ -307,8 +312,15 @@ export default {
           type: 'avatar',
           fixed: 'left',
         },
-        { prop: 'username', label: '用户名', width: 150, fixed: 'left' },
+        {
+          prop: 'username_html',
+          label: '用户名',
+          width: 150,
+          fixed: 'left',
+          type: 'html',
+        },
         { prop: 'doc_count', label: '文档', width: 80, type: 'number' },
+        { prop: 'credit_count', label: '积分', width: 100, type: 'number' },
         { prop: 'follow_count', label: '关注', width: 80, type: 'number' },
         { prop: 'fans_count', label: '粉丝', width: 80, type: 'number' },
         { prop: 'favorite_count', label: '收藏', width: 80, type: 'number' },

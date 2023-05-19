@@ -231,3 +231,11 @@ export function requireLogin(settings, user, route, permissions = []) {
   }
   return false
 }
+
+export function genLinkHTML(title, href) {
+  return `<a href="${href}" target="_blank" class="el-link el-link--primary">${(
+    title || '-'
+  )
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')}</a>`
+}

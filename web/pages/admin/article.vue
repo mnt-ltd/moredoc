@@ -28,7 +28,7 @@
         @deleteRow="deleteRow"
       >
         <!-- 查看文章 -->
-        <template slot="actions" slot-scope="scope">
+        <!-- <template slot="actions" slot-scope="scope">
           <nuxt-link
             target="_blank"
             :to="{
@@ -40,7 +40,7 @@
               >查看</el-button
             >
           </nuxt-link>
-        </template>
+        </template> -->
       </TableList>
     </el-card>
     <el-card shadow="never" class="mgt-20px">
@@ -78,6 +78,7 @@ import { listArticle, deleteArticle, getArticle } from '~/api/article'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormArticle from '~/components/FormArticle.vue'
+import { genLinkHTML } from '~/utils/utils'
 import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormArticle },
@@ -139,7 +140,14 @@ export default {
       this.loading = true
       const res = await listArticle(this.search)
       if (res.status === 200) {
-        this.articles = res.data.article
+        let articles = res.data.article || []
+        articles.map((item) => {
+          item.title_html = genLinkHTML(
+            item.title,
+            `/article/${item.identifier}`
+          )
+        })
+        this.articles = articles
         this.total = res.data.total
       } else {
         this.$message.error(res.data.message)
@@ -250,7 +258,13 @@ export default {
     initTableListFields() {
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
-        { prop: 'title', label: '标题', minWidth: 150, fixed: 'left' },
+        {
+          prop: 'title_html',
+          label: '标题',
+          minWidth: 150,
+          fixed: 'left',
+          type: 'html',
+        },
         { prop: 'identifier', label: '标识', width: 200 },
         { prop: 'view_count', label: '浏览', width: 80, type: 'number' },
         { prop: 'keywords', label: '关键字', width: 200 },

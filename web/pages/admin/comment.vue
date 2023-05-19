@@ -84,7 +84,7 @@ import {
 } from '~/api/comment'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
-import { parseQueryIntArray } from '~/utils/utils'
+import { parseQueryIntArray, genLinkHTML } from '~/utils/utils'
 export default {
   components: { TableList, FormSearch },
   layout: 'admin',
@@ -143,6 +143,14 @@ export default {
       if (res.status === 200) {
         this.comments = (res.data.comment || []).map((item) => {
           item.username = item.user.username
+          item.document_title_html = genLinkHTML(
+            item.document_title,
+            `/document/${item.document_id}`
+          )
+          item.username_html = genLinkHTML(
+            item.username,
+            `/user/${item.user_id}`
+          )
           return item
         })
         this.total = res.data.total
@@ -280,9 +288,14 @@ export default {
             0: { label: '待审核', value: 0 },
           },
         },
-        { prop: 'document_title', label: '文档', minWidth: 150 },
+        {
+          prop: 'document_title_html',
+          label: '文档',
+          minWidth: 150,
+          type: 'html',
+        },
         { prop: 'content', label: '评论内容', minWidth: 150 },
-        { prop: 'username', label: '评论人', minWidth: 150 },
+        { prop: 'username_html', label: '评论人', minWidth: 150, type: 'html' },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
       ]

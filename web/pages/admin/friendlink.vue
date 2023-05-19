@@ -64,7 +64,7 @@ import {
   deleteFriendlink,
   getFriendlink,
 } from '~/api/friendlink'
-import { parseQueryIntArray } from '~/utils/utils'
+import { genLinkHTML, parseQueryIntArray } from '~/utils/utils'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormFriendlink from '~/components/FormFriendlink.vue'
@@ -123,7 +123,11 @@ export default {
       this.loading = true
       const res = await listFriendlink(this.search)
       if (res.status === 200) {
-        this.friendlinks = res.data.friendlink
+        let friendlinks = res.data.friendlink || []
+        friendlinks.map((item) => {
+          item.title_html = genLinkHTML(item.title, item.link)
+        })
+        this.friendlinks = friendlinks
         this.total = res.data.total
       } else {
         this.$message.error(res.data.message)
@@ -245,7 +249,13 @@ export default {
           type: 'bool',
           fixed: 'left',
         },
-        { prop: 'title', label: '名称', minWidth: 150, fixed: 'left' },
+        {
+          prop: 'title_html',
+          label: '名称',
+          minWidth: 150,
+          fixed: 'left',
+          type: 'html',
+        },
         { prop: 'link', label: '链接', minWidth: 250 },
         { prop: 'sort', label: '排序', width: 80, type: 'number' },
         { prop: 'description', label: '描述', minWidth: 250 },

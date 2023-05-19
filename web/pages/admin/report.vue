@@ -62,7 +62,7 @@
 <script>
 import { listReport, deleteReport } from '~/api/report'
 import { reportOptions } from '~/utils/enum'
-import { parseQueryIntArray } from '~/utils/utils'
+import { parseQueryIntArray, genLinkHTML } from '~/utils/utils'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormReport from '~/components/FormReport.vue'
@@ -121,7 +121,18 @@ export default {
       this.loading = true
       const res = await listReport(this.search)
       if (res.status === 200) {
-        this.reports = res.data.report
+        let reports = res.data.report || []
+        reports.map((item) => {
+          item.username_html = genLinkHTML(
+            item.username,
+            `/user/${item.user_id}`
+          )
+          item.document_title_html = genLinkHTML(
+            item.document_title,
+            `/document/${item.document_id}`
+          )
+        })
+        this.reports = reports
         this.total = res.data.total
       } else {
         this.$message.error(res.data.message)
@@ -243,7 +254,13 @@ export default {
           type: 'bool',
           fixed: 'left',
         },
-        { prop: 'document_title', label: '名称', minWidth: 150, fixed: 'left' },
+        {
+          prop: 'document_title_html',
+          label: '文档',
+          minWidth: 150,
+          fixed: 'left',
+          type: 'html',
+        },
         {
           prop: 'reason',
           label: '举报原因',
@@ -252,9 +269,10 @@ export default {
           enum: reasonEnum,
         },
         {
-          prop: 'username',
+          prop: 'username_html',
           label: '举报人',
           width: 100,
+          type: 'html',
         },
         { prop: 'remark', label: '处理描述', minWidth: 150 },
         { prop: 'created_at', label: '举报时间', width: 160, type: 'datetime' },

@@ -57,7 +57,7 @@
         :show-edit="true"
         :show-delete="true"
         :show-select="true"
-        :actions-min-width="160"
+        :actions-min-width="100"
         @editRow="editRow"
         @viewRow="viewRow"
         @selectRow="selectRow"
@@ -90,11 +90,11 @@
             @click="recommendDocument(scope.row)"
             >推荐</el-button
           >
-          <nuxt-link :to="`/document/${scope.row.id}`" target="_blank"
+          <!-- <nuxt-link :to="`/document/${scope.row.id}`" target="_blank"
             ><el-button type="text" icon="el-icon-view" size="small"
               >查看</el-button
             ></nuxt-link
-          >
+          > -->
         </template>
       </TableList>
     </el-card>
@@ -157,6 +157,7 @@ import {
   categoryToTrees,
   parseQueryIntArray,
   parseQueryBoolArray,
+  genLinkHTML,
 } from '~/utils/utils'
 import { documentStatusOptions, boolOptions } from '~/utils/enum'
 import FormUpdateDocument from '~/components/FormUpdateDocument.vue'
@@ -261,6 +262,11 @@ export default {
               this.categoryMap[id].title
             )
           })
+          item.title_html = genLinkHTML(item.title, `/document/${item.id}`)
+          item.username_html = genLinkHTML(
+            item.username,
+            `/user/${item.user_id}`
+          )
         })
 
         this.documents = documents
@@ -426,9 +432,15 @@ export default {
       })
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
-        { prop: 'title', label: '名称', minWidth: 200, fixed: 'left' },
+        {
+          prop: 'title_html',
+          label: '文档',
+          minWidth: 200,
+          fixed: 'left',
+          type: 'html',
+        },
         { prop: 'ext', label: '扩展名', width: 70 },
-        { prop: 'username', label: '上传者', width: 120 },
+        { prop: 'username_html', label: '上传者', width: 120, type: 'html' },
         {
           prop: 'status',
           label: '状态',

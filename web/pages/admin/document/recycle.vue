@@ -91,7 +91,7 @@ import {
 } from '~/api/document'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
-import { categoryToTrees, parseQueryIntArray } from '~/utils/utils'
+import { categoryToTrees, parseQueryIntArray, genLinkHTML } from '~/utils/utils'
 import { documentStatusOptions } from '~/utils/enum'
 import { mapGetters } from 'vuex'
 export default {
@@ -186,6 +186,11 @@ export default {
               this.categoryMap[id].title || '-' // 有可能分类已经被删除
             )
           })
+          item.title_html = genLinkHTML(item.title, `/document/${item.id}`)
+          item.username_html = genLinkHTML(
+            item.username,
+            `/user/${item.user_id}`
+          )
         })
 
         this.documents = documents
@@ -347,8 +352,14 @@ export default {
       })
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
-        { prop: 'title', label: '名称', minWidth: 200, fixed: 'left' },
-        { prop: 'username', label: '上传者', width: 120 },
+        {
+          prop: 'title_html',
+          label: '名称',
+          minWidth: 200,
+          fixed: 'left',
+          type: 'html',
+        },
+        { prop: 'username_html', label: '上传者', width: 120, type: 'html' },
         { prop: 'deleted_username', label: '删除者', width: 120 },
         { prop: 'deleted_at', label: '删除时间', width: 160, type: 'datetime' },
         {
