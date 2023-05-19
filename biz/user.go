@@ -476,7 +476,7 @@ func (s *UserAPIService) GetUserCaptcha(ctx context.Context, req *pb.GetUserCapt
 func (s *UserAPIService) GetUserPermissions(ctx context.Context, req *emptypb.Empty) (*pb.GetUserPermissionsReply, error) {
 	userClaims, ok := ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
 	if !ok {
-		return nil, status.Error(codes.Unauthenticated, "您未登录或您的登录已过期")
+		return nil, status.Error(codes.Unauthenticated, ErrorMessageInvalidToken)
 	}
 
 	permissions, err := s.dbModel.GetUserPermissinsByUserId(userClaims.UserId)

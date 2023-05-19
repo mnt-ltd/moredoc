@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type Logout struct {
@@ -44,7 +45,12 @@ func (m *DBModel) IsInvalidToken(uuid string) bool {
 	}
 
 	logout := &Logout{}
-	m.db.Select("id").Where("uuid = ?", uuid).First(logout)
+	err := m.db.Select("id").Where("uuid = ?", uuid).First(logout).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("IsInvalidToken", zap.Error(err))
+		return true
+	}
+
 	if logout.Id > 0 {
 		m.invalidToken.Store(uuid, struct{}{})
 		m.validToken.Delete(uuid)
