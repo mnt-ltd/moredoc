@@ -67,7 +67,7 @@ export default {
       searchFormFields: [],
       tableListFields: [],
       selectedRow: [],
-      category: { id: 0, title: '', cover: '', sort: '' },
+      category: { id: 0, title: '', cover: '', sort: '', icon: '' },
     }
   },
   head() {
@@ -138,6 +138,7 @@ export default {
         enable: true,
         title: '',
         cover: '',
+        icon: '',
         parent_id: 0,
         sort: 0,
       }
@@ -146,7 +147,7 @@ export default {
     async editRow(row) {
       const res = await getCategory({ id: row.id })
       if (res.status === 200) {
-        this.category = { cover: '', ...res.data }
+        this.category = { cover: '', icon: '', ...res.data }
         this.formVisible = true
       } else {
         this.$message.error(res.data.message || '查询失败')
