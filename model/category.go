@@ -56,6 +56,9 @@ func (m *DBModel) UpdateCategory(category *Category, updateFields ...string) (er
 	if category.Cover != "" {
 		m.setAttachmentType(AttachmentTypeCategoryCover, category.Id, []string{category.Cover})
 	}
+	if category.Icon != "" {
+		m.setAttachmentType(AttachmentTypeCategoryCover, category.Id, []string{category.Icon})
+	}
 
 	return
 }
