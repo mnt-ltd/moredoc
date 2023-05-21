@@ -27,7 +27,7 @@ import (
 
 const (
 	ErrorMessageUsernameOrPasswordError = "用户名或密码不正确"
-	ErrorMessageInvalidToken            = "您未登录或您的登录已过期，请重新登录"
+	ErrorMessageInvalidToken            = "您未登录或您的登录已过期，请重新登录或刷新页面重试"
 	ErrorMessageUserNotExists           = "用户不存在"
 	ErrorMessageInvalidOldPassword      = "原密码不正确"
 	ErrorMessageUnsupportedCaptchaType  = "不支持的验证码类型"
