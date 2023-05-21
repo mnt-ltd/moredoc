@@ -426,7 +426,7 @@ export default {
     this.categoryTrees = categoryToTrees(this.categories).filter(
       (item) => item.enable
     )
-    // this.loopUpdate()
+    this.loopUpdate()
     this.loading = false
     if (requireLogin(this.settings, this.user, this.$route, this.permissions)) {
       this.$router.push('/login')
