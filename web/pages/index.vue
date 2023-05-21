@@ -350,7 +350,6 @@ export default {
     ...mapGetters('category', ['categoryTrees']),
     ...mapGetters('user', ['user']),
     ...mapGetters('setting', ['settings']),
-    ...mapGetters('device', ['isMobile']),
   },
   async created() {
     this.carouselHeight = this.isMobile ? '250px' : '360px'

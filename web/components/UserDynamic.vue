@@ -64,9 +64,7 @@ export default {
       total: 0,
     }
   },
-  computed: {
-    ...mapGetters('device', ['isMobile']),
-  },
+  computed: {},
   watch: {
     '$route.query': {
       handler(val) {

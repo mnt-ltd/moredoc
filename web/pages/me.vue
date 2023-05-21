@@ -66,7 +66,6 @@ export default {
   computed: {
     ...mapGetters('user', ['user']),
     ...mapGetters('setting', ['settings']),
-    ...mapGetters('device', ['isMobile']),
   },
   data() {
     return {

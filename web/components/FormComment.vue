@@ -124,9 +124,6 @@ export default {
       },
     }
   },
-  computed: {
-    ...mapGetters('device', ['isMobile']),
-  },
   watch: {
     documentId: {
       handler(val) {

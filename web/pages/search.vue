@@ -285,7 +285,6 @@ export default {
     ...mapGetters('user', ['user']),
     ...mapGetters('category', ['categoryTrees']),
     ...mapGetters('setting', ['settings']),
-    ...mapGetters('device', ['isMobile']),
   },
   watch: {
     '$route.query': {

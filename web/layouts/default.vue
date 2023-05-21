@@ -369,6 +369,7 @@ import FormUserinfo from '~/components/FormUserinfo.vue'
 import { listFriendlink } from '~/api/friendlink'
 import { categoryToTrees, requireLogin } from '~/utils/utils'
 import { getSignedToday, signToday } from '~/api/user'
+
 export default {
   components: { UserAvatar, FormUserinfo },
   middleware: ['checkFront', 'analytic'],
@@ -407,7 +408,6 @@ export default {
     ...mapGetters('user', ['user', 'token', 'allowPages', 'permissions']),
     ...mapGetters('setting', ['settings']),
     ...mapGetters('category', ['categories']),
-    ...mapGetters('device', ['isMobile']),
   },
   async created() {
     this.loading = true
@@ -426,29 +426,17 @@ export default {
     this.categoryTrees = categoryToTrees(this.categories).filter(
       (item) => item.enable
     )
-    this.loopUpdate()
+    // this.loopUpdate()
     this.loading = false
     if (requireLogin(this.settings, this.user, this.$route, this.permissions)) {
       this.$router.push('/login')
       return
     }
   },
-  mounted() {
-    this.handleResize()
-    window.addEventListener('resize', this.handleResize)
-  },
-  beforeDestroy() {
-    window.removeEventListener('resize', this.handleResize)
-  },
   methods: {
     ...mapActions('category', ['getCategories']),
     ...mapActions('setting', ['getSettings']),
-    ...mapActions('user', ['logout', 'getUser']),
-    ...mapActions('device', ['setDeviceWidth']),
-    handleResize() {
-      console.log('handleResize', window.innerWidth)
-      this.setDeviceWidth(window.innerWidth)
-    },
+    ...mapActions('user', ['logout', 'getUser', 'checkAndRefreshUser']),
     async showMenuDrawer() {
       this.getSignedToday()
       this.menuDrawerVisible = true
@@ -493,6 +481,7 @@ export default {
     loopUpdate() {
       clearTimeout(this.timeouter)
       this.timeouter = setTimeout(() => {
+        this.checkAndRefreshUser()
         // 更新系统配置信息
         this.getSettings()
         // 更新分类信息

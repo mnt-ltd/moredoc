@@ -119,7 +119,6 @@ export default {
   },
   computed: {
     ...mapGetters('user', ['user']),
-    ...mapGetters('device', ['isMobile']),
   },
   methods: {
     formatDatetime,

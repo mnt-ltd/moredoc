@@ -66,7 +66,6 @@ export default {
   },
   computed: {
     ...mapGetters('setting', ['settings']),
-    ...mapGetters('device', ['isMobile']),
   },
   watch: {
     $route: {

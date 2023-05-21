@@ -148,7 +148,6 @@ export default {
   computed: {
     ...mapGetters('user', ['user']),
     ...mapGetters('category', ['categoryTrees']),
-    ...mapGetters('device', ['isMobile']),
   },
   watch: {
     '$route.query': {

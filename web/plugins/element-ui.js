@@ -32,5 +32,9 @@ hotkeys.filter = (e) => {
   return true
 }
 
+// mixins
+import device from '~/mixins/device'
+Vue.mixin(device)
+
 // Vue2 引入快捷键
 Vue.prototype.$hotkeys = hotkeys

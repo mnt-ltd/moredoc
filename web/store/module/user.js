@@ -127,10 +127,12 @@ export const user = {
       }
       return res
     },
-    refreshUser({ commit, state }) {
+    checkAndRefreshUser({ commit, state }) {
       try {
         const moredoc = JSON.parse(localStorage.getItem('moredoc'))
-        if (!moredoc.user.token || state.token !== moredoc.user.token) {
+        if (state.token !== moredoc.user.token) {
+          // 以 localStorage 存储的信息为准
+          console.log('exec checkAndRefreshUser')
           commit('setUser', moredoc.user.user || {})
           commit('setToken', moredoc.user.token || '')
           commit('setPermissions', moredoc.user.permissions || [])

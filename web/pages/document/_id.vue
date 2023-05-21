@@ -459,7 +459,6 @@ export default {
   computed: {
     ...mapGetters('category', ['categoryMap']),
     ...mapGetters('setting', ['settings']),
-    ...mapGetters('device', ['isMobile']),
   },
   created() {
     Promise.all([
@@ -498,7 +497,7 @@ export default {
   methods: {
     formatDatetime,
     formatBytes,
-    ...mapActions('user', ['getUser', 'refreshUser']),
+    ...mapActions('user', ['getUser', 'checkAndRefreshUser']),
     async getDocument() {
       const res = await getDocument({
         id: this.documentId,
@@ -662,7 +661,7 @@ export default {
       this.$refs.commentList.getComments()
     },
     async downloadDocument() {
-      await this.refreshUser()
+      await this.checkAndRefreshUser()
 
       this.downloading = true
       const res = await downloadDocument({
