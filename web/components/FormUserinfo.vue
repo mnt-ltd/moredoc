@@ -8,6 +8,7 @@
           :action="'/api/v1/upload/avatar'"
           :image="user.avatar"
           @success="getUser"
+          class="edit-avatar"
         />
         <!-- 上传成功之后，重新获取用户资料 -->
         <div>
@@ -124,6 +125,16 @@ export default {
   }
   .el-descriptions__body .el-descriptions__table {
     color: #888;
+  }
+  .edit-avatar {
+    position: relative;
+    &::after {
+      font-family: element-icons !important;
+      content: '\e78c';
+      position: absolute;
+      top: 7px;
+      margin-left: 10px;
+    }
   }
 }
 @media screen and (max-width: $mobile-width) {
