@@ -384,21 +384,23 @@ type ConfigScore struct {
 }
 
 const (
-	ConfigDisplayShowRegisterUserCount = "show_register_user_count" // 是否显示注册用户数量
-	ConfigDisplayVirtualRegisterCount  = "virtual_register_count"   // 虚拟注册用户数量
-	ConfigDisplayShowIndexCategories   = "show_index_categories"    // 是否显示首页分类
-	ConfigDisplayPagesPerRead          = "pages_per_read"           // 每次阅读的页数
-	ConfigDisplayCopyrightStatement    = "copyright_statement"      // 在页面最底部的版权声明
-	ConfigDisplayMaxSearchPages        = "max_search_pages"         // 搜索结果最大页数
+	ConfigDisplayShowRegisterUserCount    = "show_register_user_count"   // 是否显示注册用户数量
+	ConfigDisplayShowDocumentDescriptions = "show_document_descriptions" // 是否在文档页显示文档摘要
+	ConfigDisplayVirtualRegisterCount     = "virtual_register_count"     // 虚拟注册用户数量
+	ConfigDisplayShowIndexCategories      = "show_index_categories"      // 是否显示首页分类
+	ConfigDisplayPagesPerRead             = "pages_per_read"             // 每次阅读的页数
+	ConfigDisplayCopyrightStatement       = "copyright_statement"        // 在页面最底部的版权声明
+	ConfigDisplayMaxSearchPages           = "max_search_pages"           // 搜索结果最大页数
 )
 
 type ConfigDisplay struct {
-	ShowRegisterUserCount bool   `json:"show_register_user_count"` // 是否显示注册用户数量
-	VirtualRegisterCount  int64  `json:"virtual_register_count"`   // 虚拟注册用户数量
-	ShowIndexCategories   bool   `json:"show_index_categories"`    // 是否显示首页分类
-	PagesPerRead          int32  `json:"pages_per_read"`           // 每次阅读的页数
-	MaxSearchPages        int32  `json:"max_search_pages"`         // 搜索结果最大页数
-	CopyrightStatement    string `json:"copyright_statement"`      // 在页面最底部的版权声明
+	ShowRegisterUserCount    bool   `json:"show_register_user_count"`   // 是否显示注册用户数量
+	ShowDocumentDescriptions bool   `json:"show_document_descriptions"` // 是否在文档页显示文档摘要
+	VirtualRegisterCount     int64  `json:"virtual_register_count"`     // 虚拟注册用户数量
+	ShowIndexCategories      bool   `json:"show_index_categories"`      // 是否显示首页分类
+	PagesPerRead             int32  `json:"pages_per_read"`             // 每次阅读的页数
+	MaxSearchPages           int32  `json:"max_search_pages"`           // 搜索结果最大页数
+	CopyrightStatement       string `json:"copyright_statement"`        // 在页面最底部的版权声明
 }
 
 func (m *DBModel) GetConfigOfDisplay(name ...string) (config ConfigDisplay) {
@@ -731,6 +733,7 @@ func (m *DBModel) initConfig() (err error) {
 		// 展示配置
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowRegisterUserCount, Label: "是否显示注册用户数", Value: "true", Placeholder: "网站首页，是否显示注册用户数", InputType: InputTypeSwitch, Sort: 10, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayVirtualRegisterCount, Label: "网站虚拟注册用户数", Value: "0", Placeholder: "网站首页显示的用户数=真实注册用户数+虚拟注册用户数，用以避免网站初期用户注册数过少的尴尬窘境", InputType: InputTypeNumber, Sort: 20, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowDocumentDescriptions, Label: "是否显示文档摘要", Value: "true", Placeholder: "文档阅读页面，是否显示文档摘要等信息", InputType: InputTypeSwitch, Sort: 21, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowIndexCategories, Label: "是否显示横栏分类", Value: "true", Placeholder: "网站首页中间横栏位置，是否显示分类", InputType: InputTypeSwitch, Sort: 30, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayPagesPerRead, Label: "文档【继续阅读】的页数", Value: "5", Placeholder: "用户阅读文档，每次点击继续阅读按钮时阅读的页数，默认为5，表示5页", InputType: InputTypeNumber, Sort: 40, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayMaxSearchPages, Label: "文档搜索结果最大页数", Value: "100", Placeholder: "搜索结果，默认最大展示100页，0表示不限制", InputType: InputTypeNumber, Sort: 50, Options: ""},

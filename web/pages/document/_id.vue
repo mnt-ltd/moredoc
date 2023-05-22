@@ -75,7 +75,7 @@
                 ><i class="el-icon-star-off"></i>
                 {{ document.favorite_count || 0 }} 收藏</span
               >
-              <span
+              <span v-if="!settings.display.show_document_descriptions"
                 ><el-rate
                   v-model="document.score"
                   disabled
@@ -83,8 +83,8 @@
                   text-color="#ff9900"
                   score-template="{value}"
                 >
-                </el-rate
-              ></span>
+                </el-rate></span
+              >
             </div>
           </div>
           <template v-if="tips">
@@ -98,6 +98,35 @@
             </el-alert>
             <div class="mgt-20px"></div>
           </template>
+          <el-descriptions
+            v-if="settings.display.show_document_descriptions"
+            class="document-descriptions"
+            :column="isMobile ? 1 : 3"
+            border
+          >
+            <el-descriptions-item
+              v-for="item in descriptions"
+              :key="'desc-' + item.label"
+              :span="item.name == 'description' ? 2 : 1"
+              label-class-name="descriptions-label"
+            >
+              <template slot="label">
+                <i :class="item.icon"></i>
+                {{ item.label }}
+              </template>
+              <span v-if="item.name === 'score'"
+                ><el-rate
+                  v-model="item.value"
+                  disabled
+                  show-score
+                  text-color="#ff9900"
+                  score-template="{value}"
+                >
+                </el-rate
+              ></span>
+              <div v-else>{{ item.value }}</div>
+            </el-descriptions-item>
+          </el-descriptions>
           <div ref="docPages" class="doc-pages" @contextmenu.prevent>
             <div v-if="isMobile" v-viewer>
               <el-image
@@ -437,6 +466,7 @@ export default {
       cardWidth: 0,
       cardOffsetTop: 0,
       tips: '',
+      descriptions: [],
     }
   },
   head() {
@@ -573,6 +603,34 @@ export default {
           }
         })
       }
+
+      this.descriptions = [
+        {
+          label: '上传',
+          value: doc.user.username,
+          icon: 'el-icon-user',
+          name: 'username',
+        },
+        {
+          label: '格式',
+          value: doc.ext,
+          icon: 'el-icon-document',
+          name: 'ext',
+        },
+        {
+          label: '评分',
+          value: doc.score,
+          icon: 'el-icon-star-on',
+          name: 'score',
+        },
+        {
+          label: '摘要',
+          value: doc.description,
+          icon: 'el-icon-document',
+          name: 'description',
+        },
+      ]
+
       this.genQrcode()
     },
     handleResize() {
@@ -1034,6 +1092,13 @@ export default {
     top: 3px;
     margin-right: 10px;
     color: #565656;
+  }
+
+  .document-descriptions {
+    margin-bottom: 20px;
+  }
+  .descriptions-label {
+    width: 80px;
   }
 }
 

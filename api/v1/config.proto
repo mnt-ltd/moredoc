@@ -76,10 +76,11 @@ message ConfigFooter {
 }
 
 message ConfigDisplay {
-  bool show_register_user_count = 1; // 是否显示注册用户数量
-  bool show_index_categories = 2;    // 是否显示首页分类
-  int32 pages_per_read = 3;          // 每次阅读的页数
-  string copyright_statement = 4;    // 在页面最底部的版权声明
+  bool show_register_user_count = 1;   // 是否显示注册用户数量
+  bool show_index_categories = 2;      // 是否显示首页分类
+  int32 pages_per_read = 3;            // 每次阅读的页数
+  string copyright_statement = 4;      // 在页面最底部的版权声明
+  bool show_document_descriptions = 5; // 是否显示文档描述
 }
 
 // 安全配置
