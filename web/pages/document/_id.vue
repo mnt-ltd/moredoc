@@ -83,8 +83,8 @@
                   text-color="#ff9900"
                   score-template="{value}"
                 >
-                </el-rate></span
-              >
+                </el-rate
+              ></span>
             </div>
           </div>
           <template v-if="tips">
@@ -604,6 +604,8 @@ export default {
         })
       }
 
+      let description = (doc.description || '-').trim()
+      if (description) description = description + '...'
       this.descriptions = [
         {
           label: '上传',
@@ -625,7 +627,7 @@ export default {
         },
         {
           label: '摘要',
-          value: doc.description,
+          value: description,
           icon: 'el-icon-document',
           name: 'description',
         },
