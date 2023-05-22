@@ -57,6 +57,7 @@ builddarwin:
 	cp -r app.example.toml release/${VERSION}/darwin
 	rm -rf release/${VERSION}/darwin/dist/_nuxt/icons
 	rm -rf release/${VERSION}/darwin/dist/_nuxt/manifest*
+	cd release/${VERSION}/darwin/ && tar -zcvf ../moredoc_ce_${VERSION}_darwin_amd64.tar.gz ./* && cd ../../
 
 buildlinux:
 	GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
@@ -65,6 +66,7 @@ buildlinux:
 	cp -r app.example.toml release/${VERSION}/linux
 	rm -rf release/${VERSION}/linux/dist/_nuxt/icons
 	rm -rf release/${VERSION}/linux/dist/_nuxt/manifest*
+	cd release/${VERSION}/linux/ && tar -zcvf ../moredoc_ce_${VERSION}_linux_amd64.tar.gz ./* && cd ../../
 
 buildwin:
 	GOOS=windows GOARCH=amd64 go build -v -o release/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
@@ -73,6 +75,7 @@ buildwin:
 	cp -r app.example.toml release/${VERSION}/windows
 	rm -rf release/${VERSION}/windows/dist/_nuxt/icons
 	rm -rf release/${VERSION}/windows/dist/_nuxt/manifest*
+	cd release/${VERSION}/windows/ && tar -zcvf ../moredoc_ce_${VERSION}_windows_amd64.tar.gz ./* && cd ../../
 
 buildlinuxarm:
 	GOOS=linux GOARCH=arm64 go build -v -o release/${VERSION}/linux-arm/moredoc -ldflags ${LDFLAGS}
@@ -81,6 +84,7 @@ buildlinuxarm:
 	cp -r app.example.toml release/${VERSION}/linux-arm
 	rm -rf release/${VERSION}/linux-arm/dist/_nuxt/icons
 	rm -rf release/${VERSION}/linux-arm/dist/_nuxt/manifest*
+	cd release/${VERSION}/linux-arm/ && tar -zcvf ../moredoc_ce_${VERSION}_linux_arm64.tar.gz ./* && cd ../../
 
 buildwinarm:
 	GOOS=windows GOARCH=arm64 go build -v -o release/${VERSION}/windows-arm/moredoc.exe -ldflags ${LDFLAGS}
@@ -89,6 +93,10 @@ buildwinarm:
 	cp -r app.example.toml release/${VERSION}/windows-arm
 	rm -rf release/${VERSION}/windows-arm/dist/_nuxt/icons
 	rm -rf release/${VERSION}/windows-arm/dist/_nuxt/manifest*
+	cd release/${VERSION}/windows-arm/ && tar -zcvf ../moredoc_ce_${VERSION}_windows_arm64.tar.gz ./* && cd ../../
+
+# 一键编译所有平台
+buildall: builddarwin buildlinux buildwin buildlinuxarm buildwinarm
 
 # show help
 help:
