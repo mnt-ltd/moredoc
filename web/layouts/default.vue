@@ -495,6 +495,7 @@ export default {
       switch (command) {
         case 'logout':
           this.logout()
+          location.reload()
           break
         case 'upload':
           this.$router.push('/upload')
