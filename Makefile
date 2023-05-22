@@ -51,6 +51,7 @@ clean-api-go:
 	rm -rf api/*/*.go
 
 builddarwin:
+	rm -rf release/${VERSION}/darwin
 	GOOS=darwin GOARCH=amd64 go build -v -o release/${VERSION}/darwin/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/darwin
 	cp -r dictionary release/${VERSION}/darwin
@@ -60,6 +61,7 @@ builddarwin:
 	cd release/${VERSION}/darwin/ && tar -zcvf ../moredoc_ce_${VERSION}_darwin_amd64.tar.gz ./* && cd ../../
 
 buildlinux:
+	rm -rf release/${VERSION}/linux
 	GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/linux
 	cp -r dictionary release/${VERSION}/linux
@@ -69,6 +71,7 @@ buildlinux:
 	cd release/${VERSION}/linux/ && tar -zcvf ../moredoc_ce_${VERSION}_linux_amd64.tar.gz ./* && cd ../../
 
 buildwin:
+	rm -rf release/${VERSION}/windows
 	GOOS=windows GOARCH=amd64 go build -v -o release/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/windows
 	cp -r dictionary release/${VERSION}/windows
@@ -78,6 +81,7 @@ buildwin:
 	cd release/${VERSION}/windows/ && tar -zcvf ../moredoc_ce_${VERSION}_windows_amd64.tar.gz ./* && cd ../../
 
 buildlinuxarm:
+	rm -rf release/${VERSION}/linux-arm
 	GOOS=linux GOARCH=arm64 go build -v -o release/${VERSION}/linux-arm/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/linux-arm
 	cp -r dictionary release/${VERSION}/linux-arm
@@ -87,6 +91,7 @@ buildlinuxarm:
 	cd release/${VERSION}/linux-arm/ && tar -zcvf ../moredoc_ce_${VERSION}_linux_arm64.tar.gz ./* && cd ../../
 
 buildwinarm:
+	rm -rf release/${VERSION}/windows-arm
 	GOOS=windows GOARCH=arm64 go build -v -o release/${VERSION}/windows-arm/moredoc.exe -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/windows-arm
 	cp -r dictionary release/${VERSION}/windows-arm
