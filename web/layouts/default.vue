@@ -490,11 +490,12 @@ export default {
         this.loopUpdate()
       }, 1000 * 60) // 每分钟更新一次
     },
-    handleDropdown(command) {
+    async handleDropdown(command) {
       console.log('handleDropdown', command)
       switch (command) {
         case 'logout':
-          this.logout()
+          const res = await this.logout()
+          console.log(res)
           location.reload()
           break
         case 'upload':

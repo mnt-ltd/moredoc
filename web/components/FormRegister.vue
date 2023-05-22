@@ -143,7 +143,9 @@
         <nuxt-link to="/findpassword" class="el-link el-link--default"
           >找回密码</nuxt-link
         >
-        <nuxt-link to="/login" class="el-link el-link--default float-right"
+        <nuxt-link
+          :to="{ name: 'login', query: { redirect } }"
+          class="el-link el-link--default float-right"
           >马上登录</nuxt-link
         >
       </el-form-item>

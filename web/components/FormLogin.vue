@@ -55,7 +55,7 @@
           >找回密码</nuxt-link
         >
         <nuxt-link
-          to="/register"
+          :to="{ name: 'register', query: { redirect } }"
           title="注册账户"
           class="el-link el-link--default float-right"
           >注册账户</nuxt-link

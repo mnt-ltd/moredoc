@@ -14,7 +14,7 @@
         <div slot="header" class="clearfix">
           <span>用户注册</span>
         </div>
-        <form-register></form-register>
+        <form-register :redirect="redirect"></form-register>
       </el-card>
     </div>
   </div>
@@ -26,7 +26,9 @@ export default {
   // 已登录用户，直接跳转到个人中心
   middleware: ['checklogin'],
   data() {
-    return {}
+    return {
+      redirect: this.$route.query.redirect || '/me',
+    }
   },
   head() {
     return {

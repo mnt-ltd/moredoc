@@ -1,5 +1,26 @@
 import { requireLogin } from '~/utils/utils'
-export default function ({ store, route, redirect }) {
+export default function ({ store, route, redirect, from }) {
+  // Every time the route changes (fired on initialization too)
+  // 如果是注册或者登录，则带个redirect参数，用于登录后跳转
+  if (
+    (route.name === 'login' || route.name === 'register') &&
+    !(from.name === 'login' || from.name === 'register')
+  ) {
+    console.log(
+      'checkFront.js: route.name === login or register 1',
+      route.query
+    )
+    if (!route.query.redirect) {
+      route.query.redirect = from.fullPath
+      redirect(route)
+      return
+    }
+    console.log(
+      'checkFront.js: route.name === login or register 2',
+      route.query
+    )
+  }
+
   store.dispatch('user/checkAndRefreshUser')
   const settings = store.getters['setting/settings']
   const user = store.getters['user/user']

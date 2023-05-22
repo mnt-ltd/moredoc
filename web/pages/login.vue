@@ -23,6 +23,7 @@
         </div>
         <form-login
           v-if="!(user.id > 0 && settings.security.is_close)"
+          :redirect="redirect"
         ></form-login>
       </el-card>
     </div>
@@ -49,6 +50,11 @@ export default {
           content: `${this.settings.system.description}`,
         },
       ],
+    }
+  },
+  data() {
+    return {
+      redirect: this.$route.query.redirect || '/me',
     }
   },
   computed: {
