@@ -238,6 +238,18 @@ export default {
           type: 'bool',
         },
         {
+          prop: 'show_on_nav',
+          label: '显示在导航栏',
+          width: 80,
+          type: 'bool',
+        },
+        {
+          prop: 'show_description',
+          label: '显示分类描述',
+          width: 80,
+          type: 'bool',
+        },
+        {
           prop: 'sort',
           label: '排序',
           width: 80,
@@ -246,6 +258,7 @@ export default {
         { prop: 'cover', label: '封面', width: 100, type: 'image' },
         { prop: 'doc_count', label: '文档数', width: 80, type: 'number' },
         { prop: 'id', label: 'ID', width: 80, type: 'number' },
+        { prop: 'description', label: '分类描述', width: 200 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
       ]

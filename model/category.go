@@ -8,16 +8,19 @@ import (
 )
 
 type Category struct {
-	Id        int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
-	Icon      string     `form:"icon" json:"icon,omitempty" gorm:"column:icon;comment:分类图标;type:varchar(255);size:255;"`
-	Cover     string     `form:"cover" json:"cover,omitempty" gorm:"column:cover;comment:分类封面;type:varchar(255);size:255;"`
-	ParentId  int        `form:"parent_id" json:"parent_id,omitempty" gorm:"column:parent_id;type:int(11);size:11;default:0;index:parent_id_title,unique;index:parent_id;comment:上级ID;"`
-	Title     string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;index:parent_id_title,unique;comment:分类名称;"`
-	DocCount  int        `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(11);size:11;default:0;comment:文档统计;"`
-	Sort      int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;index:idx_sort;comment:排序，值越大越靠前;"`
-	Enable    bool       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(1);size:1;index:idx_enable;default:1;"`
-	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
-	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	Id              int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
+	Icon            string     `form:"icon" json:"icon,omitempty" gorm:"column:icon;comment:分类图标;type:varchar(255);size:255;"`
+	Cover           string     `form:"cover" json:"cover,omitempty" gorm:"column:cover;comment:分类封面;type:varchar(255);size:255;"`
+	ParentId        int        `form:"parent_id" json:"parent_id,omitempty" gorm:"column:parent_id;type:int(11);size:11;default:0;index:parent_id_title,unique;index:parent_id;comment:上级ID;"`
+	Title           string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;index:parent_id_title,unique;comment:分类名称;"`
+	DocCount        int        `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(11);size:11;default:0;comment:文档统计;"`
+	Sort            int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;index:idx_sort;comment:排序，值越大越靠前;"`
+	Enable          bool       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(1);size:1;index:idx_enable;default:1;"`
+	Description     string     `form:"description" json:"description,omitempty" gorm:"column:description;type:text;comment:分类描述;"`
+	ShowDescription bool       `form:"show_description" json:"show_description,omitempty" gorm:"column:show_description;type:tinyint(1);size:1;default:0;comment:是否显示描述;"`
+	ShowOnNav       bool       `form:"show_on_nav" json:"show_on_nav,omitempty" gorm:"column:show_on_nav;type:tinyint(1);size:1;default:0;comment:是否显示在导航;"`
+	CreatedAt       *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	UpdatedAt       *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
 
 func (Category) TableName() string {

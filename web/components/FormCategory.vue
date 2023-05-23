@@ -56,25 +56,29 @@
           @success="successUpload"
         />
       </el-form-item>
-      <el-form-item
-        label="名称"
-        prop="title"
-        :rules="[{ required: true, trigger: 'blur', message: '请输入名称' }]"
-      >
-        <el-input
-          v-model="category.title"
-          :placeholder="
-            category.id > 0
-              ? '请输入分类名称'
-              : '请输入分类名称，多个分类名称换行输入，重复的分类名称自动跳过...'
-          "
-          :type="category.id > 0 ? 'text' : 'textarea'"
-          :rows="5"
-          clearable
-        ></el-input>
-      </el-form-item>
       <el-row :gutter="20">
-        <el-col :span="12">
+        <el-col :span="16">
+          <el-form-item
+            label="名称"
+            prop="title"
+            :rules="[
+              { required: true, trigger: 'blur', message: '请输入名称' },
+            ]"
+          >
+            <el-input
+              v-model="category.title"
+              :placeholder="
+                category.id > 0
+                  ? '请输入分类名称'
+                  : '请输入分类名称，多个分类名称换行输入，重复的分类名称自动跳过...'
+              "
+              :type="category.id > 0 ? 'text' : 'textarea'"
+              :rows="5"
+              clearable
+            ></el-input>
+          </el-form-item>
+        </el-col>
+        <el-col :span="8">
           <el-form-item label="排序(值越大越靠前)">
             <el-input-number
               v-model.number="category.sort"
@@ -85,10 +89,46 @@
             ></el-input-number>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+      </el-row>
+
+      <el-form-item label="描述" prop="description">
+        <el-input
+          v-model="category.description"
+          :type="'textarea'"
+          description="请输入描述，支持换行"
+          :rows="5"
+          clearable
+        ></el-input>
+      </el-form-item>
+      <el-row :gutter="20">
+        <el-col :span="8">
           <el-form-item label="是否启用">
             <el-switch
               v-model="category.enable"
+              style="display: block"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              active-text="是"
+              inactive-text="否"
+            >
+            </el-switch> </el-form-item
+        ></el-col>
+        <el-col :span="8">
+          <el-form-item label="是否显示在导航栏">
+            <el-switch
+              v-model="category.show_on_nav"
+              style="display: block"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              active-text="是"
+              inactive-text="否"
+            >
+            </el-switch> </el-form-item
+        ></el-col>
+        <el-col :span="8">
+          <el-form-item label="是否显示分类描述">
+            <el-switch
+              v-model="category.show_description"
               style="display: block"
               active-color="#13ce66"
               inactive-color="#ff4949"
