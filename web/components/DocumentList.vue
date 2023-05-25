@@ -3,12 +3,12 @@
     <ul>
       <li v-for="doc in documents" :key="'doc-' + doc.id">
         <el-row :gutter="20">
-          <el-col :span="4" class="doc-cover">
+          <el-col :span="3" class="doc-cover">
             <nuxt-link :to="`/document/${doc.id}`">
               <document-cover :document="doc" />
             </nuxt-link>
           </el-col>
-          <el-col :span="20">
+          <el-col :span="21">
             <h3>
               <nuxt-link
                 :to="`/document/${doc.id}`"
@@ -126,15 +126,27 @@ export default {
     }
   }
   .doc-desc {
-    font-size: 15px;
-    color: #888;
+    font-size: 14px;
+    color: #999;
     line-height: 180%;
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
-    max-height: 81px;
+    -webkit-line-clamp: 2;
+    max-height: 52px;
     -webkit-box-orient: vertical;
+  }
+}
+</style>
+<style lang="scss">
+.com-document-list {
+  .el-image {
+    img {
+      transition: transform 0.3s ease 0s;
+      &:hover {
+        transform: scale(1.2);
+      }
+    }
   }
 }
 </style>
