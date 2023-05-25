@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Navigation {
+  int64 id = 1;
+  string title = 2;
+  string href = 3;
+  string target = 4;
+  string color = 5;
+  int32 sort = 6;
+  bool enable = 7;
+  int64 parent_id = 8;
+  string description = 9;
+  google.protobuf.Timestamp created_at = 10 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 11 [ (gogoproto.stdtime) = true ];
+}
+
+message DeleteNavigationRequest { repeated int64 id = 1; }
+
+message GetNavigationRequest { int64 id = 1; }
+
+message ListNavigationRequest {
+  int64 page = 1;
+  int64 size = 2;
+  string wd = 3;
+  repeated string field = 4;
+  string order = 5;
+}
+
+message ListNavigationReply {
+  int64 total = 1;
+  repeated Navigation navigation = 2;
+}
+
+service NavigationAPI {
+  rpc CreateNavigation(Navigation) returns (Navigation) {
+    option (google.api.http) = {
+      post : '/api/v1/navigation',
+      body : '*',
+    };
+  }
+
+  rpc UpdateNavigation(Navigation) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/navigation',
+      body : '*',
+    };
+  }
+
+  rpc DeleteNavigation(DeleteNavigationRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/navigation',
+    };
+  }
+
+  rpc GetNavigation(GetNavigationRequest) returns (Navigation) {
+    option (google.api.http) = {
+      get : '/api/v1/navigation',
+    };
+  }
+
+  rpc ListNavigation(ListNavigationRequest) returns (ListNavigationReply) {
+    option (google.api.http) = {
+      get : '/api/v1/navigation/list',
+    };
+  }
+}
