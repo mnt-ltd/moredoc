@@ -37,6 +37,15 @@
               </el-breadcrumb-item>
             </el-breadcrumb>
           </div>
+          <div
+            v-if="
+              breadcrumbs.length > 0 &&
+              breadcrumbs[breadcrumbs.length - 1].show_description
+            "
+            class="category-description"
+          >
+            {{ breadcrumbs[breadcrumbs.length - 1].description }}
+          </div>
           <div class="item-row" v-if="categoryChildren.length > 0">
             <div class="item-name">分类</div>
             <div class="item-content">
@@ -444,7 +453,15 @@ export default {
       margin-bottom: -20px;
     }
   }
-
+  .category-description {
+    border: 1px dashed #ddd;
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #888;
+    line-height: 180%;
+  }
   .doc-list-data {
     min-height: 200px;
     .no-data {

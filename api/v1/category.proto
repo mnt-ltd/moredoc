@@ -29,7 +29,6 @@ message Category {
   string icon = 10;                   // 分类图标
   string description = 11;            // 分类描述
   bool show_description = 12; // 是否在分类筛选文档列表处显示分类描述
-  bool show_on_nav = 13; // 是否在导航中显示
 }
 
 // 分类列表请求

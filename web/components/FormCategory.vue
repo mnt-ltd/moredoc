@@ -101,7 +101,7 @@
         ></el-input>
       </el-form-item>
       <el-row :gutter="20">
-        <el-col :span="8">
+        <el-col :span="12">
           <el-form-item label="是否启用">
             <el-switch
               v-model="category.enable"
@@ -113,20 +113,8 @@
             >
             </el-switch> </el-form-item
         ></el-col>
-        <el-col :span="8">
-          <el-form-item label="是否显示在导航栏">
-            <el-switch
-              v-model="category.show_on_nav"
-              style="display: block"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
-              active-text="是"
-              inactive-text="否"
-            >
-            </el-switch> </el-form-item
-        ></el-col>
-        <el-col :span="8">
-          <el-form-item label="是否显示分类描述">
+        <el-col :span="12">
+          <el-form-item label="显示分类描述">
             <el-switch
               v-model="category.show_description"
               style="display: block"

@@ -33,6 +33,8 @@ export const category = {
           'cover',
           'doc_count',
           'enable',
+          'description',
+          'show_description',
         ],
       })
       if (res.status === 200) {

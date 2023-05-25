@@ -18,7 +18,6 @@ type Category struct {
 	Enable          bool       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(1);size:1;index:idx_enable;default:1;"`
 	Description     string     `form:"description" json:"description,omitempty" gorm:"column:description;type:text;comment:分类描述;"`
 	ShowDescription bool       `form:"show_description" json:"show_description,omitempty" gorm:"column:show_description;type:tinyint(1);size:1;default:0;comment:是否显示描述;"`
-	ShowOnNav       bool       `form:"show_on_nav" json:"show_on_nav,omitempty" gorm:"column:show_on_nav;type:tinyint(1);size:1;default:0;comment:是否显示在导航;"`
 	CreatedAt       *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt       *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }
