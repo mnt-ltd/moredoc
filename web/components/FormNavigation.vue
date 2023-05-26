@@ -6,20 +6,21 @@
       label-width="80px"
       :model="navigation"
     >
+      <!-- 下拉菜单选择一级分类 -->
       <el-form-item label="上级导航">
-        <el-cascader
+        <el-select
           v-model="navigation.parent_id"
-          :options="trees"
           :filterable="true"
-          :props="{
-            checkStrictly: true,
-            expandTrigger: 'hover',
-            label: 'title',
-            value: 'id',
-          }"
-          clearable
-          placeholder="请选择上级分类"
-        ></el-cascader>
+          :clearable="true"
+          placeholder="请选择上级导航"
+        >
+          <el-option
+            v-for="item in trees"
+            :key="item.id"
+            :label="item.title"
+            :value="item.id"
+          ></el-option>
+        </el-select>
       </el-form-item>
       <el-form-item
         label="名称"
@@ -35,13 +36,6 @@
       <el-form-item
         label="地址"
         prop="href"
-        :rules="[
-          {
-            required: true,
-            trigger: 'blur',
-            message: '请输入导航地址，如 https://mnt.ltd',
-          },
-        ]"
       >
         <el-input
           v-model="navigation.href"
@@ -97,7 +91,7 @@
               <el-option
                 v-for="item in [
                   { label: '当前页', value: '_self' },
-                  { label: '新页签', value: '_blank' },
+                  { label: '新标签页', value: '_blank' },
                 ]"
                 :key="item.value"
                 :label="item.label"

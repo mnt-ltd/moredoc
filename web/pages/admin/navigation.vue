@@ -127,9 +127,14 @@ export default {
         let navigations = res.data.navigation || []
         navigations.map((item) => {
           item.title_html = genLinkHTML(item.title, item.href)
+          if (item.color) {
+            // 增加链接颜色
+            item.title_html = item.title_html.replace(
+              '<a',
+              `<a style="color:${item.color}" `
+            )
+          }
         })
-
-        console.log(navigations)
 
         let trees = categoryToTrees(navigations, false)
         this.navigations = trees
@@ -179,7 +184,7 @@ export default {
     },
     batchDelete() {
       this.$confirm(
-        `您确定要删除选中的【${this.selectedRow.length}条】导航吗？删除之后不可恢复！`,
+        `您确定要删除选中的【${this.selectedRow.length}条】导航吗？会连带着子导航一起删除，删除之后不可恢复！`,
         '温馨提示',
         {
           confirmButtonText: '确定',
@@ -201,7 +206,7 @@ export default {
     },
     deleteRow(row) {
       this.$confirm(
-        `您确定要删除导航【${row.title}】吗？删除之后不可恢复！`,
+        `您确定要删除导航【${row.title}】吗？会连带着子导航一起删除，删除之后不可恢复！`,
         '温馨提示',
         {
           confirmButtonText: '确定',

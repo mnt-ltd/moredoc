@@ -17,19 +17,10 @@
           <el-menu-item index="/" class="hidden-xs-only">
             <nuxt-link to="/">首页</nuxt-link>
           </el-menu-item>
-          <el-menu-item
-            v-for="(item, index) in categoryTrees"
-            :key="'c-' + item.id"
-            :index="`/category/${item.id}`"
-            v-show="$route.path === '/' && index < 6"
-            class="hidden-xs-only"
-          >
-            <nuxt-link :to="`/category/${item.id}`">{{ item.title }}</nuxt-link>
-          </el-menu-item>
           <el-submenu
             index="channel"
             class="hidden-xs-only"
-            v-show="$route.path !== '/'"
+            v-show="$route.path !== '/' || navigations.length > 0"
           >
             <template slot="title">频道分类</template>
             <el-menu-item
@@ -45,9 +36,47 @@
               >
             </el-menu-item>
           </el-submenu>
+          <template v-if="navigations.length === 0">
+            <el-menu-item
+              v-for="(item, index) in categoryTrees"
+              :key="'c-' + item.id"
+              :index="`/category/${item.id}`"
+              v-show="$route.path === '/' && index < 6"
+              class="hidden-xs-only"
+            >
+              <nuxt-link :to="`/category/${item.id}`">{{
+                item.title
+              }}</nuxt-link>
+            </el-menu-item>
+          </template>
+          <template v-else>
+            <template v-for="item in navigations">
+              <el-submenu
+                :key="'nav-' + item.id"
+                :index="`nav-${item.id}`"
+                v-if="item.children && item.children.length > 0"
+                class="hidden-xs-only"
+              >
+                <template slot="title">{{ item.title }}</template>
+                <NavigationLink
+                  :hiddenXS="true"
+                  v-for="child in item.children || []"
+                  :key="'child-' + child.id"
+                  :navigation="child"
+                />
+              </el-submenu>
+              <NavigationLink
+                v-else
+                :navigation="item"
+                :key="'nav-' + item.id"
+                :hiddenXS="true"
+              />
+            </template>
+          </template>
           <el-menu-item
             index="searchbox"
             class="nav-searchbox hidden-xs-only"
+            :class="navigations.length <= 2 ? 'nav-searchbox-large' : ''"
             v-show="$route.path !== '/'"
           >
             <el-input
@@ -359,6 +388,23 @@
           </ul>
         </el-collapse-item>
       </el-collapse>
+      <el-menu :default-active="$route.path" class="el-menu-mobile">
+        <template v-for="item in navigations">
+          <el-submenu
+            :key="'nav-' + item.id"
+            :index="`nav-${item.id}`"
+            v-if="item.children && item.children.length > 0"
+          >
+            <template slot="title">{{ item.title }}</template>
+            <NavigationLink
+              v-for="child in item.children || []"
+              :key="'child-' + child.id"
+              :navigation="child"
+            />
+          </el-submenu>
+          <NavigationLink v-else :navigation="item" :key="'nav-' + item.id" />
+        </template>
+      </el-menu>
     </el-drawer>
   </el-container>
 </template>
@@ -367,6 +413,7 @@ import { mapGetters, mapActions } from 'vuex'
 import UserAvatar from '~/components/UserAvatar.vue'
 import FormUserinfo from '~/components/FormUserinfo.vue'
 import { listFriendlink } from '~/api/friendlink'
+import { listNavigation } from '~/api/navigation'
 import { categoryToTrees, requireLogin } from '~/utils/utils'
 import { getSignedToday, signToday } from '~/api/user'
 
@@ -386,6 +433,7 @@ export default {
       sign: { id: 0 },
       activeCollapse: 'categories',
       loading: false,
+      navigations: [],
     }
   },
   head() {
@@ -411,21 +459,17 @@ export default {
   },
   async created() {
     this.loading = true
-    const [res] = await Promise.all([
-      listFriendlink({
-        enable: true,
-        field: ['id', 'title', 'link'],
-      }),
+    await Promise.all([
       this.getCategories(),
       this.getSettings(),
+      this.listNavigation(),
+      this.listFriendlink(),
     ])
 
-    if (res.status === 200) {
-      this.friendlinks = res.data.friendlink
-    }
     this.categoryTrees = categoryToTrees(this.categories).filter(
       (item) => item.enable
     )
+
     this.loopUpdate()
     this.loading = false
     if (requireLogin(this.settings, this.user, this.$route, this.permissions)) {
@@ -451,6 +495,15 @@ export default {
         this.sign = res.data || this.sign
       }
     },
+    async listFriendlink() {
+      const res = await listFriendlink({
+        enable: true,
+        field: ['id', 'title', 'link'],
+      })
+      if (res.status === 200) {
+        this.friendlinks = res.data.friendlink
+      }
+    },
     async signToday() {
       const res = await signToday()
       if (res.status === 200) {
@@ -464,6 +517,14 @@ export default {
         )
       } else {
         this.$message.error(res.message || res.data.message)
+      }
+    },
+    async listNavigation() {
+      const res = await listNavigation({ page: 1, size: 10000 })
+      if (res.status === 200) {
+        let navigations = res.data.navigation || []
+        navigations = categoryToTrees(navigations).filter((item) => item.enable)
+        this.navigations = navigations
       }
     },
     onSearch() {
@@ -610,11 +671,16 @@ export default {
     .nav-searchbox {
       padding: 0 25px !important;
       top: -2px;
+      &.nav-searchbox-large {
+        .el-input {
+          width: 300px;
+        }
+      }
       &.is-active {
         border-color: transparent;
       }
       .el-input {
-        width: 360px;
+        width: 200px;
       }
     }
     a {
@@ -622,7 +688,8 @@ export default {
       height: 60px;
       line-height: 60px;
       display: inline-block;
-      padding: 0 20px;
+      // padding: 0 20px;
+      padding: 0 15px;
     }
     .el-menu-item {
       padding: 0;
@@ -730,6 +797,24 @@ export default {
 }
 .el-dialog__body {
   padding: 1px 20px;
+}
+
+.el-menu-mobile {
+  margin-top: 15px;
+  margin-left: -15px;
+  border-right: 0;
+  & > li {
+    padding-left: 0;
+  }
+  .el-submenu__title {
+    height: 32px;
+    line-height: 32px;
+    font-size: 15px;
+  }
+  .el-menu-item {
+    height: 32px;
+    line-height: 32px;
+  }
 }
 
 // =======================

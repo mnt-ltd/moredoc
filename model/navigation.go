@@ -12,7 +12,7 @@ type Navigation struct {
 	Title       string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;comment:链接名称;"`
 	Href        string     `form:"href" json:"href,omitempty" gorm:"column:href;type:varchar(255);size:255;comment:跳转链接;"`
 	Target      string     `form:"target" json:"target,omitempty" gorm:"column:target;type:varchar(16);size:16;comment:打开方式;"`
-	Color       string     `form:"color" json:"color,omitempty" gorm:"column:color;type:varchar(16);size:16;comment:链接颜色;"`
+	Color       string     `form:"color" json:"color,omitempty" gorm:"column:color;type:varchar(32);size:32;comment:链接颜色;"`
 	Sort        int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
 	Enable      *bool      `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:int(11);size:11;default:0;comment:是否启用;"`
 	ParentId    int64      `form:"parent_id" json:"parent_id,omitempty" gorm:"column:parent_id;type:int(11);size:11;default:0;comment:上级id;"`
@@ -123,10 +123,26 @@ func (m *DBModel) GetNavigationList(opt *OptionGetNavigationList) (navigationLis
 }
 
 // DeleteNavigation 删除数据
+// 连同子数据一起删除
 func (m *DBModel) DeleteNavigation(ids []int64) (err error) {
 	err = m.db.Where("id in (?)", ids).Delete(&Navigation{}).Error
 	if err != nil {
 		m.logger.Error("DeleteNavigation", zap.Error(err))
+		return
+	}
+
+	var children []Navigation
+	m.db.Select("id").Where("parent_id in (?)", ids).Find(&children)
+	if len(children) > 0 {
+		var childrenIds []int64
+		for _, child := range children {
+			childrenIds = append(childrenIds, child.Id)
+		}
+		err = m.DeleteNavigation(childrenIds)
+		if err != nil {
+			m.logger.Error("DeleteNavigation", zap.Error(err))
+			return
+		}
 	}
 	return
 }
