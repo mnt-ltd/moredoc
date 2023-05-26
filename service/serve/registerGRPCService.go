@@ -139,5 +139,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 导航服务
+	navgationAPIService := biz.NewNavigationAPIService(dbModel, logger)
+	v1.RegisterNavigationAPIServer(grpcServer, navgationAPIService)
+	err = v1.RegisterNavigationAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterNavigationAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }

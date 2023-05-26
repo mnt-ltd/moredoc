@@ -9,7 +9,12 @@ export default function ({ store, route, redirect }) {
   }
 
   // 管理员均可访问的页面
-  allowPages.push('/admin', '/admin/index', '/admin/dashboard')
+  allowPages.push(
+    '/admin',
+    '/admin/index',
+    '/admin/dashboard',
+    '/admin/navigation'
+  )
 
   // 去除route.path最后的斜杠
   let routePath = route.path

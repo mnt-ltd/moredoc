@@ -54,6 +54,10 @@
               <span slot="title">{{ menu.title }}</span>
             </el-menu-item>
           </template>
+          <el-menu-item index="/admin/navigation">
+            <i class="el-icon-monitor"></i>
+            <span slot="title">导航管理</span>
+          </el-menu-item>
         </el-menu>
       </transition>
     </el-aside>

@@ -43,6 +43,8 @@ func (s *NavigationAPIService) CreateNavigation(ctx context.Context, req *pb.Nav
 		return nil, status.Errorf(codes.InvalidArgument, err.Error())
 	}
 
+	s.logger.Debug("CreateNavigation", zap.Any("nav", nav), zap.Any("req", req))
+
 	err = s.dbModel.CreateNavigation(nav)
 	if err != nil {
 		s.logger.Error("CreateNavigation", zap.Error(err))
@@ -71,6 +73,8 @@ func (s *NavigationAPIService) UpdateNavigation(ctx context.Context, req *pb.Nav
 		s.logger.Error("CopyStruct", zap.Error(err))
 		return nil, status.Errorf(codes.InvalidArgument, err.Error())
 	}
+
+	s.logger.Debug("UpdateNavigation", zap.Any("nav", nav), zap.Any("req", req))
 
 	err = s.dbModel.UpdateNavigation(nav)
 	if err != nil {
