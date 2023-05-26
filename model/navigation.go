@@ -47,6 +47,10 @@ func (m *DBModel) UpdateNavigation(navigation *Navigation, updateFields ...strin
 		db = db.Select(m.GetTableFields(tableName))
 	}
 
+	if navigation.Id == navigation.ParentId {
+		navigation.ParentId = 0
+	}
+
 	err = db.Where("id = ?", navigation.Id).Updates(navigation).Error
 	if err != nil {
 		m.logger.Error("UpdateNavigation", zap.Error(err))
@@ -104,6 +108,9 @@ func (m *DBModel) GetNavigationList(opt *OptionGetNavigationList) (navigationLis
 		db = db.Select(opt.SelectFields)
 	}
 
+	if len(opt.Sort) == 0 {
+		opt.Sort = []string{"sort desc"}
+	}
 	db = m.generateQuerySort(db, tableName, opt.Sort)
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)

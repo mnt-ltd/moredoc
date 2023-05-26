@@ -52,6 +52,7 @@
       <FormNavigation
         ref="navigationForm"
         :init-navigation="navigation"
+        :trees="navigations"
         @success="formNavigationSuccess"
       />
     </el-dialog>
@@ -230,17 +231,6 @@ export default {
           name: 'wd',
           placeholder: '请输入关键字',
         },
-        {
-          type: 'select',
-          label: '状态',
-          name: 'enable',
-          placeholder: '请选择状态',
-          multiple: true,
-          options: [
-            { label: '启用', value: 1 },
-            { label: '禁用', value: 0 },
-          ],
-        },
       ]
     },
     initTableListFields() {
@@ -249,7 +239,7 @@ export default {
         {
           prop: 'title_html',
           label: '名称',
-          minWidth: 150,
+          minWidth: 200,
           fixed: 'left',
           type: 'html',
         },
@@ -259,9 +249,10 @@ export default {
           width: 80,
           type: 'bool',
         },
-        { prop: 'href', label: '链接', minWidth: 250 },
+        { prop: 'href', label: '链接', minWidth: 200 },
+        { prop: 'target', label: '打开方式', width: 80 },
         { prop: 'sort', label: '排序', width: 80, type: 'number' },
-        { prop: 'description', label: '描述', minWidth: 250 },
+        { prop: 'description', label: '描述', minWidth: 200 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
       ]

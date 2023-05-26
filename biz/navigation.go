@@ -123,8 +123,21 @@ func (s *NavigationAPIService) ListNavigation(ctx context.Context, req *pb.ListN
 		Size:         int(req.Size_),
 		WithCount:    true,
 		SelectFields: req.Field,
-		Sort:         strings.Split(req.Order, ","),
 	}
+
+	if req.Order != "" {
+		opt.Sort = strings.Split(req.Order, ",")
+	}
+
+	if req.Wd != "" {
+		opt.QueryLike = map[string][]interface{}{
+			"title":       {req.Wd},
+			"description": {req.Wd},
+			"href":        {req.Wd},
+		}
+	}
+
+	s.logger.Debug("ListNavigation", zap.Any("opt", opt), zap.Any("req", req))
 
 	navs, total, err := s.dbModel.GetNavigationList(opt)
 	if err != nil {

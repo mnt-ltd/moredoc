@@ -6,6 +6,21 @@
       label-width="80px"
       :model="navigation"
     >
+      <el-form-item label="上级导航">
+        <el-cascader
+          v-model="navigation.parent_id"
+          :options="trees"
+          :filterable="true"
+          :props="{
+            checkStrictly: true,
+            expandTrigger: 'hover',
+            label: 'title',
+            value: 'id',
+          }"
+          clearable
+          placeholder="请选择上级分类"
+        ></el-cascader>
+      </el-form-item>
       <el-form-item
         label="名称"
         prop="title"
@@ -60,6 +75,38 @@
         ></el-col>
       </el-row>
 
+      <el-row :gutter="20">
+        <el-col :span="12">
+          <el-form-item label="颜色">
+            <el-color-picker
+              v-model="navigation.color"
+              show-alpha
+              clearable
+              placeholder="请选择颜色"
+            ></el-color-picker>
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="打开方式">
+            <!-- 即 target -->
+            <el-select
+              v-model="navigation.target"
+              placeholder="请选择打开方式"
+              clearable
+            >
+              <el-option
+                v-for="item in [
+                  { label: '当前页', value: '_self' },
+                  { label: '新页签', value: '_blank' },
+                ]"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              ></el-option>
+            </el-select> </el-form-item
+        ></el-col>
+      </el-row>
+
       <el-form-item label="描述">
         <el-input
           v-model="navigation.description"
@@ -92,6 +139,12 @@ export default {
         return {}
       },
     },
+    trees: {
+      type: Array,
+      default: () => {
+        return []
+      },
+    },
   },
   data() {
     return {
@@ -118,6 +171,11 @@ export default {
         }
         this.loading = true
         const navigation = { ...this.navigation }
+        if (navigation.parent_id && navigation.parent_id.length > 0) {
+          navigation.parent_id =
+            navigation.parent_id[navigation.parent_id.length - 1]
+        }
+
         if (this.navigation.id > 0) {
           const res = await updateNavigation(navigation)
           if (res.status === 200) {
