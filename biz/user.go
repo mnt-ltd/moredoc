@@ -146,9 +146,14 @@ func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequ
 	}
 
 	user, err := s.dbModel.GetUserByUsername(req.Username)
-	if err != nil {
+	if err != nil && err != gorm.ErrRecordNotFound {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
+
+	if user.Id <= 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "用户名或密码错误")
+	}
+
 	if ok, err := unchained.CheckPassword(req.Password, user.Password); !ok || err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "用户名或密码错误")
 	}
