@@ -466,3 +466,20 @@ func (s *AttachmentAPIService) Favicon(ctx *gin.Context) {
 	}
 	ctx.File(favicon)
 }
+
+func (s *AttachmentAPIService) Logo(ctx *gin.Context) {
+	// 用户设置的logo
+	logo := strings.TrimLeft(s.dbModel.GetConfigOfSystem("logo").Logo, "./")
+	// 默认logo
+	defaultLogo := "dist/static/images/logo.png"
+
+	if logo != "" {
+		_, err := os.Stat(logo)
+		if err != nil {
+			logo = defaultLogo
+		}
+	} else {
+		logo = defaultLogo
+	}
+	ctx.File(logo)
+}
