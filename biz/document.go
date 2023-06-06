@@ -17,6 +17,7 @@ import (
 	"moredoc/util/filetil"
 	"moredoc/util/segword/jieba"
 
+	"github.com/araddon/dateparse"
 	"github.com/golang-jwt/jwt"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
@@ -574,10 +575,11 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 	res = &pb.SearchDocumentReply{}
 	now := time.Now()
 	opt := &model.OptionGetDocumentList{
-		WithCount: true,
-		Page:      int(req.Page),
-		Size:      int(req.Size_),
-		QueryIn:   make(map[string][]interface{}),
+		WithCount:  true,
+		Page:       int(req.Page),
+		Size:       int(req.Size_),
+		QueryIn:    make(map[string][]interface{}),
+		QueryRange: make(map[string][2]interface{}),
 	}
 
 	opt.Size = util.LimitRange(opt.Size, 10, 10)
@@ -594,10 +596,24 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 		"keywords":    util.Slice2Interface(strings.Split(req.Wd, " ")),
 		"description": util.Slice2Interface(strings.Split(req.Wd, " ")),
 	}
+
 	if len(req.CategoryId) > 0 {
 		opt.QueryIn = map[string][]interface{}{
 			"category_id": util.Slice2Interface(req.CategoryId),
 		}
+	}
+
+	if l := len(req.CreatedAt); l > 0 {
+		end := time.Now()
+		start, _ := dateparse.ParseLocal(req.CreatedAt[0])
+		if l > 1 {
+			end, _ = dateparse.ParseLocal(req.CreatedAt[1])
+		}
+		opt.QueryRange["created_at"] = [2]interface{}{start, end}
+	}
+
+	if req.UserId > 0 {
+		opt.QueryIn["user_id"] = []interface{}{req.UserId}
 	}
 
 	if req.Ext != "" {

@@ -137,6 +137,9 @@ message SearchDocumentRequest {
   repeated int64 category_id = 4; // 分类
   string sort = 5;                // 排序
   string ext = 7;                 // 类型
+  int64 user_id = 8;              // 用户ID
+  // 时间区间
+  repeated string created_at = 9; // 时间范围
 }
 
 // 文档评分

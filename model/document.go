@@ -202,8 +202,11 @@ func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Do
 		db = db.Where("d.deleted_at IS NULL")
 	}
 
+	m.logger.Debug("GetDocumentList", zap.Any("opt", opt))
+
 	db = m.generateQueryIn(db, tableDocument, opt.QueryIn)
 	db = m.generateQueryLike(db, tableDocument, opt.QueryLike)
+	db = m.generateQueryRange(db, tableDocument, opt.QueryRange)
 	if len(opt.Ids) > 0 {
 		db = db.Where("id in (?)", opt.Ids)
 	}
