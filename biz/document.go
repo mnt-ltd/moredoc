@@ -274,6 +274,7 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 		SelectFields: req.Field,
 		QueryIn:      make(map[string][]interface{}),
 		QueryLike:    make(map[string][]interface{}),
+		QueryRange:   make(map[string][2]interface{}),
 		IsRecommend:  req.IsRecommend,
 	}
 
@@ -291,6 +292,15 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 
 	if exts := filetil.GetExts(req.Ext); len(exts) > 0 {
 		opt.QueryIn["ext"] = util.Slice2Interface(exts)
+	}
+
+	if l := len(req.CreatedAt); l > 0 {
+		end := time.Now()
+		start, _ := dateparse.ParseLocal(req.CreatedAt[0])
+		if l > 1 {
+			end, _ = dateparse.ParseLocal(req.CreatedAt[1])
+		}
+		opt.QueryRange["created_at"] = [2]interface{}{start, end}
 	}
 
 	_, err := s.checkPermission(ctx)

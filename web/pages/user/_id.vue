@@ -22,30 +22,6 @@
                 >
               </span>
             </el-tab-pane>
-            <!-- <el-tab-pane name="user-id-document">
-              <span slot="label">
-                <nuxt-link
-                  class="el-link el-link--default"
-                  :to="{
-                    name: 'user-id-document',
-                    params: { id: user.id },
-                  }"
-                  ><i class="el-icon-document"></i>&nbsp;文档</nuxt-link
-                >
-              </span>
-            </el-tab-pane>
-            <el-tab-pane name="user-id-favorite">
-              <span slot="label">
-                <nuxt-link
-                  class="el-link el-link--default"
-                  :to="{
-                    name: 'user-id-favorite',
-                    params: { id: user.id },
-                  }"
-                  ><i class="el-icon-star-off"></i>&nbsp;收藏</nuxt-link
-                >
-              </span>
-            </el-tab-pane> -->
             <nuxt-child :user="user" />
           </el-tabs>
         </el-card>

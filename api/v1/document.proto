@@ -84,7 +84,8 @@ message ListDocumentRequest {
   repeated int32 status = 8;      // 文档状态
   repeated bool is_recommend = 9; // 是否推荐
   int64 limit = 10; // 查询数量显示。当该值大于0时，page和size无效
-  string ext = 11; // 文档扩展名
+  string ext = 11;                 // 文档扩展名
+  repeated string created_at = 12; // 创建时间
 }
 
 // 文档列表

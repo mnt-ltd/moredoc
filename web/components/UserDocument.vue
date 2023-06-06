@@ -1,5 +1,48 @@
 <template>
   <div class="com-user-document">
+    <!-- 文档搜索表单 -->
+    <el-form
+      :inline="true"
+      :model="query"
+      class="demo-form-inline"
+      @submit.native.prevent
+    >
+      <el-form-item>
+        <el-input
+          v-model="query.wd"
+          placeholder="请输入关键字"
+          clearable
+          size="medium"
+          @keydown.enter.native="onSearch"
+        ></el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-date-picker
+          v-model="query.created_at"
+          type="datetimerange"
+          :picker-options="datetimePickerOptions"
+          range-separator="至"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+          align="right"
+          size="medium"
+          value-format="yyyy-MM-dd HH:mm:ss"
+        >
+        </el-date-picker>
+      </el-form-item>
+      <el-form-item>
+        <el-button
+          type="primary"
+          size="medium"
+          icon="el-icon-search"
+          @click="onSearch"
+          :loading="loading"
+        >
+          搜索
+        </el-button>
+      </el-form-item>
+    </el-form>
+
     <el-table v-loading="loading" :data="docs" style="width: 100%">
       <el-table-column prop="title" label="名称" min-width="300">
         <template slot-scope="scope">
@@ -116,13 +159,14 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import { deleteDocument, listDocument } from '~/api/document'
+import { deleteDocument, listDocument, searchDocument } from '~/api/document'
 import {
   formatBytes,
   formatDatetime,
   formatRelativeTime,
   getIcon,
 } from '~/utils/utils'
+import { datetimePickerOptions } from '~/utils/enum'
 
 export default {
   name: 'UserDocument',
@@ -134,12 +178,15 @@ export default {
   },
   data() {
     return {
+      datetimePickerOptions,
       docs: [],
       total: 0,
       loading: false,
       query: {
         page: parseInt(this.$route.query.page) || 1,
         size: 20,
+        wd: '',
+        created_at: [],
       },
       updateDocumentVisible: false,
       document: { id: 0 },
@@ -152,10 +199,15 @@ export default {
   watch: {
     '$route.query': {
       handler() {
-        this.query.page = parseInt(this.$route.query.page) || 1
+        this.query = {
+          ...this.$route.query,
+          page: parseInt(this.$route.query.page) || 1,
+          size: parseInt(this.$route.query.size) || 20,
+        }
+        console.log(this.$route.query, this.query)
         this.getDocuments()
       },
-      deep: true,
+      immediate: true,
     },
   },
   created() {
@@ -179,13 +231,31 @@ export default {
     tabClick(tab) {
       this.activeTab = tab.name
     },
+    onSearch() {
+      this.query.page = 1
+      this.$router.push({
+        path: this.$route.path,
+        query: this.query,
+      })
+    },
     async getDocuments() {
       if (this.userId === 0 || this.loading) return
       this.loading = true
-      const res = await listDocument({
-        ...this.query,
-        user_id: this.userId,
-      })
+      let res
+      if (this.query.wd) {
+        res = await searchDocument({
+          ...this.query,
+          user_id: this.userId,
+        })
+      } else {
+        res = await listDocument({
+          ...this.query,
+          user_id: this.userId,
+        })
+      }
+
+      console.log(res)
+
       if (res.status === 200) {
         const docs = res.data.document || []
         docs.map((item) => {
