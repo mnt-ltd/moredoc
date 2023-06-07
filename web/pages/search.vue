@@ -769,6 +769,11 @@ export default {
         }
       }
     }
+    .search-filter {
+      .el-dropdown {
+        margin-right: 7px;
+      }
+    }
     .search-right {
       width: 100% !important;
       padding-left: 0 !important;
