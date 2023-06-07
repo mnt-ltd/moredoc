@@ -63,6 +63,7 @@
                 v-model="query.category_id"
                 placeholder="分类"
                 @change="onFilter"
+                :size="selectSize"
               >
                 <el-option
                   v-for="item in [
@@ -79,6 +80,7 @@
                 v-model="query.ext"
                 placeholder="类型"
                 @change="onFilter"
+                :size="selectSize"
               >
                 <el-option
                   v-for="item in searchExts"
@@ -92,6 +94,7 @@
                 v-model="query.sort"
                 placeholder="排序"
                 @change="onFilter"
+                :size="selectSize"
               >
                 <el-option
                   v-for="item in searchSorts"
@@ -105,6 +108,7 @@
                 v-model="query.duration"
                 placeholder="时间范围"
                 @change="onFilter"
+                :size="selectSize"
               >
                 <el-option
                   v-for="item in durationOptions"
@@ -235,6 +239,7 @@ export default {
   data() {
     return {
       loading: false,
+      selectSize: 'medium',
       query: {
         wd: this.$route.query.wd || '',
         page: 1,
