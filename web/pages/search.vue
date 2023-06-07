@@ -59,78 +59,122 @@
         <el-card v-loading="loading" shadow="never">
           <div slot="header">
             <div class="search-filter">
-              <el-select
-                v-model="query.category_id"
-                placeholder="分类"
-                @change="onFilter"
-                :size="selectSize"
-              >
-                <el-option
-                  v-for="item in [
-                    { id: 0, title: '全部分类' },
-                    ...categoryTrees,
-                  ]"
-                  :key="'cate-' + item.id"
-                  :label="item.title"
-                  :value="item.id"
-                >
-                </el-option>
-              </el-select>
-              <el-select
-                v-model="query.ext"
-                placeholder="类型"
-                @change="onFilter"
-                :size="selectSize"
-              >
-                <el-option
-                  v-for="item in searchExts"
-                  :key="'ext-' + item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-              <el-select
-                v-model="query.sort"
-                placeholder="排序"
-                @change="onFilter"
-                :size="selectSize"
-              >
-                <el-option
-                  v-for="item in searchSorts"
-                  :key="'sort-' + item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
-              <el-select
-                v-model="query.duration"
-                placeholder="时间范围"
-                @change="onFilter"
-                :size="selectSize"
-              >
-                <el-option
-                  v-for="item in durationOptions"
-                  :key="'duration-' + item.value"
-                  :label="item.label"
-                  :value="item.value"
-                >
-                </el-option>
-              </el-select>
+              <el-dropdown :show-timeout="showTimeout">
+                <el-button type="text" :size="filterSize">
+                  {{ filterCategoryName(query.category_id)
+                  }}<i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item
+                    v-for="item in [
+                      { id: 0, title: '全部分类' },
+                      ...categoryTrees,
+                    ]"
+                    :key="'cate-' + item.id"
+                    :value="item.id"
+                  >
+                    <nuxt-link
+                      class="el-link el-link--default"
+                      :class="
+                        item.id == query.category_id ? 'el-link--primary' : ''
+                      "
+                      :to="{
+                        query: { ...$route.query, category_id: item.id },
+                      }"
+                      >{{ item.title }}</nuxt-link
+                    >
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <el-dropdown :show-timeout="showTimeout">
+                <el-button type="text" :size="filterSize">
+                  <img
+                    v-if="query.ext != 'all' && query.ext != ''"
+                    :src="`/static/images/${query.ext}_24.png`"
+                    :alt="`${query.ext}文档`"
+                  />
+                  {{ filterExtName(query.ext)
+                  }}<i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item
+                    v-for="item in searchExts"
+                    :key="'se-' + item.value"
+                  >
+                    <nuxt-link
+                      class="el-link el-link--default"
+                      :class="item.value == query.ext ? 'el-link--primary' : ''"
+                      :to="{
+                        query: { ...$route.query, ext: item.value },
+                      }"
+                    >
+                      <img
+                        v-if="item.value != 'all' && item.value != ''"
+                        :src="`/static/images/${item.value}_24.png`"
+                        :alt="`${item.label}文档`"
+                      />
+                      {{ item.label }}</nuxt-link
+                    >
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <el-dropdown :show-timeout="showTimeout">
+                <el-button type="text" :size="filterSize">
+                  {{ filterSortName(query.sort)
+                  }}<i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item
+                    v-for="item in searchSorts"
+                    :key="'ss-' + item.value"
+                  >
+                    <nuxt-link
+                      class="el-link el-link--default"
+                      :class="
+                        item.value == query.sort ? 'el-link--primary' : ''
+                      "
+                      :to="{
+                        query: { ...$route.query, sort: item.value },
+                      }"
+                      >{{ item.label }}</nuxt-link
+                    >
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+              <el-dropdown :show-timeout="showTimeout">
+                <el-button type="text" :size="filterSize">
+                  {{ filterDurationName(query.duration) }}
+                  <i class="el-icon-arrow-down el-icon--right"></i>
+                </el-button>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item
+                    v-for="item in durationOptions"
+                    :key="'d-' + item.value"
+                  >
+                    <nuxt-link
+                      class="el-link el-link--default"
+                      :class="
+                        item.value == query.duration ? 'el-link--primary' : ''
+                      "
+                      :to="{
+                        query: { ...$route.query, duration: item.value },
+                      }"
+                      >{{ item.label }}</nuxt-link
+                    >
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
             </div>
-            <div>
-              本次搜索耗时
-              <span class="el-link el-link--danger">{{
-                spend || '0.000'
-              }}</span>
-              秒，在
-              <span class="el-link el-link--primary">{{
-                stats.document_count || '0'
-              }}</span>
-              篇文档中为您找到相关结果约
-              <span class="el-link el-link--danger">{{ total || 0 }}</span> 个.
-            </div>
+          </div>
+          <div class="search-tips">
+            本次搜索耗时
+            <span class="el-link el-link--danger">{{ spend || '0.000' }}</span>
+            秒，在
+            <span class="el-link el-link--primary">{{
+              stats.document_count || '0'
+            }}</span>
+            篇文档中为您找到相关结果约
+            <span class="el-link el-link--danger">{{ total || 0 }}</span> 个.
           </div>
           <!-- <div class="search-result-none">没有搜索到内容...</div> -->
           <div class="search-result">
@@ -239,7 +283,6 @@ export default {
   data() {
     return {
       loading: false,
-      selectSize: 'medium',
       query: {
         wd: this.$route.query.wd || '',
         page: 1,
@@ -288,6 +331,7 @@ export default {
       searchRightWidth: 0,
       cardOffsetTop: 35,
       datetimePickerOptions,
+      showTimeout: 50,
     }
   },
   head() {
@@ -314,6 +358,9 @@ export default {
     ...mapGetters('user', ['user']),
     ...mapGetters('category', ['categoryTrees']),
     ...mapGetters('setting', ['settings']),
+    filterSize() {
+      return this.isMobile ? 'mini' : 'medium'
+    },
   },
   watch: {
     '$route.query': {
@@ -483,6 +530,22 @@ export default {
         },
       })
     },
+    filterCategoryName(id) {
+      const category = this.categoryTrees.find((item) => item.id === id)
+      return category ? category.title : '全部分类'
+    },
+    filterSortName(value) {
+      const sort = this.searchSorts.find((item) => item.value === value)
+      return sort ? sort.label : '默认排序'
+    },
+    filterDurationName(value) {
+      const duration = this.durationOptions.find((item) => item.value === value)
+      return duration ? duration.label : '全部时间'
+    },
+    filterExtName(value) {
+      const ext = this.searchExts.find((item) => item.value === value)
+      return ext ? ext.label : '全部格式'
+    },
   },
 }
 </script>
@@ -492,6 +555,17 @@ export default {
     padding-top: 0;
     .el-main {
       padding-top: 0;
+    }
+  }
+  .el-dropdown-menu__item {
+    padding: 0;
+    .el-link {
+      padding: 0 20px;
+      img {
+        width: 16px;
+        height: 16px;
+        margin-right: 4px;
+      }
     }
   }
 }
@@ -550,33 +624,6 @@ export default {
       border-radius: 3px;
     }
   }
-  .search-left-col {
-    .el-card:first-of-type {
-      .el-card__body {
-        padding-bottom: 0;
-      }
-    }
-    .el-card__header {
-      border-bottom: 0;
-      padding: 15px 10px 0;
-    }
-    .el-card__body {
-      padding: 15px 10px;
-    }
-    a {
-      display: block;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      line-height: 36px;
-      padding-left: 1em;
-      &.el-link-active,
-      &:hover {
-        color: #409eff;
-        background: $background-grey-light;
-      }
-    }
-  }
   .search-right {
     a {
       display: inline-block;
@@ -592,12 +639,7 @@ export default {
       font-weight: normal;
       font-size: 15px;
       line-height: 20px;
-      color: #888;
-      padding-bottom: 15px;
-      .el-link {
-        position: relative;
-        top: -2px;
-      }
+      padding: 10px 20px;
     }
 
     .el-card__body {
@@ -659,11 +701,30 @@ export default {
       font-size: 14px;
     }
   }
+  .search-tips {
+    font-size: 14px;
+    margin-top: 10px;
+    color: #999;
+    .el-link {
+      position: relative;
+      top: -2px;
+    }
+  }
   .search-filter {
-    .el-input {
-      width: 150px;
-      margin-bottom: 10px;
-      margin-right: 5px;
+    .el-dropdown {
+      margin-right: 15px;
+    }
+    .el-button--text {
+      color: #6b7a88;
+      &:hover {
+        color: #409eff;
+      }
+    }
+    img {
+      width: 14px;
+      height: 14px;
+      position: relative;
+      top: 1px;
     }
   }
 }
@@ -700,6 +761,12 @@ export default {
       }
       .search-result li {
         padding-top: 0;
+      }
+      .el-card__header {
+        font-size: 12px;
+        .el-button--mini {
+          font-size: 13px;
+        }
       }
     }
     .search-right {
