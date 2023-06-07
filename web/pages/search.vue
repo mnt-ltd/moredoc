@@ -45,6 +45,22 @@
             placeholder="请输入关键词"
             @keyup.enter.native="onSearch"
           >
+            <el-cascader
+              slot="prepend"
+              v-model="query.category_id"
+              @change="onSearch"
+              :options="categoryTrees"
+              :show-all-levels="false"
+              :filterable="true"
+              :props="{
+                checkStrictly: true,
+                expandTrigger: 'hover',
+                label: 'title',
+                value: 'id',
+              }"
+              clearable
+              placeholder="文档分类"
+            ></el-cascader>
             <i
               slot="suffix"
               @click="onSearch"
@@ -69,7 +85,7 @@
               :to="{
                 path: '/search',
                 query: {
-                  wd: query.wd,
+                  ...query,
                   ext: item.value,
                   page: 1,
                   size: 10,
@@ -93,8 +109,7 @@
               :to="{
                 path: '/search',
                 query: {
-                  wd: query.wd,
-                  ext: query.ext,
+                  ...query,
                   page: 1,
                   size: 10,
                   sort: item.value,
@@ -113,14 +128,18 @@
       <el-col :span="14" class="search-main" ref="searchMain">
         <el-card v-loading="loading" shadow="never">
           <div slot="header">
-            本次搜索耗时
-            <span class="el-link el-link--danger">{{ spend || '0.000' }}</span>
-            秒，在
-            <span class="el-link el-link--primary">{{
-              stats.document_count || '0'
-            }}</span>
-            篇文档中为您找到相关结果约
-            <span class="el-link el-link--danger">{{ total || 0 }}</span> 个.
+            <div>
+              本次搜索耗时
+              <span class="el-link el-link--danger">{{
+                spend || '0.000'
+              }}</span>
+              秒，在
+              <span class="el-link el-link--primary">{{
+                stats.document_count || '0'
+              }}</span>
+              篇文档中为您找到相关结果约
+              <span class="el-link el-link--danger">{{ total || 0 }}</span> 个.
+            </div>
           </div>
           <!-- <div class="search-result-none">没有搜索到内容...</div> -->
           <div class="search-result">
@@ -218,7 +237,13 @@
 import { mapGetters } from 'vuex'
 import { getStats } from '~/api/config'
 import { searchDocument } from '~/api/document'
-import { formatBytes, getIcon, formatRelativeTime } from '~/utils/utils'
+import {
+  formatBytes,
+  getIcon,
+  formatRelativeTime,
+  parseQueryIntArray,
+} from '~/utils/utils'
+import { datetimePickerOptions } from '~/utils/enum'
 export default {
   data() {
     return {
@@ -229,6 +254,7 @@ export default {
         size: 10,
         ext: 'all', // 搜索类型
         sort: 'default', // 排序
+        category_id: [],
       },
       searchExts: [
         { label: '不限', value: 'all' },
@@ -259,6 +285,7 @@ export default {
       searchLeftWidth: 0,
       searchRightWidth: 0,
       cardOffsetTop: 35,
+      datetimePickerOptions,
     }
   },
   head() {
@@ -289,7 +316,12 @@ export default {
   watch: {
     '$route.query': {
       handler(val) {
-        const query = { ...this.query, ...val }
+        let query = { page: 1, size: 10, sort: 'default', ext: 'all', ...val }
+        try {
+          query = { ...query, ...parseQueryIntArray(query, ['category_id']) }
+        } catch (error) {
+          console.log(error)
+        }
         query.page = parseInt(query.page) || 1
         query.size = parseInt(query.size) || 10
         this.query = query
@@ -299,9 +331,14 @@ export default {
     },
   },
   created() {
-    const query = { ...this.query, ...this.$route.query }
+    let query = { ...this.query, ...this.$route.query }
     query.page = parseInt(query.page) || 1
     query.size = parseInt(query.size) || 10
+    try {
+      query = { ...query, ...parseQueryIntArray(query, ['category_id']) }
+    } catch (error) {
+      console.log(error)
+    }
     this.query = query
     this.getStats()
   },
@@ -383,7 +420,11 @@ export default {
     },
     async execSearch() {
       this.loading = true
-      const res = await searchDocument(this.query)
+      const query = { ...this.query }
+      if (query.category_id && query.category_id.length > 0) {
+        query.category_id = query.category_id[query.category_id.length - 1]
+      }
+      const res = await searchDocument(query)
       if (res.status === 200) {
         this.total = res.data.total
         this.spend = res.data.spend
@@ -453,9 +494,20 @@ export default {
       width: $default-width;
       max-width: $max-width;
     }
+    .el-cascader {
+      width: 110px;
+      height: 38px;
+      line-height: 38px;
+      .el-input__inner {
+        height: 38px;
+        line-height: 38px;
+        border: 0;
+      }
+    }
     .el-input-group__append,
     .el-input-group__prepend {
-      background-color: #dcdfe6;
+      padding: 0 2px;
+      background-color: #fff;
     }
     .search-input {
       margin-top: 5px;

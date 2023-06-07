@@ -225,7 +225,7 @@ func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Do
 	}
 
 	if opt.WithCount {
-		err = db.Count(&total).Error
+		err = db.Group("d.id").Count(&total).Error
 		if err != nil {
 			m.logger.Error("GetDocumentList", zap.Error(err))
 			return
@@ -246,7 +246,7 @@ func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Do
 	}
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
-	err = db.Find(&documentList).Error
+	err = db.Group("d.id").Find(&documentList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetDocumentList", zap.Error(err))
 	}
