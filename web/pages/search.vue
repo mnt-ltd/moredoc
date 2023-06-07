@@ -45,22 +45,6 @@
             placeholder="请输入关键词"
             @keyup.enter.native="onSearch"
           >
-            <el-cascader
-              slot="prepend"
-              v-model="query.category_id"
-              @change="onSearch"
-              :options="categoryTrees"
-              :show-all-levels="false"
-              :filterable="true"
-              :props="{
-                checkStrictly: true,
-                expandTrigger: 'hover',
-                label: 'title',
-                value: 'id',
-              }"
-              clearable
-              placeholder="文档分类"
-            ></el-cascader>
             <i
               slot="suffix"
               @click="onSearch"
@@ -71,63 +55,66 @@
       </el-row>
     </div>
     <el-row :gutter="20" class="mgt-20px">
-      <el-col :span="4" class="search-left-col">
-        <!-- 空 card 占位，以便设置position:fixed -->
-        <div class="emptyblock"></div>
-        <div ref="searchLeft" class="scroll">
-          <el-card shadow="never">
-            <div slot="header" class="clearfix">
-              <span>类型</span>
-            </div>
-            <nuxt-link
-              v-for="item in searchExts"
-              :key="'st-' + item.value"
-              :to="{
-                path: '/search',
-                query: {
-                  ...query,
-                  ext: item.value,
-                  page: 1,
-                  size: 10,
-                },
-              }"
-              :class="[
-                'el-link',
-                'el-link--default',
-                item.value === query.ext ? 'el-link-active' : '',
-              ]"
-              >{{ item.label }}</nuxt-link
-            >
-          </el-card>
-          <el-card shadow="never">
-            <div slot="header" class="clearfix">
-              <span>排序</span>
-            </div>
-            <nuxt-link
-              v-for="item in searchSorts"
-              :key="'ss-' + item.value"
-              :to="{
-                path: '/search',
-                query: {
-                  ...query,
-                  page: 1,
-                  size: 10,
-                  sort: item.value,
-                },
-              }"
-              :class="[
-                'el-link',
-                'el-link--default',
-                item.value === query.sort ? 'el-link-active' : '',
-              ]"
-              >{{ item.label }}</nuxt-link
-            >
-          </el-card>
-        </div>
-      </el-col>
-      <el-col :span="14" class="search-main" ref="searchMain">
+      <el-col :span="18" class="search-main" ref="searchMain">
         <el-card v-loading="loading" shadow="never">
           <div slot="header">
+            <div class="search-filter">
+              <el-select
+                v-model="query.category_id"
+                placeholder="分类"
+                @change="onFilter"
+              >
+                <el-option
+                  v-for="item in [
+                    { id: 0, title: '全部分类' },
+                    ...categoryTrees,
+                  ]"
+                  :key="'cate-' + item.id"
+                  :label="item.title"
+                  :value="item.id"
+                >
+                </el-option>
+              </el-select>
+              <el-select
+                v-model="query.ext"
+                placeholder="类型"
+                @change="onFilter"
+              >
+                <el-option
+                  v-for="item in searchExts"
+                  :key="'ext-' + item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
+              <el-select
+                v-model="query.sort"
+                placeholder="排序"
+                @change="onFilter"
+              >
+                <el-option
+                  v-for="item in searchSorts"
+                  :key="'sort-' + item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
+              <el-select
+                v-model="query.duration"
+                placeholder="时间范围"
+                @change="onFilter"
+              >
+                <el-option
+                  v-for="item in durationOptions"
+                  :key="'duration-' + item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
+              </el-select>
+            </div>
             <div>
               本次搜索耗时
               <span class="el-link el-link--danger">{{
@@ -241,7 +228,7 @@ import {
   formatBytes,
   getIcon,
   formatRelativeTime,
-  parseQueryIntArray,
+  genTimeDuration,
 } from '~/utils/utils'
 import { datetimePickerOptions } from '~/utils/enum'
 export default {
@@ -254,10 +241,11 @@ export default {
         size: 10,
         ext: 'all', // 搜索类型
         sort: 'default', // 排序
-        category_id: [],
+        category_id: 0,
+        duration: 'all',
       },
       searchExts: [
-        { label: '不限', value: 'all' },
+        { label: '全部格式', value: 'all' },
         { label: 'PDF', value: 'pdf' },
         { label: 'DOC', value: 'doc' },
         { label: 'PPT', value: 'ppt' },
@@ -274,6 +262,15 @@ export default {
         { label: '下载排序', value: 'download_count' },
         { label: '浏览排序', value: 'view_count' },
         { label: '收藏排序', value: 'favorite_count' },
+      ],
+      durationOptions: [
+        { label: '全部时间', value: 'all' },
+        { label: '最近一天', value: 'day' },
+        { label: '最近一周', value: 'week' },
+        { label: '最近一个月', value: 'month' },
+        { label: '最近三个月', value: 'three_month' },
+        { label: '最近半年', value: 'half_year' },
+        { label: '最近一年', value: 'year' },
       ],
       docs: [],
       total: 0,
@@ -316,9 +313,16 @@ export default {
   watch: {
     '$route.query': {
       handler(val) {
-        let query = { page: 1, size: 10, sort: 'default', ext: 'all', ...val }
+        let query = {
+          page: 1,
+          size: 10,
+          sort: 'default',
+          ext: 'all',
+          duration: 'all',
+          ...val,
+        }
         try {
-          query = { ...query, ...parseQueryIntArray(query, ['category_id']) }
+          query.category_id = parseInt(query.category_id) || 0
         } catch (error) {
           console.log(error)
         }
@@ -335,7 +339,7 @@ export default {
     query.page = parseInt(query.page) || 1
     query.size = parseInt(query.size) || 10
     try {
-      query = { ...query, ...parseQueryIntArray(query, ['category_id']) }
+      query.category_id = parseInt(query.category_id) || 0
     } catch (error) {
       console.log(error)
     }
@@ -355,11 +359,24 @@ export default {
       this.$router.push({
         path: '/search',
         query: {
-          ...this.query,
+          wd: this.query.wd,
           page: 1,
           size: 10,
           sort: 'default',
           ext: 'all',
+          category_id: 0,
+        },
+      })
+    },
+    onFilter() {
+      this.$router.push({
+        path: '/search',
+        query: {
+          page: 1,
+          size: 10,
+          sort: 'default',
+          ext: 'all',
+          ...this.query,
         },
       })
     },
@@ -421,9 +438,12 @@ export default {
     async execSearch() {
       this.loading = true
       const query = { ...this.query }
-      if (query.category_id && query.category_id.length > 0) {
-        query.category_id = query.category_id[query.category_id.length - 1]
+      if (!query.category_id) {
+        delete query.category_id
       }
+      query['created_at'] = genTimeDuration(query.duration)
+      delete query.duration
+
       const res = await searchDocument(query)
       if (res.status === 200) {
         this.total = res.data.total
@@ -608,7 +628,7 @@ export default {
         text-overflow: ellipsis;
         white-space: nowrap;
         display: inline-block;
-        width: 100%;
+        max-width: 100%;
         img {
           height: 18px;
           position: relative;
@@ -632,6 +652,13 @@ export default {
     .doc-info {
       color: #bdc3c7;
       font-size: 14px;
+    }
+  }
+  .search-filter {
+    .el-input {
+      width: 150px;
+      margin-bottom: 10px;
+      margin-right: 5px;
     }
   }
 }

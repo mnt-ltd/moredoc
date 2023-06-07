@@ -239,3 +239,43 @@ export function genLinkHTML(title, href) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')}</a>`
 }
+
+// 获取时间区间
+export function genTimeDuration(duration) {
+  // { label: '最近一天', value: 'day' },
+  // { label: '最近一周', value: 'week' },
+  // { label: '最近一个月', value: 'month' },
+  // { label: '最近三个月', value: 'three_month' },
+  // { label: '最近半年', value: 'half_year' },
+  // { label: '最近一年', value: 'year' },
+  const fmt = 'yyyy-MM-dd hh:mm:ss'
+  const start = new Date()
+  switch (duration) {
+    case 'day':
+      // 最近一天
+      start.setTime(start.getTime() - 3600 * 1000 * 24)
+      break
+    case 'week':
+      // 最近一周
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+      break
+    case 'month':
+      // 最近一个月
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 31)
+      break
+    case 'three_month':
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 92)
+    // 最近三个月
+    case 'half_year':
+      // 最近半年
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 183)
+      break
+    case 'year':
+      // 最近一年
+      start.setTime(start.getTime() - 3600 * 1000 * 24 * 365)
+      break
+    default:
+      return []
+  }
+  return [start.Format(fmt), new Date().Format(fmt)]
+}
