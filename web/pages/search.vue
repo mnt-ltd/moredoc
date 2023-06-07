@@ -54,7 +54,7 @@
         </el-col>
       </el-row>
     </div>
-    <el-row :gutter="20" class="mgt-20px">
+    <el-row :gutter="20">
       <el-col :span="18" class="search-main" ref="searchMain">
         <el-card v-loading="loading" shadow="never">
           <div slot="header">
@@ -687,7 +687,7 @@ export default {
     }
     .search-main {
       width: 100% !important;
-      margin-top: 15px;
+      // margin-top: 15px;
       padding-left: 0 !important;
       padding-right: 0 !important;
       .el-card__body {
