@@ -653,6 +653,9 @@ export default {
       width: $default-width;
       max-width: $max-width;
     }
+    .el-menu--horizontal > .el-submenu .el-submenu__title {
+      padding-top: 1px;
+    }
     .el-menu.el-menu--horizontal {
       border-bottom: 0;
       width: $default-width;
@@ -790,6 +793,11 @@ export default {
 }
 .el-menu--popup {
   min-width: 115px;
+  .el-menu-item {
+    a {
+      display: block;
+    }
+  }
 }
 
 .el-dialog__header {
