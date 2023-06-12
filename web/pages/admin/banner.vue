@@ -46,6 +46,7 @@
     </el-card>
 
     <el-dialog
+      :close-on-click-modal="false"
       width="640px"
       :title="banner.id > 0 ? '编辑横幅' : '新增横幅'"
       :visible.sync="formVisible"

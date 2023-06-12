@@ -45,6 +45,7 @@
     </el-card>
 
     <el-dialog
+      :close-on-click-modal="false"
       :title="report.id ? '编辑举报' : '新增举报'"
       :visible.sync="formReportVisible"
       width="640px"

@@ -61,6 +61,7 @@
       </div>
     </el-card>
     <el-dialog
+      :close-on-click-modal="false"
       v-if="comment.id > 0"
       title="评论编审"
       :visible.sync="formCommentVisible"

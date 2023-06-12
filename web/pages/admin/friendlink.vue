@@ -45,6 +45,7 @@
     </el-card>
 
     <el-dialog
+      :close-on-click-modal="false"
       :title="friendlink.id ? '编辑友链' : '新增友链'"
       :visible.sync="formFriendlinkVisible"
       width="640px"

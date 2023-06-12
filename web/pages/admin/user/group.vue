@@ -56,6 +56,7 @@
     </el-card>
 
     <el-dialog
+      :close-on-click-modal="false"
       :title="group.id ? '编辑分组' : '新增分组'"
       :visible.sync="formGroupVisible"
       width="640px"

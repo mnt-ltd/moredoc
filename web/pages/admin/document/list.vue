@@ -113,7 +113,12 @@
         </el-pagination>
       </div>
     </el-card>
-    <el-dialog title="编辑文档" width="640px" :visible.sync="formVisible">
+    <el-dialog
+      :close-on-click-modal="false"
+      title="编辑文档"
+      width="640px"
+      :visible.sync="formVisible"
+    >
       <FormUpdateDocument
         :category-trees="trees"
         :init-document="document"
@@ -122,6 +127,7 @@
       />
     </el-dialog>
     <el-dialog
+      :close-on-click-modal="false"
       title="批量分类"
       width="640px"
       :visible.sync="formDocumentsCategoryVisible"
@@ -134,6 +140,7 @@
       />
     </el-dialog>
     <el-dialog
+      :close-on-click-modal="false"
       title="推荐设置"
       :visible.sync="formDocumentRecommendVisible"
       width="640px"

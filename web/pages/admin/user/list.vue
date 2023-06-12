@@ -57,6 +57,7 @@
     </el-card>
 
     <el-dialog
+      :close-on-click-modal="false"
       :title="user.id ? '设置用户' : '新增用户'"
       :visible.sync="formUserVisible"
       width="640px"
@@ -69,6 +70,7 @@
       />
     </el-dialog>
     <el-dialog
+      :close-on-click-modal="false"
       title="编辑用户"
       :visible.sync="formUserProfileVisible"
       width="640px"

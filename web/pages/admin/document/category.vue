@@ -29,6 +29,7 @@
       />
     </el-card>
     <el-dialog
+      :close-on-click-modal="false"
       :title="category.id ? '编辑分类' : '新增分类'"
       :visible.sync="formVisible"
       :width="'640px'"

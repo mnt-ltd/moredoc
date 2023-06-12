@@ -43,7 +43,12 @@
       </div>
     </el-card>
 
-    <el-dialog title="编辑附件" width="640px" :visible.sync="formVisible">
+    <el-dialog
+      :close-on-click-modal="false"
+      title="编辑附件"
+      width="640px"
+      :visible.sync="formVisible"
+    >
       <FormAttachment :init-attachment="attachment" @success="formSuccess" />
     </el-dialog>
   </div>

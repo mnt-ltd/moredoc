@@ -45,6 +45,7 @@
       </div>
     </el-card>
     <el-dialog
+      :close-on-click-modal="false"
       :title="navigation.id ? '编辑导航' : '新增导航'"
       :visible.sync="formNavigationVisible"
       width="640px"
