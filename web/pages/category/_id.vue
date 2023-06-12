@@ -549,7 +549,7 @@ export default {
         border: 1px solid #efefef;
       }
     }
-    .el-col-21 {
+    .el-col-20 {
       width: 75%;
     }
     .doc-desc {

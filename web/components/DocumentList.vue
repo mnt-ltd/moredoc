@@ -3,12 +3,12 @@
     <ul>
       <li v-for="doc in documents" :key="'doc-' + doc.id">
         <el-row :gutter="20">
-          <el-col :span="3" class="doc-cover">
+          <el-col :span="4" class="doc-cover">
             <nuxt-link :to="`/document/${doc.id}`">
               <document-cover :document="doc" />
             </nuxt-link>
           </el-col>
-          <el-col :span="21">
+          <el-col :span="20">
             <h3>
               <nuxt-link
                 :to="`/document/${doc.id}`"
@@ -132,8 +132,8 @@ export default {
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    max-height: 52px;
+    -webkit-line-clamp: 3;
+    max-height: 78px;
     -webkit-box-orient: vertical;
   }
 }
