@@ -758,10 +758,10 @@ export default {
       display: inline-block;
       font-weight: 400;
       font-size: 1.2em;
-      margin-top: -2px;
+      margin-top: -8px;
       .nav-user-avatar {
         position: relative;
-        top: -3px;
+        top: -2px;
       }
     }
   }
