@@ -23,6 +23,7 @@ export const documentStatusOptions = [
   { label: '已转换', value: 2, type: 'success' },
   { label: '转换失败', value: 3, type: 'warning' },
   { label: '已禁用', value: 4, type: 'danger' },
+  { label: '重新转换', value: 5, type: 'info' },
 ]
 
 // 0 网站横幅，1 小程序横幅，2 APP横幅

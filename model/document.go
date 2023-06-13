@@ -26,6 +26,7 @@ const (
 	DocumentStatusConverted         // 已转换
 	DocumentStatusFailed            // 转换失败
 	DocumentStatusDisabled          // 已禁用
+	DocumentStatusRePending         // 重新等待转换
 )
 
 var DocumentStatusMap = map[int]struct{}{
@@ -600,7 +601,7 @@ func (m *DBModel) GetDocumentStatusConvertedByHash(hash []string) (hashMapDocume
 // 7. 更新文档状态
 func (m *DBModel) ConvertDocument() (err error) {
 	var document Document
-	err = m.db.Where("status = ?", DocumentStatusPending).First(&document).Error
+	err = m.db.Where("status in ?", []int{DocumentStatusPending, DocumentStatusRePending}).First(&document).Error
 	if err != nil {
 		if err != gorm.ErrRecordNotFound {
 			m.logger.Error("ConvertDocument", zap.Error(err))
@@ -623,10 +624,11 @@ func (m *DBModel) ConvertDocument() (err error) {
 		return
 	}
 
-	if !cfg.EnableConvertRepeatedDocument {
+	if !cfg.EnableConvertRepeatedDocument && document.Status != DocumentStatusRePending {
 		// 文档hash
 		hashMapDocs := m.GetDocumentStatusConvertedByHash([]string{attachment.Hash})
 		if len(hashMapDocs) > 0 {
+			m.logger.Info("ConvertDocument", zap.Bool("EnableConvertRepeatedDocument", cfg.EnableConvertRepeatedDocument), zap.String("hash", attachment.Hash), zap.Any("hashMapDocs", hashMapDocs))
 			// 已有文档转换成功，将hash相同的文档相关数据迁移到当前文档
 			sql := " UPDATE `%s` SET `description`= ? , `enable_gzip` = ?, `width` = ?, `height`= ?, `preview`= ?, `pages` = ?, `status` = ? WHERE status in ? and id in (select type_id from `%s` where `hash` = ? and `type` = ?)"
 			sql = fmt.Sprintf(sql, Document{}.TableName(), Attachment{}.TableName())
