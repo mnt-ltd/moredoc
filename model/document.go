@@ -624,10 +624,14 @@ func (m *DBModel) ConvertDocument() (err error) {
 		return
 	}
 
+	localFile := strings.TrimLeft(attachment.Path, "./")
+	baseDir := strings.TrimSuffix(localFile, filepath.Ext(localFile))
+	cover := baseDir + "/cover.png"
+
 	if !cfg.EnableConvertRepeatedDocument && document.Status != DocumentStatusRePending {
-		// 文档hash
-		hashMapDocs := m.GetDocumentStatusConvertedByHash([]string{attachment.Hash})
-		if len(hashMapDocs) > 0 {
+		_, errCover := os.Stat(cover)
+		hashMapDocs := m.GetDocumentStatusConvertedByHash([]string{attachment.Hash}) // 文档hash
+		if len(hashMapDocs) > 0 && errCover == nil {                                 // 双重确认文档是否已转换成功：1. 存在相同hash的已转换的文档，2. 存在封面图片
 			m.logger.Info("ConvertDocument", zap.Bool("EnableConvertRepeatedDocument", cfg.EnableConvertRepeatedDocument), zap.String("hash", attachment.Hash), zap.Any("hashMapDocs", hashMapDocs))
 			// 已有文档转换成功，将hash相同的文档相关数据迁移到当前文档
 			sql := " UPDATE `%s` SET `description`= ? , `enable_gzip` = ?, `width` = ?, `height`= ?, `preview`= ?, `pages` = ?, `status` = ? WHERE status in ? and id in (select type_id from `%s` where `hash` = ? and `type` = ?)"
@@ -650,8 +654,6 @@ func (m *DBModel) ConvertDocument() (err error) {
 		timeout = time.Duration(cfg.Timeout) * time.Minute
 	}
 
-	localFile := strings.TrimLeft(attachment.Path, "./")
-
 	cvt := converter.NewConverter(m.logger, timeout)
 	defer cvt.Clean() // 清除缓存目录
 	dstPDF, err := cvt.ConvertToPDF(localFile)
@@ -672,10 +674,8 @@ func (m *DBModel) ConvertDocument() (err error) {
 		m.logger.Error("get pdf cover", zap.Error(err))
 	}
 
-	var baseDir = strings.TrimSuffix(localFile, filepath.Ext(localFile))
 	if len(pages) > 0 {
 		coverBig := baseDir + "/cover.big.png"
-		cover := baseDir + "/cover.png"
 		util.CopyFile(pages[0].PagePath, coverBig)
 		util.CopyFile(pages[0].PagePath, cover)
 		util.CropImage(cover, DocumentCoverWidth, DocumentCoverHeight)
