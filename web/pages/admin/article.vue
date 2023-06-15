@@ -170,10 +170,19 @@ export default {
     },
     onSearch(search) {
       this.search = { ...this.search, ...search, page: 1 }
-      this.$router.push({
-        query: this.search,
-      })
-      // this.listArticle()
+      if (
+        location.href.lastIndexOf(
+          this.$router.resolve({
+            query: this.search,
+          }).href
+        ) > -1
+      ) {
+        this.listArticle()
+      } else {
+        this.$router.push({
+          query: this.search,
+        })
+      }
     },
     onCreate() {
       this.article = { id: 0 }

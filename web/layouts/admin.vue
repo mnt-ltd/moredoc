@@ -213,6 +213,20 @@ export default {
       ],
     }
   },
+  watch: {
+    $route(to, from) {
+      // main 滚动到顶部
+      this.$nextTick(() => {
+        const main = document.querySelector('.el-main')
+        if (main) {
+          main.scrollTo({
+            behavior: 'smooth',
+            top: 0,
+          })
+        }
+      })
+    },
+  },
   computed: {
     ...mapGetters('user', ['user', 'token', 'permissions', 'allowPages']),
     ...mapGetters('setting', ['settings']),

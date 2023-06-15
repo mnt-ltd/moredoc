@@ -132,9 +132,19 @@ export default {
     },
     onSearch(search) {
       this.search = { ...this.search, ...search, page: 1 }
-      this.$router.push({
-        query: this.search,
-      })
+      if (
+        location.href.lastIndexOf(
+          this.$router.resolve({
+            query: this.search,
+          }).href
+        ) > -1
+      ) {
+        this.listPermission()
+      } else {
+        this.$router.push({
+          query: this.search,
+        })
+      }
     },
     async editRow(row) {
       const res = await getPermission({ id: row.id })

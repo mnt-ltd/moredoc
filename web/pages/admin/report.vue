@@ -154,9 +154,19 @@ export default {
     },
     onSearch(search) {
       this.search = { ...this.search, ...search, page: 1 }
-      this.$router.push({
-        query: this.search,
-      })
+      if (
+        location.href.lastIndexOf(
+          this.$router.resolve({
+            query: this.search,
+          }).href
+        ) > -1
+      ) {
+        this.listReport()
+      } else {
+        this.$router.push({
+          query: this.search,
+        })
+      }
     },
     onCreate() {
       this.report = { id: 0 }

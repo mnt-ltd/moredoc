@@ -152,25 +152,37 @@
         <el-table-column prop="name" label="名称" width="100"> </el-table-column
         ><el-table-column prop="is_required" label="是否必须" width="100">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.is_required" effect="danger" size="small"
+            <el-tag
+              v-if="scope.row.is_required"
+              effect="dark"
+              type="danger"
+              size="small"
               >必须安装</el-tag
             >
-            <el-tag effect="info" size="small" v-else>非必须</el-tag>
+            <el-tag effect="dark" type="info" size="small" v-else
+              >非必须</el-tag
+            >
           </template>
         </el-table-column>
         <el-table-column prop="is_installed" label="安装" width="100">
           <template slot-scope="scope">
-            <el-tag v-if="scope.row.is_installed" effect="success" size="small"
+            <el-tag
+              v-if="scope.row.is_installed"
+              effect="dark"
+              type="success"
+              size="small"
               >已安装</el-tag
             >
-            <el-tag effect="warning" size="small" v-else>未安装</el-tag>
+            <el-tag effect="dark" type="warning" size="small" v-else
+              >未安装</el-tag
+            >
           </template>
         </el-table-column>
         <el-table-column prop="description" min-width="200" label="用途">
         </el-table-column>
         <el-table-column prop="error" label="错误" min-width="100">
           <template slot-scope="scope">
-            <span v-if="scope.row.error" effect="danger" size="small">{{
+            <span v-if="scope.row.error" size="small">{{
               scope.row.error
             }}</span>
             <span v-else>-</span>
