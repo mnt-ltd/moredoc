@@ -274,7 +274,7 @@ export default {
     },
     pageChange(page) {
       this.$router.push({
-        query: { page },
+        query: { ...this.query, page },
       })
     },
     deleteDocument(row) {
