@@ -1020,6 +1020,9 @@ export default {
         width: 100%;
         background-color: #fff;
       }
+      .el-image__error {
+        min-height: 360px;
+      }
     }
   }
   .doc-page-more {
