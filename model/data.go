@@ -68,6 +68,7 @@ func getPermissions() (permissions []Permission) {
 		{Title: "更新头像", Description: "", Method: "POST", Path: "/api/v1/upload/avatar"},
 		{Title: "一键重转失败文档", Description: "", Method: "GRPC", Path: "/api.v1.DocumentAPI/SetDocumentReconvert"},
 		{Title: "批量修改文档分类", Description: "", Method: "GRPC", Path: "/api.v1.DocumentAPI/SetDocumentsCategory"},
+		{Title: "惩罚管理", Description: "", Method: "GRPC", Path: "/api.v1.PunishmentAPI/ListPunishment"},
 	}
 	return
 }

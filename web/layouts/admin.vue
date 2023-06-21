@@ -160,6 +160,11 @@ export default {
               title: '权限管理',
               icon: 'el-icon-circle-check',
             },
+            {
+              page: '/admin/user/punishment',
+              title: '惩罚管理',
+              icon: 'el-icon-warning-outline',
+            },
           ],
         },
         {

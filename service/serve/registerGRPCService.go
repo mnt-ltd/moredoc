@@ -148,5 +148,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 惩罚服务
+	punishmentAPIService := biz.NewPunishmentAPIService(dbModel, logger)
+	v1.RegisterPunishmentAPIServer(grpcServer, punishmentAPIService)
+	err = v1.RegisterPunishmentAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterPunishmentAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }

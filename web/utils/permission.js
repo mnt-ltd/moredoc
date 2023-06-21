@@ -79,6 +79,12 @@ const cumstomPermissionMap = {
     children: [],
     pages: ['/admin/comment'],
   },
+  'api.v1.PunishmentAPI': {
+    label: '惩罚管理',
+    path: 'ListPunishment',
+    children: [],
+    pages: ['/admin/user/punishment'],
+  },
   upload: {
     id: 0,
     label: '上传管理',
