@@ -1,0 +1,84 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+// 这里是proto文件中的结构体，可以根据需要删除或者调整
+message Punishment {
+  google.protobuf.Timestamp start_time = 6 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp end_time = 7 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp created_at = 8 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 9 [ (gogoproto.stdtime) = true ];
+  int64 id = 1;
+  int64 user_id = 2;
+  int32 type = 3;
+  int32 enable = 4;
+  string operators = 5;
+  string remark = 10;
+  string reason = 11;
+}
+
+message CancelPunishmentRequest { repeated int64 id = 1; }
+
+message GetPunishmentRequest { int64 id = 1; }
+
+message ListPunishmentRequest {
+  int64 page = 1;
+  int64 size = 2;
+  string wd = 3;
+  repeated string field = 4;
+  string order = 5;
+  repeated int32 type = 6;
+  repeated int32 enable = 7;
+  repeated int64 user_id = 8;
+}
+
+message ListPunishmentReply {
+  int64 total = 1;
+  repeated Punishment punishment = 2;
+}
+
+service PunishmentAPI {
+  rpc CreatePunishment(Punishment) returns (Punishment) {
+    option (google.api.http) = {
+      post : '/api/v1/punishment',
+      body : '*',
+    };
+  }
+
+  rpc UpdatePunishment(Punishment) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/punishment',
+      body : '*',
+    };
+  }
+
+  rpc GetPunishment(GetPunishmentRequest) returns (Punishment) {
+    option (google.api.http) = {
+      get : '/api/v1/punishment',
+    };
+  }
+
+  rpc ListPunishment(ListPunishmentRequest) returns (ListPunishmentReply) {
+    option (google.api.http) = {
+      get : '/api/v1/punishment/list',
+    };
+  }
+
+  // 批量取消惩罚
+  rpc CancelPunishment(CancelPunishmentRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/punishment/cancel',
+    };
+  }
+}

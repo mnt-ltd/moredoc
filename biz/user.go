@@ -250,17 +250,18 @@ func (s *UserAPIService) UpdateUserProfile(ctx context.Context, req *pb.User) (*
 		Mobile: req.Mobile, Email: req.Email, Address: req.Address,
 		Signature: req.Signature, Avatar: req.Avatar,
 		Realname: req.Realname, Identity: req.Identity,
-		Status: int8(req.Status), Id: req.Id,
+		// Status: int8(req.Status),
+		Id: req.Id,
 	}
 
 	// 更改用户自己的资料
 	if req.Id <= 0 || req.Id == userClaims.UserId {
 		user.Id = userClaims.UserId
-		exist, _ := s.dbModel.GetUser(user.Id, "status")
-		if exist.Status != model.UserStatusNormal {
-			// 非正常的用户状态，禁止修改个人信息，以避免用户修改成非法信息等
-			return nil, status.Errorf(codes.InvalidArgument, "您的用户状态异常，禁止修改个人信息")
-		}
+		// exist, _ := s.dbModel.GetUser(user.Id, "status")
+		// if exist.Status != model.UserStatusNormal {
+		// 	// 非正常的用户状态，禁止修改个人信息，以避免用户修改成非法信息等
+		// 	return nil, status.Errorf(codes.InvalidArgument, "您的用户状态异常，禁止修改个人信息")
+		// }
 
 		if err := s.dbModel.UpdateUser(user, fields...); err != nil {
 			return nil, status.Errorf(codes.Internal, err.Error())

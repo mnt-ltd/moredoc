@@ -12,11 +12,12 @@ import (
 )
 
 const (
-	UserStatusNormal   = iota
-	UserStatusDisabled // 禁用
-	UserStatusPending  // 审核中
-	UserStatusRejected // 拒绝
-	UserStatusIgnored  // 忽略
+	UserStatusNormal          = 0
+	UserStatusDisabled        = 1 // 禁用账户：禁止登录、禁止评论、禁止上传、禁止下载、禁止收藏
+	UserStatusCommentLimited  = 2 // 禁止评论
+	UserStatusUploadLimited   = 3 // 禁止上传
+	UserStatusDownloadLimited = 4 // 禁止下载
+	UserStatusFavoriteLimited = 5 // 禁止收藏
 )
 
 // 用户的公开信息字段
@@ -42,13 +43,13 @@ type User struct {
 	FavoriteCount int        `form:"favorite_count" json:"favorite_count,omitempty" gorm:"column:favorite_count;type:int(10);default:0;comment:收藏数;"`
 	CommentCount  int        `form:"comment_count" json:"comment_count,omitempty" gorm:"column:comment_count;type:int(11);size:11;default:0;comment:评论数;"`
 	CreditCount   int        `form:"credit_count" json:"credit_count,omitempty" gorm:"column:credit_count;type:int(11);size:11;default:0;comment:积分数量;"`
-	Status        int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;index:status;comment:用户状态：0正常 1禁用 2审核中 3审核拒绝 4审核忽略;"`
 	Avatar        string     `form:"avatar" json:"avatar,omitempty" gorm:"column:avatar;type:varchar(255);size:255;comment:头像;"`
 	Identity      string     `form:"identity" json:"identity,omitempty" gorm:"column:identity;type:char(18);size:18;comment:身份证号码;"`
 	Realname      string     `form:"realname" json:"realname,omitempty" gorm:"column:realname;type:varchar(20);size:20;comment:身份证姓名;"`
 	LoginAt       *time.Time `form:"login_at" json:"login_at,omitempty" gorm:"column:login_at;type:datetime;comment:最后登录时间;"`
 	CreatedAt     *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt     *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	// Status        int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;index:status;comment:用户状态，0表示正常，其他状态表示被惩罚;"`
 }
 
 func (User) TableName() string {
