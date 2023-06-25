@@ -21,10 +21,11 @@ message Punishment {
   int64 id = 1;
   int64 user_id = 2;
   int32 type = 3;
-  int32 enable = 4;
+  bool enable = 4;
   string operators = 5;
   string remark = 10;
   string reason = 11;
+  string username = 12;
 }
 
 message CancelPunishmentRequest { repeated int64 id = 1; }

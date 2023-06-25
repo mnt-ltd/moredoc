@@ -22,6 +22,7 @@
         :show-edit="true"
         :show-delete="false"
         :show-select="true"
+        :actions-min-width="80"
         @selectRow="selectRow"
         @editRow="editRow"
       />
@@ -63,12 +64,14 @@ import { genLinkHTML, parseQueryIntArray } from '~/utils/utils'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormPunishment from '~/components/FormPunishment.vue'
+import { punishmentTypeOptions } from '~/utils/enum'
 import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormPunishment },
   layout: 'admin',
   data() {
     return {
+      punishmentTypeOptions,
       loading: false,
       formPunishmentVisible: false,
       search: {
@@ -190,37 +193,44 @@ export default {
         },
         {
           type: 'select',
-          label: '状态',
-          name: 'enable',
-          placeholder: '请选择状态',
+          label: '类型',
+          name: 'type',
+          placeholder: '请选择惩罚类型',
           multiple: true,
-          options: [
-            { label: '启用', value: 1 },
-            { label: '禁用', value: 0 },
-          ],
+          options: this.punishmentTypeOptions,
         },
       ]
     },
     initTableListFields() {
+      const enumOptions = {}
+      this.punishmentTypeOptions.map((item) => {
+        enumOptions[item.value] = item
+      })
+
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
         {
-          prop: 'enable',
-          label: '状态',
-          width: 80,
-          type: 'bool',
-          fixed: 'left',
+          prop: 'type',
+          label: '类型',
+          minWidth: 120,
+          type: 'enum',
+          enum: enumOptions,
         },
         {
-          prop: 'title_html',
-          label: '名称',
-          minWidth: 150,
-          fixed: 'left',
-          type: 'html',
+          prop: 'enable',
+          label: '是否启用',
+          width: 80,
+          type: 'bool',
         },
-        { prop: 'link', label: '链接', minWidth: 250 },
-        { prop: 'sort', label: '排序', width: 80, type: 'number' },
-        { prop: 'description', label: '描述', minWidth: 250 },
+        {
+          prop: 'user_id',
+          label: '用户',
+          minWidth: 150,
+        },
+        { prop: 'reason', label: '原因', minWidth: 250 },
+        { prop: 'remark', label: '备注', minWidth: 250 },
+        { prop: 'start_time', label: '开始时间', width: 160, type: 'datetime' },
+        { prop: 'end_time', label: '结束时间', width: 160, type: 'datetime' },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
       ]

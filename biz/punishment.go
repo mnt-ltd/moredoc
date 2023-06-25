@@ -165,6 +165,36 @@ func (s *PunishmentAPIService) ListPunishment(ctx context.Context, req *pb.ListP
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
+	if len(res.Punishment) > 0 {
+		var (
+			userIds          []int64
+			userIdMapIndexes = make(map[int64][]int)
+		)
+
+		for i, v := range res.Punishment {
+			userIds = append(userIds, v.UserId)
+			userIdMapIndexes[v.UserId] = append(userIdMapIndexes[v.UserId], i)
+		}
+
+		users, _, _ := s.dbModel.GetUserList(&model.OptionGetUserList{
+			Ids:       userIds,
+			WithCount: false,
+			SelectFields: []string{
+				"id",
+				"username",
+			},
+		})
+
+		for _, v := range users {
+			if indexes, ok := userIdMapIndexes[v.Id]; ok {
+				for _, index := range indexes {
+					res.Punishment[index].Username = v.Username
+				}
+			}
+		}
+
+	}
+
 	return res, nil
 }
 

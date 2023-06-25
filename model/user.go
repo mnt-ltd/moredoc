@@ -192,7 +192,7 @@ type OptionGetUserList struct {
 	Page         int
 	Size         int
 	WithCount    bool                      // 是否返回总数
-	Ids          []interface{}             // id列表
+	Ids          []int64                   // id列表
 	SelectFields []string                  // 查询字段
 	QueryRange   map[string][2]interface{} // map[field][]{min,max}
 	QueryIn      map[string][]interface{}  // map[field][]{value1,value2,...}

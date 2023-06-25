@@ -150,7 +150,7 @@ func (s *AttachmentAPIService) ListAttachment(ctx context.Context, req *pb.ListA
 	util.CopyStruct(&attachments, &pbAttachments)
 
 	var (
-		userIds        []interface{}
+		userIds        []int64
 		userIdIndexMap = make(map[int64][]int)
 	)
 

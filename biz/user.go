@@ -384,12 +384,8 @@ func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) 
 	}
 
 	if len(req.Id) > 0 {
-		var ids []interface{}
-		for _, id := range req.Id {
-			ids = append(ids, id)
-		}
 		opt.WithCount = false
-		opt.Ids = ids
+		opt.Ids = req.Id
 	}
 
 	if len(req.GroupId) > 0 {

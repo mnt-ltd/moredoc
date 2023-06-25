@@ -124,3 +124,11 @@ export const datetimePickerOptions = {
     },
   ],
 }
+
+export const punishmentTypeOptions = [
+  { label: '禁用账户', value: 1, type: 'danger' },
+  { label: '禁止评论', value: 2, type: 'warning' },
+  { label: '禁止上传', value: 3, type: 'warning' },
+  { label: '禁止下载', value: 4, type: 'warning' },
+  { label: '禁止收藏', value: 5, type: 'warning' },
+]
