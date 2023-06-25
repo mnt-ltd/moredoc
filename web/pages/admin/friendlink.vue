@@ -154,7 +154,7 @@ export default {
           this.$router.resolve({
             query: this.search,
           }).href
-        ) > -1
+        ) === 0
       ) {
         this.$router.push({
           query: this.search,

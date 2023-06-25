@@ -10,7 +10,30 @@
         :default-search="search"
         @onSearch="onSearch"
         @onCreate="onCreate"
-      />
+      >
+        <template slot="inputs">
+          <el-form-item label="用户">
+            <el-select
+              v-model="search.user_id"
+              filterable
+              multiple
+              remote
+              reserve-keyword
+              placeholder="请输入用户名"
+              :remote-method="remoteSearchUser"
+              :loading="loading"
+            >
+              <el-option
+                v-for="user in users"
+                :key="'userid' + user.id"
+                :label="user.username"
+                :value="user.id"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </template>
+      </FormSearch>
     </el-card>
     <el-card shadow="never" class="mgt-20px">
       <TableList
@@ -65,6 +88,7 @@ import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
 import FormPunishment from '~/components/FormPunishment.vue'
 import { punishmentTypeOptions } from '~/utils/enum'
+import { listUser } from '~/api/user'
 import { mapGetters } from 'vuex'
 export default {
   components: { TableList, FormSearch, FormPunishment },
@@ -79,6 +103,7 @@ export default {
         page: 1,
         enable: [],
         size: 10,
+        user_id: [],
       },
       punishments: [],
       total: 0,
@@ -86,6 +111,7 @@ export default {
       tableListFields: [],
       selectedRow: [],
       punishment: { id: 0 },
+      users: [],
     }
   },
   head() {
@@ -106,6 +132,7 @@ export default {
           page: parseInt(this.$route.query.page) || 1,
           size: parseInt(this.$route.query.size) || 10,
           ...parseQueryIntArray(this.$route.query, ['enable']),
+          ...parseQueryIntArray(this.$route.query, ['user_id']),
         }
         this.listPunishment()
       },
@@ -115,15 +142,33 @@ export default {
     this.initSearchForm()
     this.initTableListFields()
     // await this.listPunishment()
+    if (this.search.user_id.length > 0) {
+      this.searchUser('', this.search.user_id)
+    }
   },
   methods: {
+    async remoteSearchUser(wd) {
+      this.searchUser(wd)
+    },
+    async searchUser(wd, userId = []) {
+      const res = await listUser({
+        page: 1,
+        size: 10,
+        wd: wd,
+        id: userId || [],
+        field: ['id', 'username'],
+      })
+      if (res.status === 200) {
+        this.users = res.data.user || []
+      }
+    },
     async listPunishment() {
       this.loading = true
       const res = await listPunishment(this.search)
       if (res.status === 200) {
         let punishments = res.data.punishment || []
         punishments.map((item) => {
-          item.title_html = genLinkHTML(item.title, item.link)
+          item.user_html = genLinkHTML(item.username, `/user/${item.id}`)
         })
         this.punishments = punishments
         this.total = res.data.total
@@ -145,19 +190,24 @@ export default {
       })
     },
     onSearch(search) {
-      this.search = { ...this.search, ...search, page: 1 }
+      this.search = {
+        ...this.search,
+        ...search,
+        user_id: this.search.user_id,
+        page: 1,
+      }
       if (
         location.href.lastIndexOf(
           this.$router.resolve({
             query: this.search,
           }).href
-        ) > -1
+        ) === 0
       ) {
+        this.listPunishment()
+      } else {
         this.$router.push({
           query: this.search,
         })
-      } else {
-        this.listPunishment()
       }
     },
     onCreate() {
@@ -186,18 +236,18 @@ export default {
     initSearchForm() {
       this.searchFormFields = [
         {
-          type: 'text',
-          label: '关键字',
-          name: 'wd',
-          placeholder: '请输入关键字',
-        },
-        {
           type: 'select',
           label: '类型',
           name: 'type',
           placeholder: '请选择惩罚类型',
           multiple: true,
           options: this.punishmentTypeOptions,
+        },
+        {
+          type: 'text',
+          label: '关键字',
+          name: 'wd',
+          placeholder: '请输入关键字',
         },
       ]
     },
@@ -223,9 +273,10 @@ export default {
           type: 'bool',
         },
         {
-          prop: 'user_id',
+          prop: 'user_html',
           label: '用户',
           minWidth: 150,
+          type: 'html',
         },
         { prop: 'reason', label: '原因', minWidth: 250 },
         { prop: 'remark', label: '备注', minWidth: 250 },

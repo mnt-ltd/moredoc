@@ -90,6 +90,7 @@ message ListUserRequest {
   repeated int64 group_id = 6; // 用户组ID
   repeated int32 status = 7;   // 用户状态
   int64 limit = 8; // 请求数量限制，大于0时，page和size无效
+  repeated string field = 9; // 返回字段
 }
 
 // 用户列表响应

@@ -373,9 +373,10 @@ func (s *UserAPIService) ListUser(ctx context.Context, req *pb.ListUserRequest) 
 	}
 
 	opt := &model.OptionGetUserList{
-		Page:      int(req.Page),
-		Size:      int(req.Size_),
-		WithCount: true,
+		Page:         int(req.Page),
+		Size:         int(req.Size_),
+		WithCount:    true,
+		SelectFields: req.Field,
 	}
 	if req.Limit > 0 {
 		opt.Page = 1

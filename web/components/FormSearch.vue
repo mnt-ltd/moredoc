@@ -46,6 +46,7 @@
           :placeholder="field.placeholder"
         ></el-cascader>
       </el-form-item>
+      <slot name="inputs"></slot>
       <el-form-item>
         <el-button
           type="primary"
