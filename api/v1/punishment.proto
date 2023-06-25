@@ -43,13 +43,25 @@ message ListPunishmentRequest {
   repeated int64 user_id = 8;
 }
 
+message CreatePunishmentRequest {
+  google.protobuf.Timestamp start_time = 1 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp end_time = 2 [ (gogoproto.stdtime) = true ];
+  int64 id = 3;
+  repeated int64 user_id = 4;
+  repeated int32 type = 5;
+  bool enable = 6;
+  string remark = 7;
+  string reason = 8;
+}
+
 message ListPunishmentReply {
   int64 total = 1;
   repeated Punishment punishment = 2;
 }
 
 service PunishmentAPI {
-  rpc CreatePunishment(Punishment) returns (Punishment) {
+  rpc CreatePunishment(CreatePunishmentRequest)
+      returns (google.protobuf.Empty) {
     option (google.api.http) = {
       post : '/api/v1/punishment',
       body : '*',
@@ -80,6 +92,7 @@ service PunishmentAPI {
       returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/punishment/cancel',
+      body : '*',
     };
   }
 }

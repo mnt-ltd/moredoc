@@ -3,6 +3,7 @@ package biz
 import (
 	"context"
 	"strings"
+	"time"
 
 	pb "moredoc/api/v1"
 	"moredoc/middleware/auth"
@@ -30,36 +31,49 @@ func (s *PunishmentAPIService) checkPermission(ctx context.Context) (userClaims 
 	return checkGRPCPermission(s.dbModel, ctx)
 }
 
-func (s *PunishmentAPIService) CreatePunishment(ctx context.Context, req *pb.Punishment) (*pb.Punishment, error) {
+func (s *PunishmentAPIService) CreatePunishment(ctx context.Context, req *pb.CreatePunishmentRequest) (*emptypb.Empty, error) {
 	userClaims, err := s.checkPermission(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	punishment := &model.Punishment{}
-	err = util.CopyStruct(req, punishment)
-	if err != nil {
-		s.logger.Error("CopyStruct", zap.Error(err))
-		return nil, status.Errorf(codes.InvalidArgument, err.Error())
+	if len(req.UserId) == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "请选择用户")
 	}
 
-	s.logger.Debug("CreatePunishment", zap.Any("punishment", punishment), zap.Any("req", req))
-	punishment.Operators = s.dbModel.MakePunishmentOperators(userClaims.UserId, req.Type)
-
-	err = s.dbModel.CreatePunishment(punishment)
-	if err != nil {
-		s.logger.Error("CreatePunishment", zap.Error(err))
-		return nil, status.Errorf(codes.Internal, err.Error())
+	if len(req.Type) == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "请选择处罚类型")
 	}
 
-	res := &pb.Punishment{}
-	err = util.CopyStruct(punishment, res)
-	if err != nil {
-		s.logger.Error("CopyStruct", zap.Error(err))
-		return nil, status.Errorf(codes.Internal, err.Error())
+	now := time.Now()
+	startTime := &now
+	if req.StartTime != nil {
+		startTime = req.StartTime
 	}
-
-	return res, nil
+	for _, userId := range req.UserId {
+		if userId == 1 {
+			continue
+		}
+		for _, typ := range req.Type {
+			punishment := &model.Punishment{
+				UserId:    userId,
+				Type:      int(typ),
+				Enable:    req.Enable,
+				Reason:    req.Reason,
+				Remark:    req.Remark,
+				StartTime: startTime,
+				EndTime:   req.EndTime,
+			}
+			s.logger.Debug("CreatePunishment", zap.Any("punishment", punishment), zap.Any("req", req))
+			punishment.Operators = s.dbModel.MakePunishmentOperators(userClaims.UserId, typ)
+			err = s.dbModel.CreatePunishment(punishment)
+			if err != nil {
+				s.logger.Error("CreatePunishment", zap.Error(err))
+				return nil, status.Errorf(codes.Internal, err.Error())
+			}
+		}
+	}
+	return &emptypb.Empty{}, nil
 }
 
 func (s *PunishmentAPIService) UpdatePunishment(ctx context.Context, req *pb.Punishment) (*emptypb.Empty, error) {
@@ -109,6 +123,12 @@ func (s *PunishmentAPIService) GetPunishment(ctx context.Context, req *pb.GetPun
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
+	if punishment.UserId > 0 {
+		user, _ := s.dbModel.GetUser(punishment.UserId, "id", "username")
+		if user.Id > 0 {
+			res.Username = user.Username
+		}
+	}
 	return res, nil
 }
 
@@ -204,6 +224,8 @@ func (s *PunishmentAPIService) CancelPunishment(ctx context.Context, req *pb.Can
 	if err != nil {
 		return nil, err
 	}
+
+	s.logger.Debug("CancelPunishment", zap.Any("req", req))
 
 	data, _, err := s.dbModel.GetPunishmentList(&model.OptionGetPunishmentList{
 		Ids: req.Id,

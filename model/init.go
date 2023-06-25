@@ -162,6 +162,7 @@ func (m *DBModel) SyncDB() (err error) {
 		&Sign{},
 		&Report{},
 		&Navigation{},
+		&Punishment{},
 	}
 	if err = m.db.AutoMigrate(tableModels...); err != nil {
 		m.logger.Fatal("SyncDB", zap.Error(err))

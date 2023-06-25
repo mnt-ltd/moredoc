@@ -7,47 +7,57 @@
       :model="punishment"
     >
       <el-form-item
-        label="名称"
-        prop="title"
-        :rules="[{ required: true, trigger: 'blur', message: '请输入名称' }]"
+        label="用户"
+        prop="user_id"
+        :rules="
+          punishment.id === 0
+            ? [{ required: true, trigger: 'blur', message: '请选择用户' }]
+            : []
+        "
       >
-        <el-input
-          v-model="punishment.title"
-          placeholder="请输入名称"
-          clearable
-        ></el-input>
+        <el-select
+          v-if="punishment.id === 0"
+          v-model="punishment.user_id"
+          filterable
+          multiple
+          remote
+          reserve-keyword
+          placeholder="请输入和选择用户"
+          :remote-method="remoteSearchUser"
+          :loading="loading"
+        >
+          <el-option
+            v-for="user in users"
+            :key="'userid' + user.id"
+            :label="user.username"
+            :value="user.id"
+          >
+          </el-option>
+        </el-select>
+        <el-input v-else :disabled="true" v-model="punishment.username" />
       </el-form-item>
-      <el-form-item
-        label="地址"
-        prop="link"
-        :rules="[
-          {
-            required: true,
-            trigger: 'blur',
-            message: '请输入友链地址，如 https://mnt.ltd',
-          },
-        ]"
-      >
-        <el-input
-          v-model="punishment.link"
-          placeholder="请输入友链地址，如 https://mnt.ltd"
-          clearable
-        ></el-input>
+      <el-form-item label="处罚类型">
+        <el-checkbox-group v-if="punishment.id === 0" v-model="punishment.type">
+          <el-checkbox
+            v-for="item in punishmentTypeOptions"
+            :label="item.value"
+            :key="'checkbox-pt' + item.value"
+            >{{ item.label }}</el-checkbox
+          >
+        </el-checkbox-group>
+        <el-select v-else v-model="punishment.type" :disabled="true">
+          <el-option
+            v-for="item in punishmentTypeOptions"
+            :label="item.label"
+            :key="'select-pt-' + item.value"
+            :value="item.value"
+          >
+          </el-option>
+        </el-select>
       </el-form-item>
       <el-row :gutter="20">
-        <el-col :span="12">
-          <el-form-item label="排序(值越大越靠前)">
-            <el-input-number
-              v-model.number="punishment.sort"
-              clearable
-              :min="0"
-              :step="1"
-              placeholder="请输入排序值"
-            ></el-input-number>
-          </el-form-item>
-        </el-col>
-        <el-col :span="12">
-          <el-form-item label="是否启用">
+        <el-col :span="6">
+          <el-form-item label="是否启用处罚">
             <el-switch
               v-model="punishment.enable"
               style="display: block"
@@ -58,14 +68,41 @@
             >
             </el-switch> </el-form-item
         ></el-col>
+        <el-col :span="9">
+          <el-form-item label="起止时间">
+            <el-date-picker
+              v-model="punishment.start_time"
+              type="datetime"
+              placeholder="请选择处罚开始时间"
+            >
+            </el-date-picker>
+          </el-form-item>
+        </el-col>
+        <el-col :span="9">
+          <el-form-item label="截止时间">
+            <el-date-picker
+              v-model="punishment.end_time"
+              type="datetime"
+              placeholder="请选择处罚截止时间"
+            >
+            </el-date-picker>
+          </el-form-item>
+        </el-col>
       </el-row>
-
-      <el-form-item label="描述">
+      <el-form-item label="处罚原因">
         <el-input
-          v-model="punishment.description"
           type="textarea"
-          rows="3"
-          placeholder="请输入友链相关描述或备注"
+          v-model="punishment.reason"
+          :rows="3"
+          placeholder="请输入处罚原因，被处罚用户可见"
+        ></el-input>
+      </el-form-item>
+      <el-form-item label="处罚备注">
+        <el-input
+          type="textarea"
+          v-model="punishment.remark"
+          :rows="3"
+          placeholder="请输入处罚备注，管理员可见"
         ></el-input>
       </el-form-item>
       <el-form-item>
@@ -83,6 +120,8 @@
 </template>
 <script>
 import { createPunishment, updatePunishment } from '~/api/punishment'
+import { punishmentTypeOptions } from '~/utils/enum'
+import { listUser } from '~/api/user'
 export default {
   name: 'FormPunishment',
   props: {
@@ -95,21 +134,39 @@ export default {
   },
   data() {
     return {
+      punishmentTypeOptions,
       loading: false,
-      punishment: {},
+      punishment: {
+        id: 0,
+        user_id: '',
+        remark: '',
+        reason: '',
+        type: [],
+        enable: true,
+      },
+      users: [],
     }
   },
   watch: {
     initPunishment: {
       handler(val) {
-        this.punishment = { ...val }
+        let enable = val.enable || false
+        this.punishment = {
+          id: 0,
+          user_id: '',
+          remark: '',
+          reason: '',
+          type: [],
+          ...val,
+          enable: enable,
+        }
       },
       immediate: true,
     },
   },
-  created() {
-    this.punishment = { ...this.initPunishment }
-  },
+  // created() {
+  //   this.punishment = { ...this.initPunishment }
+  // },
   methods: {
     onSubmit() {
       this.$refs.formPunishment.validate(async (valid) => {
@@ -119,10 +176,10 @@ export default {
         this.loading = true
         const punishment = { ...this.punishment }
         if (this.punishment.id > 0) {
+          delete punishment.operators
           const res = await updatePunishment(punishment)
           if (res.status === 200) {
             this.$message.success('修改成功')
-            this.resetFields()
             this.$emit('success', res.data)
           } else {
             this.$message.error(res.data.message)
@@ -131,7 +188,6 @@ export default {
           const res = await createPunishment(punishment)
           if (res.status === 200) {
             this.$message.success('新增成功')
-            this.resetFields()
             this.$emit('success', res.data)
           } else {
             this.$message.error(res.data.message)
@@ -139,6 +195,21 @@ export default {
         }
         this.loading = false
       })
+    },
+    async remoteSearchUser(wd) {
+      this.searchUser(wd)
+    },
+    async searchUser(wd, userId = []) {
+      const res = await listUser({
+        page: 1,
+        size: 10,
+        wd: wd,
+        id: userId || [],
+        field: ['id', 'username'],
+      })
+      if (res.status === 200) {
+        this.users = res.data.user || []
+      }
     },
     clearValidate() {
       this.$refs.formPunishment.clearValidate()

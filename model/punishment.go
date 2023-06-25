@@ -31,9 +31,9 @@ type Punishment struct {
 }
 
 type PunishmentOperator struct {
-	UserId    int64     `json:"u"`
-	Type      int32     `json:"t"`
-	CreatedAt time.Time `json:"c"`
+	UserId    int64 `json:"u"`
+	Type      int32 `json:"t"`
+	Timestamp int64 `json:"ts"`
 }
 
 func (Punishment) TableName() string {
@@ -54,7 +54,7 @@ func (m *DBModel) MakePunishmentOperators(userId int64, punishmentType int32, op
 	operators = append(operators, PunishmentOperator{
 		UserId:    userId,
 		Type:      punishmentType,
-		CreatedAt: time.Now(),
+		Timestamp: time.Now().Unix(),
 	})
 
 	operatersByte, err := jsoniter.Marshal(operators)

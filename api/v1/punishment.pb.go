@@ -354,6 +354,106 @@ func (m *ListPunishmentRequest) GetUserId() []int64 {
 	return nil
 }
 
+type CreatePunishmentRequest struct {
+	StartTime *time.Time `protobuf:"bytes,1,opt,name=start_time,json=startTime,proto3,stdtime" json:"start_time,omitempty"`
+	EndTime   *time.Time `protobuf:"bytes,2,opt,name=end_time,json=endTime,proto3,stdtime" json:"end_time,omitempty"`
+	Id        int64      `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
+	UserId    []int64    `protobuf:"varint,4,rep,packed,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Type      []int32    `protobuf:"varint,5,rep,packed,name=type,proto3" json:"type,omitempty"`
+	Enable    bool       `protobuf:"varint,6,opt,name=enable,proto3" json:"enable,omitempty"`
+	Remark    string     `protobuf:"bytes,7,opt,name=remark,proto3" json:"remark,omitempty"`
+	Reason    string     `protobuf:"bytes,8,opt,name=reason,proto3" json:"reason,omitempty"`
+}
+
+func (m *CreatePunishmentRequest) Reset()         { *m = CreatePunishmentRequest{} }
+func (m *CreatePunishmentRequest) String() string { return proto.CompactTextString(m) }
+func (*CreatePunishmentRequest) ProtoMessage()    {}
+func (*CreatePunishmentRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_165d39e292001fbd, []int{4}
+}
+func (m *CreatePunishmentRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CreatePunishmentRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CreatePunishmentRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CreatePunishmentRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreatePunishmentRequest.Merge(m, src)
+}
+func (m *CreatePunishmentRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *CreatePunishmentRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreatePunishmentRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreatePunishmentRequest proto.InternalMessageInfo
+
+func (m *CreatePunishmentRequest) GetStartTime() *time.Time {
+	if m != nil {
+		return m.StartTime
+	}
+	return nil
+}
+
+func (m *CreatePunishmentRequest) GetEndTime() *time.Time {
+	if m != nil {
+		return m.EndTime
+	}
+	return nil
+}
+
+func (m *CreatePunishmentRequest) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *CreatePunishmentRequest) GetUserId() []int64 {
+	if m != nil {
+		return m.UserId
+	}
+	return nil
+}
+
+func (m *CreatePunishmentRequest) GetType() []int32 {
+	if m != nil {
+		return m.Type
+	}
+	return nil
+}
+
+func (m *CreatePunishmentRequest) GetEnable() bool {
+	if m != nil {
+		return m.Enable
+	}
+	return false
+}
+
+func (m *CreatePunishmentRequest) GetRemark() string {
+	if m != nil {
+		return m.Remark
+	}
+	return ""
+}
+
+func (m *CreatePunishmentRequest) GetReason() string {
+	if m != nil {
+		return m.Reason
+	}
+	return ""
+}
+
 type ListPunishmentReply struct {
 	Total      int64         `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	Punishment []*Punishment `protobuf:"bytes,2,rep,name=punishment,proto3" json:"punishment,omitempty"`
@@ -363,7 +463,7 @@ func (m *ListPunishmentReply) Reset()         { *m = ListPunishmentReply{} }
 func (m *ListPunishmentReply) String() string { return proto.CompactTextString(m) }
 func (*ListPunishmentReply) ProtoMessage()    {}
 func (*ListPunishmentReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_165d39e292001fbd, []int{4}
+	return fileDescriptor_165d39e292001fbd, []int{5}
 }
 func (m *ListPunishmentReply) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -411,56 +511,61 @@ func init() {
 	proto.RegisterType((*CancelPunishmentRequest)(nil), "api.v1.CancelPunishmentRequest")
 	proto.RegisterType((*GetPunishmentRequest)(nil), "api.v1.GetPunishmentRequest")
 	proto.RegisterType((*ListPunishmentRequest)(nil), "api.v1.ListPunishmentRequest")
+	proto.RegisterType((*CreatePunishmentRequest)(nil), "api.v1.CreatePunishmentRequest")
 	proto.RegisterType((*ListPunishmentReply)(nil), "api.v1.ListPunishmentReply")
 }
 
 func init() { proto.RegisterFile("api/v1/punishment.proto", fileDescriptor_165d39e292001fbd) }
 
 var fileDescriptor_165d39e292001fbd = []byte{
-	// 683 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x54, 0xcf, 0x4f, 0xd4, 0x40,
-	0x14, 0xa6, 0xdb, 0x65, 0x7f, 0x3c, 0x84, 0xe0, 0xb8, 0xb2, 0xa5, 0xc0, 0x6e, 0xed, 0xc1, 0x54,
-	0x0f, 0x6d, 0x58, 0xe3, 0x45, 0x0e, 0x04, 0x88, 0x31, 0x24, 0x1e, 0x48, 0xa3, 0x07, 0x4d, 0xcc,
-	0x66, 0xd8, 0x19, 0xd6, 0xc6, 0xb6, 0x53, 0xdb, 0x59, 0xc8, 0x7a, 0xf4, 0xe2, 0x95, 0xc4, 0x7f,
-	0xc8, 0xa3, 0x89, 0x17, 0x12, 0x2f, 0xde, 0x34, 0xe0, 0x1f, 0x62, 0x66, 0x3a, 0x65, 0x17, 0xe8,
-	0x46, 0x6e, 0xf3, 0xbe, 0xf7, 0xde, 0xf7, 0xcd, 0x7b, 0xf3, 0xde, 0x40, 0x1b, 0x27, 0x81, 0x77,
-	0xbc, 0xe9, 0x25, 0xa3, 0x38, 0xc8, 0xde, 0x47, 0x34, 0xe6, 0x6e, 0x92, 0x32, 0xce, 0x50, 0x0d,
-	0x27, 0x81, 0x7b, 0xbc, 0x69, 0x76, 0x87, 0x8c, 0x0d, 0x43, 0xea, 0x49, 0xf4, 0x70, 0x74, 0xe4,
-	0xf1, 0x20, 0xa2, 0x19, 0xc7, 0x51, 0x92, 0x07, 0x9a, 0xad, 0x21, 0x1b, 0x32, 0x79, 0xf4, 0xc4,
-	0x49, 0xa1, 0xeb, 0x2a, 0x4d, 0xd0, 0xe3, 0x38, 0x66, 0x1c, 0xf3, 0x80, 0xc5, 0x99, 0xf2, 0xae,
-	0x5d, 0x27, 0xa5, 0x51, 0xc2, 0xc7, 0xb9, 0xd3, 0xfe, 0xa1, 0x03, 0x1c, 0x5c, 0x5e, 0x07, 0x6d,
-	0x03, 0x64, 0x1c, 0xa7, 0xbc, 0x2f, 0x84, 0x8d, 0x9a, 0xa5, 0x39, 0x0b, 0x3d, 0xd3, 0xcd, 0x09,
-	0xdc, 0x82, 0xc0, 0x7d, 0x55, 0xdc, 0x6a, 0xb7, 0x7a, 0xfa, 0xbb, 0xab, 0xf9, 0x4d, 0x99, 0x23,
-	0x50, 0xb4, 0x05, 0x0d, 0x1a, 0x93, 0x3c, 0xbd, 0x7e, 0xcb, 0xf4, 0x3a, 0x8d, 0x89, 0x4c, 0xde,
-	0x06, 0x18, 0xa4, 0x14, 0x73, 0x4a, 0xfa, 0x98, 0x1b, 0x8d, 0xdb, 0xaa, 0xab, 0x9c, 0x1d, 0x79,
-	0xfd, 0x51, 0x42, 0x0a, 0x82, 0xe6, 0x6d, 0x09, 0x54, 0xce, 0x0e, 0x47, 0x4b, 0x50, 0x09, 0x88,
-	0xa1, 0x59, 0x9a, 0xa3, 0xfb, 0x95, 0x80, 0xa0, 0x36, 0xd4, 0x47, 0x19, 0x4d, 0xfb, 0x01, 0x31,
-	0x2a, 0x12, 0xac, 0x09, 0x73, 0x9f, 0x20, 0x04, 0x55, 0x3e, 0x4e, 0xa8, 0xa1, 0x5b, 0x9a, 0x33,
-	0xef, 0xcb, 0x33, 0x5a, 0x81, 0x1a, 0x8d, 0xf1, 0x61, 0x48, 0x8d, 0xaa, 0xa5, 0x39, 0x0d, 0x5f,
-	0x59, 0x68, 0x1d, 0x9a, 0x2c, 0xa1, 0x29, 0xe6, 0x2c, 0xcd, 0x8c, 0x79, 0x4b, 0x73, 0x9a, 0xfe,
-	0x04, 0x10, 0x59, 0x29, 0x8d, 0x70, 0xfa, 0xc1, 0x00, 0xe9, 0x52, 0x56, 0x8e, 0xe3, 0x8c, 0xc5,
-	0xc6, 0x42, 0x81, 0x0b, 0x0b, 0x99, 0xd0, 0x10, 0x77, 0x88, 0x71, 0x44, 0x8d, 0x3b, 0xd2, 0x73,
-	0x69, 0xdb, 0x8f, 0xa0, 0xbd, 0x87, 0xe3, 0x01, 0x0d, 0x27, 0x4f, 0xea, 0xd3, 0x8f, 0x23, 0x9a,
-	0x4d, 0x2a, 0xd3, 0xf3, 0xca, 0xec, 0x87, 0xd0, 0x7a, 0x41, 0xf9, 0xec, 0x38, 0xd5, 0x01, 0xfb,
-	0x9b, 0x06, 0xf7, 0x5f, 0x06, 0x59, 0x49, 0x24, 0x82, 0x6a, 0x82, 0x87, 0x54, 0xc5, 0xca, 0xb3,
-	0xc0, 0xb2, 0xe0, 0x13, 0x55, 0xcd, 0x92, 0x67, 0xc1, 0x78, 0x42, 0x64, 0xa3, 0x9a, 0x7e, 0xe5,
-	0x84, 0xa0, 0x16, 0xcc, 0x1f, 0x05, 0x34, 0x24, 0x46, 0xd5, 0xd2, 0x9d, 0xa6, 0x9f, 0x1b, 0x02,
-	0x65, 0x29, 0xa1, 0xa9, 0x6a, 0x50, 0x6e, 0x5c, 0xb6, 0xb9, 0x66, 0xe9, 0x25, 0x6d, 0xae, 0x4b,
-	0xb4, 0x68, 0xf3, 0xd4, 0x5b, 0x35, 0x64, 0x99, 0xea, 0xad, 0xec, 0x3e, 0xdc, 0xbb, 0x5e, 0x41,
-	0x12, 0x8e, 0x85, 0x22, 0x67, 0x1c, 0x87, 0xaa, 0x80, 0xdc, 0x40, 0x3d, 0x80, 0xc9, 0x7a, 0x1a,
-	0x15, 0x4b, 0x77, 0x16, 0x7a, 0xc8, 0xcd, 0xf7, 0xd3, 0x9d, 0xa2, 0x98, 0x8a, 0xea, 0x7d, 0xa9,
-	0xc2, 0xe2, 0xc4, 0xb5, 0x73, 0xb0, 0x8f, 0xde, 0xc0, 0xf2, 0x9e, 0x9c, 0xca, 0xa9, 0xdd, 0x2a,
-	0x61, 0x31, 0x4b, 0x30, 0x7b, 0xe3, 0xf3, 0xcf, 0xbf, 0x5f, 0x2b, 0x6d, 0x1b, 0x79, 0x37, 0xbe,
-	0x8b, 0x67, 0xda, 0x63, 0xf4, 0x0e, 0x96, 0x5f, 0xcb, 0x79, 0xfd, 0x0f, 0xf5, 0xca, 0x8d, 0xb9,
-	0x7f, 0x2e, 0xf6, 0xbe, 0xa0, 0x37, 0x67, 0xd2, 0x2f, 0x5e, 0x99, 0x0b, 0xb4, 0x5e, 0x70, 0x97,
-	0x8d, 0x4b, 0x69, 0x01, 0xa6, 0x54, 0x68, 0xa1, 0x12, 0x05, 0x14, 0xc1, 0xd2, 0xd5, 0xb7, 0x40,
-	0x1b, 0x05, 0x43, 0xe9, 0x94, 0x99, 0x6b, 0xb3, 0xdc, 0x49, 0x38, 0xb6, 0xbb, 0x52, 0x69, 0x15,
-	0xb5, 0x6f, 0x2a, 0x79, 0x61, 0x90, 0x71, 0x14, 0xc3, 0xf2, 0xf5, 0x85, 0x40, 0xdd, 0x82, 0x71,
-	0xc6, 0xaa, 0xcc, 0xec, 0xdc, 0x03, 0xa9, 0xb6, 0x66, 0xae, 0x96, 0xa8, 0x0d, 0x24, 0xd7, 0xee,
-	0xd3, 0xef, 0xe7, 0x1d, 0xed, 0xec, 0xbc, 0xa3, 0xfd, 0x39, 0xef, 0x68, 0xa7, 0x17, 0x9d, 0xb9,
-	0xb3, 0x8b, 0xce, 0xdc, 0xaf, 0x8b, 0xce, 0x1c, 0xa8, 0x2f, 0xfe, 0x40, 0x7b, 0x7b, 0x37, 0x62,
-	0x29, 0x25, 0x6c, 0xa0, 0x58, 0xb6, 0x8e, 0x37, 0x0f, 0x6b, 0x52, 0xe9, 0xc9, 0xbf, 0x00, 0x00,
-	0x00, 0xff, 0xff, 0x26, 0x59, 0x4f, 0x8f, 0x21, 0x06, 0x00, 0x00,
+	// 737 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x55, 0xcd, 0x6e, 0xd3, 0x40,
+	0x10, 0xee, 0xda, 0xf9, 0x9d, 0xd2, 0xaa, 0x2c, 0xa1, 0x71, 0xdd, 0x36, 0xb1, 0x2c, 0x84, 0x42,
+	0x0f, 0x89, 0x1a, 0xc4, 0xa5, 0x3d, 0x54, 0x6d, 0x85, 0x50, 0x25, 0x0e, 0x95, 0x05, 0x17, 0x24,
+	0x14, 0x6d, 0xe3, 0x6d, 0x30, 0xd8, 0x5e, 0xd7, 0xde, 0xb4, 0x0a, 0x47, 0x9e, 0xa0, 0x12, 0x47,
+	0x78, 0x18, 0x8e, 0x48, 0x5c, 0x2a, 0x71, 0xe1, 0x06, 0x6a, 0x79, 0x10, 0xe4, 0xf5, 0x3a, 0xbf,
+	0x8e, 0x28, 0xe2, 0xb6, 0x33, 0xb3, 0xf3, 0x7d, 0x3b, 0xdf, 0x8c, 0xc7, 0x50, 0x25, 0x81, 0xd3,
+	0x3a, 0xdf, 0x6e, 0x05, 0x7d, 0xdf, 0x89, 0xde, 0x78, 0xd4, 0xe7, 0xcd, 0x20, 0x64, 0x9c, 0xe1,
+	0x02, 0x09, 0x9c, 0xe6, 0xf9, 0xb6, 0x5e, 0xef, 0x31, 0xd6, 0x73, 0x69, 0x4b, 0x78, 0x4f, 0xfa,
+	0xa7, 0x2d, 0xee, 0x78, 0x34, 0xe2, 0xc4, 0x0b, 0x92, 0x8b, 0x7a, 0xa5, 0xc7, 0x7a, 0x4c, 0x1c,
+	0x5b, 0xf1, 0x49, 0x7a, 0x37, 0x64, 0x5a, 0x0c, 0x4f, 0x7c, 0x9f, 0x71, 0xc2, 0x1d, 0xe6, 0x47,
+	0x32, 0xba, 0x3e, 0x0d, 0x4a, 0xbd, 0x80, 0x0f, 0x92, 0xa0, 0xf9, 0x4d, 0x05, 0x38, 0x1e, 0x3e,
+	0x07, 0xef, 0x01, 0x44, 0x9c, 0x84, 0xbc, 0x13, 0x13, 0x6b, 0x05, 0x03, 0x35, 0x16, 0xdb, 0x7a,
+	0x33, 0x01, 0x68, 0xa6, 0x00, 0xcd, 0x17, 0xe9, 0xab, 0x0e, 0x72, 0x97, 0x3f, 0xeb, 0xc8, 0x2a,
+	0x8b, 0x9c, 0xd8, 0x8b, 0x77, 0xa1, 0x44, 0x7d, 0x3b, 0x49, 0x2f, 0xde, 0x32, 0xbd, 0x48, 0x7d,
+	0x5b, 0x24, 0xef, 0x01, 0x74, 0x43, 0x4a, 0x38, 0xb5, 0x3b, 0x84, 0x6b, 0xa5, 0xdb, 0xb2, 0xcb,
+	0x9c, 0x7d, 0xf1, 0xfc, 0x7e, 0x60, 0xa7, 0x00, 0xe5, 0xdb, 0x02, 0xc8, 0x9c, 0x7d, 0x8e, 0x97,
+	0x41, 0x71, 0x6c, 0x0d, 0x19, 0xa8, 0xa1, 0x5a, 0x8a, 0x63, 0xe3, 0x2a, 0x14, 0xfb, 0x11, 0x0d,
+	0x3b, 0x8e, 0xad, 0x29, 0xc2, 0x59, 0x88, 0xcd, 0x23, 0x1b, 0x63, 0xc8, 0xf1, 0x41, 0x40, 0x35,
+	0xd5, 0x40, 0x8d, 0xbc, 0x25, 0xce, 0x78, 0x15, 0x0a, 0xd4, 0x27, 0x27, 0x2e, 0xd5, 0x72, 0x06,
+	0x6a, 0x94, 0x2c, 0x69, 0xe1, 0x0d, 0x28, 0xb3, 0x80, 0x86, 0x84, 0xb3, 0x30, 0xd2, 0xf2, 0x06,
+	0x6a, 0x94, 0xad, 0x91, 0x23, 0xce, 0x0a, 0xa9, 0x47, 0xc2, 0x77, 0x1a, 0x88, 0x90, 0xb4, 0x12,
+	0x3f, 0x89, 0x98, 0xaf, 0x2d, 0xa6, 0xfe, 0xd8, 0xc2, 0x3a, 0x94, 0xe2, 0x37, 0xf8, 0xc4, 0xa3,
+	0xda, 0x1d, 0x11, 0x19, 0xda, 0xe6, 0x23, 0xa8, 0x1e, 0x12, 0xbf, 0x4b, 0xdd, 0x51, 0x4b, 0x2d,
+	0x7a, 0xd6, 0xa7, 0xd1, 0xa8, 0x32, 0x35, 0xa9, 0xcc, 0x7c, 0x08, 0x95, 0x67, 0x94, 0xcf, 0xbf,
+	0x27, 0x15, 0x30, 0xbf, 0x20, 0xb8, 0xff, 0xdc, 0x89, 0x32, 0x6e, 0x62, 0xc8, 0x05, 0xa4, 0x47,
+	0xe5, 0x5d, 0x71, 0x8e, 0x7d, 0x91, 0xf3, 0x9e, 0x4a, 0xb1, 0xc4, 0x39, 0x46, 0xbc, 0xb0, 0x85,
+	0x50, 0x65, 0x4b, 0xb9, 0xb0, 0x71, 0x05, 0xf2, 0xa7, 0x0e, 0x75, 0x6d, 0x2d, 0x67, 0xa8, 0x8d,
+	0xb2, 0x95, 0x18, 0xb1, 0x97, 0x85, 0x36, 0x0d, 0xa5, 0x40, 0x89, 0x31, 0x94, 0xb9, 0x60, 0xa8,
+	0x19, 0x32, 0x17, 0x85, 0x37, 0x95, 0x79, 0xac, 0x57, 0x25, 0x51, 0xa6, 0xec, 0x95, 0xf9, 0x59,
+	0x81, 0xea, 0xa1, 0x98, 0x91, 0xd9, 0x22, 0x26, 0x07, 0x1e, 0xfd, 0xdf, 0xc0, 0x2b, 0xff, 0x3a,
+	0xf0, 0x89, 0xd8, 0x6a, 0xd6, 0xb8, 0xe5, 0xc6, 0x4b, 0x18, 0xea, 0x90, 0xcf, 0xd4, 0xa1, 0x30,
+	0x31, 0x6e, 0xa3, 0x81, 0x2a, 0xce, 0x19, 0xa8, 0xd2, 0xf8, 0x40, 0x99, 0x1d, 0xb8, 0x37, 0xdd,
+	0xe0, 0xc0, 0x1d, 0xc4, 0x0d, 0xe1, 0x8c, 0x13, 0x57, 0xf6, 0x37, 0x31, 0x70, 0x1b, 0x60, 0xb4,
+	0xbd, 0x34, 0xc5, 0x50, 0x1b, 0x8b, 0x6d, 0xdc, 0x4c, 0xd6, 0x57, 0x73, 0x0c, 0x62, 0xec, 0x56,
+	0xfb, 0x53, 0x0e, 0x96, 0x46, 0xa1, 0xfd, 0xe3, 0x23, 0xfc, 0x16, 0x56, 0xa6, 0x1b, 0x82, 0xeb,
+	0x29, 0xca, 0x9c, 0x56, 0xe9, 0xab, 0x33, 0xba, 0x3e, 0x8d, 0x17, 0x99, 0xb9, 0xf9, 0xe1, 0xfb,
+	0xef, 0x8f, 0x4a, 0xd5, 0xc4, 0xad, 0x99, 0xf5, 0xba, 0x83, 0xb6, 0xf0, 0x6b, 0x58, 0x79, 0x29,
+	0xbe, 0xef, 0x31, 0xae, 0x8c, 0x17, 0xff, 0x0d, 0x5e, 0x9f, 0x0b, 0xbf, 0x34, 0xf1, 0x1d, 0xe1,
+	0x8d, 0x14, 0x3b, 0xeb, 0xf3, 0xd2, 0x33, 0x98, 0x4d, 0x5d, 0x30, 0x54, 0x70, 0x06, 0x03, 0xf6,
+	0x60, 0x79, 0xb2, 0x39, 0x78, 0x33, 0x45, 0xc8, 0xfc, 0x2a, 0xf5, 0xf5, 0x79, 0xe1, 0xc0, 0x1d,
+	0x98, 0x75, 0xc1, 0xb4, 0x86, 0xab, 0xb3, 0x4c, 0x2d, 0xd7, 0x89, 0x38, 0x3e, 0x83, 0x95, 0xe9,
+	0x05, 0x32, 0xd6, 0x98, 0xec, 0xd5, 0x32, 0x57, 0xb9, 0x07, 0x82, 0xad, 0xa6, 0xaf, 0x65, 0xb0,
+	0x75, 0x05, 0xd6, 0x0e, 0xda, 0x3a, 0x78, 0xf2, 0xf5, 0xba, 0x86, 0xae, 0xae, 0x6b, 0xe8, 0xd7,
+	0x75, 0x0d, 0x5d, 0xde, 0xd4, 0x16, 0xae, 0x6e, 0x6a, 0x0b, 0x3f, 0x6e, 0x6a, 0x0b, 0x20, 0xff,
+	0x8a, 0xc7, 0xe8, 0xd5, 0x5d, 0x8f, 0x85, 0xd4, 0x66, 0x5d, 0x09, 0xb4, 0x7b, 0xbe, 0x7d, 0x52,
+	0x10, 0x64, 0x8f, 0xff, 0x04, 0x00, 0x00, 0xff, 0xff, 0x70, 0x53, 0x08, 0x46, 0x54, 0x07, 0x00,
+	0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -475,7 +580,7 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type PunishmentAPIClient interface {
-	CreatePunishment(ctx context.Context, in *Punishment, opts ...grpc.CallOption) (*Punishment, error)
+	CreatePunishment(ctx context.Context, in *CreatePunishmentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdatePunishment(ctx context.Context, in *Punishment, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GetPunishment(ctx context.Context, in *GetPunishmentRequest, opts ...grpc.CallOption) (*Punishment, error)
 	ListPunishment(ctx context.Context, in *ListPunishmentRequest, opts ...grpc.CallOption) (*ListPunishmentReply, error)
@@ -491,8 +596,8 @@ func NewPunishmentAPIClient(cc *grpc.ClientConn) PunishmentAPIClient {
 	return &punishmentAPIClient{cc}
 }
 
-func (c *punishmentAPIClient) CreatePunishment(ctx context.Context, in *Punishment, opts ...grpc.CallOption) (*Punishment, error) {
-	out := new(Punishment)
+func (c *punishmentAPIClient) CreatePunishment(ctx context.Context, in *CreatePunishmentRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/api.v1.PunishmentAPI/CreatePunishment", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -538,7 +643,7 @@ func (c *punishmentAPIClient) CancelPunishment(ctx context.Context, in *CancelPu
 
 // PunishmentAPIServer is the server API for PunishmentAPI service.
 type PunishmentAPIServer interface {
-	CreatePunishment(context.Context, *Punishment) (*Punishment, error)
+	CreatePunishment(context.Context, *CreatePunishmentRequest) (*emptypb.Empty, error)
 	UpdatePunishment(context.Context, *Punishment) (*emptypb.Empty, error)
 	GetPunishment(context.Context, *GetPunishmentRequest) (*Punishment, error)
 	ListPunishment(context.Context, *ListPunishmentRequest) (*ListPunishmentReply, error)
@@ -550,7 +655,7 @@ type PunishmentAPIServer interface {
 type UnimplementedPunishmentAPIServer struct {
 }
 
-func (*UnimplementedPunishmentAPIServer) CreatePunishment(ctx context.Context, req *Punishment) (*Punishment, error) {
+func (*UnimplementedPunishmentAPIServer) CreatePunishment(ctx context.Context, req *CreatePunishmentRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreatePunishment not implemented")
 }
 func (*UnimplementedPunishmentAPIServer) UpdatePunishment(ctx context.Context, req *Punishment) (*emptypb.Empty, error) {
@@ -571,7 +676,7 @@ func RegisterPunishmentAPIServer(s *grpc.Server, srv PunishmentAPIServer) {
 }
 
 func _PunishmentAPI_CreatePunishment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Punishment)
+	in := new(CreatePunishmentRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -583,7 +688,7 @@ func _PunishmentAPI_CreatePunishment_Handler(srv interface{}, ctx context.Contex
 		FullMethod: "/api.v1.PunishmentAPI/CreatePunishment",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PunishmentAPIServer).CreatePunishment(ctx, req.(*Punishment))
+		return srv.(PunishmentAPIServer).CreatePunishment(ctx, req.(*CreatePunishmentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -988,6 +1093,116 @@ func (m *ListPunishmentRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *CreatePunishmentRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CreatePunishmentRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CreatePunishmentRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Reason) > 0 {
+		i -= len(m.Reason)
+		copy(dAtA[i:], m.Reason)
+		i = encodeVarintPunishment(dAtA, i, uint64(len(m.Reason)))
+		i--
+		dAtA[i] = 0x42
+	}
+	if len(m.Remark) > 0 {
+		i -= len(m.Remark)
+		copy(dAtA[i:], m.Remark)
+		i = encodeVarintPunishment(dAtA, i, uint64(len(m.Remark)))
+		i--
+		dAtA[i] = 0x3a
+	}
+	if m.Enable {
+		i--
+		if m.Enable {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x30
+	}
+	if len(m.Type) > 0 {
+		dAtA14 := make([]byte, len(m.Type)*10)
+		var j13 int
+		for _, num1 := range m.Type {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA14[j13] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j13++
+			}
+			dAtA14[j13] = uint8(num)
+			j13++
+		}
+		i -= j13
+		copy(dAtA[i:], dAtA14[:j13])
+		i = encodeVarintPunishment(dAtA, i, uint64(j13))
+		i--
+		dAtA[i] = 0x2a
+	}
+	if len(m.UserId) > 0 {
+		dAtA16 := make([]byte, len(m.UserId)*10)
+		var j15 int
+		for _, num1 := range m.UserId {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA16[j15] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j15++
+			}
+			dAtA16[j15] = uint8(num)
+			j15++
+		}
+		i -= j15
+		copy(dAtA[i:], dAtA16[:j15])
+		i = encodeVarintPunishment(dAtA, i, uint64(j15))
+		i--
+		dAtA[i] = 0x22
+	}
+	if m.Id != 0 {
+		i = encodeVarintPunishment(dAtA, i, uint64(m.Id))
+		i--
+		dAtA[i] = 0x18
+	}
+	if m.EndTime != nil {
+		n17, err17 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.EndTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.EndTime):])
+		if err17 != nil {
+			return 0, err17
+		}
+		i -= n17
+		i = encodeVarintPunishment(dAtA, i, uint64(n17))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.StartTime != nil {
+		n18, err18 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.StartTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.StartTime):])
+		if err18 != nil {
+			return 0, err18
+		}
+		i -= n18
+		i = encodeVarintPunishment(dAtA, i, uint64(n18))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
 func (m *ListPunishmentReply) Marshal() (dAtA []byte, err error) {
 	size := m.Size()
 	dAtA = make([]byte, size)
@@ -1168,6 +1383,51 @@ func (m *ListPunishmentRequest) Size() (n int) {
 			l += sovPunishment(uint64(e))
 		}
 		n += 1 + sovPunishment(uint64(l)) + l
+	}
+	return n
+}
+
+func (m *CreatePunishmentRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.StartTime != nil {
+		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.StartTime)
+		n += 1 + l + sovPunishment(uint64(l))
+	}
+	if m.EndTime != nil {
+		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.EndTime)
+		n += 1 + l + sovPunishment(uint64(l))
+	}
+	if m.Id != 0 {
+		n += 1 + sovPunishment(uint64(m.Id))
+	}
+	if len(m.UserId) > 0 {
+		l = 0
+		for _, e := range m.UserId {
+			l += sovPunishment(uint64(e))
+		}
+		n += 1 + sovPunishment(uint64(l)) + l
+	}
+	if len(m.Type) > 0 {
+		l = 0
+		for _, e := range m.Type {
+			l += sovPunishment(uint64(e))
+		}
+		n += 1 + sovPunishment(uint64(l)) + l
+	}
+	if m.Enable {
+		n += 2
+	}
+	l = len(m.Remark)
+	if l > 0 {
+		n += 1 + l + sovPunishment(uint64(l))
+	}
+	l = len(m.Reason)
+	if l > 0 {
+		n += 1 + l + sovPunishment(uint64(l))
 	}
 	return n
 }
@@ -2181,6 +2441,383 @@ func (m *ListPunishmentRequest) Unmarshal(dAtA []byte) error {
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field UserId", wireType)
 			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipPunishment(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthPunishment
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CreatePunishmentRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowPunishment
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CreatePunishmentRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CreatePunishmentRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field StartTime", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPunishment
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPunishment
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthPunishment
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.StartTime == nil {
+				m.StartTime = new(time.Time)
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(m.StartTime, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field EndTime", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPunishment
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthPunishment
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthPunishment
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.EndTime == nil {
+				m.EndTime = new(time.Time)
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(m.EndTime, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 3:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPunishment
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 4:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowPunishment
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.UserId = append(m.UserId, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowPunishment
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthPunishment
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthPunishment
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.UserId) == 0 {
+					m.UserId = make([]int64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowPunishment
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.UserId = append(m.UserId, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field UserId", wireType)
+			}
+		case 5:
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowPunishment
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int32(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Type = append(m.Type, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowPunishment
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthPunishment
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthPunishment
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.Type) == 0 {
+					m.Type = make([]int32, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowPunishment
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int32(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Type = append(m.Type, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
+			}
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Enable", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPunishment
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Enable = bool(v != 0)
+		case 7:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Remark", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPunishment
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPunishment
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPunishment
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Remark = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Reason", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPunishment
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPunishment
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPunishment
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Reason = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipPunishment(dAtA[iNdEx:])

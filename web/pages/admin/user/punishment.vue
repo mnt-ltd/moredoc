@@ -164,7 +164,7 @@ export default {
     this.initSearchForm()
     this.initTableListFields()
     // await this.listPunishment()
-    if (this.search.user_id.length > 0) {
+    if ((this.search.user_id || []).length > 0) {
       this.searchUser('', this.search.user_id)
     }
   },
@@ -254,11 +254,8 @@ export default {
       }
     },
     onCreate() {
-      this.punishment = { id: 0 }
+      this.punishment = { id: 0, type: [], enable: true }
       this.formPunishmentVisible = true
-      this.$nextTick(() => {
-        this.$refs.punishmentForm.reset()
-      })
     },
     async editRow(row) {
       const res = await getPunishment({ id: row.id })
@@ -303,17 +300,17 @@ export default {
       this.tableListFields = [
         { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
         {
+          prop: 'enable',
+          label: '启用处罚',
+          width: 80,
+          type: 'bool',
+        },
+        {
           prop: 'type',
           label: '类型',
           minWidth: 120,
           type: 'enum',
           enum: enumOptions,
-        },
-        {
-          prop: 'enable',
-          label: '启用处罚',
-          width: 80,
-          type: 'bool',
         },
         {
           prop: 'user_html',
