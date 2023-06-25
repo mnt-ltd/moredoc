@@ -162,7 +162,7 @@ export default {
             },
             {
               page: '/admin/user/punishment',
-              title: '惩罚管理',
+              title: '处罚管理',
               icon: 'el-icon-warning-outline',
             },
           ],

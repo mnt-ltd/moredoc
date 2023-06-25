@@ -33,6 +33,24 @@
             </el-select>
           </el-form-item>
         </template>
+        <template slot="buttons">
+          <el-form-item>
+            <el-tooltip
+              class="item"
+              effect="dark"
+              content="批量取消处罚"
+              placement="top"
+            >
+              <el-button
+                type="warning"
+                @click="batchCancelPunishment"
+                :disabled="selectedRow.length === 0"
+                icon="el-icon-edit"
+                >批量取消</el-button
+              >
+            </el-tooltip>
+          </el-form-item>
+        </template>
       </FormSearch>
     </el-card>
     <el-card shadow="never" class="mgt-20px">
@@ -82,7 +100,11 @@
 </template>
 
 <script>
-import { listPunishment, getPunishment } from '~/api/punishment'
+import {
+  listPunishment,
+  getPunishment,
+  cancelPunishment,
+} from '~/api/punishment'
 import { genLinkHTML, parseQueryIntArray } from '~/utils/utils'
 import TableList from '~/components/TableList.vue'
 import FormSearch from '~/components/FormSearch.vue'
@@ -116,7 +138,7 @@ export default {
   },
   head() {
     return {
-      title: `惩罚管理 - ${this.settings.system.sitename}`,
+      title: `处罚管理 - ${this.settings.system.sitename}`,
     }
   },
   computed: {
@@ -160,6 +182,27 @@ export default {
       })
       if (res.status === 200) {
         this.users = res.data.user || []
+      }
+    },
+    async batchCancelPunishment() {
+      let res = await this.$confirm(
+        `您确定要取消选中的${this.selectedRow.length}条处罚吗？`,
+        '提示',
+        {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        }
+      )
+      if (res) {
+        const ids = this.selectedRow.map((item) => item.id)
+        const res = await cancelPunishment({ id: ids })
+        if (res.status === 200) {
+          this.$message.success('批量取消成功')
+          this.listPunishment()
+        } else {
+          this.$message.error(res.data.message)
+        }
       }
     },
     async listPunishment() {
@@ -268,7 +311,7 @@ export default {
         },
         {
           prop: 'enable',
-          label: '是否启用',
+          label: '启用处罚',
           width: 80,
           type: 'bool',
         },
