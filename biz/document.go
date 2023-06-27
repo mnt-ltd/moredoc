@@ -54,7 +54,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 		return nil, err
 	}
 
-	if !s.dbModel.CanIUploadDocument(userCliams.UserId) {
+	if !s.dbModel.CanIAccessUploadDocument(userCliams.UserId) {
 		return nil, status.Error(codes.PermissionDenied, "没有权限上传文档")
 	}
 
@@ -671,6 +671,10 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 	var userId int64
 	if userClaims != nil {
 		userId = userClaims.UserId
+	}
+
+	if yes, _ := s.dbModel.CanIAccessDownload(userId); !yes {
+		return res, status.Errorf(codes.PermissionDenied, "您的账户已被禁止下载文档")
 	}
 
 	ip := ""

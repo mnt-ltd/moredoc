@@ -165,3 +165,24 @@ func (m *DBModel) DeletePunishment(ids []int64) (err error) {
 	}
 	return
 }
+
+func (m *DBModel) isInPunishing(userId int64, types []int) (yes bool, err error) {
+	if userId <= 1 {
+		return false, nil
+	}
+
+	punishment := &Punishment{}
+	err = m.db.Model(punishment).Select("id").
+		Where(
+			"user_id = ? and enable = ? and type in ? and (end_time IS NULL or end_time > ?)",
+			userId, true, types, time.Now(),
+		).Find(&punishment).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return false, nil
+		}
+		m.logger.Error("isInPunishing", zap.Error(err))
+		return
+	}
+	return punishment.Id > 0, nil
+}

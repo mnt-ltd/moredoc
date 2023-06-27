@@ -411,7 +411,13 @@ func (m *DBModel) SetUserGroupAndPassword(userId int64, groupId []int64, passwor
 }
 
 // CanIUploadDocument 判断用户是否有上传文档的权限
-func (m *DBModel) CanIUploadDocument(userId int64) (yes bool) {
+// 1. 用户是否被禁用或被处罚禁止上传文档
+// 2. 用户所在的用户组是否允许上传文档
+func (m *DBModel) CanIAccessUploadDocument(userId int64) (yes bool) {
+	if inPunishing, _ := m.isInPunishing(userId, []int{PunishmentTypeDisabled, PunishmentTypeUploadLimited}); inPunishing {
+		return false
+	}
+
 	var (
 		tableGroup     = Group{}.TableName()
 		tableUserGroup = UserGroup{}.TableName()
@@ -425,6 +431,39 @@ func (m *DBModel) CanIUploadDocument(userId int64) (yes bool) {
 		return
 	}
 	return group.Id > 0
+}
+
+// 用户是否可以下载文档：被禁用的账号或被禁止下载的账户不能下载
+func (m *DBModel) CanIAccessDownload(userId int64) (yes bool, err error) {
+	yes, err = m.isInPunishing(userId, []int{PunishmentTypeDownloadLimited, PunishmentTypeDisabled})
+	yes = !yes
+	if err != nil {
+		m.logger.Error("CanIAccessDownload", zap.Error(err))
+		return
+	}
+	return
+}
+
+// 用户是否可以评论
+func (m *DBModel) CanIAccessComment(userId int64) (yes bool, err error) {
+	yes, err = m.isInPunishing(userId, []int{PunishmentTypeCommentLimited, PunishmentTypeDisabled})
+	yes = !yes
+	if err != nil {
+		m.logger.Error("CanIAccessComment", zap.Error(err))
+		return
+	}
+	return
+}
+
+// 用户是否可以收藏文档
+func (m *DBModel) CanIAccessFavorite(userId int64) (yes bool, err error) {
+	yes, err = m.isInPunishing(userId, []int{PunishmentTypeFavoriteLimited, PunishmentTypeDisabled})
+	yes = !yes
+	if err != nil {
+		m.logger.Error("CanIAccessFavorite", zap.Error(err))
+		return
+	}
+	return
 }
 
 // 用户是否发表评论

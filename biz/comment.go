@@ -47,6 +47,10 @@ func (s *CommentAPIService) CreateComment(ctx context.Context, req *pb.CreateCom
 		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
 	}
 
+	if yes, _ := s.dbModel.CanIAccessComment(userClaims.UserId); !yes {
+		return nil, status.Errorf(codes.PermissionDenied, "您已经被禁止发表评论")
+	}
+
 	comment := &model.Comment{}
 	err = util.CopyStruct(req, comment)
 	if err != nil {

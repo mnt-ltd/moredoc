@@ -186,7 +186,7 @@ func (s *AttachmentAPIService) UploadDocument(ctx *gin.Context) {
 	}
 
 	// 检查用户是否有权限上传文档
-	if !s.dbModel.CanIUploadDocument(userClaims.UserId) {
+	if !s.dbModel.CanIAccessUploadDocument(userClaims.UserId) {
 		ctx.JSON(http.StatusForbidden, ginResponse{Code: http.StatusForbidden, Message: "没有权限上传文档", Error: "没有权限上传文档"})
 		return
 	}

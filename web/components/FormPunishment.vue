@@ -36,7 +36,18 @@
         </el-select>
         <el-input v-else :disabled="true" v-model="punishment.username" />
       </el-form-item>
-      <el-form-item label="处罚类型">
+      <el-form-item
+        prop="type"
+        :rules="[
+          { required: true, trigger: 'blur', message: '请选择处罚类型' },
+        ]"
+      >
+        <template slot="label">
+          处罚类型
+          <ToolTip
+            content="禁止评论：不允许发表评论；禁止上传：不允许上传文档；禁止收藏：不允许收藏；禁止下载：不允许下载文档；禁用账户：包括上述全部禁用项"
+          />
+        </template>
         <el-checkbox-group v-if="punishment.id === 0" v-model="punishment.type">
           <el-checkbox
             v-for="item in punishmentTypeOptions"

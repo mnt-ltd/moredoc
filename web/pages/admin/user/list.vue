@@ -113,7 +113,7 @@ export default {
       groups: [],
       users: [],
       user: { id: 0 },
-      total: 100,
+      total: 0,
       searchFormFields: [],
       listFields: [],
       selectedRows: [],
@@ -308,14 +308,14 @@ export default {
             }
           }),
         },
-        {
-          type: 'select',
-          label: '状态',
-          name: 'status',
-          placeholder: '请选择用户状态',
-          multiple: true,
-          options: this.userStatusOptions,
-        },
+        // {
+        //   type: 'select',
+        //   label: '状态',
+        //   name: 'status',
+        //   placeholder: '请选择用户状态',
+        //   multiple: true,
+        //   options: this.userStatusOptions,
+        // },
       ]
     },
     initTableListFields() {

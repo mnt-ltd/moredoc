@@ -34,6 +34,11 @@ func (s *FavoriteAPIService) CreateFavorite(ctx context.Context, req *pb.Favorit
 		return nil, err
 	}
 
+	yes, _ := s.dbModel.CanIAccessFavorite(userClaims.UserId)
+	if !yes {
+		return nil, status.Errorf(codes.PermissionDenied, "您已经被禁止收藏文档")
+	}
+
 	favorite := &model.Favorite{
 		UserId:     userClaims.UserId,
 		DocumentId: req.DocumentId,

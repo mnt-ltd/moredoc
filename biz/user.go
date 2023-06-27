@@ -541,7 +541,7 @@ func (s *UserAPIService) CanIUploadDocument(ctx context.Context, req *emptypb.Em
 		return nil, err
 	}
 
-	if !s.dbModel.CanIUploadDocument(userClaims.UserId) {
+	if !s.dbModel.CanIAccessUploadDocument(userClaims.UserId) {
 		return nil, status.Errorf(codes.PermissionDenied, "您没有上传文档的权限")
 	}
 
