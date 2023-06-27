@@ -318,10 +318,9 @@ export default {
           minWidth: 150,
           type: 'html',
         },
+        { prop: 'end_time', label: '截止时间', width: 160, type: 'datetime' },
         { prop: 'reason', label: '原因', minWidth: 250 },
         { prop: 'remark', label: '备注', minWidth: 250 },
-        { prop: 'start_time', label: '开始时间', width: 160, type: 'datetime' },
-        { prop: 'end_time', label: '结束时间', width: 160, type: 'datetime' },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },
       ]

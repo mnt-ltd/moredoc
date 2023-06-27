@@ -125,6 +125,75 @@ export const datetimePickerOptions = {
   ],
 }
 
+export const datetimePickerPunishmentOptions = {
+  shortcuts: [
+    {
+      text: '1小时',
+      onClick(picker) {
+        const end = new Date()
+        end.setTime(end.getTime() + 3600 * 1000)
+        picker.$emit('pick', end)
+      },
+    },
+    {
+      text: '12小时',
+      onClick(picker) {
+        const end = new Date()
+        end.setTime(end.getTime() + 3600 * 1000 * 12)
+        picker.$emit('pick', end)
+      },
+    },
+    {
+      text: '1天',
+      onClick(picker) {
+        const end = new Date()
+        end.setTime(end.getTime() + 3600 * 1000 * 24)
+        picker.$emit('pick', end)
+      },
+    },
+    {
+      text: '2天',
+      onClick(picker) {
+        const end = new Date()
+        end.setTime(end.getTime() + 3600 * 1000 * 24 * 2)
+        picker.$emit('pick', end)
+      },
+    },
+    {
+      text: '1周',
+      onClick(picker) {
+        const end = new Date()
+        end.setTime(end.getTime() + 3600 * 1000 * 24 * 7)
+        picker.$emit('pick', end)
+      },
+    },
+    {
+      text: '1月',
+      onClick(picker) {
+        const end = new Date()
+        end.setTime(end.getTime() + 3600 * 1000 * 24 * 30)
+        picker.$emit('pick', end)
+      },
+    },
+    {
+      text: '半年',
+      onClick(picker) {
+        const end = new Date()
+        end.setTime(end.getTime() + 3600 * 1000 * 24 * 183)
+        picker.$emit('pick', [start, end])
+      },
+    },
+    {
+      text: '1年',
+      onClick(picker) {
+        const end = new Date()
+        end.setTime(end.getTime() + 3600 * 1000 * 24 * 365)
+        picker.$emit('pick', [start, end])
+      },
+    },
+  ],
+}
+
 export const punishmentTypeOptions = [
   { label: '禁用账户', value: 1, type: 'danger' },
   { label: '禁止评论', value: 2, type: 'warning' },

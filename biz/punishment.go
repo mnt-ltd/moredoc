@@ -3,7 +3,6 @@ package biz
 import (
 	"context"
 	"strings"
-	"time"
 
 	pb "moredoc/api/v1"
 	"moredoc/middleware/auth"
@@ -45,24 +44,18 @@ func (s *PunishmentAPIService) CreatePunishment(ctx context.Context, req *pb.Cre
 		return nil, status.Errorf(codes.InvalidArgument, "请选择处罚类型")
 	}
 
-	now := time.Now()
-	startTime := &now
-	if req.StartTime != nil {
-		startTime = req.StartTime
-	}
 	for _, userId := range req.UserId {
 		if userId == 1 {
 			continue
 		}
 		for _, typ := range req.Type {
 			punishment := &model.Punishment{
-				UserId:    userId,
-				Type:      int(typ),
-				Enable:    req.Enable,
-				Reason:    req.Reason,
-				Remark:    req.Remark,
-				StartTime: startTime,
-				EndTime:   req.EndTime,
+				UserId:  userId,
+				Type:    int(typ),
+				Enable:  req.Enable,
+				Reason:  req.Reason,
+				Remark:  req.Remark,
+				EndTime: req.EndTime,
 			}
 			s.logger.Debug("CreatePunishment", zap.Any("punishment", punishment), zap.Any("req", req))
 			punishment.Operators = s.dbModel.MakePunishmentOperators(userClaims.UserId, typ)

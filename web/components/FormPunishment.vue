@@ -56,7 +56,7 @@
         </el-select>
       </el-form-item>
       <el-row :gutter="20">
-        <el-col :span="6">
+        <el-col :span="8">
           <el-form-item label="是否启用处罚">
             <el-switch
               v-model="punishment.enable"
@@ -68,22 +68,17 @@
             >
             </el-switch> </el-form-item
         ></el-col>
-        <el-col :span="9">
-          <el-form-item label="起止时间">
-            <el-date-picker
-              v-model="punishment.start_time"
-              type="datetime"
-              placeholder="请选择处罚开始时间"
-            >
-            </el-date-picker>
-          </el-form-item>
-        </el-col>
-        <el-col :span="9">
-          <el-form-item label="截止时间">
+        <el-col :span="16">
+          <el-form-item>
+            <template slot="label">
+              截止时间
+              <ToolTip content="用户被处罚的截止时间，留空则为永久" />
+            </template>
             <el-date-picker
               v-model="punishment.end_time"
               type="datetime"
               placeholder="请选择处罚截止时间"
+              :picker-options="datetimePickerPunishmentOptions"
             >
             </el-date-picker>
           </el-form-item>
@@ -120,7 +115,10 @@
 </template>
 <script>
 import { createPunishment, updatePunishment } from '~/api/punishment'
-import { punishmentTypeOptions } from '~/utils/enum'
+import {
+  punishmentTypeOptions,
+  datetimePickerPunishmentOptions,
+} from '~/utils/enum'
 import { listUser } from '~/api/user'
 export default {
   name: 'FormPunishment',
@@ -135,6 +133,7 @@ export default {
   data() {
     return {
       punishmentTypeOptions,
+      datetimePickerPunishmentOptions,
       loading: false,
       punishment: {
         id: 0,

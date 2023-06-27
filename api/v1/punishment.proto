@@ -14,18 +14,17 @@ option java_package = "api.v1";
 
 // 这里是proto文件中的结构体，可以根据需要删除或者调整
 message Punishment {
-  google.protobuf.Timestamp start_time = 6 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp end_time = 7 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp created_at = 8 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp updated_at = 9 [ (gogoproto.stdtime) = true ];
-  int64 id = 1;
-  int64 user_id = 2;
-  int32 type = 3;
-  bool enable = 4;
-  string operators = 5;
-  string remark = 10;
-  string reason = 11;
-  string username = 12;
+  google.protobuf.Timestamp end_time = 1 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp created_at = 2 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 3 [ (gogoproto.stdtime) = true ];
+  int64 id = 4;
+  int64 user_id = 5;
+  int32 type = 6;
+  bool enable = 7;
+  string operators = 8;
+  string remark = 9;
+  string reason = 10;
+  string username = 11;
 }
 
 message CancelPunishmentRequest { repeated int64 id = 1; }
@@ -44,14 +43,13 @@ message ListPunishmentRequest {
 }
 
 message CreatePunishmentRequest {
-  google.protobuf.Timestamp start_time = 1 [ (gogoproto.stdtime) = true ];
-  google.protobuf.Timestamp end_time = 2 [ (gogoproto.stdtime) = true ];
-  int64 id = 3;
-  repeated int64 user_id = 4;
-  repeated int32 type = 5;
-  bool enable = 6;
-  string remark = 7;
-  string reason = 8;
+  google.protobuf.Timestamp end_time = 1 [ (gogoproto.stdtime) = true ];
+  int64 id = 2;
+  repeated int64 user_id = 3;
+  repeated int32 type = 4;
+  bool enable = 5;
+  string remark = 6;
+  string reason = 7;
 }
 
 message ListPunishmentReply {

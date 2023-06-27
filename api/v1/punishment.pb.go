@@ -35,18 +35,17 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // 这里是proto文件中的结构体，可以根据需要删除或者调整
 type Punishment struct {
-	StartTime *time.Time `protobuf:"bytes,6,opt,name=start_time,json=startTime,proto3,stdtime" json:"start_time,omitempty"`
-	EndTime   *time.Time `protobuf:"bytes,7,opt,name=end_time,json=endTime,proto3,stdtime" json:"end_time,omitempty"`
-	CreatedAt *time.Time `protobuf:"bytes,8,opt,name=created_at,json=createdAt,proto3,stdtime" json:"created_at,omitempty"`
-	UpdatedAt *time.Time `protobuf:"bytes,9,opt,name=updated_at,json=updatedAt,proto3,stdtime" json:"updated_at,omitempty"`
-	Id        int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	UserId    int64      `protobuf:"varint,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Type      int32      `protobuf:"varint,3,opt,name=type,proto3" json:"type,omitempty"`
-	Enable    bool       `protobuf:"varint,4,opt,name=enable,proto3" json:"enable,omitempty"`
-	Operators string     `protobuf:"bytes,5,opt,name=operators,proto3" json:"operators,omitempty"`
-	Remark    string     `protobuf:"bytes,10,opt,name=remark,proto3" json:"remark,omitempty"`
-	Reason    string     `protobuf:"bytes,11,opt,name=reason,proto3" json:"reason,omitempty"`
-	Username  string     `protobuf:"bytes,12,opt,name=username,proto3" json:"username,omitempty"`
+	EndTime   *time.Time `protobuf:"bytes,1,opt,name=end_time,json=endTime,proto3,stdtime" json:"end_time,omitempty"`
+	CreatedAt *time.Time `protobuf:"bytes,2,opt,name=created_at,json=createdAt,proto3,stdtime" json:"created_at,omitempty"`
+	UpdatedAt *time.Time `protobuf:"bytes,3,opt,name=updated_at,json=updatedAt,proto3,stdtime" json:"updated_at,omitempty"`
+	Id        int64      `protobuf:"varint,4,opt,name=id,proto3" json:"id,omitempty"`
+	UserId    int64      `protobuf:"varint,5,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Type      int32      `protobuf:"varint,6,opt,name=type,proto3" json:"type,omitempty"`
+	Enable    bool       `protobuf:"varint,7,opt,name=enable,proto3" json:"enable,omitempty"`
+	Operators string     `protobuf:"bytes,8,opt,name=operators,proto3" json:"operators,omitempty"`
+	Remark    string     `protobuf:"bytes,9,opt,name=remark,proto3" json:"remark,omitempty"`
+	Reason    string     `protobuf:"bytes,10,opt,name=reason,proto3" json:"reason,omitempty"`
+	Username  string     `protobuf:"bytes,11,opt,name=username,proto3" json:"username,omitempty"`
 }
 
 func (m *Punishment) Reset()         { *m = Punishment{} }
@@ -81,13 +80,6 @@ func (m *Punishment) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_Punishment proto.InternalMessageInfo
-
-func (m *Punishment) GetStartTime() *time.Time {
-	if m != nil {
-		return m.StartTime
-	}
-	return nil
-}
 
 func (m *Punishment) GetEndTime() *time.Time {
 	if m != nil {
@@ -355,14 +347,13 @@ func (m *ListPunishmentRequest) GetUserId() []int64 {
 }
 
 type CreatePunishmentRequest struct {
-	StartTime *time.Time `protobuf:"bytes,1,opt,name=start_time,json=startTime,proto3,stdtime" json:"start_time,omitempty"`
-	EndTime   *time.Time `protobuf:"bytes,2,opt,name=end_time,json=endTime,proto3,stdtime" json:"end_time,omitempty"`
-	Id        int64      `protobuf:"varint,3,opt,name=id,proto3" json:"id,omitempty"`
-	UserId    []int64    `protobuf:"varint,4,rep,packed,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	Type      []int32    `protobuf:"varint,5,rep,packed,name=type,proto3" json:"type,omitempty"`
-	Enable    bool       `protobuf:"varint,6,opt,name=enable,proto3" json:"enable,omitempty"`
-	Remark    string     `protobuf:"bytes,7,opt,name=remark,proto3" json:"remark,omitempty"`
-	Reason    string     `protobuf:"bytes,8,opt,name=reason,proto3" json:"reason,omitempty"`
+	EndTime *time.Time `protobuf:"bytes,1,opt,name=end_time,json=endTime,proto3,stdtime" json:"end_time,omitempty"`
+	Id      int64      `protobuf:"varint,2,opt,name=id,proto3" json:"id,omitempty"`
+	UserId  []int64    `protobuf:"varint,3,rep,packed,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Type    []int32    `protobuf:"varint,4,rep,packed,name=type,proto3" json:"type,omitempty"`
+	Enable  bool       `protobuf:"varint,5,opt,name=enable,proto3" json:"enable,omitempty"`
+	Remark  string     `protobuf:"bytes,6,opt,name=remark,proto3" json:"remark,omitempty"`
+	Reason  string     `protobuf:"bytes,7,opt,name=reason,proto3" json:"reason,omitempty"`
 }
 
 func (m *CreatePunishmentRequest) Reset()         { *m = CreatePunishmentRequest{} }
@@ -397,13 +388,6 @@ func (m *CreatePunishmentRequest) XXX_DiscardUnknown() {
 }
 
 var xxx_messageInfo_CreatePunishmentRequest proto.InternalMessageInfo
-
-func (m *CreatePunishmentRequest) GetStartTime() *time.Time {
-	if m != nil {
-		return m.StartTime
-	}
-	return nil
-}
 
 func (m *CreatePunishmentRequest) GetEndTime() *time.Time {
 	if m != nil {
@@ -518,54 +502,52 @@ func init() {
 func init() { proto.RegisterFile("api/v1/punishment.proto", fileDescriptor_165d39e292001fbd) }
 
 var fileDescriptor_165d39e292001fbd = []byte{
-	// 737 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x55, 0xcd, 0x6e, 0xd3, 0x40,
-	0x10, 0xee, 0xda, 0xf9, 0x9d, 0xd2, 0xaa, 0x2c, 0xa1, 0x71, 0xdd, 0x36, 0xb1, 0x2c, 0x84, 0x42,
-	0x0f, 0x89, 0x1a, 0xc4, 0xa5, 0x3d, 0x54, 0x6d, 0x85, 0x50, 0x25, 0x0e, 0x95, 0x05, 0x17, 0x24,
-	0x14, 0x6d, 0xe3, 0x6d, 0x30, 0xd8, 0x5e, 0xd7, 0xde, 0xb4, 0x0a, 0x47, 0x9e, 0xa0, 0x12, 0x47,
-	0x78, 0x18, 0x8e, 0x48, 0x5c, 0x2a, 0x71, 0xe1, 0x06, 0x6a, 0x79, 0x10, 0xe4, 0xf5, 0x3a, 0xbf,
-	0x8e, 0x28, 0xe2, 0xb6, 0x33, 0xb3, 0xf3, 0x7d, 0x3b, 0xdf, 0x8c, 0xc7, 0x50, 0x25, 0x81, 0xd3,
-	0x3a, 0xdf, 0x6e, 0x05, 0x7d, 0xdf, 0x89, 0xde, 0x78, 0xd4, 0xe7, 0xcd, 0x20, 0x64, 0x9c, 0xe1,
-	0x02, 0x09, 0x9c, 0xe6, 0xf9, 0xb6, 0x5e, 0xef, 0x31, 0xd6, 0x73, 0x69, 0x4b, 0x78, 0x4f, 0xfa,
-	0xa7, 0x2d, 0xee, 0x78, 0x34, 0xe2, 0xc4, 0x0b, 0x92, 0x8b, 0x7a, 0xa5, 0xc7, 0x7a, 0x4c, 0x1c,
-	0x5b, 0xf1, 0x49, 0x7a, 0x37, 0x64, 0x5a, 0x0c, 0x4f, 0x7c, 0x9f, 0x71, 0xc2, 0x1d, 0xe6, 0x47,
-	0x32, 0xba, 0x3e, 0x0d, 0x4a, 0xbd, 0x80, 0x0f, 0x92, 0xa0, 0xf9, 0x4d, 0x05, 0x38, 0x1e, 0x3e,
-	0x07, 0xef, 0x01, 0x44, 0x9c, 0x84, 0xbc, 0x13, 0x13, 0x6b, 0x05, 0x03, 0x35, 0x16, 0xdb, 0x7a,
-	0x33, 0x01, 0x68, 0xa6, 0x00, 0xcd, 0x17, 0xe9, 0xab, 0x0e, 0x72, 0x97, 0x3f, 0xeb, 0xc8, 0x2a,
-	0x8b, 0x9c, 0xd8, 0x8b, 0x77, 0xa1, 0x44, 0x7d, 0x3b, 0x49, 0x2f, 0xde, 0x32, 0xbd, 0x48, 0x7d,
-	0x5b, 0x24, 0xef, 0x01, 0x74, 0x43, 0x4a, 0x38, 0xb5, 0x3b, 0x84, 0x6b, 0xa5, 0xdb, 0xb2, 0xcb,
-	0x9c, 0x7d, 0xf1, 0xfc, 0x7e, 0x60, 0xa7, 0x00, 0xe5, 0xdb, 0x02, 0xc8, 0x9c, 0x7d, 0x8e, 0x97,
-	0x41, 0x71, 0x6c, 0x0d, 0x19, 0xa8, 0xa1, 0x5a, 0x8a, 0x63, 0xe3, 0x2a, 0x14, 0xfb, 0x11, 0x0d,
-	0x3b, 0x8e, 0xad, 0x29, 0xc2, 0x59, 0x88, 0xcd, 0x23, 0x1b, 0x63, 0xc8, 0xf1, 0x41, 0x40, 0x35,
-	0xd5, 0x40, 0x8d, 0xbc, 0x25, 0xce, 0x78, 0x15, 0x0a, 0xd4, 0x27, 0x27, 0x2e, 0xd5, 0x72, 0x06,
-	0x6a, 0x94, 0x2c, 0x69, 0xe1, 0x0d, 0x28, 0xb3, 0x80, 0x86, 0x84, 0xb3, 0x30, 0xd2, 0xf2, 0x06,
-	0x6a, 0x94, 0xad, 0x91, 0x23, 0xce, 0x0a, 0xa9, 0x47, 0xc2, 0x77, 0x1a, 0x88, 0x90, 0xb4, 0x12,
-	0x3f, 0x89, 0x98, 0xaf, 0x2d, 0xa6, 0xfe, 0xd8, 0xc2, 0x3a, 0x94, 0xe2, 0x37, 0xf8, 0xc4, 0xa3,
-	0xda, 0x1d, 0x11, 0x19, 0xda, 0xe6, 0x23, 0xa8, 0x1e, 0x12, 0xbf, 0x4b, 0xdd, 0x51, 0x4b, 0x2d,
-	0x7a, 0xd6, 0xa7, 0xd1, 0xa8, 0x32, 0x35, 0xa9, 0xcc, 0x7c, 0x08, 0x95, 0x67, 0x94, 0xcf, 0xbf,
-	0x27, 0x15, 0x30, 0xbf, 0x20, 0xb8, 0xff, 0xdc, 0x89, 0x32, 0x6e, 0x62, 0xc8, 0x05, 0xa4, 0x47,
-	0xe5, 0x5d, 0x71, 0x8e, 0x7d, 0x91, 0xf3, 0x9e, 0x4a, 0xb1, 0xc4, 0x39, 0x46, 0xbc, 0xb0, 0x85,
-	0x50, 0x65, 0x4b, 0xb9, 0xb0, 0x71, 0x05, 0xf2, 0xa7, 0x0e, 0x75, 0x6d, 0x2d, 0x67, 0xa8, 0x8d,
-	0xb2, 0x95, 0x18, 0xb1, 0x97, 0x85, 0x36, 0x0d, 0xa5, 0x40, 0x89, 0x31, 0x94, 0xb9, 0x60, 0xa8,
-	0x19, 0x32, 0x17, 0x85, 0x37, 0x95, 0x79, 0xac, 0x57, 0x25, 0x51, 0xa6, 0xec, 0x95, 0xf9, 0x59,
-	0x81, 0xea, 0xa1, 0x98, 0x91, 0xd9, 0x22, 0x26, 0x07, 0x1e, 0xfd, 0xdf, 0xc0, 0x2b, 0xff, 0x3a,
-	0xf0, 0x89, 0xd8, 0x6a, 0xd6, 0xb8, 0xe5, 0xc6, 0x4b, 0x18, 0xea, 0x90, 0xcf, 0xd4, 0xa1, 0x30,
-	0x31, 0x6e, 0xa3, 0x81, 0x2a, 0xce, 0x19, 0xa8, 0xd2, 0xf8, 0x40, 0x99, 0x1d, 0xb8, 0x37, 0xdd,
-	0xe0, 0xc0, 0x1d, 0xc4, 0x0d, 0xe1, 0x8c, 0x13, 0x57, 0xf6, 0x37, 0x31, 0x70, 0x1b, 0x60, 0xb4,
-	0xbd, 0x34, 0xc5, 0x50, 0x1b, 0x8b, 0x6d, 0xdc, 0x4c, 0xd6, 0x57, 0x73, 0x0c, 0x62, 0xec, 0x56,
-	0xfb, 0x53, 0x0e, 0x96, 0x46, 0xa1, 0xfd, 0xe3, 0x23, 0xfc, 0x16, 0x56, 0xa6, 0x1b, 0x82, 0xeb,
-	0x29, 0xca, 0x9c, 0x56, 0xe9, 0xab, 0x33, 0xba, 0x3e, 0x8d, 0x17, 0x99, 0xb9, 0xf9, 0xe1, 0xfb,
-	0xef, 0x8f, 0x4a, 0xd5, 0xc4, 0xad, 0x99, 0xf5, 0xba, 0x83, 0xb6, 0xf0, 0x6b, 0x58, 0x79, 0x29,
-	0xbe, 0xef, 0x31, 0xae, 0x8c, 0x17, 0xff, 0x0d, 0x5e, 0x9f, 0x0b, 0xbf, 0x34, 0xf1, 0x1d, 0xe1,
-	0x8d, 0x14, 0x3b, 0xeb, 0xf3, 0xd2, 0x33, 0x98, 0x4d, 0x5d, 0x30, 0x54, 0x70, 0x06, 0x03, 0xf6,
-	0x60, 0x79, 0xb2, 0x39, 0x78, 0x33, 0x45, 0xc8, 0xfc, 0x2a, 0xf5, 0xf5, 0x79, 0xe1, 0xc0, 0x1d,
-	0x98, 0x75, 0xc1, 0xb4, 0x86, 0xab, 0xb3, 0x4c, 0x2d, 0xd7, 0x89, 0x38, 0x3e, 0x83, 0x95, 0xe9,
-	0x05, 0x32, 0xd6, 0x98, 0xec, 0xd5, 0x32, 0x57, 0xb9, 0x07, 0x82, 0xad, 0xa6, 0xaf, 0x65, 0xb0,
-	0x75, 0x05, 0xd6, 0x0e, 0xda, 0x3a, 0x78, 0xf2, 0xf5, 0xba, 0x86, 0xae, 0xae, 0x6b, 0xe8, 0xd7,
-	0x75, 0x0d, 0x5d, 0xde, 0xd4, 0x16, 0xae, 0x6e, 0x6a, 0x0b, 0x3f, 0x6e, 0x6a, 0x0b, 0x20, 0xff,
-	0x8a, 0xc7, 0xe8, 0xd5, 0x5d, 0x8f, 0x85, 0xd4, 0x66, 0x5d, 0x09, 0xb4, 0x7b, 0xbe, 0x7d, 0x52,
-	0x10, 0x64, 0x8f, 0xff, 0x04, 0x00, 0x00, 0xff, 0xff, 0x70, 0x53, 0x08, 0x46, 0x54, 0x07, 0x00,
-	0x00,
+	// 719 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x55, 0x4f, 0x6f, 0xd3, 0x4e,
+	0x10, 0xed, 0xc6, 0xf9, 0x3b, 0x55, 0xab, 0xfe, 0xf6, 0x17, 0x1a, 0xd7, 0x6d, 0x93, 0xc8, 0x42,
+	0xc8, 0xf4, 0x60, 0xab, 0x41, 0x5c, 0xda, 0x03, 0x6a, 0x2b, 0x84, 0x2a, 0x71, 0xa8, 0x2c, 0xb8,
+	0x20, 0xa1, 0x68, 0x1b, 0x6f, 0x83, 0xc1, 0xf6, 0xba, 0xf6, 0xa6, 0x55, 0x38, 0x72, 0xe4, 0x54,
+	0x89, 0x23, 0x5f, 0x86, 0x23, 0xc7, 0x4a, 0x5c, 0x90, 0x38, 0x80, 0x5a, 0x3e, 0x08, 0xda, 0xb5,
+	0xdd, 0xb8, 0x89, 0x23, 0x2a, 0x71, 0xdb, 0x99, 0xd9, 0x79, 0x6f, 0xe7, 0xcd, 0xec, 0x2e, 0xb4,
+	0x48, 0xe8, 0x5a, 0x67, 0xdb, 0x56, 0x38, 0x0a, 0xdc, 0xf8, 0x8d, 0x4f, 0x03, 0x6e, 0x86, 0x11,
+	0xe3, 0x0c, 0x57, 0x49, 0xe8, 0x9a, 0x67, 0xdb, 0x5a, 0x67, 0xc8, 0xd8, 0xd0, 0xa3, 0x96, 0xf4,
+	0x1e, 0x8f, 0x4e, 0x2c, 0xee, 0xfa, 0x34, 0xe6, 0xc4, 0x0f, 0x93, 0x8d, 0x5a, 0x73, 0xc8, 0x86,
+	0x4c, 0x2e, 0x2d, 0xb1, 0x4a, 0xbd, 0x1b, 0x69, 0x9a, 0x80, 0x27, 0x41, 0xc0, 0x38, 0xe1, 0x2e,
+	0x0b, 0xe2, 0x34, 0xba, 0x3e, 0x0d, 0x4a, 0xfd, 0x90, 0x8f, 0x93, 0xa0, 0xfe, 0x51, 0x01, 0x38,
+	0xba, 0x39, 0x0e, 0xde, 0x85, 0x3a, 0x0d, 0x9c, 0xbe, 0xa0, 0x55, 0x51, 0x17, 0x19, 0x8b, 0x3d,
+	0xcd, 0x4c, 0xd2, 0xcd, 0x2c, 0xdd, 0x7c, 0x91, 0x9d, 0x69, 0xbf, 0x7c, 0xf1, 0xb3, 0x83, 0xec,
+	0x1a, 0x0d, 0x1c, 0xe1, 0xc3, 0x4f, 0x00, 0x06, 0x11, 0x25, 0x9c, 0x3a, 0x7d, 0xc2, 0xd5, 0xd2,
+	0x1d, 0xd3, 0x1b, 0x69, 0xce, 0x1e, 0x17, 0x00, 0xa3, 0xd0, 0xc9, 0x00, 0x94, 0xbb, 0x02, 0xa4,
+	0x39, 0x7b, 0x1c, 0x2f, 0x43, 0xc9, 0x75, 0xd4, 0x72, 0x17, 0x19, 0x8a, 0x5d, 0x72, 0x1d, 0xdc,
+	0x82, 0xda, 0x28, 0xa6, 0x51, 0xdf, 0x75, 0xd4, 0x8a, 0x74, 0x56, 0x85, 0x79, 0xe8, 0x60, 0x0c,
+	0x65, 0x3e, 0x0e, 0xa9, 0x5a, 0xed, 0x22, 0xa3, 0x62, 0xcb, 0x35, 0x5e, 0x85, 0x2a, 0x0d, 0xc8,
+	0xb1, 0x47, 0xd5, 0x5a, 0x17, 0x19, 0x75, 0x3b, 0xb5, 0xf0, 0x06, 0x34, 0x58, 0x48, 0x23, 0xc2,
+	0x59, 0x14, 0xab, 0xf5, 0x2e, 0x32, 0x1a, 0xf6, 0xc4, 0x21, 0xb2, 0x22, 0xea, 0x93, 0xe8, 0x9d,
+	0xda, 0x90, 0xa1, 0xd4, 0x4a, 0xfc, 0x24, 0x66, 0x81, 0x0a, 0x99, 0x5f, 0x58, 0x58, 0x83, 0xba,
+	0x38, 0x43, 0x40, 0x7c, 0xaa, 0x2e, 0xca, 0xc8, 0x8d, 0xad, 0x3f, 0x84, 0xd6, 0x01, 0x09, 0x06,
+	0xd4, 0x9b, 0x74, 0xc4, 0xa6, 0xa7, 0x23, 0x1a, 0x67, 0x95, 0xa1, 0xae, 0x92, 0x54, 0xa6, 0x3f,
+	0x80, 0xe6, 0x33, 0xca, 0xe7, 0xef, 0x4b, 0x15, 0xd0, 0xbf, 0x20, 0xb8, 0xf7, 0xdc, 0x8d, 0x0b,
+	0x76, 0x62, 0x28, 0x87, 0x64, 0x48, 0xd3, 0xbd, 0x72, 0x2d, 0x7c, 0xb1, 0xfb, 0x9e, 0xca, 0xde,
+	0x29, 0xb6, 0x5c, 0x0b, 0xc4, 0x73, 0x47, 0x36, 0xa3, 0x61, 0x97, 0xce, 0x1d, 0xdc, 0x84, 0xca,
+	0x89, 0x4b, 0x3d, 0x21, 0xb3, 0x62, 0x34, 0xec, 0xc4, 0x10, 0x5e, 0x16, 0x39, 0x34, 0x92, 0x3a,
+	0x37, 0xec, 0xc4, 0xc8, 0xc9, 0xac, 0x14, 0xca, 0x2c, 0xbc, 0x99, 0xcc, 0xb9, 0x5e, 0xd5, 0x65,
+	0x99, 0x69, 0xaf, 0xf4, 0x1f, 0x08, 0x5a, 0x07, 0x72, 0x46, 0x66, 0x8b, 0xf8, 0xa7, 0x79, 0x4d,
+	0xb4, 0x2a, 0x15, 0x4d, 0x8b, 0x92, 0x3f, 0xc1, 0x4d, 0x19, 0xe5, 0xc2, 0x32, 0x2a, 0xb7, 0xa6,
+	0x65, 0x32, 0x0f, 0xd5, 0x39, 0xf3, 0x50, 0xcb, 0xcf, 0x83, 0xde, 0x87, 0xff, 0xa7, 0xfb, 0x13,
+	0x7a, 0x63, 0xa1, 0x27, 0x67, 0x9c, 0x78, 0x69, 0x7b, 0x12, 0x03, 0xf7, 0x00, 0x26, 0x6f, 0x87,
+	0x5a, 0xea, 0x2a, 0xc6, 0x62, 0x0f, 0x9b, 0xc9, 0xe3, 0x61, 0xe6, 0x20, 0x72, 0xbb, 0x7a, 0x9f,
+	0xcb, 0xb0, 0x34, 0x09, 0xed, 0x1d, 0x1d, 0xe2, 0xb7, 0xb0, 0x32, 0xad, 0x27, 0xee, 0x64, 0x28,
+	0x73, 0x94, 0xd6, 0x56, 0x67, 0x74, 0x7d, 0x2a, 0x9e, 0x11, 0x7d, 0xf3, 0xc3, 0xb7, 0xdf, 0x9f,
+	0x4a, 0x2d, 0x1d, 0x5b, 0x33, 0x8f, 0xdb, 0x0e, 0xda, 0xc2, 0xaf, 0x61, 0xe5, 0xa5, 0xbc, 0x9e,
+	0x39, 0xae, 0x82, 0x13, 0xff, 0x0d, 0x5e, 0x9b, 0x0b, 0xbf, 0x74, 0xeb, 0x1a, 0xe0, 0x8d, 0x0c,
+	0xbb, 0xe8, 0x76, 0x68, 0x05, 0xcc, 0xba, 0x26, 0x19, 0x9a, 0xb8, 0x80, 0x01, 0xfb, 0xb0, 0x7c,
+	0xbb, 0x39, 0x78, 0x33, 0x43, 0x28, 0xbc, 0x54, 0xda, 0xfa, 0xbc, 0x70, 0xe8, 0x8d, 0xf5, 0x8e,
+	0x64, 0x5a, 0xc3, 0xad, 0x59, 0x26, 0xcb, 0x73, 0x63, 0x8e, 0x4f, 0x61, 0x65, 0xfa, 0xfe, 0xe7,
+	0x1a, 0x53, 0xfc, 0x32, 0xcc, 0x55, 0xee, 0xbe, 0x64, 0x6b, 0x6b, 0x6b, 0x05, 0x6c, 0x03, 0x89,
+	0xb5, 0x83, 0xb6, 0xf6, 0x1f, 0x7f, 0xbd, 0x6a, 0xa3, 0xcb, 0xab, 0x36, 0xfa, 0x75, 0xd5, 0x46,
+	0x17, 0xd7, 0xed, 0x85, 0xcb, 0xeb, 0xf6, 0xc2, 0xf7, 0xeb, 0xf6, 0x02, 0xa4, 0x7f, 0xd2, 0x11,
+	0x7a, 0xf5, 0x9f, 0xcf, 0x22, 0xea, 0xb0, 0x41, 0x0a, 0xb4, 0x7b, 0xb6, 0x7d, 0x5c, 0x95, 0x64,
+	0x8f, 0xfe, 0x04, 0x00, 0x00, 0xff, 0xff, 0x48, 0x05, 0x8d, 0xd3, 0xd2, 0x06, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -819,68 +801,28 @@ func (m *Punishment) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		copy(dAtA[i:], m.Username)
 		i = encodeVarintPunishment(dAtA, i, uint64(len(m.Username)))
 		i--
-		dAtA[i] = 0x62
+		dAtA[i] = 0x5a
 	}
 	if len(m.Reason) > 0 {
 		i -= len(m.Reason)
 		copy(dAtA[i:], m.Reason)
 		i = encodeVarintPunishment(dAtA, i, uint64(len(m.Reason)))
 		i--
-		dAtA[i] = 0x5a
+		dAtA[i] = 0x52
 	}
 	if len(m.Remark) > 0 {
 		i -= len(m.Remark)
 		copy(dAtA[i:], m.Remark)
 		i = encodeVarintPunishment(dAtA, i, uint64(len(m.Remark)))
 		i--
-		dAtA[i] = 0x52
-	}
-	if m.UpdatedAt != nil {
-		n1, err1 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt):])
-		if err1 != nil {
-			return 0, err1
-		}
-		i -= n1
-		i = encodeVarintPunishment(dAtA, i, uint64(n1))
-		i--
 		dAtA[i] = 0x4a
-	}
-	if m.CreatedAt != nil {
-		n2, err2 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CreatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt):])
-		if err2 != nil {
-			return 0, err2
-		}
-		i -= n2
-		i = encodeVarintPunishment(dAtA, i, uint64(n2))
-		i--
-		dAtA[i] = 0x42
-	}
-	if m.EndTime != nil {
-		n3, err3 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.EndTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.EndTime):])
-		if err3 != nil {
-			return 0, err3
-		}
-		i -= n3
-		i = encodeVarintPunishment(dAtA, i, uint64(n3))
-		i--
-		dAtA[i] = 0x3a
-	}
-	if m.StartTime != nil {
-		n4, err4 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.StartTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.StartTime):])
-		if err4 != nil {
-			return 0, err4
-		}
-		i -= n4
-		i = encodeVarintPunishment(dAtA, i, uint64(n4))
-		i--
-		dAtA[i] = 0x32
 	}
 	if len(m.Operators) > 0 {
 		i -= len(m.Operators)
 		copy(dAtA[i:], m.Operators)
 		i = encodeVarintPunishment(dAtA, i, uint64(len(m.Operators)))
 		i--
-		dAtA[i] = 0x2a
+		dAtA[i] = 0x42
 	}
 	if m.Enable {
 		i--
@@ -890,22 +832,52 @@ func (m *Punishment) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 			dAtA[i] = 0
 		}
 		i--
-		dAtA[i] = 0x20
+		dAtA[i] = 0x38
 	}
 	if m.Type != 0 {
 		i = encodeVarintPunishment(dAtA, i, uint64(m.Type))
 		i--
-		dAtA[i] = 0x18
+		dAtA[i] = 0x30
 	}
 	if m.UserId != 0 {
 		i = encodeVarintPunishment(dAtA, i, uint64(m.UserId))
 		i--
-		dAtA[i] = 0x10
+		dAtA[i] = 0x28
 	}
 	if m.Id != 0 {
 		i = encodeVarintPunishment(dAtA, i, uint64(m.Id))
 		i--
-		dAtA[i] = 0x8
+		dAtA[i] = 0x20
+	}
+	if m.UpdatedAt != nil {
+		n1, err1 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt):])
+		if err1 != nil {
+			return 0, err1
+		}
+		i -= n1
+		i = encodeVarintPunishment(dAtA, i, uint64(n1))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.CreatedAt != nil {
+		n2, err2 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CreatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt):])
+		if err2 != nil {
+			return 0, err2
+		}
+		i -= n2
+		i = encodeVarintPunishment(dAtA, i, uint64(n2))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.EndTime != nil {
+		n3, err3 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.EndTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.EndTime):])
+		if err3 != nil {
+			return 0, err3
+		}
+		i -= n3
+		i = encodeVarintPunishment(dAtA, i, uint64(n3))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -931,21 +903,21 @@ func (m *CancelPunishmentRequest) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	var l int
 	_ = l
 	if len(m.Id) > 0 {
-		dAtA6 := make([]byte, len(m.Id)*10)
-		var j5 int
+		dAtA5 := make([]byte, len(m.Id)*10)
+		var j4 int
 		for _, num1 := range m.Id {
 			num := uint64(num1)
 			for num >= 1<<7 {
-				dAtA6[j5] = uint8(uint64(num)&0x7f | 0x80)
+				dAtA5[j4] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
-				j5++
+				j4++
 			}
-			dAtA6[j5] = uint8(num)
-			j5++
+			dAtA5[j4] = uint8(num)
+			j4++
 		}
-		i -= j5
-		copy(dAtA[i:], dAtA6[:j5])
-		i = encodeVarintPunishment(dAtA, i, uint64(j5))
+		i -= j4
+		copy(dAtA[i:], dAtA5[:j4])
+		i = encodeVarintPunishment(dAtA, i, uint64(j4))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1001,59 +973,59 @@ func (m *ListPunishmentRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	if len(m.UserId) > 0 {
-		dAtA8 := make([]byte, len(m.UserId)*10)
-		var j7 int
+		dAtA7 := make([]byte, len(m.UserId)*10)
+		var j6 int
 		for _, num1 := range m.UserId {
 			num := uint64(num1)
 			for num >= 1<<7 {
-				dAtA8[j7] = uint8(uint64(num)&0x7f | 0x80)
+				dAtA7[j6] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
-				j7++
+				j6++
 			}
-			dAtA8[j7] = uint8(num)
-			j7++
+			dAtA7[j6] = uint8(num)
+			j6++
 		}
-		i -= j7
-		copy(dAtA[i:], dAtA8[:j7])
-		i = encodeVarintPunishment(dAtA, i, uint64(j7))
+		i -= j6
+		copy(dAtA[i:], dAtA7[:j6])
+		i = encodeVarintPunishment(dAtA, i, uint64(j6))
 		i--
 		dAtA[i] = 0x42
 	}
 	if len(m.Enable) > 0 {
-		dAtA10 := make([]byte, len(m.Enable)*10)
-		var j9 int
+		dAtA9 := make([]byte, len(m.Enable)*10)
+		var j8 int
 		for _, num1 := range m.Enable {
 			num := uint64(num1)
 			for num >= 1<<7 {
-				dAtA10[j9] = uint8(uint64(num)&0x7f | 0x80)
+				dAtA9[j8] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
-				j9++
+				j8++
 			}
-			dAtA10[j9] = uint8(num)
-			j9++
+			dAtA9[j8] = uint8(num)
+			j8++
 		}
-		i -= j9
-		copy(dAtA[i:], dAtA10[:j9])
-		i = encodeVarintPunishment(dAtA, i, uint64(j9))
+		i -= j8
+		copy(dAtA[i:], dAtA9[:j8])
+		i = encodeVarintPunishment(dAtA, i, uint64(j8))
 		i--
 		dAtA[i] = 0x3a
 	}
 	if len(m.Type) > 0 {
-		dAtA12 := make([]byte, len(m.Type)*10)
-		var j11 int
+		dAtA11 := make([]byte, len(m.Type)*10)
+		var j10 int
 		for _, num1 := range m.Type {
 			num := uint64(num1)
 			for num >= 1<<7 {
-				dAtA12[j11] = uint8(uint64(num)&0x7f | 0x80)
+				dAtA11[j10] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
-				j11++
+				j10++
 			}
-			dAtA12[j11] = uint8(num)
-			j11++
+			dAtA11[j10] = uint8(num)
+			j10++
 		}
-		i -= j11
-		copy(dAtA[i:], dAtA12[:j11])
-		i = encodeVarintPunishment(dAtA, i, uint64(j11))
+		i -= j10
+		copy(dAtA[i:], dAtA11[:j10])
+		i = encodeVarintPunishment(dAtA, i, uint64(j10))
 		i--
 		dAtA[i] = 0x32
 	}
@@ -1118,14 +1090,14 @@ func (m *CreatePunishmentRequest) MarshalToSizedBuffer(dAtA []byte) (int, error)
 		copy(dAtA[i:], m.Reason)
 		i = encodeVarintPunishment(dAtA, i, uint64(len(m.Reason)))
 		i--
-		dAtA[i] = 0x42
+		dAtA[i] = 0x3a
 	}
 	if len(m.Remark) > 0 {
 		i -= len(m.Remark)
 		copy(dAtA[i:], m.Remark)
 		i = encodeVarintPunishment(dAtA, i, uint64(len(m.Remark)))
 		i--
-		dAtA[i] = 0x3a
+		dAtA[i] = 0x32
 	}
 	if m.Enable {
 		i--
@@ -1135,68 +1107,58 @@ func (m *CreatePunishmentRequest) MarshalToSizedBuffer(dAtA []byte) (int, error)
 			dAtA[i] = 0
 		}
 		i--
-		dAtA[i] = 0x30
+		dAtA[i] = 0x28
 	}
 	if len(m.Type) > 0 {
-		dAtA14 := make([]byte, len(m.Type)*10)
-		var j13 int
+		dAtA13 := make([]byte, len(m.Type)*10)
+		var j12 int
 		for _, num1 := range m.Type {
 			num := uint64(num1)
 			for num >= 1<<7 {
-				dAtA14[j13] = uint8(uint64(num)&0x7f | 0x80)
+				dAtA13[j12] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
-				j13++
+				j12++
 			}
-			dAtA14[j13] = uint8(num)
-			j13++
+			dAtA13[j12] = uint8(num)
+			j12++
 		}
-		i -= j13
-		copy(dAtA[i:], dAtA14[:j13])
-		i = encodeVarintPunishment(dAtA, i, uint64(j13))
+		i -= j12
+		copy(dAtA[i:], dAtA13[:j12])
+		i = encodeVarintPunishment(dAtA, i, uint64(j12))
 		i--
-		dAtA[i] = 0x2a
+		dAtA[i] = 0x22
 	}
 	if len(m.UserId) > 0 {
-		dAtA16 := make([]byte, len(m.UserId)*10)
-		var j15 int
+		dAtA15 := make([]byte, len(m.UserId)*10)
+		var j14 int
 		for _, num1 := range m.UserId {
 			num := uint64(num1)
 			for num >= 1<<7 {
-				dAtA16[j15] = uint8(uint64(num)&0x7f | 0x80)
+				dAtA15[j14] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
-				j15++
+				j14++
 			}
-			dAtA16[j15] = uint8(num)
-			j15++
+			dAtA15[j14] = uint8(num)
+			j14++
 		}
-		i -= j15
-		copy(dAtA[i:], dAtA16[:j15])
-		i = encodeVarintPunishment(dAtA, i, uint64(j15))
+		i -= j14
+		copy(dAtA[i:], dAtA15[:j14])
+		i = encodeVarintPunishment(dAtA, i, uint64(j14))
 		i--
-		dAtA[i] = 0x22
+		dAtA[i] = 0x1a
 	}
 	if m.Id != 0 {
 		i = encodeVarintPunishment(dAtA, i, uint64(m.Id))
 		i--
-		dAtA[i] = 0x18
+		dAtA[i] = 0x10
 	}
 	if m.EndTime != nil {
-		n17, err17 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.EndTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.EndTime):])
-		if err17 != nil {
-			return 0, err17
+		n16, err16 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.EndTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.EndTime):])
+		if err16 != nil {
+			return 0, err16
 		}
-		i -= n17
-		i = encodeVarintPunishment(dAtA, i, uint64(n17))
-		i--
-		dAtA[i] = 0x12
-	}
-	if m.StartTime != nil {
-		n18, err18 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.StartTime, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.StartTime):])
-		if err18 != nil {
-			return 0, err18
-		}
-		i -= n18
-		i = encodeVarintPunishment(dAtA, i, uint64(n18))
+		i -= n16
+		i = encodeVarintPunishment(dAtA, i, uint64(n16))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -1262,6 +1224,18 @@ func (m *Punishment) Size() (n int) {
 	}
 	var l int
 	_ = l
+	if m.EndTime != nil {
+		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.EndTime)
+		n += 1 + l + sovPunishment(uint64(l))
+	}
+	if m.CreatedAt != nil {
+		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt)
+		n += 1 + l + sovPunishment(uint64(l))
+	}
+	if m.UpdatedAt != nil {
+		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt)
+		n += 1 + l + sovPunishment(uint64(l))
+	}
 	if m.Id != 0 {
 		n += 1 + sovPunishment(uint64(m.Id))
 	}
@@ -1276,22 +1250,6 @@ func (m *Punishment) Size() (n int) {
 	}
 	l = len(m.Operators)
 	if l > 0 {
-		n += 1 + l + sovPunishment(uint64(l))
-	}
-	if m.StartTime != nil {
-		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.StartTime)
-		n += 1 + l + sovPunishment(uint64(l))
-	}
-	if m.EndTime != nil {
-		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.EndTime)
-		n += 1 + l + sovPunishment(uint64(l))
-	}
-	if m.CreatedAt != nil {
-		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt)
-		n += 1 + l + sovPunishment(uint64(l))
-	}
-	if m.UpdatedAt != nil {
-		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt)
 		n += 1 + l + sovPunishment(uint64(l))
 	}
 	l = len(m.Remark)
@@ -1393,10 +1351,6 @@ func (m *CreatePunishmentRequest) Size() (n int) {
 	}
 	var l int
 	_ = l
-	if m.StartTime != nil {
-		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.StartTime)
-		n += 1 + l + sovPunishment(uint64(l))
-	}
 	if m.EndTime != nil {
 		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.EndTime)
 		n += 1 + l + sovPunishment(uint64(l))
@@ -1486,151 +1440,6 @@ func (m *Punishment) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
-			}
-			m.Id = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPunishment
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Id |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field UserId", wireType)
-			}
-			m.UserId = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPunishment
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.UserId |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 3:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
-			}
-			m.Type = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPunishment
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Type |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 4:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Enable", wireType)
-			}
-			var v int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPunishment
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				v |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			m.Enable = bool(v != 0)
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Operators", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPunishment
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthPunishment
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthPunishment
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Operators = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 6:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field StartTime", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPunishment
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthPunishment
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthPunishment
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.StartTime == nil {
-				m.StartTime = new(time.Time)
-			}
-			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(m.StartTime, dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EndTime", wireType)
 			}
@@ -1666,7 +1475,7 @@ func (m *Punishment) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 8:
+		case 2:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field CreatedAt", wireType)
 			}
@@ -1702,7 +1511,7 @@ func (m *Punishment) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 9:
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field UpdatedAt", wireType)
 			}
@@ -1738,7 +1547,116 @@ func (m *Punishment) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 10:
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPunishment
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UserId", wireType)
+			}
+			m.UserId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPunishment
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.UserId |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 6:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
+			}
+			m.Type = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPunishment
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Type |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 7:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Enable", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPunishment
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.Enable = bool(v != 0)
+		case 8:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Operators", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowPunishment
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthPunishment
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthPunishment
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Operators = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 9:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Remark", wireType)
 			}
@@ -1770,7 +1688,7 @@ func (m *Punishment) Unmarshal(dAtA []byte) error {
 			}
 			m.Remark = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 11:
+		case 10:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Reason", wireType)
 			}
@@ -1802,7 +1720,7 @@ func (m *Punishment) Unmarshal(dAtA []byte) error {
 			}
 			m.Reason = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 12:
+		case 11:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Username", wireType)
 			}
@@ -2493,42 +2411,6 @@ func (m *CreatePunishmentRequest) Unmarshal(dAtA []byte) error {
 		switch fieldNum {
 		case 1:
 			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field StartTime", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowPunishment
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthPunishment
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthPunishment
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			if m.StartTime == nil {
-				m.StartTime = new(time.Time)
-			}
-			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(m.StartTime, dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		case 2:
-			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field EndTime", wireType)
 			}
 			var msglen int
@@ -2563,7 +2445,7 @@ func (m *CreatePunishmentRequest) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
-		case 3:
+		case 2:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
 			}
@@ -2582,7 +2464,7 @@ func (m *CreatePunishmentRequest) Unmarshal(dAtA []byte) error {
 					break
 				}
 			}
-		case 4:
+		case 3:
 			if wireType == 0 {
 				var v int64
 				for shift := uint(0); ; shift += 7 {
@@ -2658,7 +2540,7 @@ func (m *CreatePunishmentRequest) Unmarshal(dAtA []byte) error {
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field UserId", wireType)
 			}
-		case 5:
+		case 4:
 			if wireType == 0 {
 				var v int32
 				for shift := uint(0); ; shift += 7 {
@@ -2734,7 +2616,7 @@ func (m *CreatePunishmentRequest) Unmarshal(dAtA []byte) error {
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Type", wireType)
 			}
-		case 6:
+		case 5:
 			if wireType != 0 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Enable", wireType)
 			}
@@ -2754,7 +2636,7 @@ func (m *CreatePunishmentRequest) Unmarshal(dAtA []byte) error {
 				}
 			}
 			m.Enable = bool(v != 0)
-		case 7:
+		case 6:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Remark", wireType)
 			}
@@ -2786,7 +2668,7 @@ func (m *CreatePunishmentRequest) Unmarshal(dAtA []byte) error {
 			}
 			m.Remark = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
-		case 8:
+		case 7:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Reason", wireType)
 			}

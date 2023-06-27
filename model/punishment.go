@@ -24,7 +24,6 @@ type Punishment struct {
 	Operators string     `form:"operators" json:"operators,omitempty" gorm:"column:operators;type:text;comment:操作信息;"`
 	Reason    string     `form:"reason" json:"reason,omitempty" gorm:"column:reason;type:text;comment:惩罚原因;"`
 	Remark    string     `form:"remark" json:"remark,omitempty" gorm:"column:remark;type:text;comment:惩罚备注;"`
-	StartTime *time.Time `form:"start_time" json:"start_time,omitempty" gorm:"column:start_time;type:datetime;comment:惩罚开始时间;"`
 	EndTime   *time.Time `form:"end_time" json:"end_time,omitempty" gorm:"column:end_time;type:datetime;comment:惩罚结束时间，没有结束时间，则表示永久;"`
 	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
