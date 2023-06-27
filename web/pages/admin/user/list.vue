@@ -138,7 +138,9 @@ export default {
           size: parseInt(this.$route.query.size) || 10,
           ...parseQueryIntArray(this.$route.query, ['group_id', 'status']),
         }
-
+        if (this.groups.length === 0) {
+          await this.listGroup()
+        }
         // 这里要执行下初始化，避免数据请求回来了，但是表格字段还没初始化，导致列表布局错乱
         await this.initTableListFields()
         this.listUser()
@@ -148,7 +150,6 @@ export default {
   async created() {
     await this.initSearchForm()
     await this.initTableListFields()
-    await this.listGroup()
     await this.initSearchForm() // 请求完成用户组数据之后再初始化下搜索表单，因为下拉枚举需要用到用户组数据
   },
   methods: {
@@ -159,6 +160,11 @@ export default {
         let users = res.data.user || []
         users.map((item) => {
           item.username_html = genLinkHTML(item.username, `/user/${item.id}`)
+          let groups = (item.group_id || []).map((id) => {
+            let group = this.groups.find((group) => group.id === id)
+            return group ? group.title : ''
+          })
+          item.group = groups.join(', ')
         })
         this.users = users
         this.total = res.data.total
@@ -329,6 +335,11 @@ export default {
           width: 150,
           fixed: 'left',
           type: 'html',
+        },
+        {
+          prop: 'group',
+          label: '用户组',
+          width: 150,
         },
         { prop: 'doc_count', label: '文档', width: 80, type: 'number' },
         { prop: 'credit_count', label: '积分', width: 100, type: 'number' },
