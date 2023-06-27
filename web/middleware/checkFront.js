@@ -6,19 +6,11 @@ export default function ({ store, route, redirect, from }) {
     (route.name === 'login' || route.name === 'register') &&
     !(from.name === 'login' || from.name === 'register')
   ) {
-    console.log(
-      'checkFront.js: route.name === login or register 1',
-      route.query
-    )
     if (!route.query.redirect) {
       route.query.redirect = from.fullPath
       redirect(route)
       return
     }
-    console.log(
-      'checkFront.js: route.name === login or register 2',
-      route.query
-    )
   }
 
   store.dispatch('user/checkAndRefreshUser')
