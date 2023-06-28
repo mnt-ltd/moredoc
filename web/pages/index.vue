@@ -521,7 +521,13 @@ export default {
         padding-bottom: 0;
       }
       .el-card__body {
-        padding: 15px 0;
+        padding: 15px 0 20px;
+        max-height: 77px;
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+        text-overflow: ellipsis;
       }
       a {
         display: inline-block;
