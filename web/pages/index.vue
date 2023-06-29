@@ -522,18 +522,18 @@ export default {
       }
       .el-card__body {
         padding: 15px 0 20px;
-        max-height: 77px;
+        max-height: 80px;
         overflow: hidden;
         display: -webkit-box;
-        -webkit-box-orient: vertical;
+        // -webkit-box-orient: vertical;
         -webkit-line-clamp: 3;
-        text-overflow: ellipsis;
       }
       a {
         display: inline-block;
-        padding: 5px 0;
+        padding: 2px 0 5px;
         text-decoration: none;
         margin-right: 10px;
+        margin-bottom: 5px;
       }
     }
   }
