@@ -298,11 +298,10 @@ export default {
     onSearch(search) {
       this.search = { ...this.search, ...search, page: 1 }
       if (
-        location.href.lastIndexOf(
-          this.$router.resolve({
-            query: this.search,
-          }).href
-        ) === 0
+        location.pathname + location.search ===
+        this.$router.resolve({
+          query: this.search,
+        }).href
       ) {
         this.listDocument()
       } else {
