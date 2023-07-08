@@ -1,4 +1,4 @@
-FROM ubuntu:jammy-20230126
+FROM ubuntu:jammy-20230624
 
 ARG uid=1001
 ARG gid=1001
