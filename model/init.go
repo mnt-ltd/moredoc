@@ -27,6 +27,22 @@ type TableColumn struct {
 	Comment    string `gorm:"Comment"`
 }
 
+type TableIndex struct {
+	Table        string         `gorm:"column:Table"` // 表名
+	NonUnique    int            `gorm:"column:Non_unique"`
+	KeyName      string         `gorm:"column:Key_name"` // 索引名称
+	SeqInIndex   int            `gorm:"column:Seq_in_index"`
+	ColumnName   string         `gorm:"column:Column_name"` // 索引字段名称
+	Collation    string         `gorm:"column:Collation"`   // 字符集
+	Cardinality  int            `gorm:"column:Cardinality"`
+	SubPart      sql.NullInt64  `gorm:"column:Sub_part"`
+	Packed       sql.NullString `gorm:"column:Packed"`
+	Null         string         `gorm:"column:Null"`
+	IndexType    string         `gorm:"column:Index_type"`
+	Comment      string         `gorm:"column:Comment"` // 索引备注
+	IndexComment string         `gorm:"column:Index_comment"`
+}
+
 // 默认表前缀
 var (
 	tablePrefix            string = "mnt_"
@@ -164,9 +180,13 @@ func (m *DBModel) SyncDB() (err error) {
 		&Navigation{},
 		&Punishment{},
 	}
+
+	m.alterTableBeforeSyncDB()
 	if err = m.db.AutoMigrate(tableModels...); err != nil {
 		m.logger.Fatal("SyncDB", zap.Error(err))
+		return
 	}
+	m.alterTableAfterSyncDB()
 
 	if err = m.initDatabase(); err != nil {
 		m.logger.Fatal("SyncDB", zap.Error(err))
@@ -182,6 +202,36 @@ func (m *DBModel) ShowTables() (tables []string, err error) {
 	err = m.db.Raw("show tables").Scan(&tables).Error
 	if err != nil {
 		m.logger.Error("ShowTables", zap.Error(err))
+	}
+	return
+}
+
+func (m *DBModel) alterTableBeforeSyncDB() {
+	// 查询mnt_user表，将email字段由唯一索引删掉，以便变更为普通索引
+	tableUser := User{}.TableName()
+	indexes := m.ShowIndexes(tableUser)
+	m.logger.Debug("alterTableBeforeSyncDB", zap.String("table", tableUser), zap.Any("indexes", indexes))
+	if len(indexes) > 0 {
+		for _, index := range indexes {
+			if index.ColumnName == "email" && index.NonUnique == 0 { // 唯一索引，需要删除原索引
+				err := m.db.Exec(fmt.Sprintf("alter table %s drop index %s", tableUser, index.KeyName)).Error
+				if err != nil {
+					m.logger.Error("alterTableBeforeSyncDB", zap.Error(err))
+				}
+			}
+		}
+	}
+}
+
+func (m *DBModel) alterTableAfterSyncDB() {
+
+}
+
+func (m *DBModel) ShowIndexes(table string) (indexes []TableIndex) {
+	sql := "show index from " + table
+	err := m.db.Raw(sql).Find(&indexes).Error
+	if err != nil {
+		m.logger.Error("ShowIndexes", zap.Error(err))
 	}
 	return
 }
