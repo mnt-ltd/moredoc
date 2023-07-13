@@ -176,6 +176,13 @@ func IsValidEmail(email string) (yes bool) {
 	return reg.MatchString(email)
 }
 
+// IsValidMobile 验证手机号格式
+func IsValidMobile(mobile string) (yes bool) {
+	pattern := `^1[3456789]\d{9}$`
+	reg := regexp.MustCompile(pattern)
+	return reg.MatchString(mobile)
+}
+
 // CheckCommandExists 验证命令是否存在
 func CheckCommandExists(command string) error {
 	_, err := exec.LookPath(command)

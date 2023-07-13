@@ -63,6 +63,11 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 		return nil, status.Errorf(codes.InvalidArgument, "邮箱格式不正确")
 	}
 
+	req.Username = strings.TrimSpace(req.Username)
+	if util.IsValidEmail(req.Username) || util.IsValidMobile(req.Username) {
+		return nil, status.Errorf(codes.InvalidArgument, "出于隐私保护，用户名不能是邮箱或手机号码")
+	}
+
 	cfg := s.dbModel.GetConfigOfSecurity(
 		model.ConfigSecurityEnableCaptchaRegister,
 		model.ConfigSecurityEnableRegister,
@@ -500,6 +505,11 @@ func (s *UserAPIService) AddUser(ctx context.Context, req *pb.SetUserRequest) (*
 	_, err := s.checkPermission(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	req.Username = strings.TrimSpace(req.Username)
+	if util.IsValidEmail(req.Username) || util.IsValidMobile(req.Username) {
+		return nil, status.Errorf(codes.InvalidArgument, "出于隐私保护，用户名不能是邮箱或手机号码")
 	}
 
 	err = validate.ValidateStruct(req, s.getValidFieldMap())
