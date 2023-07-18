@@ -210,7 +210,7 @@
                 icon="el-icon-warning-outline"
                 >举报</el-button
               >
-              <el-button
+              <!-- <el-button
                 type="primary"
                 icon="el-icon-download"
                 class="float-right"
@@ -218,7 +218,7 @@
                 :loading="downloading"
                 @click="downloadDocument"
                 >下载文档({{ formatBytes(document.size) }})</el-button
-              >
+              > -->
               <el-button
                 v-if="favorite.id > 0"
                 type="primary"

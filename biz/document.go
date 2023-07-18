@@ -276,6 +276,7 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 		QueryLike:    make(map[string][]interface{}),
 		QueryRange:   make(map[string][2]interface{}),
 		IsRecommend:  req.IsRecommend,
+		FeeType:      req.FeeType,
 	}
 
 	if len(req.Order) > 0 {

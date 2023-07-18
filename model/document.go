@@ -53,7 +53,7 @@ type Document struct {
 	CommentCount  int             `form:"comment_count" json:"comment_count,omitempty" gorm:"column:comment_count;type:int(11);size:11;default:0;comment:评论人次;"`
 	Score         int             `form:"score" json:"score,omitempty" gorm:"column:score;type:int(11);size:11;default:300;comment:评分，3位整数表示，500表示5分;"`
 	ScoreCount    int             `form:"score_count" json:"score_count,omitempty" gorm:"column:score_count;type:int(11);size:11;default:0;comment:评分数量;"`
-	Price         int             `form:"price" json:"price,omitempty" gorm:"column:price;type:int(11);size:11;default:0;comment:价格，0表示免费;"`
+	Price         int             `form:"price" json:"price,omitempty" gorm:"column:price;type:int(11);size:11;default:0;comment:价格，0表示免费;index:idx_price;"`
 	Size          int64           `form:"size" json:"size,omitempty" gorm:"column:size;type:bigint(20);size:20;default:0;comment:文件大小;"`
 	Ext           string          `form:"ext" json:"ext,omitempty" gorm:"column:ext;type:varchar(16);size:16;index:idx_ext;comment:文件扩展名"`
 	Status        int             `form:"status" json:"status,omitempty" gorm:"column:status;type:smallint(6);size:6;default:0;index:status;comment:文档状态：0 待转换，1 转换中，2 转换完成，3 转换失败，4 禁用;"`
@@ -189,6 +189,7 @@ type OptionGetDocumentList struct {
 	Sort         []string
 	IsRecycle    bool // 是否是回收站模式查询
 	IsRecommend  []bool
+	FeeType      string // 费用类型：free免费，charge收费
 }
 
 // GetDocumentList 获取Document列表
@@ -222,6 +223,15 @@ func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Do
 			db = db.Where("d.`recommend_at` IS NOT NULL")
 		} else {
 			db = db.Where("d.`recommend_at` IS NULL")
+		}
+	}
+
+	if opt.FeeType != "" {
+		switch opt.FeeType {
+		case "free":
+			db = db.Where("d.`price` = ?", 0)
+		case "charge":
+			db = db.Where("d.`price` > ?", 0)
 		}
 	}
 

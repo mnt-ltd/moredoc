@@ -77,6 +77,24 @@
               >
             </div>
           </div>
+          <div class="item-row">
+            <div class="item-name">费用</div>
+            <div class="item-content">
+              <nuxt-link
+                v-for="item in feeTypeOptions"
+                :key="item.value"
+                :to="{ query: { ...$route.query, fee_type: item.value } }"
+                class="el-link"
+                :class="
+                  item.value === $route.query.fee_type ||
+                  (!item.value && !$route.query.fee_type)
+                    ? 'el-link--primary'
+                    : 'el-link--default'
+                "
+                >{{ item.label }}</nuxt-link
+              >
+            </div>
+          </div>
         </el-card>
       </el-col>
     </el-row>
@@ -201,6 +219,11 @@ export default {
         { label: 'XLS', value: 'xls' },
         { label: 'TXT', value: 'txt' },
         { label: '其它', value: 'other' },
+      ],
+      feeTypeOptions: [
+        { label: '不限', value: '' },
+        { label: '免费', value: 'free' },
+        { label: '付费', value: 'charge' },
       ],
     }
   },
@@ -397,6 +420,7 @@ export default {
           'ext',
           'score',
         ],
+        fee_type: this.$route.query.fee_type,
       })
       if (res.status === 200) {
         this.total = res.data.total

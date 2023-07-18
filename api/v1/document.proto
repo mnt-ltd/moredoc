@@ -86,6 +86,7 @@ message ListDocumentRequest {
   int64 limit = 10; // 查询数量显示。当该值大于0时，page和size无效
   string ext = 11;                 // 文档扩展名
   repeated string created_at = 12; // 创建时间
+  string fee_type = 13;            // 收费类型
 }
 
 // 文档列表
