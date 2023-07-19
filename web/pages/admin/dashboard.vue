@@ -481,7 +481,7 @@ export default {
               },
               {
                 label: 'Mhz',
-                value: res.data.cpu.mhz,
+                value: (res.data.cpu.mhz || 0).toFixed(0),
               },
               {
                 label: '',

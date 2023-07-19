@@ -3,6 +3,7 @@ package device
 import (
 	"fmt"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/shirou/gopsutil/v3/cpu"
@@ -51,28 +52,30 @@ func GetMemory() (memInfo MemInfo) {
 
 func GetDisk() (diskInfos []DiskInfo) {
 	stats, _ := disk.Partitions(true)
-	if runtime.GOOS != "windows" {
-		usage, _ := disk.Usage("/")
-		diskInfos = append(diskInfos, DiskInfo{
-			DiskName: "/",
-			Total:    usage.Total,
-			Used:     usage.Used,
-			Free:     usage.Free,
-			Percent:  usage.UsedPercent,
-		})
-		return
-	}
-
 	for _, stat := range stats {
 		usage, _ := disk.Usage(stat.Mountpoint)
-		if usage != nil {
+		if usage == nil {
+			continue
+		}
+		if strings.ToLower(runtime.GOOS) == "windows" {
 			diskInfos = append(diskInfos, DiskInfo{
-				DiskName: stat.Mountpoint,
+				DiskName: usage.Path,
 				Total:    usage.Total,
 				Used:     usage.Used,
 				Free:     usage.Free,
 				Percent:  usage.UsedPercent,
 			})
+		} else {
+			fstype := strings.ToLower(usage.Fstype)
+			if strings.Contains(fstype, "ext") || strings.Contains(fstype, "ntfs") || strings.Contains(fstype, "fat") {
+				diskInfos = append(diskInfos, DiskInfo{
+					DiskName: usage.Path,
+					Total:    usage.Total,
+					Used:     usage.Used,
+					Free:     usage.Free,
+					Percent:  usage.UsedPercent,
+				})
+			}
 		}
 	}
 	return
