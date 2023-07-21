@@ -79,7 +79,7 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 	}
 
 	if cfg.IsClose {
-		return nil, status.Errorf(codes.InvalidArgument, "网站已关闭，占时不允许注册")
+		return nil, status.Errorf(codes.InvalidArgument, "网站已关闭，暂时不允许注册")
 	}
 
 	if cfg.EnableCaptchaRegister && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
