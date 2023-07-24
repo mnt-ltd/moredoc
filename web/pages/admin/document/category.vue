@@ -131,9 +131,9 @@ export default {
       this.search = { ...this.search, ...search, page: 1 }
       if (
         location.pathname + location.search ===
-        this.$router.resolve({
-          query: this.search,
-        }).href
+        this.$router.resolve({
+          query: this.search,
+        }).href
       ) {
         this.listCategory()
       } else {
@@ -240,7 +240,7 @@ export default {
       }
       this.tableListFields = [
         { prop: 'title', label: '名称', minWidth: 120, fixed: 'left' },
-        { prop: 'icon', label: '图标', width: 48, type: 'image' },
+        { prop: 'id', label: 'ID', width: 80, type: 'number', fixed: 'left' },
         {
           prop: 'enable',
           label: '是否启用',
@@ -259,9 +259,9 @@ export default {
           width: 80,
           type: 'number',
         },
+        { prop: 'icon', label: '图标', width: 48, type: 'image' },
         { prop: 'cover', label: '封面', width: 100, type: 'image' },
         { prop: 'doc_count', label: '文档数', width: 80, type: 'number' },
-        { prop: 'id', label: 'ID', width: 80, type: 'number' },
         { prop: 'description', label: '分类描述', minWidth: 200 },
         { prop: 'created_at', label: '创建时间', width: 160, type: 'datetime' },
         { prop: 'updated_at', label: '更新时间', width: 160, type: 'datetime' },

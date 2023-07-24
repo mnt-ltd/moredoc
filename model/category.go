@@ -11,7 +11,7 @@ type Category struct {
 	Id              int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Icon            string     `form:"icon" json:"icon,omitempty" gorm:"column:icon;comment:分类图标;type:varchar(255);size:255;"`
 	Cover           string     `form:"cover" json:"cover,omitempty" gorm:"column:cover;comment:分类封面;type:varchar(255);size:255;"`
-	ParentId        int        `form:"parent_id" json:"parent_id,omitempty" gorm:"column:parent_id;type:int(11);size:11;default:0;index:parent_id_title,unique;index:parent_id;comment:上级ID;"`
+	ParentId        int64      `form:"parent_id" json:"parent_id,omitempty" gorm:"column:parent_id;type:int(11);size:11;default:0;index:parent_id_title,unique;index:parent_id;comment:上级ID;"`
 	Title           string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(64);size:64;index:parent_id_title,unique;comment:分类名称;"`
 	DocCount        int        `form:"doc_count" json:"doc_count,omitempty" gorm:"column:doc_count;type:int(11);size:11;default:0;comment:文档统计;"`
 	Sort            int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;index:idx_sort;comment:排序，值越大越靠前;"`
@@ -41,7 +41,95 @@ func (m *DBModel) CreateCategory(category *Category) (err error) {
 
 // UpdateCategory 更新Category，如果需要更新指定字段，则请指定updateFields参数
 func (m *DBModel) UpdateCategory(category *Category, updateFields ...string) (err error) {
-	db := m.db.Model(category)
+	var existCategory Category
+	err = m.db.Where("id = ?", category.Id).Find(&existCategory).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("UpdateCategory", zap.Error(err))
+		return
+	}
+
+	tx := m.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+			return
+		}
+		tx.Commit()
+	}()
+
+	// 如果更新了父分类，则需要更新文档统计
+	if existCategory.ParentId != category.ParentId {
+		var (
+			oldParentIds, newParentIds, documentIds []int64
+			docCates                                []DocumentCategory
+			limit                                   = 100
+			page                                    = 1
+			modelDocCate                            = &DocumentCategory{}
+			modelCate                               = &Category{}
+		)
+
+		oldParentIds = m.GetCategoryParentIds(existCategory.Id)
+		if category.ParentId > 0 {
+			newParentIds = append(newParentIds, category.ParentId)
+			newParentIds = append(newParentIds, m.GetCategoryParentIds(category.ParentId)...)
+		}
+
+		// 获取需要更新的文档ID
+		for {
+			m.db.Model(modelDocCate).Select("document_id", "category_id").Where("category_id = ?", existCategory.Id).Limit(limit).Offset((page - 1) * limit).Find(&docCates)
+			if len(docCates) == 0 {
+				break
+			}
+			page++
+			for _, v := range docCates {
+				documentIds = append(documentIds, v.DocumentId)
+			}
+
+			if len(oldParentIds) > 0 {
+				// 删除旧的分类关联
+				err = tx.Model(modelDocCate).Where("category_id in (?) and document_id in (?)", oldParentIds, documentIds).Delete(modelDocCate).Error
+				if err != nil {
+					m.logger.Error("UpdateCategory", zap.Error(err))
+					return
+				}
+
+				// 更新旧的分类统计
+				err = tx.Model(modelCate).Where("id in (?)", oldParentIds).Update("doc_count", gorm.Expr("doc_count - ?", len(documentIds))).Error
+				if err != nil {
+					m.logger.Error("UpdateCategory", zap.Error(err))
+					return
+				}
+			}
+
+			if len(newParentIds) > 0 {
+				var newDocCates []DocumentCategory
+				for _, documentId := range documentIds {
+					for _, newCateId := range newParentIds {
+						newDocCates = append(newDocCates, DocumentCategory{
+							DocumentId: documentId,
+							CategoryId: newCateId,
+						})
+					}
+				}
+
+				// 创建新的分类关联
+				err = tx.Create(&newDocCates).Error
+				if err != nil {
+					m.logger.Error("UpdateCategory", zap.Error(err))
+					return
+				}
+
+				// 更新新的分类统计
+				err = tx.Model(modelCate).Where("id in (?)", newParentIds).Update("doc_count", gorm.Expr("doc_count + ?", len(documentIds))).Error
+				if err != nil {
+					m.logger.Error("UpdateCategory", zap.Error(err))
+					return
+				}
+			}
+		}
+	}
+
+	db := tx.Model(category)
 
 	updateFields = m.FilterValidFields(Category{}.TableName(), updateFields...)
 	if len(updateFields) > 0 { // 更新指定字段
@@ -53,6 +141,7 @@ func (m *DBModel) UpdateCategory(category *Category, updateFields ...string) (er
 	err = db.Where("id = ?", category.Id).Updates(category).Error
 	if err != nil {
 		m.logger.Error("UpdateCategory", zap.Error(err))
+		return
 	}
 
 	if category.Cover != "" {
@@ -79,7 +168,7 @@ func (m *DBModel) GetCategory(id interface{}, fields ...string) (category Catego
 }
 
 // GetCategoryByParentIdTitle(parentId int, title string, fields ...string) 根据唯一索引获取Category
-func (m *DBModel) GetCategoryByParentIdTitle(parentId int, title string, fields ...string) (category Category, err error) {
+func (m *DBModel) GetCategoryByParentIdTitle(parentId int64, title string, fields ...string) (category Category, err error) {
 	db := m.db
 
 	fields = m.FilterValidFields(Category{}.TableName(), fields...)
@@ -174,6 +263,22 @@ func (m *DBModel) CountCategory() (count int64, err error) {
 	err = m.db.Model(&Category{}).Count(&count).Error
 	if err != nil {
 		m.logger.Error("CountCategory", zap.Error(err))
+	}
+	return
+}
+
+// 查询指定分类ID的所有父级分类ID
+func (m *DBModel) GetCategoryParentIds(id int64) (ids []int64) {
+	var category Category
+	err := m.db.Model(&Category{}).Select("id", "parent_id").Where("id = ?", id).Find(&category).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetCategoryParentIds", zap.Error(err), zap.Int64("id", id))
+		return
+	}
+
+	if category.ParentId > 0 {
+		ids = append(ids, category.ParentId)
+		ids = append(ids, m.GetCategoryParentIds(category.ParentId)...)
 	}
 	return
 }
