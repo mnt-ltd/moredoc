@@ -512,6 +512,33 @@ export default {
   .keywords {
     .el-card__body {
       padding-bottom: 10px;
+      max-height: 480px;
+      box-sizing: border-box;
+      overflow: auto;
+      /*定义滚动条高宽及背景 高宽分别对应横竖滚动条的尺寸*/
+      &::-webkit-scrollbar {
+        background-color: transparent;
+        width: 6px;
+        height: 6px;
+      }
+      &:hover::-webkit-scrollbar {
+        background-color: rgb(241, 241, 241);
+      }
+      /*定义滚动条轨道 内阴影+圆角*/
+      &::-webkit-scrollbar-track {
+        background-color: transparent;
+      }
+      /*定义滑块 内阴影+圆角*/
+      &::-webkit-scrollbar-thumb {
+        background-color: transparent;
+        border-radius: 3px;
+      }
+      &:hover::-webkit-scrollbar-thumb {
+        background-color: rgb(193, 193, 193);
+      }
+      &:hover::-webkit-scrollbar-thumb::hover {
+        background-color: rgb(168, 168, 168);
+      }
     }
     a {
       margin-right: 10px;
