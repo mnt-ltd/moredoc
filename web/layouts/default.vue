@@ -150,7 +150,10 @@
       <nuxt />
     </el-main>
     <el-footer>
-      <div v-if="$route.path === '/'" class="footer-friendlink">
+      <div
+        v-if="$route.path === '/' && friendlinks.length > 0"
+        class="footer-friendlink"
+      >
         <el-card class="box-card" shadow="never">
           <div slot="header" class="clearfix">
             <strong>友情链接</strong>
