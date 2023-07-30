@@ -555,6 +555,11 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 		limit = int(req.Limit)
 	}
 
+	defaultFields := []string{"id", "title", "ext"}
+	if len(req.Field) > 0 {
+		defaultFields = append(defaultFields, req.Field...)
+	}
+
 	resp := &pb.ListDocumentForHomeResponse{}
 	for _, category := range categories {
 		docs, _, _ := s.dbModel.GetDocumentList(&model.OptionGetDocumentList{
@@ -565,7 +570,7 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 			Page:         1,
 			Size:         limit,
 			Sort:         []string{"id desc"},
-			SelectFields: []string{"id", "title", "ext"},
+			SelectFields: defaultFields,
 		})
 
 		var pbDocs []*pb.Document

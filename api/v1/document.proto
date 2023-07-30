@@ -116,7 +116,10 @@ message SetDocumentRecommendRequest {
 }
 
 // 查询文档（针对首页的查询）
-message ListDocumentForHomeRequest { int64 limit = 1; }
+message ListDocumentForHomeRequest {
+  int64 limit = 1;
+  repeated string field = 2;
+}
 
 // 首页文档查询返回项
 message ListDocumentForHomeItem {
