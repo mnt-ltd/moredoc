@@ -504,7 +504,7 @@ export default {
         field: ['id', 'title', 'link'],
       })
       if (res.status === 200) {
-        this.friendlinks = res.data.friendlink
+        this.friendlinks = res.data.friendlink || []
       }
     },
     async signToday() {
