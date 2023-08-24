@@ -70,62 +70,57 @@
                       将文件拖到此处，或<em>点击上传</em>
                     </div>
                   </el-upload>
-                  <el-table
+                  <vxe-table
                     v-if="fileList.length > 0"
                     :data="fileList"
                     style="width: 100%"
                     max-height="480"
+                    stripe
+                    border="inner"
+                    :column-config="{resizable: true}"
                   >
-                    <el-table-column prop="title" label="#" width="50">
-                      <template slot-scope="scope">
-                        {{ scope.$index + 1 }}
-                      </template>
-                    </el-table-column>
-                    <el-table-column prop="title" label="文件" min-width="180">
-                      <template slot-scope="scope">
-                        <el-input v-model="scope.row.title" :disabled="loading">
+                    <vxe-column type="seq" width="60"></vxe-column>
+                    <vxe-column field="title" title="文件" min-width="180">
+                      <template #default="{row}">
+                        <el-input v-model="row.title" :disabled="loading">
                           <template slot="append">{{
-                            scope.row.ext
+                            row.ext
                           }}</template></el-input
                         >
-                        <div v-if="scope.row.error">
+                        <div v-if="row.error">
                           <el-progress
-                            :key="scope.row.name"
-                            :percentage="scope.row.percentage"
+                            :key="row.name"
+                            :percentage="row.percentage"
                             status="exception"
                           ></el-progress>
                           <small class="el-link el-link--danger error-tips">{{
-                            scope.row.error
+                            row.error
                           }}</small>
                         </div>
                         <el-progress
-                          v-else-if="scope.row.percentage > 0"
-                          :percentage="scope.row.percentage"
+                          v-else-if="row.percentage > 0"
+                          :percentage="row.percentage"
                         ></el-progress>
                       </template>
-                    </el-table-column>
-                    <el-table-column prop="size" label="大小" width="100">
-                      <template slot-scope="scope">
-                        {{ formatBytes(scope.row.size) }}
+                    </vxe-column>
+                    <vxe-column field="size" title="大小" width="100" sortable>
+                      <template #default="{row}">
+                        <span>{{ formatBytes(row.size) }}</span>
                       </template>
-                    </el-table-column>
-                    <el-table-column
-                      prop="price"
-                      :label="`售价(${settings.system.credit_name || '魔豆'})`"
-                      width="130"
-                    >
-                      <template slot-scope="scope">
+                    </vxe-column>
+                    <vxe-column field="price" :title="`售价(${settings.system.credit_name || '魔豆'})`" :width="130" sortable>
+                      <template #default="{row}">
                         <el-input-number
-                          v-model="scope.row.price"
+                          v-model="row.price"
                           :min="0"
                           :step="1"
                           :disabled="loading"
                           controls-position="right"
                         ></el-input-number>
                       </template>
-                    </el-table-column>
-                    <el-table-column label="操作" width="100" fixed="right">
-                      <template slot="header">
+                    </vxe-column>
+                    <vxe-column width="100" fixed="right">
+                      <template #header>
                         操作 (<el-button
                           type="text"
                           size="mini"
@@ -134,19 +129,19 @@
                           >清空</el-button
                         >)
                       </template>
-                      <template slot-scope="scope">
+                      <template #default="{rowIndex}">
                         <el-button
                           size="mini"
                           type="text"
                           icon="el-icon-delete"
                           :disabled="loading"
-                          @click="handleRemove(scope.$index)"
+                          @click="handleRemove(rowIndex)"
                         >
                           移除
                         </el-button>
                       </template>
-                    </el-table-column>
-                  </el-table>
+                    </vxe-column>
+                  </vxe-table>
                 </el-form-item>
                 <el-form-item style="margin-bottom: 0">
                   <el-button
@@ -538,6 +533,16 @@ export default {
 </script>
 <style lang="scss">
 .page-upload {
+  .vxe-table{
+    .el-input-number{
+      width: 100%;
+    }
+    .vxe-header--column{
+      .vxe-cell{
+        white-space: normal;
+      }
+    }
+  }
   .el-table {
     .el-input-number {
       width: 120px;

@@ -4,6 +4,11 @@ import hotkeys from 'hotkeys-js'
 import 'viewerjs/dist/viewer.css'
 import VueViewer from 'v-viewer'
 
+import VXETable from 'vxe-table'
+import 'vxe-table/lib/style.css'
+
+Vue.use(VXETable)
+
 // import locale from 'element-ui/lib/locale/lang/en'
 // Vue.use(Element, { locale })
 Vue.use(VueViewer, {
