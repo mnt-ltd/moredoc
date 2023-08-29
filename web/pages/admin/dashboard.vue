@@ -149,8 +149,8 @@
         style="width: 100%"
         empty-text="您暂无权限查看环境依赖情况"
       >
-        <el-table-column prop="name" label="名称" width="100"> </el-table-column
-        ><el-table-column prop="is_required" label="是否必须" width="100">
+        <el-table-column prop="name" label="名称" width="100"> </el-table-column>
+        <el-table-column prop="is_required" label="是否必须" width="100">
           <template slot-scope="scope">
             <el-tag
               v-if="scope.row.is_required"
@@ -176,6 +176,11 @@
             <el-tag effect="dark" type="warning" size="small" v-else
               >未安装</el-tag
             >
+          </template>
+        </el-table-column>
+        <el-table-column prop="version" label="版本" min-width="100">
+          <template slot-scope="scope">
+            {{ scope.row.version || '-'  }}
           </template>
         </el-table-column>
         <el-table-column prop="description" min-width="200" label="用途">

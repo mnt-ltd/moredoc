@@ -116,6 +116,7 @@ message EnvDependent {
       [ (gogoproto.stdtime) = true ]; // 检测时间
   string cmd = 6;                     // 检测命令
   bool is_required = 7;               // 是否必须
+  string version = 8;                 // 版本号
 }
 
 // 依赖项列表

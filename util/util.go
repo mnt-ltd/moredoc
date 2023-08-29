@@ -189,6 +189,15 @@ func CheckCommandExists(command string) error {
 	return err
 }
 
+func GetCommandVersion(command string) string {
+	cmd := exec.Command(command, "--version")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(output))
+}
+
 // 获取系统发行版本信息
 func GetOSRelease() (osVersion string, err error) {
 	var (

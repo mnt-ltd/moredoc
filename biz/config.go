@@ -267,6 +267,7 @@ func (s *ConfigAPIService) GetEnvs(ctx context.Context, req *emptypb.Empty) (res
 		err := util.CheckCommandExists(envs[i].Cmd)
 		envs[i].IsInstalled = err == nil
 		envs[i].CheckedAt = &now
+		envs[i].Version = util.GetCommandVersion(envs[i].Cmd)
 		if err != nil {
 			envs[i].Error = err.Error()
 		}
