@@ -117,6 +117,7 @@ export default {
         this.$router.push('/login')
         this.disabled = true
       } else {
+        this.loadCaptcha()
         this.$message.error(res.data.message || '请求失败')
       }
       this.loading = false

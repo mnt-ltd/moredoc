@@ -206,6 +206,9 @@ export default {
             } else {
               this.$router.replace({ name: 'index' })
             }
+          }else{
+            this.loadCaptcha()
+            this.$message.error(res.data.message || '请求失败')
           }
           this.loading = false
         }

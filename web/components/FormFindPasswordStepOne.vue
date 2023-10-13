@@ -89,6 +89,7 @@ export default {
         this.$message.success('提交成功，请查看您的邮箱')
         this.disabled = true
       } else {
+        this.loadCaptcha()
         this.$message.error(res.data.message || '请求失败')
       }
       this.loading = false

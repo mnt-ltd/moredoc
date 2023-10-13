@@ -106,6 +106,7 @@ export default {
         }
         this.loading = false
       } else {
+        this.loadCaptcha()
         this.loading = false
       }
     },
