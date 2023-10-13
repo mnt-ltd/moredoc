@@ -54,7 +54,7 @@ func (m *DBModel) UpdateSitemap() (err error) {
 		for _, doc := range documents {
 			su = append(su, sitemap.SitemapUrl{
 				Loc:        fmt.Sprintf("%s/document/%d", domain, doc.Id),
-				Lastmod:    doc.UpdatedAt.Format("2006-01-02 15:04:05"),
+				Lastmod:    doc.UpdatedAt.Format(time.RFC3339),
 				ChangeFreq: sitemap.DAILY,
 				Priority:   1.0,
 			})
@@ -65,7 +65,7 @@ func (m *DBModel) UpdateSitemap() (err error) {
 		}
 		sitemapIndexes = append(sitemapIndexes, sitemap.SitemapIndex{
 			Loc:     domain + "/" + file,
-			Lastmod: time.Now().Format("2006-01-02 15:04:05"),
+			Lastmod: time.Now().Format(time.RFC3339),
 		})
 		page++
 	}
@@ -84,7 +84,7 @@ func (m *DBModel) UpdateSitemap() (err error) {
 		for _, article := range articles {
 			su = append(su, sitemap.SitemapUrl{
 				Loc:        fmt.Sprintf("%s/article/%s", domain, article.Identifier),
-				Lastmod:    article.UpdatedAt.Format("2006-01-02 15:04:05"),
+				Lastmod:    article.UpdatedAt.Format(time.RFC3339),
 				ChangeFreq: sitemap.DAILY,
 				Priority:   1.0,
 			})
@@ -95,7 +95,7 @@ func (m *DBModel) UpdateSitemap() (err error) {
 		}
 		sitemapIndexes = append(sitemapIndexes, sitemap.SitemapIndex{
 			Loc:     domain + "/" + file,
-			Lastmod: time.Now().Format("2006-01-02 15:04:05"),
+			Lastmod: time.Now().Format(time.RFC3339),
 		})
 		page++
 	}
