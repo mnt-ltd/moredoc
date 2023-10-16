@@ -352,7 +352,6 @@ export default {
     ...mapGetters('setting', ['settings']),
   },
   async created() {
-    this.carouselHeight = this.isMobile ? '250px' : '360px'
     await Promise.all([
       this.getRecommendDocuments(),
       this.listBanner(),
@@ -361,6 +360,9 @@ export default {
       this.getStats(),
       this.getUser(),
     ])
+  },
+  mounted() {
+    this.carouselHeight = this.isMobile ? '250px' : '360px'
   },
   methods: {
     ...mapActions('user', ['logout', 'getUser']),
