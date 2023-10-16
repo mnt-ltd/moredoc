@@ -84,6 +84,7 @@
           </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="profile"> 个人资料 </el-dropdown-item>
+            <el-dropdown-item command="copyjwt"> 复制 JWT </el-dropdown-item>
             <el-dropdown-item command="password"> 修改密码 </el-dropdown-item>
             <el-dropdown-item command="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>
@@ -263,6 +264,18 @@ export default {
           break
         case 'password':
           this.formPasswordVisible = true
+          break
+        case 'copyjwt':
+          // 将用户的token复制到剪贴板
+          const input = document.createElement('input')
+          input.setAttribute('readonly', 'readonly')
+          input.setAttribute('value', this.token)
+          document.body.appendChild(input)
+          input.select()
+          input.setSelectionRange(0, 9999)
+          document.execCommand('copy')
+          document.body.removeChild(input)
+          this.$message.success('您的 JSON Web Token 已复制到剪贴板')
           break
         case 'logout':
           this.logout()
