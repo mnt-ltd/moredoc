@@ -5,6 +5,7 @@
         ? `/view/cover/${document.attachment.hash}`
         : ''
     "
+    lazy
     :alt="document.title"
     :style="{ height: height }"
   >

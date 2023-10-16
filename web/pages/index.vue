@@ -1,9 +1,9 @@
 <template>
   <div class="page page-index">
     <div class="searchbox">
-      <el-carousel :interval="3000" arrow="always" :height="carouselHeight">
+      <el-carousel :interval="3000" arrow="always" :height="isMobile ? '250px' : '360px'" @change="changeCarousel">
         <a
-          v-for="banner in banners"
+          v-for="(banner, index) in banners"
           :key="'banner-' + banner.id"
           :href="banner.url ? banner.url : 'javascript:;'"
           :target="banner.url ? '_blank' : ''"
@@ -11,7 +11,7 @@
         >
           <el-carousel-item
             :style="
-              'background: url(' + banner.path + ') center center no-repeat;'
+              'background: url(' +  (index==carouselIndex ? banner.path: '') + ') center center no-repeat;'
             "
           >
           </el-carousel-item>
@@ -208,6 +208,7 @@
                       ? `/view/cover/${item.attachment.hash}`
                       : ''
                   "
+                  lazy
                   :alt="item.title"
                 >
                   <div slot="error" class="image-slot">
@@ -270,7 +271,7 @@
           <div>
             <div class="card-body-left hidden-xs-only">
               <nuxt-link :to="`/category/${item.category_id}`">
-                <el-image class="category-cover" :src="item.category_cover">
+                <el-image lazy class="category-cover" :src="item.category_cover">
                   <div slot="error" class="image-slot">
                     <img
                       src="/static/images/default-category-cover.png"
@@ -326,7 +327,7 @@ export default {
         document_count: '-',
         user_count: '-',
       },
-      carouselHeight: '360px',
+      carouselIndex: 0, // 跑马灯index，用于跑马灯图片的懒加载
     }
   },
   head() {
@@ -360,9 +361,6 @@ export default {
       this.getStats(),
       this.getUser(),
     ])
-  },
-  mounted() {
-    this.carouselHeight = this.isMobile ? '250px' : '360px'
   },
   methods: {
     ...mapActions('user', ['logout', 'getUser']),
@@ -433,6 +431,9 @@ export default {
       // 跳转到登录页面，先串通页面
       this.$router.push('/login')
     },
+    changeCarousel(index){
+      this.carouselIndex = index
+    }
   },
 }
 </script>
@@ -651,6 +652,11 @@ export default {
       .card-body-left {
         width: 180px;
         padding-right: 20px;
+        .category-cover{
+          height: 145px;
+          width: 180px;
+          overflow: hidden;
+        }
         .image-slot {
           height: 145px;
           overflow: hidden;
