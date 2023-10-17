@@ -11,7 +11,7 @@
         >
           <el-carousel-item
             :style="
-              'background: url(' +  (carouselIndexes.indexOf(index) ? banner.path: '') + ') center center no-repeat;'
+              'background: url(' +  (carouselIndexes.indexOf(index)>-1 ? banner.path: '') + ') center center no-repeat;'
             "
           >
           </el-carousel-item>
