@@ -84,7 +84,7 @@
           </el-button>
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="profile"> 个人资料 </el-dropdown-item>
-            <el-dropdown-item command="copyjwt"> 复制 JWT </el-dropdown-item>
+            <!-- <el-dropdown-item command="copyjwt"> 复制 JWT </el-dropdown-item> -->
             <el-dropdown-item command="password"> 修改密码 </el-dropdown-item>
             <el-dropdown-item command="logout">退出登录</el-dropdown-item>
           </el-dropdown-menu>

@@ -528,6 +528,10 @@ func (m *DBModel) GetConfigOfSecurity(name ...string) (config ConfigSecurity) {
 	bytes, _ := json.Marshal(data)
 	json.Unmarshal(bytes, &config)
 
+	if config.MaxDocumentSize <= 0 {
+		config.MaxDocumentSize = 50 // 默认50M
+	}
+
 	return
 }
 
