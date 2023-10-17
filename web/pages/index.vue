@@ -11,7 +11,7 @@
         >
           <el-carousel-item
             :style="
-              'background: url(' +  (index==carouselIndex ? banner.path: '') + ') center center no-repeat;'
+              'background: url(' +  (carouselIndexes.indexOf(index) ? banner.path: '') + ') center center no-repeat;'
             "
           >
           </el-carousel-item>
@@ -327,7 +327,7 @@ export default {
         document_count: '-',
         user_count: '-',
       },
-      carouselIndex: 0, // 跑马灯index，用于跑马灯图片的懒加载
+      carouselIndexes: [0], // 跑马灯index，用于跑马灯图片的懒加载
     }
   },
   head() {
@@ -432,7 +432,11 @@ export default {
       this.$router.push('/login')
     },
     changeCarousel(index){
-      this.carouselIndex = index
+      let carouselIndexes = this.carouselIndexes
+      if (carouselIndexes.indexOf(index) === -1) {
+        carouselIndexes.push(index)
+      }
+      this.carouselIndexes = carouselIndexes
     }
   },
 }
