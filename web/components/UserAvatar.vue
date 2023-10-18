@@ -34,7 +34,7 @@ export default {
   },
 }
 </script>
-<style lang="scss" scoped>
+<style lang="scss">
 .com-user-avatar {
   display: inline-block;
   position: relative;
@@ -47,9 +47,10 @@ export default {
       border: 2px solid #409eff;
     }
     img {
-      height: 100%;
-      width: 100%;
-      border-radius: 50%;
+      // height: 100%;
+      // width: 100%;
+      // border-radius: 50%;
+      margin: 0 auto;
     }
   }
 }
