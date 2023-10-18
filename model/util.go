@@ -141,11 +141,11 @@ func (m *DBModel) InitSEO() {
 				defaultTitle = "管理后台 - "
 			}
 
-			m.logger.Debug("initSEO", zap.String("file", path), zap.String("title", defaultTitle))
 			bs, _ := os.ReadFile(path)
 			if doc, errDoc := goquery.NewDocumentFromReader(bytes.NewReader(bs)); errDoc != nil {
 				m.logger.Error("initSEO", zap.Error(errDoc), zap.String("file", path))
 			} else {
+				m.logger.Debug("initSEO", zap.String("file", path), zap.String("title", defaultTitle+cfg.Sitename))
 				doc.Find("title").SetText(defaultTitle + cfg.Sitename)
 				doc.Find("meta[name='keywords']").SetAttr("content", cfg.Keywords)
 				doc.Find("meta[name='description']").SetAttr("content", cfg.Description)
