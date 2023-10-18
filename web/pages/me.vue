@@ -80,7 +80,7 @@ export default {
           icon: 'el-icon-magic-stick',
         },
         {
-          label: '我的文档',
+          label: '我的上传',
           value: '/me/document',
           icon: 'el-icon-document',
         },
