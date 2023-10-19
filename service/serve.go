@@ -60,6 +60,7 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 
 	// 每次启动时，都对dist中的title进行一次处理，以替换掉关键字 moredoc
 	go dbModel.InitSEO()
+	dbModel.RunTasks()
 
 	if cfg.Level != "debug" {
 		gin.SetMode(gin.ReleaseMode)

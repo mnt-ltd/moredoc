@@ -145,10 +145,6 @@ func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
 		}
 		m.tableFieldsMap[table] = filedsMap
 	}
-	go m.loopCovertDocument()
-	go m.cronUpdateSitemap()
-	go m.cronMarkAttachmentDeleted()
-	go m.cronCleanInvalidAttachment()
 	return
 }
 
@@ -192,6 +188,13 @@ func (m *DBModel) SyncDB() (err error) {
 		m.logger.Fatal("SyncDB", zap.Error(err))
 	}
 	return
+}
+
+func (m *DBModel) RunTasks() {
+	go m.loopCovertDocument()
+	go m.cronUpdateSitemap()
+	go m.cronMarkAttachmentDeleted()
+	go m.cronCleanInvalidAttachment()
 }
 
 func (m *DBModel) GetDB() *gorm.DB {

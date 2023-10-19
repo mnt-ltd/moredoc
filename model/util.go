@@ -166,15 +166,15 @@ func (m *DBModel) cronUpdateSitemap() {
 	for {
 		hour, _ := strconv.Atoi(os.Getenv("MOREDOC_UPDATE_SITEMAP_HOUR")) // 默认为每天凌晨0点更新站点地图
 		hour = hour % 24
-		m.logger.Info("cronUpdateSitemap", zap.Int("hour", hour), zap.String("lastUpdated", lastUpdated))
+		m.logger.Debug("cronUpdateSitemap", zap.Int("hour", hour), zap.String("lastUpdated", lastUpdated))
 		now := time.Now()
 		if now.Hour() == hour && now.Format(layout) != lastUpdated {
-			m.logger.Info("cronUpdateSitemap，start...")
+			m.logger.Debug("cronUpdateSitemap，start...")
 			err := m.UpdateSitemap()
 			if err != nil {
-				m.logger.Info("cronUpdateSitemap，end...", zap.Error(err))
+				m.logger.Debug("cronUpdateSitemap，end...", zap.Error(err))
 			}
-			m.logger.Info("cronUpdateSitemap，end...")
+			m.logger.Debug("cronUpdateSitemap，end...")
 			lastUpdated = now.Format(layout)
 		}
 		time.Sleep(1 * time.Minute)
@@ -190,7 +190,7 @@ func (m *DBModel) cronCleanInvalidAttachment() {
 	sleepDuration := 1 * time.Minute
 	for {
 		time.Sleep(1 * time.Second)
-		m.logger.Info("cronCleanInvalidAttachment，start...")
+		m.logger.Debug("cronCleanInvalidAttachment，start...")
 		var (
 			deletedAttachemnts, attachemnts []Attachment
 			hashes                          []string
@@ -206,7 +206,7 @@ func (m *DBModel) cronCleanInvalidAttachment() {
 		// 1. 找出已被标记删除的附件
 		m.db.Unscoped().Where("deleted_at IS NOT NULL").Where("deleted_at < ?", time.Now().Add(-time.Duration(retentionMinute)*time.Minute)).Limit(100).Find(&deletedAttachemnts)
 		if len(deletedAttachemnts) == 0 {
-			m.logger.Info("cronCleanInvalidAttachment，end...")
+			m.logger.Debug("cronCleanInvalidAttachment，end...")
 			time.Sleep(sleepDuration)
 			continue
 		}
@@ -226,10 +226,10 @@ func (m *DBModel) cronCleanInvalidAttachment() {
 		err := m.db.Unscoped().Where("id IN (?)", ids).Delete(&Attachment{}).Error
 		if err != nil {
 			m.logger.Error("cronCleanInvalidAttachment", zap.Error(err))
-			m.logger.Info("cronCleanInvalidAttachment，end...")
+			m.logger.Debug("cronCleanInvalidAttachment，end...")
 			continue
 		}
-		m.logger.Info("cronCleanInvalidAttachment", zap.Any("ids", ids), zap.Any("Attachemnts", deletedAttachemnts))
+		m.logger.Debug("cronCleanInvalidAttachment", zap.Any("ids", ids), zap.Any("Attachemnts", deletedAttachemnts))
 		for _, attachemnt := range deletedAttachemnts {
 			if _, ok := hashMap[attachemnt.Hash]; !ok { // 删除附件文件
 				m.logger.Debug("cronCleanInvalidAttachment", zap.String("path", attachemnt.Path), zap.Any("attachemnt", attachemnt))
@@ -247,7 +247,7 @@ func (m *DBModel) cronCleanInvalidAttachment() {
 				}
 			}
 		}
-		m.logger.Info("cronCleanInvalidAttachment，end...")
+		m.logger.Debug("cronCleanInvalidAttachment，end...")
 	}
 }
 
@@ -294,12 +294,12 @@ func (m *DBModel) cronMarkAttachmentDeleted() {
 		}
 
 		// 非配置类和横幅类附件，如果type_id为0，则表示未被使用，超过24小时则标记删除
-		m.logger.Info("cronMarkAttachmentDeleted start...")
+		m.logger.Debug("cronMarkAttachmentDeleted start...")
 		err := m.db.Where("`type` not in (?)  and type_id = ?", []int{AttachmentTypeConfig, AttachmentTypeBanner}, 0).Where("created_at < ?", time.Now().Add(-time.Duration(24)*time.Hour)).Delete(&Attachment{}).Error
 		if err != nil {
 			m.logger.Error("cronMarkAttachmentDeleted", zap.Error(err))
 		}
-		m.logger.Info("cronMarkAttachmentDeleted end...")
+		m.logger.Debug("cronMarkAttachmentDeleted end...")
 	}
 }
 
@@ -314,11 +314,12 @@ func (m *DBModel) loopCovertDocument() {
 	m.db.Model(&Document{}).Where("status = ?", DocumentStatusConverting).Update("status", DocumentStatusPending)
 	for {
 		now := time.Now()
-		m.logger.Info("loopCovertDocument，start...")
+		m.logger.Debug("loopCovertDocument，start...")
 		err := m.ConvertDocument()
 		if err != nil && err != gorm.ErrRecordNotFound {
-			m.logger.Info("loopCovertDocument，end...", zap.Error(err), zap.String("cost", time.Since(now).String()))
+			m.logger.Error("loopCovertDocument", zap.Error(err))
 		}
+		m.logger.Debug("loopCovertDocument，end...", zap.String("cost", time.Since(now).String()))
 		if err == gorm.ErrRecordNotFound {
 			time.Sleep(sleep)
 		}
