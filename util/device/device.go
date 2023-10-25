@@ -78,6 +78,22 @@ func GetDisk() (diskInfos []DiskInfo) {
 			}
 		}
 	}
+
+	if len(diskInfos) > 0 {
+		return
+	}
+
+	if runtime.GOOS != "windows" {
+		usage, _ := disk.Usage("/")
+		diskInfos = append(diskInfos, DiskInfo{
+			DiskName: "/",
+			Total:    usage.Total,
+			Used:     usage.Used,
+			Free:     usage.Free,
+			Percent:  usage.UsedPercent,
+		})
+	}
+
 	return
 }
 
