@@ -416,7 +416,7 @@ import {
   getDocumentScore,
 } from '~/api/document'
 import { getFavorite, createFavorite, deleteFavorite } from '~/api/favorite'
-import { formatDatetime, formatBytes, getIcon } from '~/utils/utils'
+import { formatDatetime, formatBytes, getIcon, genPrevPage } from '~/utils/utils'
 import { documentStatusOptions } from '~/utils/enum'
 import QRCode from 'qrcodejs2' // 引入qrcode
 import FormComment from '~/components/FormComment.vue'
@@ -555,9 +555,7 @@ export default {
       // 限定预览页数，拼装图片链接
       const pages = []
       for (let i = 1; i <= preview; i++) {
-        const src = doc.enable_gzip
-          ? `/view/page/${doc.attachment.hash}/${i}.gzip.svg`
-          : `/view/page/${doc.attachment.hash}/${i}.svg`
+        const src= genPrevPage(doc.attachment.hash, i, doc.preview_ext, doc.enable_gzip)
         pages.push({
           lazySrc: src,
           src: src,
@@ -879,9 +877,7 @@ export default {
       if (document.fullscreenElement) startLazyLoad = 5
       for (let i = this.pages.length + 1; i <= end; i++) {
         j += 1
-        const src = this.document.enable_gzip
-          ? `/view/page/${this.document.attachment.hash}/${i}.gzip.svg`
-          : `/view/page/${this.document.attachment.hash}/${i}.svg`
+        const src= genPrevPage(this.document.attachment.hash, i, this.document.preview_ext, this.document.enable_gzip)
         this.pages.push({
           // 前两页，直接不要懒加载，如果非全屏
           src: j <= startLazyLoad ? src : this.loadingImage,

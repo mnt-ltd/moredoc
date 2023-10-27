@@ -267,6 +267,7 @@ const (
 	ConfigConverterEnableSVGO                    = "enable_svgo"                      // 是否启用 SVGO
 	ConfigConverterEnableGZIP                    = "enable_gzip"                      // 是否启用 GZIP
 	ConfigConverterEnableConvertRepeatedDocument = "enable_convert_repeated_document" // 是否转换已转换的重复文档
+	ConfigConverterExtension                     = "extension"                        // 转换后的文件扩展名，即以什么方式来浏览文档，支持 jpg、png、svg，默认为svg，pdf和html暂不支持
 )
 
 const (
@@ -301,6 +302,7 @@ type ConfigConverter struct {
 	EnableGZIP                    bool `json:"enable_gzip"`                      // 是否对svg启用GZIP压缩。转换效率会有所下降。相对直接的svg文件，可以节省3/4的存储空间
 	EnableConvertRepeatedDocument bool `json:"enable_convert_repeated_document"` // 是否转换已转换的重复文档。如果开启，会导致转换效率下降，但是可以节省大量的存储空间
 	// GZIP和svgo都开启，转换效率会有所下降，可以综合节省约85%的存储空间
+	Extension string `json:"extension"` // 转换后的文件扩展名，即以什么方式来浏览文档，支持 jpg、png、svg，默认为svg，pdf和html暂不支持
 }
 
 const (
@@ -696,11 +698,12 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryFooter, Name: ConfigFooterFeedback, Label: "意见反馈", Value: "/article/feedback", Placeholder: "请输入意见反馈的链接地址，留空表示不显示", InputType: InputTypeText, Sort: 28, Options: ""},
 
 		// 转换配置项
-		{Category: ConfigCategoryConverter, Name: ConfigConverterMaxPreview, Label: "最大预览页数", Value: "12", Placeholder: "文档允许的最大预览页数，0表示不限制", InputType: InputTypeNumber, Sort: 15, Options: ""},
-		{Category: ConfigCategoryConverter, Name: ConfigConverterTimeout, Label: "转换超时(分钟)", Value: "30", Placeholder: "文档转换超时时间，默认为30分钟", InputType: InputTypeNumber, Sort: 16, Options: ""},
-		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableGZIP, Label: "是否启用GZIP压缩", Value: "true", Placeholder: "是否对文档SVG预览文件启用GZIP压缩，启用后转换效率会【稍微】下降，但相对直接的SVG文件减少75%的存储空间", InputType: InputTypeSwitch, Sort: 17, Options: ""},
-		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableSVGO, Label: "是否启用SVGO", Value: "false", Placeholder: "是否对文档SVG预览文件启用SVGO压缩，启用后转换效率会【明显】下降，但相对直接的SVG文件减少50%左右的存储空间", InputType: InputTypeSwitch, Sort: 18, Options: ""},
-		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableConvertRepeatedDocument, Label: "是否转换重复文档", Value: "false", Placeholder: "对于已转换过的文档，再次被上传时是否再转换一次", InputType: InputTypeSwitch, Sort: 20, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterMaxPreview, Label: "最大预览页数", Value: "12", Placeholder: "文档允许的最大预览页数，0表示不限制", InputType: InputTypeNumber, Sort: 0, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterTimeout, Label: "转换超时(分钟)", Value: "30", Placeholder: "文档转换超时时间，默认为30分钟", InputType: InputTypeNumber, Sort: 10, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterExtension, Label: "预览格式", Value: "svg", Placeholder: "将文档转为特定格式以供预览", InputType: InputTypeSelect, Sort: 20, Options: "svg:SVG\njpg:JPEG\npng:PNG"},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableGZIP, Label: "是否启用GZIP压缩", Value: "true", Placeholder: "是否对文档SVG预览文件启用GZIP压缩，启用后转换效率会【稍微】下降，但相对直接的SVG文件减少75%的存储空间", InputType: InputTypeSwitch, Sort: 30, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableSVGO, Label: "是否启用SVGO", Value: "false", Placeholder: "是否对文档SVG预览文件启用SVGO压缩，启用后转换效率会【明显】下降，但相对直接的SVG文件减少50%左右的存储空间", InputType: InputTypeSwitch, Sort: 40, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableConvertRepeatedDocument, Label: "是否转换重复文档", Value: "false", Placeholder: "对于已转换过的文档，再次被上传时是否再转换一次", InputType: InputTypeSwitch, Sort: 50, Options: ""},
 
 		// 下载配置
 		{Category: ConfigCategoryDownload, Name: ConfigDownloadEnableGuestDownload, Label: "是否允许游客下载", Value: "false", Placeholder: "启用之后，未登录用户可以下载免费文档", InputType: InputTypeSwitch, Sort: 10, Options: ""},

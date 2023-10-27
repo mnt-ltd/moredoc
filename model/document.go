@@ -63,6 +63,7 @@ type Document struct {
 	DeletedUserId int64           `form:"deleted_user_id" json:"deleted_user_id,omitempty" gorm:"column:deleted_user_id;type:bigint(20);size:20;default:0;comment:删除用户ID;"`
 	EnableGZIP    bool            `form:"enable_gzip" json:"enable_gzip,omitempty" gorm:"column:enable_gzip;type:tinyint(1);size:1;default:0;comment:是否启用GZIP压缩;"`
 	RecommendAt   *time.Time      `form:"recommend_at" json:"recommend_at,omitempty" gorm:"column:recommend_at;type:datetime;comment:推荐时间;index:idx_recommend_at;"`
+	PreviewExt    string          `form:"preview_ext" json:"preview_ext,omitempty" gorm:"column:preview_ext;type:varchar(16);size:16;default:.svg;comment:预览图扩展名;"`
 }
 
 func (Document) TableName() string {
@@ -701,18 +702,23 @@ func (m *DBModel) ConvertDocument() (err error) {
 		toPage = document.Pages
 	}
 
-	pages, err = cvt.ConvertPDFToSVG(dstPDF, 1, toPage, cfg.EnableSVGO, cfg.EnableGZIP)
+	pages, err = cvt.ConvertPDFToPages(dstPDF, 1, toPage, &converter.OptionConvertPages{
+		EnableSVGO: cfg.EnableSVGO,
+		EnableGZIP: cfg.EnableGZIP,
+		Extension:  cfg.Extension,
+	})
 	if err != nil {
 		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
 		m.logger.Error("ConvertDocument", zap.Error(err))
 		return
 	}
 
+	ext := "." + cfg.Extension
+	if ext == ".svg" && cfg.EnableGZIP {
+		ext = ".gzip.svg"
+	}
+
 	for _, page := range pages {
-		ext := ".svg"
-		if strings.HasSuffix(page.PagePath, ".gzip.svg") {
-			ext = ".gzip.svg"
-		}
 		dst := fmt.Sprintf(baseDir+"/%d%s", page.PageNum, ext)
 		m.logger.Debug("ConvertDocument CopyFile", zap.String("src", page.PagePath), zap.String("dst", dst))
 		errCopy := util.CopyFile(page.PagePath, dst)
@@ -734,7 +740,8 @@ func (m *DBModel) ConvertDocument() (err error) {
 
 	document.Status = DocumentStatusConverted
 	document.EnableGZIP = cfg.EnableGZIP
-	err = m.db.Select("description", "cover", "width", "height", "preview", "pages", "status", "enable_gzip").Where("id = ?", document.Id).Updates(document).Error
+	document.PreviewExt = ext
+	err = m.db.Select("description", "cover", "width", "height", "preview", "pages", "status", "enable_gzip", "preview_ext").Where("id = ?", document.Id).Updates(document).Error
 	if err != nil {
 		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
 		m.logger.Error("ConvertDocument", zap.Error(err))

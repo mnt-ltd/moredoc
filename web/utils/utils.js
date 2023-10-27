@@ -279,3 +279,13 @@ export function genTimeDuration(duration) {
   }
   return [start.Format(fmt), new Date().Format(fmt)]
 }
+
+export function genPrevPage(hash, pageNO, ext, enableGZIP){
+  if (!ext){
+    ext=".svg"
+  }
+  if (ext===".svg" && enableGZIP){
+    ext=".gzip.svg"
+  }
+  return  `/view/page/${hash}/${pageNO}${ext}`
+}

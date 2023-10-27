@@ -53,6 +53,7 @@ message Document {
   User user = 31;                     // 文档作者
   bool enable_gzip = 32;              // 是否启用gzip压缩
   string convert_error = 33;          // 转换错误信息
+  string preview_ext = 34;            // 预览文件扩展名
 }
 
 // 删除文档，放入回收站

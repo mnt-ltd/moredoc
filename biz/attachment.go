@@ -247,11 +247,16 @@ func (s *AttachmentAPIService) ViewDocumentPages(ctx *gin.Context) {
 		return
 	}
 	page := strings.TrimLeft(ctx.Param("page"), "./")
-	if strings.HasSuffix(page, ".gzip.svg") {
-		ctx.Header("Content-Encoding", "gzip")
+	if strings.HasSuffix(page, ".svg") {
+		if strings.HasSuffix(page, ".gzip.svg") {
+			ctx.Header("Content-Encoding", "gzip")
+		}
+		ctx.Header("Content-Type", "image/svg+xml")
 	}
-	ctx.Header("Content-Type", "image/svg+xml")
-	ctx.File(fmt.Sprintf("documents/%s/%s/%s", strings.Join(strings.Split(hash, "")[:5], "/"), hash, page))
+
+	file := fmt.Sprintf("documents/%s/%s/%s", strings.Join(strings.Split(hash, "")[:5], "/"), hash, page)
+	s.logger.Debug("ViewDocumentPages", zap.String("hash", hash), zap.String("page", page), zap.String("file", file))
+	ctx.File(file)
 }
 
 func (s *AttachmentAPIService) ViewDocumentCover(ctx *gin.Context) {

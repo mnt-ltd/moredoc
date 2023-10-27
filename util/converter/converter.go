@@ -26,6 +26,7 @@ const (
 	mutool       = "mutool"
 	inkscape     = "inkscape"
 	dirDteFmt    = "2006/01/02"
+	imageMagick  = "convert"
 )
 
 type ConvertCallback func(page int, pagePath string, err error)
@@ -165,6 +166,54 @@ func (c *Converter) ConvertPDFToSVG(src string, fromPage, toPage int, enableSVGO
 		}
 	}
 	return
+}
+
+type OptionConvertPages struct {
+	EnableSVGO bool
+	EnableGZIP bool
+	Extension  string
+}
+
+// ConvertPDFToPages 将PDF转为预览页
+func (c *Converter) ConvertPDFToPages(src string, fromPage, toPage int, option *OptionConvertPages) (pages []Page, err error) {
+	switch strings.TrimLeft(option.Extension, ".") {
+	case "png":
+		return c.ConvertPDFToPNG(src, fromPage, toPage)
+	case "jpg":
+		// 见将pdf转为png，然后png再转为jpg
+		pages, err = c.ConvertPDFToPNG(src, fromPage, toPage)
+		// 通过imagemagick将图片转为jpg
+		for idx, page := range pages {
+			if dst, errConvert := c.ConvertPNGToJPG(page.PagePath); errConvert == nil {
+				os.Remove(page.PagePath)
+				page.PagePath = dst
+				pages[idx] = page
+			}
+		}
+		return pages, err
+	default: // 默认转为svg
+		return c.ConvertPDFToSVG(src, fromPage, toPage, option.EnableSVGO, option.EnableGZIP)
+	}
+}
+
+// 将png转为jpg
+func (c *Converter) ConvertPNGToJPG(src string) (dst string, err error) {
+	dst = strings.TrimSuffix(src, filepath.Ext(src)) + ".jpg"
+	// 通过imagemagick将图片转为jpg
+	args := []string{
+		src,
+		dst,
+	}
+	c.logger.Debug("convert png to jpg", zap.String("cmd", imageMagick), zap.Strings("args", args))
+	_, err = command.ExecCommand(imageMagick, args, c.timeout)
+	if err != nil {
+		c.logger.Error("convert png to jpg", zap.String("cmd", imageMagick), zap.Strings("args", args), zap.Error(err))
+	}
+	return
+}
+
+func (c *Converter) ConvertPDFToJPG(src string, fromPage, toPage int) (pages []Page, err error) {
+	return c.convertPDFToPage(src, fromPage, toPage, ".jpg")
 }
 
 // ConvertPDFToPNG 将PDF转为PNG
