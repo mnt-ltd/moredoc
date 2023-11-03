@@ -238,6 +238,13 @@ func (s *ConfigAPIService) GetEnvs(ctx context.Context, req *emptypb.Empty) (res
 			IsRequired:  true,
 		},
 		{
+			// mupdf
+			Name:        "ImageMagick",
+			Description: "ImageMagick是一个用于创建、编辑、合成和转换位图图像的自由软件套件。魔豆文库用于将PDF转为svg、png、jpg等图片。",
+			Cmd:         "convert",
+			IsRequired:  true,
+		},
+		{
 			// inkscape
 			Name:        "Inkscape",
 			Description: "Inkscape是一个自由开源的矢量图形编辑器。在mupdf处理PDF出现兼容问题失败时，自动切换inkscape来处理。",
