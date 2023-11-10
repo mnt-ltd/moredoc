@@ -103,7 +103,7 @@ func (s *ConfigAPIService) ListConfig(ctx context.Context, req *pb.ListConfigReq
 	}
 
 	for idx, cfg := range configs {
-		if cfg.IsSecret {
+		if cfg.IsSecret && cfg.Value != "" {
 			configs[idx].Value = "******"
 		}
 	}
