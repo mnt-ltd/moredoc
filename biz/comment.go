@@ -43,7 +43,7 @@ func (s *CommentAPIService) CreateComment(ctx context.Context, req *pb.CreateCom
 
 	// 评论验证码错误
 	cfg := s.dbModel.GetConfigOfSecurity(model.ConfigSecurityEnableCaptchaComment)
-	if cfg.EnableCaptchaComment && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
+	if cfg.EnableCaptchaComment && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
 		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
 	}
 

@@ -73,6 +73,6 @@ func GenerateCaptcha(captchaType string, length, width, height int) (id, b64s st
 }
 
 // VerifyCaptcha 验证验证码
-func VerifyCaptcha(id string, captchaValue string) (ok bool) {
-	return store.Verify(id, captchaValue, true)
+func VerifyCaptcha(id string, captchaValue string, clear bool) (ok bool) {
+	return store.Verify(id, captchaValue, clear)
 }

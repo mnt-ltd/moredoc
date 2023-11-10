@@ -51,6 +51,20 @@ message RegisterAndLoginRequest {
   string captcha = 3;    // 验证码
   string captcha_id = 4; // 验证码ID
   string email = 5;      // 邮箱
+  string code = 6; // 邮箱验证码(如果用户注册需要验证邮箱，则必须传递该参数)
+}
+
+enum EmailCodeType {
+  EmailCodeTypeRegister = 0; // 注册
+  EmailCodeTypeLogin = 1;    // 登录
+  // EmailCodeTypeFindPassword = 2; // 找回密码
+}
+
+message SendEmailCodeRequest {
+  string email = 1; // 邮箱
+  string captcha = 2;
+  string captcha_id = 3;
+  EmailCodeType type = 4;
 }
 
 // 查询验证码请求
@@ -321,6 +335,14 @@ service UserAPI {
   rpc FindPasswordStepTwo(FindPasswordRequest) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/user/findpassword/steptwo',
+      body : '*',
+    };
+  }
+
+  // 发送邮箱验证码。
+  rpc SendEmailCode(SendEmailCodeRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : '/api/v1/user/email/code',
       body : '*',
     };
   }

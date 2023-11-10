@@ -243,6 +243,7 @@ const (
 	ConfigSecurityDocumentAllowedExt        = "document_allowed_ext"         // 允许上传的文档类型
 	ConfigSecurityLoginRequired             = "login_required"               // 是否需要登录才能查看文档
 	ConfigSecurityAttachmentRetentionMinute = "attachment_retention_minute"  // 被删除的附件，保留时长，单位分钟
+	ConfigSecurityEnableVerifyRegisterEmail = "enable_verify_register_email" // 是否开启注册邮箱验证
 )
 
 type ConfigSecurity struct {
@@ -257,6 +258,7 @@ type ConfigSecurity struct {
 	EnableCaptchaRegister     bool     `json:"enable_captcha_register"`      // 是否启用注册验证码
 	EnableCaptchaComment      bool     `json:"enable_captcha_comment"`       // 是否启用评论验证码
 	EnableCaptchaFindPassword bool     `json:"enable_captcha_find_password"` // 找回密码是否需要验证码
+	EnableVerifyRegisterEmail bool     `json:"enable_verify_register_email"` // 是否开启注册邮箱验证
 	DocumentAllowedExt        []string `json:"document_allowed_ext"`         // 允许上传的文档类型
 	LoginRequired             bool     `json:"login_required"`               // 是否需要登录才能查看文档
 }
@@ -655,6 +657,7 @@ func (m *DBModel) initConfig() (err error) {
 	cfgs := []Config{
 		// 系统配置项
 		{Category: ConfigCategorySystem, Name: ConfigSystemSitename, Label: "网站名称", Value: "魔豆文库", Placeholder: "请输入您网站的名称，如：魔豆文库", InputType: InputTypeText, Sort: 10, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "【重要】网站域名", Value: "https://moredoc.mnt.ltd", Placeholder: "请输入您网站的域名访问地址，带 https:// 或 http:// 如 https://moredoc.mnt.ltd，用以生成网站地图sitemap", InputType: InputTypeText, Sort: 11, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemTitle, Label: "首页标题", Value: "MOREDOC · 魔豆文库", Placeholder: "请输入您网站的首页标题，如：魔豆文库，强大、专业的文库系统", InputType: InputTypeText, Sort: 20, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemKeywords, Label: "网站关键字", Value: "MOREDOC · 魔豆文库", Placeholder: "请输入您网站的关键字", InputType: InputTypeText, Sort: 30, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemDescription, Label: "网站描述", Value: "MOREDOC · 魔豆文库", Placeholder: "请输入您网站的描述", InputType: InputTypeTextarea, Sort: 40, Options: ""},
@@ -665,7 +668,6 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySystem, Name: ConfigSystemLoginBackground, Label: "登录页背景图", Value: "", Placeholder: "请上传一张图片作为登录页背景图", InputType: InputTypeImage, Sort: 63, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemSecIcp, Label: "京公网安备", Value: "", Placeholder: "请输入您网站的京公网安备备案号", InputType: InputTypeText, Sort: 68, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemIcp, Label: "网站备案号", Value: "", Placeholder: "请输入您网站的备案号", InputType: InputTypeText, Sort: 69, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemDomain, Label: "网站域名", Value: "https://moredoc.mnt.ltd", Placeholder: "请输入您网站的域名访问地址，带 https:// 或 http:// 如 https://moredoc.mnt.ltd，用以生成网站地图sitemap", InputType: InputTypeText, Sort: 70, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemCopyrightStartYear, Label: "版权起始年", Value: "2019", Placeholder: "请输入您网站版权起始年，如：2019，则前台会显示如 ©2019 - 20xx 的字样", InputType: InputTypeText, Sort: 80, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemAnalytics, Label: "网站统计代码", Value: "", Placeholder: "请输入您网站的统计代码，当前只支持百度统计", InputType: InputTypeTextarea, Sort: 90, Options: ""},
 
@@ -689,6 +691,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaRegister, Label: "是否开启注册验证码", Value: "true", Placeholder: "请选择是否开启注册验证码", InputType: InputTypeSwitch, Sort: 20, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaComment, Label: "是否开启评论验证码", Value: "true", Placeholder: "请选择是否开启评论验证码", InputType: InputTypeSwitch, Sort: 21, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableCaptchaFindPassword, Label: "是否开启找回密码验证码", Value: "true", Placeholder: "请选择是否开启找回密码验证码", InputType: InputTypeSwitch, Sort: 22, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecurityEnableVerifyRegisterEmail, Label: "是否开启注册邮箱验证", Value: "false", Placeholder: "用户注册时是否需要验证邮箱", InputType: InputTypeSwitch, Sort: 50, Options: ""},
 
 		// 底部链接
 		{Category: ConfigCategoryFooter, Name: ConfigFooterAbout, Label: "关于我们", Value: "/article/about", Placeholder: "请输入关于我们的链接地址，留空表示不显示", InputType: InputTypeText, Sort: 24, Options: ""},

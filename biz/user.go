@@ -72,6 +72,7 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 		model.ConfigSecurityEnableCaptchaRegister,
 		model.ConfigSecurityEnableRegister,
 		model.ConfigSecurityIsClose,
+		model.ConfigSecurityEnableVerifyRegisterEmail,
 	)
 
 	if !cfg.EnableRegister {
@@ -82,8 +83,21 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 		return nil, status.Errorf(codes.InvalidArgument, "网站已关闭，暂时不允许注册")
 	}
 
-	if cfg.EnableCaptchaRegister && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
+	if cfg.EnableCaptchaRegister && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
 		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+	}
+
+	var latestEmailCode model.EmailCode
+	if cfg.EnableVerifyRegisterEmail { // 启用了邮箱验证
+		latestEmailCode = s.dbModel.GetLatestEmailCode(req.Email, int32(pb.EmailCodeType_EmailCodeTypeRegister))
+		if latestEmailCode.Id == 0 || latestEmailCode.Code != req.Code || latestEmailCode.IsUsed {
+			return nil, status.Errorf(codes.InvalidArgument, "邮箱验证码错误")
+		}
+
+		// 邮箱验证码是否已过期
+		if latestEmailCode.CreatedAt.Add(time.Minute * 30).Before(time.Now()) {
+			return nil, status.Errorf(codes.InvalidArgument, "邮箱验证码已过期")
+		}
 	}
 
 	exist, _ := s.dbModel.GetUserByUsername(req.Username, "id")
@@ -133,6 +147,11 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 	pbUser := &pb.User{}
 	util.CopyStruct(&user, pbUser)
 
+	if latestEmailCode.Id > 0 {
+		// 标记邮箱验证码已使用
+		s.dbModel.UpdateEmailCode(&model.EmailCode{Id: latestEmailCode.Id, IsUsed: true}, "is_used")
+	}
+
 	return &pb.LoginReply{Token: token, User: pbUser}, nil
 }
 
@@ -146,7 +165,7 @@ func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequ
 
 	// 如果启用了验证码，则需要进行验证码验证
 	cfg := s.dbModel.GetConfigOfSecurity(model.ConfigSecurityEnableCaptchaLogin)
-	if cfg.EnableCaptchaLogin && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
+	if cfg.EnableCaptchaLogin && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
 		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
 	}
 
@@ -633,7 +652,7 @@ func (s *UserAPIService) FindPasswordStepOne(ctx context.Context, req *v1.FindPa
 	}
 
 	cfgSec := s.dbModel.GetConfigOfSecurity(model.ConfigSecurityEnableCaptchaFindPassword)
-	if cfgSec.EnableCaptchaFindPassword && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
+	if cfgSec.EnableCaptchaFindPassword && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
 		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
 	}
 
@@ -709,7 +728,7 @@ func (s *UserAPIService) FindPasswordStepTwo(ctx context.Context, req *v1.FindPa
 	}
 
 	cfgSec := s.dbModel.GetConfigOfSecurity(model.ConfigSecurityEnableCaptchaFindPassword)
-	if cfgSec.EnableCaptchaFindPassword && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha) {
+	if cfgSec.EnableCaptchaFindPassword && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
 		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
 	}
 
@@ -761,4 +780,84 @@ func (s *UserAPIService) ListUserDownload(ctx context.Context, req *v1.ListUserD
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 	return &v1.ListUserDownloadReply{Download: downloads, Total: total}, nil
+}
+
+// 发送邮箱验证码
+// TODO: 当前只对注册功能生效。后续可以考虑对其他功能
+func (s *UserAPIService) SendEmailCode(ctx context.Context, req *v1.SendEmailCodeRequest) (res *emptypb.Empty, err error) {
+	if !util.IsValidEmail(req.Email) {
+		return nil, status.Errorf(codes.InvalidArgument, "邮箱格式不正确")
+	}
+
+	existUser, _ := s.dbModel.GetUserByEmail(req.Email, "id")
+	if existUser.Id > 0 {
+		return nil, status.Errorf(codes.AlreadyExists, "邮箱已存在")
+	}
+
+	cfgSec := s.dbModel.GetConfigOfSecurity(model.ConfigSecurityEnableCaptchaRegister, model.ConfigSecurityEnableRegister, model.ConfigSecurityEnableVerifyRegisterEmail)
+	if !cfgSec.EnableRegister {
+		return nil, status.Errorf(codes.InvalidArgument, "系统未开放注册")
+	}
+
+	if !cfgSec.EnableVerifyRegisterEmail {
+		return nil, status.Errorf(codes.InvalidArgument, "系统未开启注册邮箱验证功能")
+	}
+
+	if cfgSec.EnableCaptchaRegister && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, false) {
+		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+	}
+
+	code := s.dbModel.GetLatestEmailCode(req.Email, int32(req.Type))
+	// 如果邮件发送早于1分钟，则不再发送
+	if code.Id > 0 && time.Now().Sub(*code.CreatedAt).Seconds() < 60 {
+		return nil, status.Errorf(codes.InvalidArgument, "发送太频繁，请稍后再试")
+	}
+
+	ip := ""
+	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
+		ip = ips[0]
+	}
+
+	cfgSystem := s.dbModel.GetConfigOfSystem(model.ConfigSystemSitename, model.ConfigSystemDomain)
+
+	codeStr := unchained.GetRandomString(4)
+	body := fmt.Sprintf(`
+	<div class="wrapper" style="margin: 20px auto 0; width: 500px; padding-top:16px; padding-bottom:10px;">
+        <div class="content" style="background: none repeat scroll 0 0 #FFFFFF; border: 1px solid #E9E9E9; margin: 2px 0 0; padding: 30px;">
+            <p>您好: </p>
+            <p>欢迎注册成为 <a href="%s">%s</a> 用户。您本次注册验证码为：%s，30分钟内有效。 </p>
+        </div>
+    </div>
+	`,
+		cfgSystem.Domain,
+		cfgSystem.Sitename,
+		codeStr,
+	)
+
+	// 发送邮件
+	err = s.dbModel.SendMail(
+		"邮箱验证码",
+		req.Email,
+		body,
+	)
+
+	// 生成验证码
+	code = model.EmailCode{
+		Email:   req.Email,
+		Code:    codeStr,
+		Ip:      ip,
+		Success: true,
+	}
+
+	if err != nil {
+		code.Error = err.Error()
+		code.Success = false
+	}
+
+	err = s.dbModel.CreateEmailCode(&code)
+	if err != nil {
+		s.logger.Error("创建验证码失败", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
 }

@@ -96,6 +96,7 @@ message ConfigSecurity {
   int32 max_document_size = 9;           // 文档最大大小
   repeated string document_allowed_ext = 10; // 文档允许的扩展名
   bool login_required = 11;                  // 是否登录才能访问
+  bool enable_verify_register_email = 12;    // 是否开启注册邮箱验证
 }
 
 // 系统配置
