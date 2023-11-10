@@ -63,6 +63,7 @@ type Config struct {
 	Options     string     `form:"options" json:"options,omitempty" gorm:"column:options;type:text;comment:针对checkbox等的枚举值;"`
 	CreatedAt   *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt   *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	IsSecret    bool       `form:"is_secret" json:"is_secret,omitempty" gorm:"column:is_secret;type:tinyint(1);size:1;default:0;comment:是否是私密信息;"`
 }
 
 func (Config) TableName() string {
@@ -735,7 +736,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryEmail, Name: ConfigEmailIsTLS, Label: "是否启用TLS", Value: "true", Placeholder: "如果是TLS端口，请启用", InputType: InputTypeSwitch, Sort: 40, Options: ""},
 		{Category: ConfigCategoryEmail, Name: ConfigEmailFromName, Label: "发件人名称", Value: "", Placeholder: "请输入您要展示的发件人名称", InputType: InputTypeText, Sort: 50, Options: ""},
 		{Category: ConfigCategoryEmail, Name: ConfigEmailUsername, Label: "SMTP 账号", Value: "", Placeholder: "请输入您的邮箱账户", InputType: InputTypeText, Sort: 60, Options: ""},
-		{Category: ConfigCategoryEmail, Name: ConfigEmailPassword, Label: "SMTP 密码", Value: "", Placeholder: "请输入您的邮箱密码", InputType: InputTypePassword, Sort: 70, Options: ""},
+		{Category: ConfigCategoryEmail, Name: ConfigEmailPassword, Label: "SMTP 密码", Value: "", Placeholder: "请输入您的邮箱密码", InputType: InputTypePassword, Sort: 70, Options: "", IsSecret: true},
 		{Category: ConfigCategoryEmail, Name: ConfigEmailDuration, Label: "邮件有效期", Value: "30", Placeholder: "找回密码时链接有效期，默认为30，表示30分钟", InputType: InputTypeNumber, Sort: 80, Options: ""},
 		{Category: ConfigCategoryEmail, Name: ConfigEmailSecret, Label: "签名密钥", Value: "moredoc", Placeholder: "找回密码链接签名密钥", InputType: InputTypeText, Sort: 80, Options: ""},
 		{Category: ConfigCategoryEmail, Name: ConfigEmailTestEmail, Label: "测试邮箱", Value: "", Placeholder: "用于每次变更配置时保存发送测试邮件", InputType: InputTypeText, Sort: 90, Options: ""},

@@ -51,9 +51,10 @@ func (s *ConfigAPIService) UpdateConfig(ctx context.Context, req *pb.Configs) (*
 	doesUpdateSEO := false
 	isEmail := false
 	for idx, cfg := range cfgs {
-		if cfg.Category == model.ConfigCategoryEmail && cfg.Name == model.ConfigEmailPassword && cfg.Value == "******" {
-			// 6个星号，不修改密码
-			cfgs[idx].Value = s.dbModel.GetConfigOfEmail(model.ConfigEmailPassword).Password
+		if cfg.Value == "******" {
+			// 6个星号，不修改原值
+			exist, _ := s.dbModel.GetConfigByNameCategory(cfg.Name, cfg.Category)
+			cfgs[idx].Value = exist.Value
 		}
 		isEmail = isEmail || cfg.Category == model.ConfigCategoryEmail
 		if cfg.Category == model.ConfigCategorySystem {
@@ -101,14 +102,14 @@ func (s *ConfigAPIService) ListConfig(ctx context.Context, req *pb.ListConfigReq
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var pbConfigs []*pb.Config
-	util.CopyStruct(&configs, &pbConfigs)
-
-	for idx, cfg := range pbConfigs {
-		if cfg.Category == model.ConfigCategoryEmail && cfg.Name == model.ConfigEmailPassword {
-			pbConfigs[idx].Value = "******"
+	for idx, cfg := range configs {
+		if cfg.IsSecret {
+			configs[idx].Value = "******"
 		}
 	}
+
+	var pbConfigs []*pb.Config
+	util.CopyStruct(&configs, &pbConfigs)
 
 	return &pb.Configs{Config: pbConfigs}, nil
 }
