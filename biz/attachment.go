@@ -38,6 +38,11 @@ type AttachmentAPIService struct {
 	logger  *zap.Logger
 }
 
+var errorHash = map[string]interface{}{
+	"code":    http.StatusBadRequest,
+	"message": "hash值必须32位",
+}
+
 func NewAttachmentAPIService(dbModel *model.DBModel, logger *zap.Logger) (service *AttachmentAPIService) {
 	return &AttachmentAPIService{dbModel: dbModel, logger: logger.Named("AttachmentAPIService")}
 }
@@ -243,7 +248,7 @@ func (s *AttachmentAPIService) UploadConfig(ctx *gin.Context) {
 func (s *AttachmentAPIService) ViewDocumentPages(ctx *gin.Context) {
 	hash := ctx.Param("hash")
 	if len(hash) != 32 {
-		ctx.JSON(http.StatusNotFound, nil)
+		ctx.JSON(http.StatusNotFound, errorHash)
 		return
 	}
 	page := strings.TrimLeft(ctx.Param("page"), "./")
@@ -261,6 +266,11 @@ func (s *AttachmentAPIService) ViewDocumentPages(ctx *gin.Context) {
 
 func (s *AttachmentAPIService) ViewDocumentCover(ctx *gin.Context) {
 	hash := ctx.Param("hash")
+	if len(hash) != 32 {
+		ctx.JSON(http.StatusNotFound, errorHash)
+		return
+	}
+
 	file := fmt.Sprintf("documents/%s/%s/cover.png", strings.Join(strings.Split(hash, "")[:5], "/"), hash)
 	if len(hash) != 32 {
 		ctx.JSON(http.StatusNotFound, map[string]interface{}{"code": http.StatusNotFound, "message": "文件不存在"})
@@ -278,10 +288,11 @@ func (s *AttachmentAPIService) DownloadDocument(ctx *gin.Context) {
 	jwtToken, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(cfg.SecretKey), nil
 	})
-	if err != nil || !jwtToken.Valid {
+	if err != nil || !jwtToken.Valid || len(claims.Id) != 32 {
 		ctx.String(http.StatusBadRequest, "下载链接已失效")
 		return
 	}
+
 	filename := ctx.Query("filename")
 	file := fmt.Sprintf("documents/%s/%s%s", strings.Join(strings.Split(claims.Id, "")[:5], "/"), claims.Id, filepath.Ext(filename))
 	ctx.FileAttachment(file, filename)
