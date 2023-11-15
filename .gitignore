@@ -18,3 +18,4 @@ license.cert
 /logs
 /util/cloudstore
 *.crt
+/tmp
