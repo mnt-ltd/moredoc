@@ -2,6 +2,7 @@ package model
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"moredoc/util/sitemap"
 	"os"
@@ -15,8 +16,13 @@ import (
 	"gorm.io/gorm"
 )
 
+type reconvertDocument struct {
+	Id int64 `json:"id"`
+}
+
 var (
 	isCreatingSitemap bool
+	cacheReconvert    = "cache/reconvert"
 )
 
 // UpdateSitemap 更新站点地图
@@ -323,5 +329,65 @@ func (m *DBModel) loopCovertDocument() {
 		if err == gorm.ErrRecordNotFound {
 			time.Sleep(sleep)
 		}
+	}
+}
+
+func (m *DBModel) ReconvertDocoument(documentId int64, ext string) {
+	os.RemoveAll(cacheReconvert)
+	os.MkdirAll(cacheReconvert, os.ModePerm)
+	if documentId > 0 {
+		doc, err := m.GetDocument(documentId)
+		if err != nil {
+			m.logger.Error("ReconvertDocoument", zap.Error(err))
+			return
+		}
+		if doc.Status != DocumentStatusConverted {
+			m.logger.Error("ReconvertDocoument", zap.Error(errors.New("文档不是已转换的文档，不能重转")))
+			return
+		}
+
+		m.reconvertDocument(&doc, ext)
+	} else {
+		m.reconvertAllDocument(ext)
+	}
+}
+
+func (m *DBModel) reconvertDocument(doc *Document, ext string) {
+	if doc.PreviewExt == ext {
+		m.logger.Info("reconvertDocument", zap.String("msg", "文档预览文件格式与指定格式一致，无需重转"), zap.String("document", doc.Title+"."+doc.PreviewExt))
+		return
+	}
+	// 1. 下载文档预览文件
+	attachment := m.GetAttachmentByTypeAndTypeId(AttachmentTypeDocument, doc.Id, "hash")
+	if attachment.Id == 0 {
+		m.logger.Error("reconvertDocument", zap.String("msg", "文档预览文件不存在"), zap.String("document", doc.Title+"."+doc.PreviewExt))
+		return
+	}
+
+	// 2. 转换文档预览文件
+
+	// 3. 上传文档预览文件
+
+	// 4. 更新数据库表的预览后缀
+
+	// 5. 删除缓存文件，删除原预览文件
+}
+
+func (m *DBModel) reconvertAllDocument(ext string) {
+	var (
+		cfg reconvertDocument
+		doc Document
+	)
+	bytes, _ := os.ReadFile("cache/reconvert.json")
+	json.Unmarshal(bytes, &cfg)
+	for {
+		m.db.Where("id > ?", cfg.Id).Where("status = ?", DocumentStatusConverted).Order("id asc").Find(&doc)
+		if doc.Id == 0 {
+			break
+		}
+		m.reconvertDocument(&doc, ext)
+		cfg.Id = doc.Id
+		bytes, _ = json.Marshal(cfg)
+		os.WriteFile("cache/reconvert.json", bytes, os.ModePerm)
 	}
 }

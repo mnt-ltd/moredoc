@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,11 +27,11 @@ var (
 	BuildAt = "unknown"
 )
 
-//versionCmd represents the version command
+// versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "show current version information.",
-	Long:  `show current version information.`,
+	Short: "查看版本信息",
+	Long:  `查看魔豆文库版本信息，如版本号、构建时间、Git提交哈希值等。`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("")
 		fmt.Println("AppName: ", "moredoc")
