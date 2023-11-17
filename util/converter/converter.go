@@ -176,15 +176,25 @@ type OptionConvertPages struct {
 
 // ConvertPDFToPages 将PDF转为预览页
 func (c *Converter) ConvertPDFToPages(src string, fromPage, toPage int, option *OptionConvertPages) (pages []Page, err error) {
-	switch strings.TrimLeft(option.Extension, ".") {
+	ext := strings.TrimLeft(option.Extension, ".")
+	switch ext {
 	case "png":
 		return c.ConvertPDFToPNG(src, fromPage, toPage)
-	case "jpg":
+	case "jpg", "webp":
 		// 见将pdf转为png，然后png再转为jpg
 		pages, err = c.ConvertPDFToPNG(src, fromPage, toPage)
 		// 通过imagemagick将图片转为jpg
+		var (
+			dst        string
+			errConvert error
+		)
 		for idx, page := range pages {
-			if dst, errConvert := c.ConvertPNGToJPG(page.PagePath); errConvert == nil {
+			if ext != "webp" {
+				dst, errConvert = c.ConvertPNGToJPG(page.PagePath)
+			} else {
+				dst, errConvert = c.ConvertPNGToWEBP(page.PagePath)
+			}
+			if errConvert == nil {
 				os.Remove(page.PagePath)
 				page.PagePath = dst
 				pages[idx] = page
@@ -208,6 +218,22 @@ func (c *Converter) ConvertPNGToJPG(src string) (dst string, err error) {
 	_, err = command.ExecCommand(imageMagick, args, c.timeout)
 	if err != nil {
 		c.logger.Error("convert png to jpg", zap.String("cmd", imageMagick), zap.Strings("args", args), zap.Error(err))
+	}
+	return
+}
+
+// 将png转为webp
+func (c *Converter) ConvertPNGToWEBP(src string) (dst string, err error) {
+	dst = strings.TrimSuffix(src, filepath.Ext(src)) + ".webp"
+	// 通过imagemagick将图片转为jpg
+	args := []string{
+		src,
+		dst,
+	}
+	c.logger.Debug("convert png to webp", zap.String("cmd", imageMagick), zap.Strings("args", args))
+	_, err = command.ExecCommand(imageMagick, args, c.timeout)
+	if err != nil {
+		c.logger.Error("convert png to webp", zap.String("cmd", imageMagick), zap.Strings("args", args), zap.Error(err))
 	}
 	return
 }
