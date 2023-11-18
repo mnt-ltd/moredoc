@@ -740,7 +740,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 
 	document.Status = DocumentStatusConverted
 	document.EnableGZIP = cfg.EnableGZIP
-	document.PreviewExt = ext
+	document.PreviewExt = strings.TrimPrefix(ext, ".gzip")
 	err = m.db.Select("description", "cover", "width", "height", "preview", "pages", "status", "enable_gzip", "preview_ext").Where("id = ?", document.Id).Updates(document).Error
 	if err != nil {
 		m.SetDocumentStatus(document.Id, DocumentStatusFailed)

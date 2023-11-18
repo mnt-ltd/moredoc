@@ -538,3 +538,11 @@ func (c *Converter) Clean() (err error) {
 	}
 	return
 }
+
+func ConvertByImageMagick(src, dst string, moreArgs ...string) (err error) {
+	args := []string{src}
+	args = append(args, moreArgs...)
+	args = append(args, dst)
+	_, err = command.ExecCommand(imageMagick, args)
+	return
+}

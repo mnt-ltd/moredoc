@@ -2,8 +2,12 @@ package model
 
 import (
 	"bytes"
+	"compress/gzip"
 	"errors"
 	"fmt"
+	"io"
+	"moredoc/util"
+	"moredoc/util/converter"
 	"moredoc/util/sitemap"
 	"os"
 	"path/filepath"
@@ -333,54 +337,119 @@ func (m *DBModel) loopCovertDocument() {
 }
 
 func (m *DBModel) ReconvertDocoument(documentId int64, ext string) {
+	ext = "." + strings.TrimLeft(ext, ".")
 	os.RemoveAll(cacheReconvert)
 	os.MkdirAll(cacheReconvert, os.ModePerm)
-	if documentId > 0 {
-		doc, err := m.GetDocument(documentId)
-		if err != nil {
-			m.logger.Error("ReconvertDocoument", zap.Error(err))
-			return
-		}
-		if doc.Status != DocumentStatusConverted {
-			m.logger.Error("ReconvertDocoument", zap.Error(errors.New("文档不是已转换的文档，不能重转")))
-			return
-		}
-
-		m.reconvertDocument(&doc, ext)
-	} else {
+	if documentId <= 0 {
 		m.reconvertAllDocument(ext)
+		return
 	}
+
+	doc, err := m.GetDocument(documentId)
+	if err != nil {
+		m.logger.Error("ReconvertDocoument", zap.Error(err))
+		return
+	}
+	if doc.Status != DocumentStatusConverted {
+		m.logger.Error("ReconvertDocoument", zap.Error(errors.New("文档不是已转换的文档，不能重转")))
+		return
+	}
+	m.reconvertDocument(&doc, ext)
 }
 
 func (m *DBModel) reconvertDocument(doc *Document, ext string) {
+	m.logger.Debug("reconvertDocument", zap.Any("doc", doc), zap.String("ext", ext))
 	if doc.PreviewExt == ext {
-		m.logger.Info("reconvertDocument", zap.String("msg", "文档预览文件格式与指定格式一致，无需重转"), zap.String("document", doc.Title+"."+doc.PreviewExt))
-		return
-	}
-	// 1. 下载文档预览文件
-	attachment := m.GetAttachmentByTypeAndTypeId(AttachmentTypeDocument, doc.Id, "hash")
-	if attachment.Id == 0 {
-		m.logger.Error("reconvertDocument", zap.String("msg", "文档预览文件不存在"), zap.String("document", doc.Title+"."+doc.PreviewExt))
+		m.logger.Info("reconvertDocument", zap.String("msg", "文档预览文件格式与指定格式一致，无需重转"), zap.String("document", doc.Title+doc.Ext))
 		return
 	}
 
-	// 2. 转换文档预览文件
+	// 1. 下载文档预览文件
+	attachment := m.GetAttachmentByTypeAndTypeId(AttachmentTypeDocument, doc.Id, "id", "hash")
+	if attachment.Id == 0 {
+		m.logger.Error("reconvertDocument", zap.String("msg", "文档预览文件不存在"), zap.String("document", doc.Title+doc.Ext))
+		return
+	}
+	cacheDir := filepath.Join(cacheReconvert, strconv.FormatInt(doc.Id, 10))
+	os.MkdirAll(cacheDir, os.ModePerm)
+	defer os.RemoveAll(cacheDir)
+
+	totalPreview := doc.Preview
+	if totalPreview == 0 {
+		totalPreview = doc.Pages
+	}
+
+	var (
+		convertedTargets []string
+		oldSrcFiles      []string
+	)
+
+	for i := 1; i <= totalPreview; i++ {
+		// 已存在的预览文件
+		isGZIP := false
+		oldExt := doc.PreviewExt
+		if doc.EnableGZIP && strings.HasSuffix(oldExt, ".svg") {
+			oldExt = ".gzip.svg"
+			isGZIP = true
+		}
+
+		// 目标文件
+		dstFile := filepath.Join(cacheDir, fmt.Sprintf("%d%s", i, oldExt))
+		// 源文件
+		srcFile := fmt.Sprintf("documents/%s/%s/%d%s", strings.Join(strings.Split(attachment.Hash, "")[:5], "/"), attachment.Hash, i, oldExt)
+		oldSrcFiles = append(oldSrcFiles, srcFile)
+		err := util.CopyFile(srcFile, dstFile)
+		if err != nil {
+			m.logger.Error("reconvertDocument", zap.String("msg", "下载文档预览文件失败"), zap.String("document", doc.Title+doc.Ext), zap.Error(err))
+			return
+		}
+		m.logger.Debug("reconvertDocument", zap.Bool("isGZIP", isGZIP), zap.String("msg", "下载文档预览文件成功"), zap.String("document", doc.Title+doc.Ext), zap.String("srcFile", srcFile), zap.String("dstFile", dstFile))
+		if isGZIP { // 解压缩
+			m.ungzipSVG(dstFile)
+		}
+
+		// 2. 转换文档预览文件
+		convertedTargetFile := filepath.Join(cacheDir, fmt.Sprintf("%d%s", i, ext))
+		err = converter.ConvertByImageMagick(dstFile, convertedTargetFile)
+		if err != nil {
+			m.logger.Error("reconvertDocument", zap.String("msg", "转换文档预览文件失败"), zap.String("document", doc.Title+doc.Ext), zap.Error(err))
+			return
+		}
+		convertedTargets = append(convertedTargets, convertedTargetFile)
+	}
 
 	// 3. 上传文档预览文件
+	for i, srcFile := range convertedTargets {
+		dstFile := fmt.Sprintf("documents/%s/%s/%d%s", strings.Join(strings.Split(attachment.Hash, "")[:5], "/"), attachment.Hash, i+1, ext)
+		err := util.CopyFile(srcFile, dstFile)
+		if err != nil {
+			m.logger.Error("reconvertDocument", zap.String("msg", "上传文档预览文件失败"), zap.String("document", doc.Title+doc.Ext), zap.Error(err))
+			return
+		}
+	}
 
 	// 4. 更新数据库表的预览后缀
+	err := m.db.Model(doc).Updates(map[string]interface{}{
+		"preview_ext": ext,
+		"enable_gzip": false,
+	}).Error
+	if err != nil {
+		m.logger.Error("reconvertDocument", zap.String("msg", "更新文档预览文件后缀失败"), zap.String("document", doc.Title+doc.Ext), zap.Error(err))
+		return
+	}
 
 	// 5. 删除缓存文件，删除原预览文件
+	for _, file := range oldSrcFiles {
+		os.Remove(file)
+	}
 }
 
 func (m *DBModel) reconvertAllDocument(ext string) {
-	var (
-		cfg reconvertDocument
-		doc Document
-	)
+	var cfg reconvertDocument
 	bytes, _ := os.ReadFile("cache/reconvert.json")
 	json.Unmarshal(bytes, &cfg)
 	for {
+		var doc Document
 		m.db.Where("id > ?", cfg.Id).Where("status = ?", DocumentStatusConverted).Order("id asc").Find(&doc)
 		if doc.Id == 0 {
 			break
@@ -390,4 +459,26 @@ func (m *DBModel) reconvertAllDocument(ext string) {
 		bytes, _ = json.Marshal(cfg)
 		os.WriteFile("cache/reconvert.json", bytes, os.ModePerm)
 	}
+}
+
+func (m *DBModel) ungzipSVG(svg string) {
+	m.logger.Info("ungzipSVG", zap.String("svg", svg))
+	bs, err := os.ReadFile(svg)
+	if err != nil {
+		m.logger.Error("ungzipSVG", zap.Error(err))
+		return
+	}
+	gz, err := gzip.NewReader(bytes.NewReader(bs))
+	if err != nil {
+		m.logger.Error("ungzipSVG", zap.Error(err))
+		return
+	}
+	defer gz.Close()
+	fp, err := os.Create(svg)
+	if err != nil {
+		m.logger.Error("ungzipSVG", zap.Error(err))
+		return
+	}
+	defer fp.Close()
+	io.Copy(fp, gz)
 }
