@@ -250,7 +250,7 @@ func (s *ConfigAPIService) GetEnvs(ctx context.Context, req *emptypb.Empty) (res
 			Name:        "Inkscape",
 			Description: "Inkscape是一个自由开源的矢量图形编辑器。在mupdf处理PDF出现兼容问题失败时，自动切换inkscape来处理。",
 			Cmd:         "inkscape",
-			IsRequired:  false,
+			IsRequired:  true,
 		},
 		{
 			Name:        "SVGO",
