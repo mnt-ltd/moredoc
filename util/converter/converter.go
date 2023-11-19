@@ -546,3 +546,14 @@ func ConvertByImageMagick(src, dst string, moreArgs ...string) (err error) {
 	_, err = command.ExecCommand(imageMagick, args)
 	return
 }
+
+// 通过Inksacpe进行转换，如将svg转为png
+func ConvertByInkscape(src, dst string, moreArgs ...string) (err error) {
+	args := []string{
+		"-o", dst,
+	}
+	args = append(args, moreArgs...)
+	args = append(args, src)
+	_, err = command.ExecCommand(inkscape, args)
+	return
+}

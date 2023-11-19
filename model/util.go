@@ -410,7 +410,23 @@ func (m *DBModel) reconvertDocument(doc *Document, ext string) {
 
 		// 2. 转换文档预览文件
 		convertedTargetFile := filepath.Join(cacheDir, fmt.Sprintf("%d%s", i, ext))
-		err = converter.ConvertByImageMagick(dstFile, convertedTargetFile)
+		if strings.HasSuffix(oldExt, ".svg") {
+			// 如果是svg文件，则需要使用inkscape预先转为png
+			tmpFile := filepath.Join(cacheDir, fmt.Sprintf("tmp-%d.png", i))
+			err = converter.ConvertByInkscape(dstFile, tmpFile)
+			if err == nil {
+				if strings.HasSuffix(convertedTargetFile, ".png") {
+					// 如果目标文件是png，则直接使用inkscape转换后的文件
+					convertedTargetFile = tmpFile
+				} else {
+					// 如果目标文件不是png，则需要使用ImageMagick转换
+					err = converter.ConvertByImageMagick(tmpFile, convertedTargetFile)
+					os.RemoveAll(tmpFile)
+				}
+			}
+		} else {
+			err = converter.ConvertByImageMagick(dstFile, convertedTargetFile)
+		}
 		if err != nil {
 			m.logger.Error("reconvertDocument", zap.String("msg", "转换文档预览文件失败"), zap.String("document", doc.Title+doc.Ext), zap.Error(err))
 			return
