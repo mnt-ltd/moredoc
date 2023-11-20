@@ -445,10 +445,26 @@ func (m *DBModel) reconvertDocument(doc *Document, ext string) {
 	}
 
 	// 4. 更新数据库表的预览后缀
-	err := m.db.Model(doc).Updates(map[string]interface{}{
-		"preview_ext": ext,
-		"enable_gzip": false,
-	}).Error
+	// 查询同一hash的文档
+	var (
+		attachemnts []Attachment
+		err         error
+		data        = map[string]interface{}{
+			"preview_ext": ext,
+			"enable_gzip": false,
+		}
+	)
+
+	m.db.Select("id", "type_id").Where("hash = ? and `type` = ?", attachment.Hash, AttachmentTypeDocument).Find(&attachemnts)
+	if len(attachemnts) > 0 {
+		var ids []int64
+		for _, attachemnt := range attachemnts {
+			ids = append(ids, attachemnt.TypeId)
+		}
+		err = m.db.Model(&Document{}).Where("id IN (?)", ids).Updates(data).Error
+	} else {
+		err = m.db.Model(doc).Updates(data).Error
+	}
 	if err != nil {
 		m.logger.Error("reconvertDocument", zap.String("msg", "更新文档预览文件后缀失败"), zap.String("document", doc.Title+doc.Ext), zap.Error(err))
 		return
