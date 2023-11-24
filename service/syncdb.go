@@ -24,6 +24,7 @@ func SyncDB(cfg *conf.Config, logger *zap.Logger) {
 		lg.Fatal("NewDBModel", zap.Error(err))
 		return
 	}
+	defer dbModel.CloseDB()
 
 	err = dbModel.SyncDB()
 	if err != nil {

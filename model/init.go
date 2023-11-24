@@ -277,6 +277,16 @@ func (m *DBModel) GetTableFields(tableName string) (fields []string) {
 	return
 }
 
+// 关闭数据库连接
+func (m *DBModel) CloseDB() {
+	sqlDB, err := m.db.DB()
+	if err != nil {
+		m.logger.Error("db.DB()", zap.Error(err))
+		return
+	}
+	sqlDB.Close()
+}
+
 func (m *DBModel) showTableColumn(tableName string) (columns []TableColumn, err error) {
 	err = m.db.Raw("SHOW FULL COLUMNS FROM " + tableName).Find(&columns).Error
 	if err != nil {

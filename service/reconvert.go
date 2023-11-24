@@ -13,6 +13,8 @@ func Reconvert(cfg *conf.Config, logger *zap.Logger, ext string, documentId int6
 		logger.Fatal("NewDBModel", zap.Error(err))
 		return
 	}
+	defer db.CloseDB()
+
 	logger.Info("Reconvert", zap.Int64("documentId", documentId), zap.String("ext", ext))
 	db.ReconvertDocoument(documentId, ext)
 	logger.Info("Reconvert", zap.Int64("documentId", documentId), zap.String("ext", ext), zap.String("status", "done!"))

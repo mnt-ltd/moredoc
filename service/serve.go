@@ -57,6 +57,7 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 		logger.Fatal("NewDBModel", zap.Error(err))
 		return
 	}
+	defer dbModel.CloseDB()
 
 	// 每次启动时，都对dist中的title进行一次处理，以替换掉关键字 moredoc
 	go dbModel.InitSEO()
