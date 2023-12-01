@@ -83,8 +83,13 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 		return nil, status.Errorf(codes.InvalidArgument, "网站已关闭，暂时不允许注册")
 	}
 
-	if cfg.EnableCaptchaRegister && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
-		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+	if cfg.EnableCaptchaRegister {
+		if req.CaptchaId == "" || req.Captcha == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "请输入验证码")
+		}
+		if !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
+			return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+		}
 	}
 
 	var latestEmailCode model.EmailCode
@@ -165,8 +170,13 @@ func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequ
 
 	// 如果启用了验证码，则需要进行验证码验证
 	cfg := s.dbModel.GetConfigOfSecurity(model.ConfigSecurityEnableCaptchaLogin)
-	if cfg.EnableCaptchaLogin && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
-		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+	if cfg.EnableCaptchaLogin {
+		if req.CaptchaId == "" || req.Captcha == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "请输入验证码")
+		}
+		if !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
+			return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+		}
 	}
 
 	user, err := s.dbModel.GetUserByUsername(req.Username)
@@ -652,8 +662,13 @@ func (s *UserAPIService) FindPasswordStepOne(ctx context.Context, req *v1.FindPa
 	}
 
 	cfgSec := s.dbModel.GetConfigOfSecurity(model.ConfigSecurityEnableCaptchaFindPassword)
-	if cfgSec.EnableCaptchaFindPassword && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
-		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+	if cfgSec.EnableCaptchaFindPassword {
+		if req.CaptchaId == "" || req.Captcha == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "请输入验证码")
+		}
+		if !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
+			return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+		}
 	}
 
 	user, _ := s.dbModel.GetUserByEmail(req.Email, "id")
@@ -728,8 +743,13 @@ func (s *UserAPIService) FindPasswordStepTwo(ctx context.Context, req *v1.FindPa
 	}
 
 	cfgSec := s.dbModel.GetConfigOfSecurity(model.ConfigSecurityEnableCaptchaFindPassword)
-	if cfgSec.EnableCaptchaFindPassword && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
-		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+	if cfgSec.EnableCaptchaFindPassword {
+		if req.CaptchaId == "" || req.Captcha == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "请输入验证码")
+		}
+		if !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
+			return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+		}
 	}
 
 	// 验证token
@@ -803,8 +823,13 @@ func (s *UserAPIService) SendEmailCode(ctx context.Context, req *v1.SendEmailCod
 		return nil, status.Errorf(codes.InvalidArgument, "系统未开启注册邮箱验证功能")
 	}
 
-	if cfgSec.EnableCaptchaRegister && !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, false) {
-		return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+	if cfgSec.EnableCaptchaRegister {
+		if req.CaptchaId == "" || req.Captcha == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "请输入验证码")
+		}
+		if !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
+			return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
+		}
 	}
 
 	code := s.dbModel.GetLatestEmailCode(req.Email, int32(req.Type))
