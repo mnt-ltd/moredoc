@@ -7,6 +7,7 @@ import (
 	"moredoc/conf"
 	"strings"
 	"sync"
+	"time"
 
 	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
@@ -117,6 +118,7 @@ func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
 		sqlDB.SetMaxIdleConns(cfg.MaxOpen)
 	}
 
+	sqlDB.SetConnMaxLifetime(time.Hour)
 	m.db = db
 
 	// 获取所有数据库表，并把数据库表字段加入到全局map，以便根据指定字段查询数据
