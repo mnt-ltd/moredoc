@@ -56,7 +56,7 @@ message ListArticleReply {
 service ArticleAPI {
 
   // 创建文章
-  rpc CreateArticle(Article) returns (google.protobuf.Empty) {
+  rpc CreateArticle(Article) returns (Article) {
     option (google.api.http) = {
       post : '/api/v1/article',
       body : '*',

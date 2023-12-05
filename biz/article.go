@@ -30,7 +30,7 @@ func (s *ArticleAPIService) checkPermission(ctx context.Context) (userClaims *au
 }
 
 // CreateArticle 创建文章
-func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) (*emptypb.Empty, error) {
+func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) (*pb.Article, error) {
 	_, err := s.checkPermission(ctx)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,14 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 		return nil, status.Errorf(codes.Internal, "创建文章失败")
 	}
 
-	return &emptypb.Empty{}, nil
+	res := &pb.Article{}
+	err = util.CopyStruct(article, res)
+	if err != nil {
+		s.logger.Error("CreateArticle", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return res, nil
 }
 
 // UpdateArticle 更新文章。注意：不支持更新identifier
