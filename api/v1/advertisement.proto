@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Advertisement {
+  google.protobuf.Timestamp start_time = 4 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp end_time = 5 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp created_at = 6 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 7 [ (gogoproto.stdtime) = true ];
+  int64 id = 1;
+  int64 user_id = 2;
+  string position = 3;
+  string content = 8;
+  bool enable = 9;
+  string remark = 10;
+}
+
+message DeleteAdvertisementRequest { repeated int64 id = 1; }
+
+message GetAdvertisementRequest { repeated string position = 1; }
+
+message ListAdvertisementRequest {
+  int32 page = 1;
+  int32 size = 2;
+  string wd = 3;
+  repeated string field = 4;
+  string order = 5;
+  repeated string position = 6;
+  repeated bool enable = 7;
+}
+
+message ListAdvertisementReply {
+  int64 total = 1;
+  repeated Advertisement advertisement = 2;
+}
+
+message AdminDeleteAdvertisementRequest { repeated int64 id = 1; }
+
+message AdminGetAdvertisementRequest { int64 id = 1; }
+
+message AdminListAdvertisementRequest {
+  int32 page = 1;
+  int32 size = 2;
+  string wd = 3;
+  repeated string field = 4;
+  string order = 5;
+}
+
+message AdminListAdvertisementReply {
+  int64 total = 1;
+  repeated Advertisement advertisement = 2;
+}
+
+service AdvertisementAPI {
+  rpc CreateAdvertisement(Advertisement) returns (Advertisement) {
+    option (google.api.http) = {
+      post : '/api/v1/advertisement',
+      body : '*',
+    };
+  }
+
+  rpc UpdateAdvertisement(Advertisement) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/advertisement',
+      body : '*',
+    };
+  }
+
+  rpc DeleteAdvertisement(DeleteAdvertisementRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/advertisement',
+    };
+  }
+
+  rpc GetAdvertisement(GetAdvertisementRequest)
+      returns (ListAdvertisementReply) {
+    option (google.api.http) = {
+      get : '/api/v1/advertisement',
+    };
+  }
+
+  rpc ListAdvertisement(ListAdvertisementRequest)
+      returns (ListAdvertisementReply) {
+    option (google.api.http) = {
+      get : '/api/v1/advertisement/list',
+    };
+  }
+}

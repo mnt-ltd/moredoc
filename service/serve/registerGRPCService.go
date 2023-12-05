@@ -157,5 +157,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 广告服务
+	advertisementAPIService := biz.NewAdvertisementAPIService(dbModel, logger)
+	v1.RegisterAdvertisementAPIServer(grpcServer, advertisementAPIService)
+	err = v1.RegisterAdvertisementAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterAdvertisementAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }
