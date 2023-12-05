@@ -41,7 +41,7 @@ type Document struct {
 	Id            int64           `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Title         string          `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;comment:文档名称;"`
 	Keywords      string          `form:"keywords" json:"keywords,omitempty" gorm:"column:keywords;type:varchar(255);size:255;comment:文档关键字;"`
-	Description   string          `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(255);size:255;comment:文档描述;"`
+	Description   string          `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(1024);size:1024;comment:文档描述;"`
 	UserId        int64           `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);size:20;default:0;index:user_id;comment:文档所属用户ID;"`
 	Width         int             `form:"width" json:"width,omitempty" gorm:"column:width;type:int(11);size:11;default:0;comment:宽;"`
 	Height        int             `form:"height" json:"height,omitempty" gorm:"column:height;type:int(11);size:11;default:0;comment:高;"`

@@ -19,3 +19,4 @@ license.cert
 /util/cloudstore
 *.crt
 /tmp
+/web

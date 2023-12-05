@@ -15,6 +15,7 @@ type Advertisement struct {
 	EndTime   *time.Time `form:"end_time" json:"end_time,omitempty" gorm:"column:end_time;type:datetime;comment:截止时间;"`
 	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	Title     string     `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;comment:广告标题;"`
 	Content   string     `form:"content" json:"content,omitempty" gorm:"column:content;type:longtext;comment:广告内容;"`
 	Enable    bool       `form:"enable" json:"enable,omitempty" gorm:"column:enable;type:tinyint(1);size:1;default:1;comment:是否启用;"`
 	Remark    string     `form:"remark" json:"remark,omitempty" gorm:"column:remark;type:text;comment:备注;"`

@@ -178,6 +178,7 @@ func (m *DBModel) SyncDB() (err error) {
 		&Navigation{},
 		&Punishment{},
 		&EmailCode{},
+		&Advertisement{},
 	}
 
 	m.alterTableBeforeSyncDB()

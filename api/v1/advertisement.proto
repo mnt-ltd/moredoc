@@ -23,6 +23,7 @@ message Advertisement {
   string content = 8;
   bool enable = 9;
   string remark = 10;
+  string title = 11;
 }
 
 message DeleteAdvertisementRequest { repeated int64 id = 1; }

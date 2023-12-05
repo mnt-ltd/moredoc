@@ -31,7 +31,7 @@ func (s *AdvertisementAPIService) checkPermission(ctx context.Context) (userClai
 }
 
 func (s *AdvertisementAPIService) CreateAdvertisement(ctx context.Context, req *pb.Advertisement) (*pb.Advertisement, error) {
-	_, err := s.checkPermission(ctx)
+	userCliams, err := s.checkPermission(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -46,6 +46,7 @@ func (s *AdvertisementAPIService) CreateAdvertisement(ctx context.Context, req *
 		return nil, status.Errorf(codes.InvalidArgument, "广告位和广告内容均不能为空")
 	}
 
+	adv.UserId = userCliams.UserId
 	if err = s.dbModel.CreateAdvertisement(adv); err != nil {
 		s.logger.Error("CreateAdvertisement", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "创建广告失败:"+err.Error())
@@ -154,7 +155,7 @@ func (s *AdvertisementAPIService) ListAdvertisement(ctx context.Context, req *pb
 	res := &pb.ListAdvertisementReply{
 		Total: total,
 	}
-	err = util.CopyStruct(advs, res.Advertisement)
+	err = util.CopyStruct(advs, &res.Advertisement)
 	if err != nil {
 		s.logger.Error("ListAdvertisement", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, err.Error())
