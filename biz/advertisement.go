@@ -97,7 +97,7 @@ func (s *AdvertisementAPIService) DeleteAdvertisement(ctx context.Context, req *
 	return &emptypb.Empty{}, nil
 }
 
-func (s *AdvertisementAPIService) GetAdvertisement(ctx context.Context, req *pb.GetAdvertisementRequest) (*pb.ListAdvertisementReply, error) {
+func (s *AdvertisementAPIService) GetAdvertisementByPosition(ctx context.Context, req *pb.GetAdvertisementByPositionRequest) (*pb.ListAdvertisementReply, error) {
 	// 根据广告位获取广告
 	now := time.Now()
 	opt := &model.OptionGetAdvertisementList{
@@ -124,7 +124,33 @@ func (s *AdvertisementAPIService) GetAdvertisement(ctx context.Context, req *pb.
 	}
 
 	res := &pb.ListAdvertisementReply{}
-	err = util.CopyStruct(advs, res.Advertisement)
+	err = util.CopyStruct(advs, &res.Advertisement)
+	if err != nil {
+		s.logger.Error("GetAdvertisement", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	return res, nil
+}
+
+func (s *AdvertisementAPIService) GetAdvertisement(ctx context.Context, req *pb.GetAdvertisementRequest) (*pb.Advertisement, error) {
+	if req.Id <= 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "广告id不能为空")
+	}
+
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	ad, err := s.dbModel.GetAdvertisement(req.Id)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		s.logger.Error("GetAdvertisement", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "获取广告失败:"+err.Error())
+	}
+
+	res := &pb.Advertisement{}
+	err = util.CopyStruct(ad, res)
 	if err != nil {
 		s.logger.Error("GetAdvertisement", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, err.Error())

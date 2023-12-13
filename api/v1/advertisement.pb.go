@@ -202,7 +202,7 @@ func (m *DeleteAdvertisementRequest) GetId() []int64 {
 }
 
 type GetAdvertisementRequest struct {
-	Position []string `protobuf:"bytes,1,rep,name=position,proto3" json:"position,omitempty"`
+	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 }
 
 func (m *GetAdvertisementRequest) Reset()         { *m = GetAdvertisementRequest{} }
@@ -238,7 +238,51 @@ func (m *GetAdvertisementRequest) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_GetAdvertisementRequest proto.InternalMessageInfo
 
-func (m *GetAdvertisementRequest) GetPosition() []string {
+func (m *GetAdvertisementRequest) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+type GetAdvertisementByPositionRequest struct {
+	Position []string `protobuf:"bytes,1,rep,name=position,proto3" json:"position,omitempty"`
+}
+
+func (m *GetAdvertisementByPositionRequest) Reset()         { *m = GetAdvertisementByPositionRequest{} }
+func (m *GetAdvertisementByPositionRequest) String() string { return proto.CompactTextString(m) }
+func (*GetAdvertisementByPositionRequest) ProtoMessage()    {}
+func (*GetAdvertisementByPositionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_cf22cfb43e030be7, []int{3}
+}
+func (m *GetAdvertisementByPositionRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *GetAdvertisementByPositionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_GetAdvertisementByPositionRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *GetAdvertisementByPositionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetAdvertisementByPositionRequest.Merge(m, src)
+}
+func (m *GetAdvertisementByPositionRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *GetAdvertisementByPositionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetAdvertisementByPositionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_GetAdvertisementByPositionRequest proto.InternalMessageInfo
+
+func (m *GetAdvertisementByPositionRequest) GetPosition() []string {
 	if m != nil {
 		return m.Position
 	}
@@ -259,7 +303,7 @@ func (m *ListAdvertisementRequest) Reset()         { *m = ListAdvertisementReque
 func (m *ListAdvertisementRequest) String() string { return proto.CompactTextString(m) }
 func (*ListAdvertisementRequest) ProtoMessage()    {}
 func (*ListAdvertisementRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cf22cfb43e030be7, []int{3}
+	return fileDescriptor_cf22cfb43e030be7, []int{4}
 }
 func (m *ListAdvertisementRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -346,7 +390,7 @@ func (m *ListAdvertisementReply) Reset()         { *m = ListAdvertisementReply{}
 func (m *ListAdvertisementReply) String() string { return proto.CompactTextString(m) }
 func (*ListAdvertisementReply) ProtoMessage()    {}
 func (*ListAdvertisementReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cf22cfb43e030be7, []int{4}
+	return fileDescriptor_cf22cfb43e030be7, []int{5}
 }
 func (m *ListAdvertisementReply) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -389,282 +433,63 @@ func (m *ListAdvertisementReply) GetAdvertisement() []*Advertisement {
 	return nil
 }
 
-type AdminDeleteAdvertisementRequest struct {
-	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
-}
-
-func (m *AdminDeleteAdvertisementRequest) Reset()         { *m = AdminDeleteAdvertisementRequest{} }
-func (m *AdminDeleteAdvertisementRequest) String() string { return proto.CompactTextString(m) }
-func (*AdminDeleteAdvertisementRequest) ProtoMessage()    {}
-func (*AdminDeleteAdvertisementRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cf22cfb43e030be7, []int{5}
-}
-func (m *AdminDeleteAdvertisementRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *AdminDeleteAdvertisementRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_AdminDeleteAdvertisementRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *AdminDeleteAdvertisementRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AdminDeleteAdvertisementRequest.Merge(m, src)
-}
-func (m *AdminDeleteAdvertisementRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *AdminDeleteAdvertisementRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_AdminDeleteAdvertisementRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AdminDeleteAdvertisementRequest proto.InternalMessageInfo
-
-func (m *AdminDeleteAdvertisementRequest) GetId() []int64 {
-	if m != nil {
-		return m.Id
-	}
-	return nil
-}
-
-type AdminGetAdvertisementRequest struct {
-	Id int64 `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-}
-
-func (m *AdminGetAdvertisementRequest) Reset()         { *m = AdminGetAdvertisementRequest{} }
-func (m *AdminGetAdvertisementRequest) String() string { return proto.CompactTextString(m) }
-func (*AdminGetAdvertisementRequest) ProtoMessage()    {}
-func (*AdminGetAdvertisementRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cf22cfb43e030be7, []int{6}
-}
-func (m *AdminGetAdvertisementRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *AdminGetAdvertisementRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_AdminGetAdvertisementRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *AdminGetAdvertisementRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AdminGetAdvertisementRequest.Merge(m, src)
-}
-func (m *AdminGetAdvertisementRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *AdminGetAdvertisementRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_AdminGetAdvertisementRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AdminGetAdvertisementRequest proto.InternalMessageInfo
-
-func (m *AdminGetAdvertisementRequest) GetId() int64 {
-	if m != nil {
-		return m.Id
-	}
-	return 0
-}
-
-type AdminListAdvertisementRequest struct {
-	Page  int32    `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
-	Size_ int32    `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
-	Wd    string   `protobuf:"bytes,3,opt,name=wd,proto3" json:"wd,omitempty"`
-	Field []string `protobuf:"bytes,4,rep,name=field,proto3" json:"field,omitempty"`
-	Order string   `protobuf:"bytes,5,opt,name=order,proto3" json:"order,omitempty"`
-}
-
-func (m *AdminListAdvertisementRequest) Reset()         { *m = AdminListAdvertisementRequest{} }
-func (m *AdminListAdvertisementRequest) String() string { return proto.CompactTextString(m) }
-func (*AdminListAdvertisementRequest) ProtoMessage()    {}
-func (*AdminListAdvertisementRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cf22cfb43e030be7, []int{7}
-}
-func (m *AdminListAdvertisementRequest) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *AdminListAdvertisementRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_AdminListAdvertisementRequest.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *AdminListAdvertisementRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AdminListAdvertisementRequest.Merge(m, src)
-}
-func (m *AdminListAdvertisementRequest) XXX_Size() int {
-	return m.Size()
-}
-func (m *AdminListAdvertisementRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_AdminListAdvertisementRequest.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AdminListAdvertisementRequest proto.InternalMessageInfo
-
-func (m *AdminListAdvertisementRequest) GetPage() int32 {
-	if m != nil {
-		return m.Page
-	}
-	return 0
-}
-
-func (m *AdminListAdvertisementRequest) GetSize_() int32 {
-	if m != nil {
-		return m.Size_
-	}
-	return 0
-}
-
-func (m *AdminListAdvertisementRequest) GetWd() string {
-	if m != nil {
-		return m.Wd
-	}
-	return ""
-}
-
-func (m *AdminListAdvertisementRequest) GetField() []string {
-	if m != nil {
-		return m.Field
-	}
-	return nil
-}
-
-func (m *AdminListAdvertisementRequest) GetOrder() string {
-	if m != nil {
-		return m.Order
-	}
-	return ""
-}
-
-type AdminListAdvertisementReply struct {
-	Total         int64            `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
-	Advertisement []*Advertisement `protobuf:"bytes,2,rep,name=advertisement,proto3" json:"advertisement,omitempty"`
-}
-
-func (m *AdminListAdvertisementReply) Reset()         { *m = AdminListAdvertisementReply{} }
-func (m *AdminListAdvertisementReply) String() string { return proto.CompactTextString(m) }
-func (*AdminListAdvertisementReply) ProtoMessage()    {}
-func (*AdminListAdvertisementReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_cf22cfb43e030be7, []int{8}
-}
-func (m *AdminListAdvertisementReply) XXX_Unmarshal(b []byte) error {
-	return m.Unmarshal(b)
-}
-func (m *AdminListAdvertisementReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	if deterministic {
-		return xxx_messageInfo_AdminListAdvertisementReply.Marshal(b, m, deterministic)
-	} else {
-		b = b[:cap(b)]
-		n, err := m.MarshalToSizedBuffer(b)
-		if err != nil {
-			return nil, err
-		}
-		return b[:n], nil
-	}
-}
-func (m *AdminListAdvertisementReply) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AdminListAdvertisementReply.Merge(m, src)
-}
-func (m *AdminListAdvertisementReply) XXX_Size() int {
-	return m.Size()
-}
-func (m *AdminListAdvertisementReply) XXX_DiscardUnknown() {
-	xxx_messageInfo_AdminListAdvertisementReply.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_AdminListAdvertisementReply proto.InternalMessageInfo
-
-func (m *AdminListAdvertisementReply) GetTotal() int64 {
-	if m != nil {
-		return m.Total
-	}
-	return 0
-}
-
-func (m *AdminListAdvertisementReply) GetAdvertisement() []*Advertisement {
-	if m != nil {
-		return m.Advertisement
-	}
-	return nil
-}
-
 func init() {
 	proto.RegisterType((*Advertisement)(nil), "api.v1.Advertisement")
 	proto.RegisterType((*DeleteAdvertisementRequest)(nil), "api.v1.DeleteAdvertisementRequest")
 	proto.RegisterType((*GetAdvertisementRequest)(nil), "api.v1.GetAdvertisementRequest")
+	proto.RegisterType((*GetAdvertisementByPositionRequest)(nil), "api.v1.GetAdvertisementByPositionRequest")
 	proto.RegisterType((*ListAdvertisementRequest)(nil), "api.v1.ListAdvertisementRequest")
 	proto.RegisterType((*ListAdvertisementReply)(nil), "api.v1.ListAdvertisementReply")
-	proto.RegisterType((*AdminDeleteAdvertisementRequest)(nil), "api.v1.AdminDeleteAdvertisementRequest")
-	proto.RegisterType((*AdminGetAdvertisementRequest)(nil), "api.v1.AdminGetAdvertisementRequest")
-	proto.RegisterType((*AdminListAdvertisementRequest)(nil), "api.v1.AdminListAdvertisementRequest")
-	proto.RegisterType((*AdminListAdvertisementReply)(nil), "api.v1.AdminListAdvertisementReply")
 }
 
 func init() { proto.RegisterFile("api/v1/advertisement.proto", fileDescriptor_cf22cfb43e030be7) }
 
 var fileDescriptor_cf22cfb43e030be7 = []byte{
-	// 700 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xc4, 0x55, 0x3d, 0x4f, 0xdc, 0x4c,
-	0x10, 0xc6, 0xf7, 0x7d, 0x83, 0x78, 0x05, 0xcb, 0x97, 0x65, 0xc0, 0x67, 0xb9, 0x3a, 0xa1, 0x57,
-	0xb6, 0x8e, 0x57, 0x34, 0x2f, 0x05, 0x3a, 0x92, 0x28, 0x42, 0x4a, 0x81, 0xac, 0xa4, 0x49, 0x83,
-	0x0c, 0x3b, 0x9c, 0x56, 0xd8, 0x5e, 0xc7, 0xde, 0x3b, 0x44, 0xca, 0xe4, 0x0f, 0x20, 0xe5, 0x9f,
-	0x44, 0xf9, 0x05, 0xa9, 0x52, 0x22, 0xa5, 0x49, 0x97, 0x08, 0xf2, 0x43, 0x22, 0xaf, 0xed, 0x70,
-	0x06, 0x3b, 0xba, 0x14, 0x51, 0xba, 0x9d, 0xf1, 0x3e, 0xf3, 0xcc, 0x3c, 0x33, 0x3b, 0x06, 0xcd,
-	0x0d, 0x99, 0x3d, 0x19, 0xd8, 0x2e, 0x9d, 0x60, 0x24, 0x58, 0x8c, 0x3e, 0x06, 0xc2, 0x0a, 0x23,
-	0x2e, 0x38, 0x69, 0xb9, 0x21, 0xb3, 0x26, 0x03, 0xad, 0x37, 0xe2, 0x7c, 0xe4, 0xa1, 0x2d, 0xbd,
-	0x27, 0xe3, 0x33, 0x5b, 0x30, 0x1f, 0x63, 0xe1, 0xfa, 0x61, 0x7a, 0x51, 0x5b, 0x19, 0xf1, 0x11,
-	0x97, 0x47, 0x3b, 0x39, 0x65, 0xde, 0xcd, 0x0c, 0x96, 0x30, 0xb8, 0x41, 0xc0, 0x85, 0x2b, 0x18,
-	0x0f, 0xe2, 0xec, 0xeb, 0xc6, 0xfd, 0xa0, 0xe8, 0x87, 0xe2, 0x32, 0xfd, 0x68, 0x7e, 0xa8, 0xc3,
-	0xc2, 0x70, 0x3a, 0x23, 0xb2, 0x0f, 0x10, 0x0b, 0x37, 0x12, 0xc7, 0x09, 0xb7, 0xda, 0x30, 0x94,
-	0xfe, 0xfc, 0x8e, 0x66, 0xa5, 0x31, 0xac, 0x3c, 0x86, 0xf5, 0x3c, 0x4f, 0xec, 0xa0, 0x71, 0xf5,
-	0xb5, 0xa7, 0x38, 0x5d, 0x89, 0x49, 0xbc, 0x64, 0x0f, 0x3a, 0x18, 0xd0, 0x14, 0xde, 0x9c, 0x11,
-	0xde, 0xc6, 0x80, 0x4a, 0xf0, 0x3e, 0xc0, 0x69, 0x84, 0xae, 0x40, 0x7a, 0xec, 0x0a, 0xb5, 0x35,
-	0x2b, 0x7b, 0x86, 0x19, 0xca, 0xf4, 0xc7, 0x21, 0xcd, 0x03, 0xb4, 0x67, 0x0d, 0x90, 0x61, 0x86,
-	0x82, 0xfc, 0x03, 0x35, 0x46, 0x55, 0xc5, 0x50, 0xfa, 0x75, 0xa7, 0xc6, 0x28, 0x59, 0x87, 0xf6,
-	0x38, 0xc6, 0xe8, 0x98, 0x51, 0xb5, 0x26, 0x9d, 0xad, 0xc4, 0x3c, 0xa4, 0x44, 0x83, 0x4e, 0xc8,
-	0x63, 0x96, 0x48, 0xad, 0xd6, 0x0d, 0xa5, 0xdf, 0x75, 0x7e, 0xda, 0x44, 0x85, 0xf6, 0x29, 0x0f,
-	0x04, 0x06, 0x42, 0xed, 0xc8, 0x4f, 0xb9, 0x49, 0xd6, 0xa0, 0x85, 0x81, 0x7b, 0xe2, 0xa1, 0xda,
-	0x35, 0x94, 0x7e, 0xc7, 0xc9, 0xac, 0xc4, 0x1f, 0xa1, 0xef, 0x46, 0xe7, 0x2a, 0x48, 0x40, 0x66,
-	0x91, 0x15, 0x68, 0x0a, 0x26, 0x3c, 0x54, 0xe7, 0xa5, 0x3b, 0x35, 0xcc, 0x7f, 0x41, 0x7b, 0x8c,
-	0x1e, 0x0a, 0x2c, 0xf4, 0xce, 0xc1, 0x57, 0x63, 0x8c, 0xef, 0x4a, 0xa8, 0xa7, 0x25, 0x98, 0xbb,
-	0xb0, 0xfe, 0x14, 0x45, 0xe9, 0xd5, 0xe9, 0x22, 0x12, 0xc0, 0x54, 0x11, 0xe6, 0x7b, 0x05, 0xd4,
-	0x67, 0x2c, 0x2e, 0x07, 0x12, 0x68, 0x84, 0xee, 0x08, 0xa5, 0x50, 0x4d, 0x47, 0x9e, 0x13, 0x5f,
-	0xcc, 0x5e, 0xa3, 0xd4, 0xa9, 0xe9, 0xc8, 0x73, 0x92, 0xcb, 0x05, 0xcd, 0xf4, 0xa9, 0x5d, 0xd0,
-	0xa4, 0x9e, 0x33, 0x86, 0x1e, 0x55, 0x1b, 0x92, 0x2d, 0x35, 0x12, 0x2f, 0x8f, 0x28, 0x46, 0x72,
-	0x60, 0xba, 0x4e, 0x6a, 0x14, 0x92, 0x6b, 0x15, 0x93, 0x9b, 0xd2, 0xb1, 0x6d, 0xd4, 0xef, 0x74,
-	0x34, 0xcf, 0x61, 0xad, 0x24, 0xe7, 0xd0, 0xbb, 0x94, 0x4a, 0x72, 0xe1, 0x7a, 0x59, 0x6f, 0x53,
-	0x83, 0xec, 0xc1, 0x42, 0xe1, 0x45, 0xaa, 0x35, 0xa3, 0xde, 0x9f, 0xdf, 0x59, 0xb5, 0xd2, 0x27,
-	0x69, 0x15, 0x03, 0x15, 0xef, 0x9a, 0x03, 0xe8, 0x0d, 0xa9, 0xcf, 0x82, 0xdf, 0xe8, 0x85, 0x05,
-	0x9b, 0x12, 0x52, 0xd5, 0x90, 0x7b, 0xe3, 0x67, 0xbe, 0x55, 0x60, 0x4b, 0x02, 0xfe, 0x66, 0x27,
-	0xcc, 0x10, 0x36, 0xaa, 0x92, 0xf8, 0x33, 0xd2, 0xee, 0x7c, 0x6c, 0xc0, 0x62, 0xe1, 0xc2, 0xf0,
-	0xe8, 0x90, 0x20, 0x2c, 0x3f, 0x92, 0x2f, 0xbd, 0xb8, 0xb2, 0xca, 0x23, 0x6a, 0xe5, 0x6e, 0xd3,
-	0x78, 0xf3, 0xf9, 0xfb, 0xbb, 0x9a, 0x66, 0xae, 0xda, 0x65, 0x1b, 0xf9, 0x7f, 0x65, 0x9b, 0x9c,
-	0xc1, 0xf2, 0x0b, 0xb9, 0x0f, 0x66, 0xa2, 0x59, 0x7b, 0xb0, 0x5d, 0x9e, 0x24, 0x0b, 0x36, 0xe7,
-	0xd1, 0xaa, 0x79, 0x42, 0x58, 0x2e, 0x99, 0x1c, 0x62, 0xe6, 0x3c, 0xd5, 0x63, 0x55, 0x49, 0xba,
-	0x25, 0x49, 0xd7, 0xb7, 0xcb, 0x49, 0x49, 0x04, 0x8b, 0xf7, 0x07, 0x8f, 0xf4, 0x72, 0xba, 0x8a,
-	0x91, 0xd4, 0xf4, 0xfc, 0x42, 0x79, 0xf7, 0x73, 0x4e, 0x52, 0xc1, 0x79, 0x09, 0x4b, 0x0f, 0x80,
-	0xc4, 0xf8, 0x45, 0xcc, 0xd9, 0x58, 0x4d, 0xc9, 0xba, 0x49, 0xb4, 0x52, 0x56, 0xdb, 0x63, 0xb1,
-	0x38, 0xd8, 0xfd, 0x74, 0xa3, 0x2b, 0xd7, 0x37, 0xba, 0xf2, 0xed, 0x46, 0x57, 0xae, 0x6e, 0xf5,
-	0xb9, 0xeb, 0x5b, 0x7d, 0xee, 0xcb, 0xad, 0x3e, 0x07, 0xd9, 0x1f, 0xf7, 0x48, 0x79, 0xb9, 0xe4,
-	0xf3, 0x08, 0x29, 0x3f, 0xcd, 0xc2, 0xec, 0x4d, 0x06, 0x27, 0x2d, 0x29, 0xea, 0x7f, 0x3f, 0x02,
-	0x00, 0x00, 0xff, 0xff, 0x39, 0x21, 0x6e, 0x2d, 0xb3, 0x07, 0x00, 0x00,
+	// 699 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x95, 0x4f, 0x4f, 0xd4, 0x50,
+	0x10, 0xc0, 0xe9, 0xfe, 0xdf, 0x21, 0x18, 0x78, 0xfc, 0x6b, 0x2a, 0x96, 0xda, 0x83, 0x59, 0x88,
+	0xd9, 0x06, 0x8c, 0x17, 0x39, 0x90, 0x45, 0x8d, 0x21, 0xf1, 0x40, 0x1a, 0xbd, 0x78, 0x21, 0x85,
+	0x37, 0x6c, 0x5e, 0xe8, 0xf6, 0xd5, 0xf6, 0xed, 0x92, 0xf5, 0xe8, 0x17, 0x90, 0xc4, 0x6f, 0x62,
+	0xfc, 0x10, 0x26, 0x5e, 0x48, 0xbc, 0x78, 0xd3, 0x80, 0x1f, 0xc4, 0xf4, 0xf5, 0x15, 0xb6, 0xd0,
+	0x92, 0xbd, 0xbd, 0x99, 0x37, 0x33, 0xbf, 0x99, 0xe9, 0xcc, 0x2b, 0x18, 0x5e, 0xc8, 0x9c, 0xd1,
+	0x96, 0xe3, 0xd1, 0x11, 0x46, 0x82, 0xc5, 0x38, 0xc0, 0x40, 0x74, 0xc3, 0x88, 0x0b, 0x4e, 0x1a,
+	0x5e, 0xc8, 0xba, 0xa3, 0x2d, 0x63, 0xbd, 0xcf, 0x79, 0xdf, 0x47, 0x47, 0x6a, 0x8f, 0x86, 0x27,
+	0x8e, 0x60, 0x03, 0x8c, 0x85, 0x37, 0x08, 0x53, 0x43, 0x63, 0xa9, 0xcf, 0xfb, 0x5c, 0x1e, 0x9d,
+	0xe4, 0xa4, 0xb4, 0x6b, 0xca, 0x2d, 0x21, 0x78, 0x41, 0xc0, 0x85, 0x27, 0x18, 0x0f, 0x62, 0x75,
+	0xfb, 0xf0, 0x76, 0x50, 0x1c, 0x84, 0x62, 0x9c, 0x5e, 0xda, 0xdf, 0xab, 0x30, 0xd7, 0x9b, 0xcc,
+	0x88, 0xec, 0x02, 0xc4, 0xc2, 0x8b, 0xc4, 0x61, 0xc2, 0xd6, 0x6b, 0x96, 0xd6, 0x99, 0xdd, 0x36,
+	0xba, 0x69, 0x8c, 0x6e, 0x16, 0xa3, 0xfb, 0x2e, 0x4b, 0x6c, 0xaf, 0x76, 0xfe, 0x67, 0x5d, 0x73,
+	0xdb, 0xd2, 0x27, 0xd1, 0x92, 0x1d, 0x68, 0x61, 0x40, 0x53, 0xf7, 0xfa, 0x94, 0xee, 0x4d, 0x0c,
+	0xa8, 0x74, 0xde, 0x05, 0x38, 0x8e, 0xd0, 0x13, 0x48, 0x0f, 0x3d, 0xa1, 0x37, 0xa6, 0xa5, 0x2b,
+	0x9f, 0x9e, 0x4c, 0x7f, 0x18, 0xd2, 0x2c, 0x40, 0x73, 0xda, 0x00, 0xca, 0xa7, 0x27, 0xc8, 0x03,
+	0xa8, 0x30, 0xaa, 0x6b, 0x96, 0xd6, 0xa9, 0xba, 0x15, 0x46, 0xc9, 0x2a, 0x34, 0x87, 0x31, 0x46,
+	0x87, 0x8c, 0xea, 0x15, 0xa9, 0x6c, 0x24, 0xe2, 0x3e, 0x25, 0x06, 0xb4, 0x42, 0x1e, 0xb3, 0xa4,
+	0xd5, 0x7a, 0xd5, 0xd2, 0x3a, 0x6d, 0xf7, 0x5a, 0x26, 0x3a, 0x34, 0x8f, 0x79, 0x20, 0x30, 0x10,
+	0x7a, 0x4b, 0x5e, 0x65, 0x22, 0x59, 0x81, 0x06, 0x06, 0xde, 0x91, 0x8f, 0x7a, 0xdb, 0xd2, 0x3a,
+	0x2d, 0x57, 0x49, 0x89, 0x3e, 0xc2, 0x81, 0x17, 0x9d, 0xea, 0x20, 0x1d, 0x94, 0x44, 0x96, 0xa0,
+	0x2e, 0x98, 0xf0, 0x51, 0x9f, 0x95, 0xea, 0x54, 0xb0, 0x9f, 0x82, 0xf1, 0x0a, 0x7d, 0x14, 0x98,
+	0xfb, 0x76, 0x2e, 0x7e, 0x1c, 0x62, 0x7c, 0x53, 0x42, 0x35, 0x2d, 0xc1, 0xde, 0x80, 0xd5, 0x37,
+	0x28, 0xee, 0x35, 0x55, 0xd5, 0xda, 0xbb, 0xf0, 0xf8, 0xb6, 0xe9, 0xde, 0xf8, 0x40, 0x95, 0x95,
+	0x39, 0x4d, 0x56, 0x9e, 0x50, 0x26, 0x2a, 0xb7, 0xbf, 0x69, 0xa0, 0xbf, 0x65, 0x71, 0x31, 0x8d,
+	0x40, 0x2d, 0xf4, 0xfa, 0x28, 0x79, 0x75, 0x57, 0x9e, 0x13, 0x5d, 0xcc, 0x3e, 0xa1, 0x6c, 0x6e,
+	0xdd, 0x95, 0xe7, 0x24, 0xab, 0x33, 0xaa, 0x9a, 0x5a, 0x39, 0xa3, 0x49, 0x13, 0x4e, 0x18, 0xfa,
+	0x54, 0xaf, 0x49, 0x5a, 0x2a, 0x24, 0x5a, 0x1e, 0x51, 0x8c, 0xe4, 0x94, 0xb5, 0xdd, 0x54, 0xc8,
+	0x25, 0xd7, 0xc8, 0x27, 0x37, 0xd1, 0xfc, 0xa6, 0x55, 0xbd, 0x69, 0xbe, 0x7d, 0x0a, 0x2b, 0x05,
+	0x39, 0x87, 0xfe, 0x58, 0xb6, 0x9f, 0x0b, 0xcf, 0x57, 0x2d, 0x4a, 0x05, 0xb2, 0x03, 0x73, 0xb9,
+	0x35, 0xd6, 0x2b, 0x56, 0xb5, 0x33, 0xbb, 0xbd, 0xdc, 0x4d, 0xf7, 0xb8, 0x9b, 0x0f, 0x94, 0xb7,
+	0xdd, 0xfe, 0x59, 0x87, 0xf9, 0x9c, 0x41, 0xef, 0x60, 0x9f, 0x20, 0x2c, 0xbe, 0x94, 0x33, 0x9c,
+	0x5f, 0xc6, 0xe2, 0x88, 0x46, 0xb1, 0xda, 0xb6, 0x3e, 0xff, 0xfa, 0xf7, 0xb5, 0x62, 0xd8, 0xcb,
+	0x4e, 0xd1, 0x5b, 0xf3, 0x42, 0xdb, 0x24, 0x27, 0xb0, 0xf8, 0x5e, 0x4e, 0xfa, 0x54, 0x98, 0x95,
+	0x3b, 0x7b, 0xf3, 0x3a, 0x79, 0x3a, 0x32, 0x8e, 0x51, 0xce, 0x09, 0x61, 0xb1, 0x60, 0x3e, 0x89,
+	0x9d, 0x71, 0xca, 0x87, 0xb7, 0x14, 0xfa, 0x48, 0x42, 0x57, 0x37, 0x8b, 0xa1, 0x84, 0xc1, 0xfc,
+	0xed, 0xc1, 0x25, 0xeb, 0x19, 0xae, 0x64, 0xfa, 0xcb, 0xfa, 0xa8, 0x50, 0xa4, 0x04, 0xf5, 0x45,
+	0x03, 0xa3, 0x7c, 0x49, 0xc8, 0x46, 0x19, 0xf5, 0xce, 0x22, 0x19, 0x66, 0x66, 0x5a, 0x3c, 0x7d,
+	0xf6, 0x13, 0x99, 0x88, 0x45, 0xcc, 0xc2, 0x44, 0x9c, 0xeb, 0xb9, 0x1e, 0xc3, 0xc2, 0x9d, 0x08,
+	0xc4, 0xba, 0x27, 0xf8, 0x74, 0x78, 0x5b, 0xe2, 0xd7, 0x88, 0x51, 0x8c, 0xf7, 0x59, 0x2c, 0xf6,
+	0x9e, 0xff, 0xb8, 0x34, 0xb5, 0x8b, 0x4b, 0x53, 0xfb, 0x7b, 0x69, 0x6a, 0xe7, 0x57, 0xe6, 0xcc,
+	0xc5, 0x95, 0x39, 0xf3, 0xfb, 0xca, 0x9c, 0x01, 0xf5, 0x53, 0x3b, 0xd0, 0x3e, 0x2c, 0x0c, 0x78,
+	0x84, 0x94, 0x1f, 0xab, 0x30, 0x3b, 0xa3, 0xad, 0xa3, 0x86, 0xfc, 0xba, 0xcf, 0xfe, 0x07, 0x00,
+	0x00, 0xff, 0xff, 0xd0, 0xa6, 0xd2, 0xbf, 0x16, 0x07, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -682,7 +507,8 @@ type AdvertisementAPIClient interface {
 	CreateAdvertisement(ctx context.Context, in *Advertisement, opts ...grpc.CallOption) (*Advertisement, error)
 	UpdateAdvertisement(ctx context.Context, in *Advertisement, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	DeleteAdvertisement(ctx context.Context, in *DeleteAdvertisementRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	GetAdvertisement(ctx context.Context, in *GetAdvertisementRequest, opts ...grpc.CallOption) (*ListAdvertisementReply, error)
+	GetAdvertisement(ctx context.Context, in *GetAdvertisementRequest, opts ...grpc.CallOption) (*Advertisement, error)
+	GetAdvertisementByPosition(ctx context.Context, in *GetAdvertisementByPositionRequest, opts ...grpc.CallOption) (*ListAdvertisementReply, error)
 	ListAdvertisement(ctx context.Context, in *ListAdvertisementRequest, opts ...grpc.CallOption) (*ListAdvertisementReply, error)
 }
 
@@ -721,9 +547,18 @@ func (c *advertisementAPIClient) DeleteAdvertisement(ctx context.Context, in *De
 	return out, nil
 }
 
-func (c *advertisementAPIClient) GetAdvertisement(ctx context.Context, in *GetAdvertisementRequest, opts ...grpc.CallOption) (*ListAdvertisementReply, error) {
-	out := new(ListAdvertisementReply)
+func (c *advertisementAPIClient) GetAdvertisement(ctx context.Context, in *GetAdvertisementRequest, opts ...grpc.CallOption) (*Advertisement, error) {
+	out := new(Advertisement)
 	err := c.cc.Invoke(ctx, "/api.v1.AdvertisementAPI/GetAdvertisement", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *advertisementAPIClient) GetAdvertisementByPosition(ctx context.Context, in *GetAdvertisementByPositionRequest, opts ...grpc.CallOption) (*ListAdvertisementReply, error) {
+	out := new(ListAdvertisementReply)
+	err := c.cc.Invoke(ctx, "/api.v1.AdvertisementAPI/GetAdvertisementByPosition", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -744,7 +579,8 @@ type AdvertisementAPIServer interface {
 	CreateAdvertisement(context.Context, *Advertisement) (*Advertisement, error)
 	UpdateAdvertisement(context.Context, *Advertisement) (*emptypb.Empty, error)
 	DeleteAdvertisement(context.Context, *DeleteAdvertisementRequest) (*emptypb.Empty, error)
-	GetAdvertisement(context.Context, *GetAdvertisementRequest) (*ListAdvertisementReply, error)
+	GetAdvertisement(context.Context, *GetAdvertisementRequest) (*Advertisement, error)
+	GetAdvertisementByPosition(context.Context, *GetAdvertisementByPositionRequest) (*ListAdvertisementReply, error)
 	ListAdvertisement(context.Context, *ListAdvertisementRequest) (*ListAdvertisementReply, error)
 }
 
@@ -761,8 +597,11 @@ func (*UnimplementedAdvertisementAPIServer) UpdateAdvertisement(ctx context.Cont
 func (*UnimplementedAdvertisementAPIServer) DeleteAdvertisement(ctx context.Context, req *DeleteAdvertisementRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteAdvertisement not implemented")
 }
-func (*UnimplementedAdvertisementAPIServer) GetAdvertisement(ctx context.Context, req *GetAdvertisementRequest) (*ListAdvertisementReply, error) {
+func (*UnimplementedAdvertisementAPIServer) GetAdvertisement(ctx context.Context, req *GetAdvertisementRequest) (*Advertisement, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAdvertisement not implemented")
+}
+func (*UnimplementedAdvertisementAPIServer) GetAdvertisementByPosition(ctx context.Context, req *GetAdvertisementByPositionRequest) (*ListAdvertisementReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetAdvertisementByPosition not implemented")
 }
 func (*UnimplementedAdvertisementAPIServer) ListAdvertisement(ctx context.Context, req *ListAdvertisementRequest) (*ListAdvertisementReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListAdvertisement not implemented")
@@ -844,6 +683,24 @@ func _AdvertisementAPI_GetAdvertisement_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AdvertisementAPI_GetAdvertisementByPosition_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetAdvertisementByPositionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AdvertisementAPIServer).GetAdvertisementByPosition(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.AdvertisementAPI/GetAdvertisementByPosition",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AdvertisementAPIServer).GetAdvertisementByPosition(ctx, req.(*GetAdvertisementByPositionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AdvertisementAPI_ListAdvertisement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListAdvertisementRequest)
 	if err := dec(in); err != nil {
@@ -881,6 +738,10 @@ var _AdvertisementAPI_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAdvertisement",
 			Handler:    _AdvertisementAPI_GetAdvertisement_Handler,
+		},
+		{
+			MethodName: "GetAdvertisementByPosition",
+			Handler:    _AdvertisementAPI_GetAdvertisementByPosition_Handler,
 		},
 		{
 			MethodName: "ListAdvertisement",
@@ -1064,6 +925,34 @@ func (m *GetAdvertisementRequest) MarshalToSizedBuffer(dAtA []byte) (int, error)
 	_ = i
 	var l int
 	_ = l
+	if m.Id != 0 {
+		i = encodeVarintAdvertisement(dAtA, i, uint64(m.Id))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *GetAdvertisementByPositionRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *GetAdvertisementByPositionRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *GetAdvertisementByPositionRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
 	if len(m.Position) > 0 {
 		for iNdEx := len(m.Position) - 1; iNdEx >= 0; iNdEx-- {
 			i -= len(m.Position[iNdEx])
@@ -1196,174 +1085,6 @@ func (m *ListAdvertisementReply) MarshalToSizedBuffer(dAtA []byte) (int, error) 
 	return len(dAtA) - i, nil
 }
 
-func (m *AdminDeleteAdvertisementRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *AdminDeleteAdvertisementRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AdminDeleteAdvertisementRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Id) > 0 {
-		dAtA8 := make([]byte, len(m.Id)*10)
-		var j7 int
-		for _, num1 := range m.Id {
-			num := uint64(num1)
-			for num >= 1<<7 {
-				dAtA8[j7] = uint8(uint64(num)&0x7f | 0x80)
-				num >>= 7
-				j7++
-			}
-			dAtA8[j7] = uint8(num)
-			j7++
-		}
-		i -= j7
-		copy(dAtA[i:], dAtA8[:j7])
-		i = encodeVarintAdvertisement(dAtA, i, uint64(j7))
-		i--
-		dAtA[i] = 0xa
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *AdminGetAdvertisementRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *AdminGetAdvertisementRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AdminGetAdvertisementRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if m.Id != 0 {
-		i = encodeVarintAdvertisement(dAtA, i, uint64(m.Id))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *AdminListAdvertisementRequest) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *AdminListAdvertisementRequest) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AdminListAdvertisementRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Order) > 0 {
-		i -= len(m.Order)
-		copy(dAtA[i:], m.Order)
-		i = encodeVarintAdvertisement(dAtA, i, uint64(len(m.Order)))
-		i--
-		dAtA[i] = 0x2a
-	}
-	if len(m.Field) > 0 {
-		for iNdEx := len(m.Field) - 1; iNdEx >= 0; iNdEx-- {
-			i -= len(m.Field[iNdEx])
-			copy(dAtA[i:], m.Field[iNdEx])
-			i = encodeVarintAdvertisement(dAtA, i, uint64(len(m.Field[iNdEx])))
-			i--
-			dAtA[i] = 0x22
-		}
-	}
-	if len(m.Wd) > 0 {
-		i -= len(m.Wd)
-		copy(dAtA[i:], m.Wd)
-		i = encodeVarintAdvertisement(dAtA, i, uint64(len(m.Wd)))
-		i--
-		dAtA[i] = 0x1a
-	}
-	if m.Size_ != 0 {
-		i = encodeVarintAdvertisement(dAtA, i, uint64(m.Size_))
-		i--
-		dAtA[i] = 0x10
-	}
-	if m.Page != 0 {
-		i = encodeVarintAdvertisement(dAtA, i, uint64(m.Page))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
-func (m *AdminListAdvertisementReply) Marshal() (dAtA []byte, err error) {
-	size := m.Size()
-	dAtA = make([]byte, size)
-	n, err := m.MarshalToSizedBuffer(dAtA[:size])
-	if err != nil {
-		return nil, err
-	}
-	return dAtA[:n], nil
-}
-
-func (m *AdminListAdvertisementReply) MarshalTo(dAtA []byte) (int, error) {
-	size := m.Size()
-	return m.MarshalToSizedBuffer(dAtA[:size])
-}
-
-func (m *AdminListAdvertisementReply) MarshalToSizedBuffer(dAtA []byte) (int, error) {
-	i := len(dAtA)
-	_ = i
-	var l int
-	_ = l
-	if len(m.Advertisement) > 0 {
-		for iNdEx := len(m.Advertisement) - 1; iNdEx >= 0; iNdEx-- {
-			{
-				size, err := m.Advertisement[iNdEx].MarshalToSizedBuffer(dAtA[:i])
-				if err != nil {
-					return 0, err
-				}
-				i -= size
-				i = encodeVarintAdvertisement(dAtA, i, uint64(size))
-			}
-			i--
-			dAtA[i] = 0x12
-		}
-	}
-	if m.Total != 0 {
-		i = encodeVarintAdvertisement(dAtA, i, uint64(m.Total))
-		i--
-		dAtA[i] = 0x8
-	}
-	return len(dAtA) - i, nil
-}
-
 func encodeVarintAdvertisement(dAtA []byte, offset int, v uint64) int {
 	offset -= sovAdvertisement(v)
 	base := offset
@@ -1447,6 +1168,18 @@ func (m *GetAdvertisementRequest) Size() (n int) {
 	}
 	var l int
 	_ = l
+	if m.Id != 0 {
+		n += 1 + sovAdvertisement(uint64(m.Id))
+	}
+	return n
+}
+
+func (m *GetAdvertisementByPositionRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
 	if len(m.Position) > 0 {
 		for _, s := range m.Position {
 			l = len(s)
@@ -1495,81 +1228,6 @@ func (m *ListAdvertisementRequest) Size() (n int) {
 }
 
 func (m *ListAdvertisementReply) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Total != 0 {
-		n += 1 + sovAdvertisement(uint64(m.Total))
-	}
-	if len(m.Advertisement) > 0 {
-		for _, e := range m.Advertisement {
-			l = e.Size()
-			n += 1 + l + sovAdvertisement(uint64(l))
-		}
-	}
-	return n
-}
-
-func (m *AdminDeleteAdvertisementRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if len(m.Id) > 0 {
-		l = 0
-		for _, e := range m.Id {
-			l += sovAdvertisement(uint64(e))
-		}
-		n += 1 + sovAdvertisement(uint64(l)) + l
-	}
-	return n
-}
-
-func (m *AdminGetAdvertisementRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Id != 0 {
-		n += 1 + sovAdvertisement(uint64(m.Id))
-	}
-	return n
-}
-
-func (m *AdminListAdvertisementRequest) Size() (n int) {
-	if m == nil {
-		return 0
-	}
-	var l int
-	_ = l
-	if m.Page != 0 {
-		n += 1 + sovAdvertisement(uint64(m.Page))
-	}
-	if m.Size_ != 0 {
-		n += 1 + sovAdvertisement(uint64(m.Size_))
-	}
-	l = len(m.Wd)
-	if l > 0 {
-		n += 1 + l + sovAdvertisement(uint64(l))
-	}
-	if len(m.Field) > 0 {
-		for _, s := range m.Field {
-			l = len(s)
-			n += 1 + l + sovAdvertisement(uint64(l))
-		}
-	}
-	l = len(m.Order)
-	if l > 0 {
-		n += 1 + l + sovAdvertisement(uint64(l))
-	}
-	return n
-}
-
-func (m *AdminListAdvertisementReply) Size() (n int) {
 	if m == nil {
 		return 0
 	}
@@ -2129,6 +1787,75 @@ func (m *GetAdvertisementRequest) Unmarshal(dAtA []byte) error {
 		}
 		switch fieldNum {
 		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+			m.Id = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowAdvertisement
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Id |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipAdvertisement(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthAdvertisement
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *GetAdvertisementByPositionRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowAdvertisement
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: GetAdvertisementByPositionRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: GetAdvertisementByPositionRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Position", wireType)
 			}
@@ -2494,488 +2221,6 @@ func (m *ListAdvertisementReply) Unmarshal(dAtA []byte) error {
 		}
 		if fieldNum <= 0 {
 			return fmt.Errorf("proto: ListAdvertisementReply: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Total", wireType)
-			}
-			m.Total = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowAdvertisement
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Total |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 2:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Advertisement", wireType)
-			}
-			var msglen int
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowAdvertisement
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				msglen |= int(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			if msglen < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			postIndex := iNdEx + msglen
-			if postIndex < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Advertisement = append(m.Advertisement, &Advertisement{})
-			if err := m.Advertisement[len(m.Advertisement)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
-				return err
-			}
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipAdvertisement(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *AdminDeleteAdvertisementRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowAdvertisement
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: AdminDeleteAdvertisementRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: AdminDeleteAdvertisementRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType == 0 {
-				var v int64
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowAdvertisement
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					v |= int64(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				m.Id = append(m.Id, v)
-			} else if wireType == 2 {
-				var packedLen int
-				for shift := uint(0); ; shift += 7 {
-					if shift >= 64 {
-						return ErrIntOverflowAdvertisement
-					}
-					if iNdEx >= l {
-						return io.ErrUnexpectedEOF
-					}
-					b := dAtA[iNdEx]
-					iNdEx++
-					packedLen |= int(b&0x7F) << shift
-					if b < 0x80 {
-						break
-					}
-				}
-				if packedLen < 0 {
-					return ErrInvalidLengthAdvertisement
-				}
-				postIndex := iNdEx + packedLen
-				if postIndex < 0 {
-					return ErrInvalidLengthAdvertisement
-				}
-				if postIndex > l {
-					return io.ErrUnexpectedEOF
-				}
-				var elementCount int
-				var count int
-				for _, integer := range dAtA[iNdEx:postIndex] {
-					if integer < 128 {
-						count++
-					}
-				}
-				elementCount = count
-				if elementCount != 0 && len(m.Id) == 0 {
-					m.Id = make([]int64, 0, elementCount)
-				}
-				for iNdEx < postIndex {
-					var v int64
-					for shift := uint(0); ; shift += 7 {
-						if shift >= 64 {
-							return ErrIntOverflowAdvertisement
-						}
-						if iNdEx >= l {
-							return io.ErrUnexpectedEOF
-						}
-						b := dAtA[iNdEx]
-						iNdEx++
-						v |= int64(b&0x7F) << shift
-						if b < 0x80 {
-							break
-						}
-					}
-					m.Id = append(m.Id, v)
-				}
-			} else {
-				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipAdvertisement(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *AdminGetAdvertisementRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowAdvertisement
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: AdminGetAdvertisementRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: AdminGetAdvertisementRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
-			}
-			m.Id = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowAdvertisement
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Id |= int64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		default:
-			iNdEx = preIndex
-			skippy, err := skipAdvertisement(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *AdminListAdvertisementRequest) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowAdvertisement
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: AdminListAdvertisementRequest: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: AdminListAdvertisementRequest: illegal tag %d (wire type %d)", fieldNum, wire)
-		}
-		switch fieldNum {
-		case 1:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Page", wireType)
-			}
-			m.Page = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowAdvertisement
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Page |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 2:
-			if wireType != 0 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Size_", wireType)
-			}
-			m.Size_ = 0
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowAdvertisement
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				m.Size_ |= int32(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-		case 3:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Wd", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowAdvertisement
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Wd = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		case 4:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Field", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowAdvertisement
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Field = append(m.Field, string(dAtA[iNdEx:postIndex]))
-			iNdEx = postIndex
-		case 5:
-			if wireType != 2 {
-				return fmt.Errorf("proto: wrong wireType = %d for field Order", wireType)
-			}
-			var stringLen uint64
-			for shift := uint(0); ; shift += 7 {
-				if shift >= 64 {
-					return ErrIntOverflowAdvertisement
-				}
-				if iNdEx >= l {
-					return io.ErrUnexpectedEOF
-				}
-				b := dAtA[iNdEx]
-				iNdEx++
-				stringLen |= uint64(b&0x7F) << shift
-				if b < 0x80 {
-					break
-				}
-			}
-			intStringLen := int(stringLen)
-			if intStringLen < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			postIndex := iNdEx + intStringLen
-			if postIndex < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			if postIndex > l {
-				return io.ErrUnexpectedEOF
-			}
-			m.Order = string(dAtA[iNdEx:postIndex])
-			iNdEx = postIndex
-		default:
-			iNdEx = preIndex
-			skippy, err := skipAdvertisement(dAtA[iNdEx:])
-			if err != nil {
-				return err
-			}
-			if (skippy < 0) || (iNdEx+skippy) < 0 {
-				return ErrInvalidLengthAdvertisement
-			}
-			if (iNdEx + skippy) > l {
-				return io.ErrUnexpectedEOF
-			}
-			iNdEx += skippy
-		}
-	}
-
-	if iNdEx > l {
-		return io.ErrUnexpectedEOF
-	}
-	return nil
-}
-func (m *AdminListAdvertisementReply) Unmarshal(dAtA []byte) error {
-	l := len(dAtA)
-	iNdEx := 0
-	for iNdEx < l {
-		preIndex := iNdEx
-		var wire uint64
-		for shift := uint(0); ; shift += 7 {
-			if shift >= 64 {
-				return ErrIntOverflowAdvertisement
-			}
-			if iNdEx >= l {
-				return io.ErrUnexpectedEOF
-			}
-			b := dAtA[iNdEx]
-			iNdEx++
-			wire |= uint64(b&0x7F) << shift
-			if b < 0x80 {
-				break
-			}
-		}
-		fieldNum := int32(wire >> 3)
-		wireType := int(wire & 0x7)
-		if wireType == 4 {
-			return fmt.Errorf("proto: AdminListAdvertisementReply: wiretype end group for non-group")
-		}
-		if fieldNum <= 0 {
-			return fmt.Errorf("proto: AdminListAdvertisementReply: illegal tag %d (wire type %d)", fieldNum, wire)
 		}
 		switch fieldNum {
 		case 1:

@@ -28,7 +28,9 @@ message Advertisement {
 
 message DeleteAdvertisementRequest { repeated int64 id = 1; }
 
-message GetAdvertisementRequest { repeated string position = 1; }
+message GetAdvertisementRequest { int64 id = 1; }
+
+message GetAdvertisementByPositionRequest { repeated string position = 1; }
 
 message ListAdvertisementRequest {
   int32 page = 1;
@@ -41,23 +43,6 @@ message ListAdvertisementRequest {
 }
 
 message ListAdvertisementReply {
-  int64 total = 1;
-  repeated Advertisement advertisement = 2;
-}
-
-message AdminDeleteAdvertisementRequest { repeated int64 id = 1; }
-
-message AdminGetAdvertisementRequest { int64 id = 1; }
-
-message AdminListAdvertisementRequest {
-  int32 page = 1;
-  int32 size = 2;
-  string wd = 3;
-  repeated string field = 4;
-  string order = 5;
-}
-
-message AdminListAdvertisementReply {
   int64 total = 1;
   repeated Advertisement advertisement = 2;
 }
@@ -84,10 +69,16 @@ service AdvertisementAPI {
     };
   }
 
-  rpc GetAdvertisement(GetAdvertisementRequest)
-      returns (ListAdvertisementReply) {
+  rpc GetAdvertisement(GetAdvertisementRequest) returns (Advertisement) {
     option (google.api.http) = {
       get : '/api/v1/advertisement',
+    };
+  }
+
+  rpc GetAdvertisementByPosition(GetAdvertisementByPositionRequest)
+      returns (ListAdvertisementReply) {
+    option (google.api.http) = {
+      get : '/api/v1/advertisement/position',
     };
   }
 
