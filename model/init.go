@@ -424,7 +424,7 @@ func (m *DBModel) generateQueryLike(db *gorm.DB, tableName string, queryLike map
 	return db
 }
 
-func (m *DBModel) generateQueryRange(db *gorm.DB, tableName string, queryRange map[string][2]interface{}) *gorm.DB {
+func (m *DBModel) generateQueryRange(db *gorm.DB, tableName string, queryRange map[string][2]interface{}, withNULL ...bool) *gorm.DB {
 	alias := ""
 	slice := strings.Split(tableName, " ")
 	if len(slice) == 2 {
@@ -437,11 +437,17 @@ func (m *DBModel) generateQueryRange(db *gorm.DB, tableName string, queryRange m
 		if len(fields) == 0 {
 			continue
 		}
+
+		nullStr := ""
+		if len(withNULL) > 0 && withNULL[0] {
+			nullStr = fmt.Sprintf(" or %s%s is null", alias, field)
+		}
+
 		if rangeValue[0] != nil {
-			db = db.Where(fmt.Sprintf("%s%s >= ?", alias, field), rangeValue[0])
+			db = db.Where(fmt.Sprintf("%s%s >= ?"+nullStr, alias, field), rangeValue[0])
 		}
 		if rangeValue[1] != nil {
-			db = db.Where(fmt.Sprintf("%s%s <= ?", alias, field), rangeValue[1])
+			db = db.Where(fmt.Sprintf("%s%s <= ?"+nullStr, alias, field), rangeValue[1])
 		}
 	}
 	return db

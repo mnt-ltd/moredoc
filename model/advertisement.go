@@ -83,7 +83,7 @@ type OptionGetAdvertisementList struct {
 func (m *DBModel) GetAdvertisementList(opt *OptionGetAdvertisementList) (advertisementList []Advertisement, total int64, err error) {
 	tableName := Advertisement{}.TableName()
 	db := m.db.Model(&Advertisement{})
-	db = m.generateQueryRange(db, tableName, opt.QueryRange)
+	db = m.generateQueryRange(db, tableName, opt.QueryRange, true)
 	db = m.generateQueryIn(db, tableName, opt.QueryIn)
 	db = m.generateQueryLike(db, tableName, opt.QueryLike)
 
@@ -104,7 +104,6 @@ func (m *DBModel) GetAdvertisementList(opt *OptionGetAdvertisementList) (adverti
 		db = db.Select(opt.SelectFields)
 	}
 
-	// TODO: 没有排序参数的话，可以自行指定排序字段
 	db = m.generateQuerySort(db, tableName, opt.Sort)
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)

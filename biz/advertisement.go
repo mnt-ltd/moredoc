@@ -109,7 +109,7 @@ func (s *AdvertisementAPIService) GetAdvertisementByPosition(ctx context.Context
 		},
 		QueryRange: map[string][2]interface{}{
 			"start_time": {now, nil},
-			"end_time":   {nil, now},
+			"end_time":   {now, nil},
 		},
 	}
 
@@ -128,6 +128,11 @@ func (s *AdvertisementAPIService) GetAdvertisementByPosition(ctx context.Context
 	if err != nil {
 		s.logger.Error("GetAdvertisement", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	for idx := range res.Advertisement {
+		// 去除备注
+		res.Advertisement[idx].Remark = ""
 	}
 
 	return res, nil
@@ -170,6 +175,22 @@ func (s *AdvertisementAPIService) ListAdvertisement(ctx context.Context, req *pb
 		Page:      int(req.Page),
 		Size:      int(req.Size_),
 		QueryIn:   make(map[string][]interface{}),
+		QueryLike: make(map[string][]interface{}),
+	}
+
+	if len(req.Position) > 0 {
+		opt.QueryIn["position"] = util.Slice2Interface(req.Position)
+	}
+
+	if len(req.Enable) > 0 {
+		opt.QueryIn["enable"] = util.Slice2Interface(req.Enable)
+	}
+
+	if req.Wd != "" {
+		fields := []string{"title", "content", "remark"}
+		for _, field := range fields {
+			opt.QueryLike[field] = []interface{}{req.Wd}
+		}
 	}
 
 	advs, total, err := s.dbModel.GetAdvertisementList(opt)
