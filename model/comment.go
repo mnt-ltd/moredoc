@@ -93,18 +93,8 @@ func (m *DBModel) CreateComment(comment *Comment) (err error) {
 		return
 	}
 
-	// 被评论的文档作者增加动态和积分
-	newDynamic := &Dynamic{
-		UserId:  doc.UserId,
-		Type:    DynamicTypeComment,
-		Content: fmt.Sprintf(`您上传的文档《<a href="/document/%d">%s</a>》被评论了`, doc.Id, html.EscapeString(doc.Title)),
-	}
-	err = tx.Create(newDynamic).Error
-	if err != nil {
-		m.logger.Error("CreateComment", zap.Error(err))
-		return
-	}
-
+	// 是否可以获得积分奖励
+	canRewarded := false
 	cfgScore := m.GetConfigOfScore(ConfigScoreDocumentCommented, ConfigScoreDocumentCommentedLimit)
 	// 用户文档自评，积分不增加
 	if comment.UserId != doc.UserId && cfgScore.DocumentCommented > 0 && cfgScore.DocumentCommentedLimit > 0 {
@@ -122,7 +112,24 @@ func (m *DBModel) CreateComment(comment *Comment) (err error) {
 				m.logger.Error("CreateComment", zap.Error(err))
 				return
 			}
+			canRewarded = true
 		}
+	}
+
+	// 被评论的文档作者增加动态和积分
+	newDynamic := &Dynamic{
+		UserId:  doc.UserId,
+		Type:    DynamicTypeComment,
+		Content: fmt.Sprintf(`您上传的文档《<a href="/document/%d">%s</a>》被评论了`, doc.Id, html.EscapeString(doc.Title)),
+	}
+	if canRewarded {
+		newDynamic.Content = fmt.Sprintf(`您上传的文档《<a href="/document/%d">%s</a>》被评论了，获得 %d %s奖励`, doc.Id, html.EscapeString(doc.Title), cfgScore.DocumentCommented, cfgScore.CreditName)
+	}
+
+	err = tx.Create(newDynamic).Error
+	if err != nil {
+		m.logger.Error("CreateComment", zap.Error(err))
+		return
 	}
 
 	return
