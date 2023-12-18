@@ -28,7 +28,7 @@ type Comment struct {
 	Status       int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;comment:0 待审，1过审，2拒绝;"`
 	CommentCount int        `form:"comment_count" json:"comment_count,omitempty" gorm:"column:comment_count;type:int(11);size:11;default:0;comment:评论数量;"`
 	IP           string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(64);size:64;default:'';comment:IP地址;"`
-	CreatedAt    *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:评论时间;"`
+	CreatedAt    *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:评论时间;index:idx_created_at;"`
 	UpdatedAt    *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:评论更新时间;"`
 }
 
@@ -39,7 +39,7 @@ func (Comment) TableName() string {
 // CreateComment 创建Comment
 func (m *DBModel) CreateComment(comment *Comment) (err error) {
 	doc := &Document{}
-	m.db.Where("id = ?", comment.DocumentId).Select("id", "title").Find(doc)
+	m.db.Where("id = ?", comment.DocumentId).Select("id", "title", "user_id").Find(doc)
 
 	tx := m.db.Begin()
 	defer func() {
@@ -90,6 +90,39 @@ func (m *DBModel) CreateComment(comment *Comment) (err error) {
 	err = tx.Create(dynamic).Error
 	if err != nil {
 		m.logger.Error("CreateComment", zap.Error(err))
+		return
+	}
+
+	// 被评论的文档作者增加动态和积分
+	newDynamic := &Dynamic{
+		UserId:  doc.UserId,
+		Type:    DynamicTypeComment,
+		Content: fmt.Sprintf(`您上传的文档《<a href="/document/%d">%s</a>》被评论了`, doc.Id, html.EscapeString(doc.Title)),
+	}
+	err = tx.Create(newDynamic).Error
+	if err != nil {
+		m.logger.Error("CreateComment", zap.Error(err))
+		return
+	}
+
+	cfgScore := m.GetConfigOfScore(ConfigScoreDocumentCommented, ConfigScoreDocumentCommentedLimit)
+	// 用户文档自评，积分不增加
+	if comment.UserId != doc.UserId && cfgScore.DocumentCommented > 0 && cfgScore.DocumentCommentedLimit > 0 {
+		var count int64
+		errCount := tx.Model(&Comment{}).Where("document_id = ? and created_at > ?", comment.DocumentId, time.Now().Format("2006-01-02")).Count(&count).Error
+		if errCount != nil && errCount != gorm.ErrRecordNotFound {
+			m.logger.Error("CreateComment", zap.Error(errCount))
+			return
+		}
+
+		// 用户积分增加
+		if int32(count) < cfgScore.DocumentCommentedLimit {
+			err = tx.Model(&User{}).Where("id = ?", doc.UserId).Update("credit_count", gorm.Expr("credit_count + ?", cfgScore.DocumentCommented)).Error
+			if err != nil {
+				m.logger.Error("CreateComment", zap.Error(err))
+				return
+			}
+		}
 	}
 
 	return
