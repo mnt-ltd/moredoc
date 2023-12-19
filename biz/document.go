@@ -683,12 +683,7 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 		return res, status.Errorf(codes.PermissionDenied, "您的账户已被禁止下载文档")
 	}
 
-	ip := ""
-	ips, _ := util.GetGRPCRemoteIP(ctx)
-	if len(ips) > 0 {
-		ip = ips[0]
-	}
-
+	ip := util.GetGRPCRemoteIP(ctx)
 	downloadIP := s.dbModel.CountDownloadTodayForIP(ip)
 	if downloadIP >= int64(cfg.TimesEveryIP) {
 		return res, status.Errorf(codes.PermissionDenied, "您所在IP今日下载次数已达上限(%d)", cfg.TimesEveryIP)

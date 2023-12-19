@@ -2,6 +2,7 @@ package model
 
 import (
 	"fmt"
+	"math"
 	"moredoc/util"
 	"moredoc/util/converter"
 	"os"
@@ -356,11 +357,8 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 			Content: fmt.Sprintf("删除了文档《%s》", doc.Title),
 		}
 
-		if cfgScore.DeleteDocument != 0 { // 小于0表示扣除积分
-			score := cfgScore.DeleteDocument
-			if score < 0 {
-				score = -score
-			}
+		score := int32(math.Abs(float64(cfgScore.DeleteDocument)))
+		if score > 0 { // 小于0表示扣除积分
 			dynamic.Content += fmt.Sprintf("，扣除了 %d %s", score, cfgScore.CreditName)
 			err = sess.Model(modelUser).Where("id = ?", doc.UserId).Update("credit_count", gorm.Expr("credit_count - ?", score)).Error
 			if err != nil {
@@ -370,11 +368,6 @@ func (m *DBModel) DeleteDocument(ids []int64, deletedUserId int64, deepDelete ..
 		}
 
 		err = sess.Create(dynamic).Error
-		if err != nil {
-			m.logger.Error("DeleteDocument", zap.Error(err))
-			return
-		}
-
 		if err != nil {
 			m.logger.Error("DeleteDocument", zap.Error(err))
 			return

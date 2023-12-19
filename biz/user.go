@@ -115,10 +115,9 @@ func (s *UserAPIService) Register(ctx context.Context, req *pb.RegisterAndLoginR
 	}
 
 	user := &model.User{Username: req.Username, Password: req.Password, Email: req.Email}
-	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
-		user.RegisterIp = ips[0]
-		user.LastLoginIp = user.RegisterIp
-	}
+	ip := util.GetGRPCRemoteIP(ctx)
+	user.RegisterIp = ip
+	user.LastLoginIp = ip
 	now := time.Now()
 	user.LoginAt = &now
 
@@ -200,10 +199,7 @@ func (s *UserAPIService) Login(ctx context.Context, req *pb.RegisterAndLoginRequ
 	pbUser := &pb.User{}
 	util.CopyStruct(&user, pbUser)
 
-	ip := ""
-	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
-		ip = ips[0]
-	}
+	ip := util.GetGRPCRemoteIP(ctx)
 	loginAt := time.Now()
 	if e := s.dbModel.UpdateUser(&model.User{Id: user.Id, LoginAt: &loginAt, LastLoginIp: ip}, "login_at", "last_login_ip"); e != nil {
 		s.logger.Error("UpdateUser", zap.Error(e))
@@ -611,11 +607,7 @@ func (s *UserAPIService) SignToday(ctx context.Context, req *emptypb.Empty) (*v1
 	if sign := s.dbModel.GetSignedToday(userClaims.UserId); sign.Id > 0 {
 		return nil, status.Errorf(codes.AlreadyExists, "您今天已经签到过了")
 	}
-	ip := ""
-	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
-		ip = ips[0]
-	}
-
+	ip := util.GetGRPCRemoteIP(ctx)
 	sign, err := s.dbModel.CreateSign(userClaims.UserId, ip)
 	if err != nil {
 		s.logger.Error("签到失败", zap.Error(err))
@@ -838,11 +830,7 @@ func (s *UserAPIService) SendEmailCode(ctx context.Context, req *v1.SendEmailCod
 		return nil, status.Errorf(codes.InvalidArgument, "发送太频繁，请稍后再试")
 	}
 
-	ip := ""
-	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
-		ip = ips[0]
-	}
-
+	ip := util.GetGRPCRemoteIP(ctx)
 	cfgSystem := s.dbModel.GetConfigOfSystem(model.ConfigSystemSitename, model.ConfigSystemDomain)
 
 	codeStr := unchained.GetRandomString(4)

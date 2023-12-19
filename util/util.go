@@ -29,7 +29,7 @@ func CopyStruct(srcPtr, dstPtr interface{}) (err error) {
 }
 
 // GetGRPCRemoteIP 获取用户IP
-func GetGRPCRemoteIP(ctx context.Context) (ips []string, err error) {
+func GetGRPCRemoteIPs(ctx context.Context) (ips []string, err error) {
 	if md, ok := metadata.FromIncomingContext(ctx); ok {
 		headers := []string{"x-real-ip", "x-forwarded-for", "remote-addr"}
 		for _, header := range headers {
@@ -49,6 +49,14 @@ func GetGRPCRemoteIP(ctx context.Context) (ips []string, err error) {
 			ip = strings.NewReplacer("[", "", "]", "").Replace(ip)
 			ips = append(ips, ip)
 		}
+	}
+	return
+}
+
+// GetGRPCRemoteIP 获取用户IP
+func GetGRPCRemoteIP(ctx context.Context) (ip string) {
+	if ips, _ := GetGRPCRemoteIPs(ctx); len(ips) > 0 {
+		ip = ips[0]
 	}
 	return
 }

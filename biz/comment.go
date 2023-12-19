@@ -76,9 +76,7 @@ func (s *CommentAPIService) CreateComment(ctx context.Context, req *pb.CreateCom
 		return nil, status.Error(codes.PermissionDenied, err.Error())
 	}
 
-	if ips, _ := util.GetGRPCRemoteIP(ctx); len(ips) > 0 {
-		comment.IP = ips[0]
-	}
+	comment.IP = util.GetGRPCRemoteIP(ctx)
 	comment.Status = defaultStatus
 	comment.UserId = userClaims.UserId
 	err = s.dbModel.CreateComment(comment)
