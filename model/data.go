@@ -76,6 +76,11 @@ func getPermissions() (permissions []Permission) {
 		{Title: "取消用户处罚", Description: "", Method: "GRPC", Path: "/api.v1.PunishmentAPI/CancelPunishment"},
 		{Title: "更新用户处罚", Description: "", Method: "GRPC", Path: "/api.v1.PunishmentAPI/UpdatePunishment"},
 		{Title: "添加用户处罚", Description: "", Method: "GRPC", Path: "/api.v1.PunishmentAPI/CreatePunishment"},
+		{Title: "获取广告列表", Description: "", Method: "GRPC", Path: "/api.v1.AdvertisementAPI/ListAdvertisement"},
+		{Title: "添加广告", Description: "", Method: "GRPC", Path: "/api.v1.AdvertisementAPI/CreateAdvertisement"},
+		{Title: "获取广告内容", Description: "", Method: "GRPC", Path: "/api.v1.AdvertisementAPI/GetAdvertisement"},
+		{Title: "更新广告", Description: "", Method: "GRPC", Path: "/api.v1.AdvertisementAPI/UpdateAdvertisement"},
+		{Title: "删除广告", Description: "", Method: "GRPC", Path: "/api.v1.AdvertisementAPI/DeleteAdvertisement"},
 	}
 	return
 }
