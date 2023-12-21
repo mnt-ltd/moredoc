@@ -266,6 +266,7 @@ type ConfigSecurity struct {
 
 const (
 	ConfigConverterMaxPreview                    = "max_preview"                      // 最大预览页数
+	ConfigConverterMaxPreviewPercent             = "max_preview_percent"              // 最大预览页数百分比
 	ConfigConverterTimeout                       = "timeout"                          // 转换超时时间
 	ConfigConverterEnableSVGO                    = "enable_svgo"                      // 是否启用 SVGO
 	ConfigConverterEnableGZIP                    = "enable_gzip"                      // 是否启用 GZIP
@@ -300,6 +301,7 @@ type ConfigDownload struct {
 // ConfigConverter 转换配置
 type ConfigConverter struct {
 	MaxPreview                    int  `json:"max_preview"`                      // 文档所允许的最大预览页数，0 表示不限制，全部转换
+	MaxPreviewPercent             int  `json:"max_preview_percent"`              // 文档所允许的最大预览页数百分比，0 表示不限制，全部转换
 	Timeout                       int  `json:"timeout"`                          // 转换超时时间，单位为分钟，默认30分钟
 	EnableSVGO                    bool `json:"enable_svgo"`                      // 是否对svg启用SVGO压缩。转换效率会有所下降。相对直接的svg文件，可以节省1/2的存储空间
 	EnableGZIP                    bool `json:"enable_gzip"`                      // 是否对svg启用GZIP压缩。转换效率会有所下降。相对直接的svg文件，可以节省3/4的存储空间
@@ -703,11 +705,12 @@ func (m *DBModel) initConfig() (err error) {
 
 		// 转换配置项
 		{Category: ConfigCategoryConverter, Name: ConfigConverterMaxPreview, Label: "最大预览页数", Value: "12", Placeholder: "文档允许的最大预览页数，0表示不限制", InputType: InputTypeNumber, Sort: 0, Options: ""},
-		{Category: ConfigCategoryConverter, Name: ConfigConverterTimeout, Label: "转换超时(分钟)", Value: "30", Placeholder: "文档转换超时时间，默认为30分钟", InputType: InputTypeNumber, Sort: 10, Options: ""},
-		{Category: ConfigCategoryConverter, Name: ConfigConverterExtension, Label: "预览格式", Value: "webp", Placeholder: "将文档转为特定格式以供预览", InputType: InputTypeSelect, Sort: 20, Options: "svg:SVG\njpg:JPEG\npng:PNG\nwebp:WEBP"},
-		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableGZIP, Label: "是否启用GZIP压缩", Value: "true", Placeholder: "是否对文档SVG预览文件启用GZIP压缩，启用后转换效率会【稍微】下降，但相对直接的SVG文件减少75%的存储空间", InputType: InputTypeSwitch, Sort: 30, Options: ""},
-		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableSVGO, Label: "是否启用SVGO", Value: "false", Placeholder: "是否对文档SVG预览文件启用SVGO压缩，启用后转换效率会【明显】下降，但相对直接的SVG文件减少50%左右的存储空间", InputType: InputTypeSwitch, Sort: 40, Options: ""},
-		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableConvertRepeatedDocument, Label: "是否转换重复文档", Value: "false", Placeholder: "对于已转换过的文档，再次被上传时是否再转换一次", InputType: InputTypeSwitch, Sort: 50, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterMaxPreviewPercent, Label: "最大预览页数百分比", Value: "100", Placeholder: "百分比数值，填1~100，与，0和100均表示不限制。与【最大阅览页数】一起，取两者中的最小值", InputType: InputTypeNumber, Sort: 10, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterTimeout, Label: "转换超时(分钟)", Value: "30", Placeholder: "文档转换超时时间，默认为30分钟", InputType: InputTypeNumber, Sort: 20, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterExtension, Label: "预览格式", Value: "webp", Placeholder: "将文档转为特定格式以供预览", InputType: InputTypeSelect, Sort: 30, Options: "svg:SVG\njpg:JPEG\npng:PNG\nwebp:WEBP"},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableGZIP, Label: "是否启用GZIP压缩", Value: "true", Placeholder: "是否对文档SVG预览文件启用GZIP压缩，启用后转换效率会【稍微】下降，但相对直接的SVG文件减少75%的存储空间", InputType: InputTypeSwitch, Sort: 40, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableSVGO, Label: "是否启用SVGO", Value: "false", Placeholder: "是否对文档SVG预览文件启用SVGO压缩，启用后转换效率会【明显】下降，但相对直接的SVG文件减少50%左右的存储空间", InputType: InputTypeSwitch, Sort: 50, Options: ""},
+		{Category: ConfigCategoryConverter, Name: ConfigConverterEnableConvertRepeatedDocument, Label: "是否转换重复文档", Value: "false", Placeholder: "对于已转换过的文档，再次被上传时是否再转换一次", InputType: InputTypeSwitch, Sort: 60, Options: ""},
 
 		// 下载配置
 		{Category: ConfigCategoryDownload, Name: ConfigDownloadEnableGuestDownload, Label: "是否允许游客下载", Value: "false", Placeholder: "启用之后，未登录用户可以下载免费文档", InputType: InputTypeSwitch, Sort: 10, Options: ""},

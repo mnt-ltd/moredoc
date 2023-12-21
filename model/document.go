@@ -667,8 +667,18 @@ func (m *DBModel) ConvertDocument() (err error) {
 		return
 	}
 	document.Pages, _ = cvt.CountPDFPages(dstPDF)
-	document.Preview = cfg.MaxPreview
-	if document.Pages < cfg.MaxPreview {
+	maxPreview := cfg.MaxPreview
+	if cfg.MaxPreviewPercent > 0 && cfg.MaxPreviewPercent < 100 {
+		maxPreview2 := int(math.Ceil(float64(document.Pages) * float64(cfg.MaxPreviewPercent) / 100))
+		if maxPreview2 < 1 { // 百分比大于0，则至少预览一页
+			maxPreview2 = 1
+		}
+		if maxPreview2 < maxPreview {
+			maxPreview = maxPreview2
+		}
+	}
+	document.Preview = maxPreview
+	if document.Pages < document.Preview {
 		document.Preview = document.Pages
 	}
 
@@ -688,8 +698,8 @@ func (m *DBModel) ConvertDocument() (err error) {
 
 	// PDF转为SVG
 	toPage := document.Pages
-	if cfg.MaxPreview > 0 {
-		toPage = cfg.MaxPreview
+	if maxPreview > 0 {
+		toPage = maxPreview
 	}
 	if toPage > document.Pages {
 		toPage = document.Pages
