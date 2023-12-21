@@ -560,6 +560,7 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 		defaultFields = append(defaultFields, req.Field...)
 	}
 
+	var docIds []int64
 	resp := &pb.ListDocumentForHomeResponse{}
 	for _, category := range categories {
 		docs, _, _ := s.dbModel.GetDocumentList(&model.OptionGetDocumentList{
@@ -581,6 +582,33 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 			CategoryCover: category.Cover,
 			Document:      pbDocs,
 		})
+
+		for _, doc := range docs {
+			docIds = append(docIds, doc.Id)
+		}
+	}
+
+	// 查找文档相关联的附件。对于列表，只返回hash和id，不返回其他字段
+	attachments, _, _ := s.dbModel.GetAttachmentList(&model.OptionGetAttachmentList{
+		WithCount:    false,
+		SelectFields: []string{"hash", "id", "type_id"},
+		QueryIn: map[string][]interface{}{
+			"type_id": util.Slice2Interface(docIds),
+			"type":    {model.AttachmentTypeDocument},
+		},
+	})
+
+	docIdMapAttachmentHash := make(map[int64]string)
+	for _, attachment := range attachments {
+		docIdMapAttachmentHash[attachment.TypeId] = attachment.Hash
+	}
+
+	for _, item := range resp.Document {
+		for _, doc := range item.Document {
+			if hash, ok := docIdMapAttachmentHash[doc.Id]; ok {
+				doc.Cover = fmt.Sprintf("/view/cover/%s", hash)
+			}
+		}
 	}
 
 	return resp, nil
