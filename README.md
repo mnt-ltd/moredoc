@@ -1,4 +1,4 @@
-![魔豆文库](web/static/static/images/logo.png)
+![魔豆文库](docs/images/logo.png)
 
 目录
 
@@ -157,7 +157,6 @@
 ├── cache                   # 缓存相关
 ├── conf                    # 配置定义
 ├── dict                    # 结巴分词字典，用于给文档自动进行分词
-├── dist                    # 前端打包后的文件
 ├── docs                    # API文档等
 ├── documents               # 用户上传的文档存储目录
 ├── go.mod                  # go依赖管理
@@ -170,8 +169,7 @@
 ├── sitemap                 # 站点地图
 ├── third_party             # 第三方依赖，主要是proto文件
 ├── uploads                 # 文档文件之外的其他文件存储目录
-├── util                    # 工具函数
-└── web                     # 前端Web
+└── util                    # 工具函数
 ```
 
 <a name="dev-config"></a>
@@ -192,6 +190,7 @@ port="8880"
 [database]
     driver="mysql"
     dsn="root:root@tcp(localhost:3306)/moredoc?charset=utf8mb4&loc=Local&parseTime=true"
+    # 生产环境，请将showSQL设置为false
     showSQL=true
     maxOpen=10
     maxIdle=10

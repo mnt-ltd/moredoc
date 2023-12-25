@@ -1,4 +1,4 @@
-# 程序运行级别：debug、info、warn、error，生产环境使用 info及其以上级别
+# 程序运行级别：debug、info、warn、error，生产环境使用 info 及其以上级别
 level = "debug"
 
 # 日志编码方式，支持：json、console
@@ -9,15 +9,26 @@ port = "8880"
 
 # 数据库配置
 [database]
-    driver = "mysql"
-    dsn = "root:root@tcp(localhost:3306)/moredoc?charset=utf8mb4&loc=Local&parseTime=true"
-    showSQL = true
-    maxOpen = 10
-    maxIdle = 10
+driver = "mysql"
+dsn = "root:root@tcp(localhost:3306)/moredoc?charset=utf8mb4&loc=Local&parseTime=true"
+# 是否显示 SQL 语句，生产环境下请设置为false
+showSQL = true
+maxOpen = 10
+maxIdle = 10
 
 # JSON Web Token 配置
 [jwt]
-    # 生成 token 的密钥，请务必修改！！！
-    secret = "moredoc"
-    # token 过期时间
-    expireDays = 365
+# 生成 token 的密钥，请务必修改！！！
+secret = "moredoc"
+# token 过期时间
+expireDays = 365
+
+# 日志配置
+[logger]
+# 如果配置了 filename，则日志会输出到文件，否则输出到控制台
+# filename = "logs/moredoc.log"
+filename = ""
+maxSizeMB = 10
+maxBackups = 10
+maxAgeDays = 30
+compress = true

@@ -147,8 +147,8 @@ func initLogger(level, LogEncoding string, logCfg ...conf.LoggerConfig) {
 		Filename:   logCfg[0].Filename,
 		MaxSize:    logCfg[0].MaxSizeMB, // megabytes
 		MaxBackups: logCfg[0].MaxBackups,
-		MaxAge:     logCfg[0].MaxAgeDays, // days
-		Compress:   logCfg[0].Comptress,
+		MaxAge:     logCfg[0].MaxDays, // days
+		Compress:   logCfg[0].Compress,
 	})
 
 	enc := zapcore.NewConsoleEncoder(cfg.EncoderConfig)

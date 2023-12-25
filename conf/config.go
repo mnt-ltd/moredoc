@@ -4,8 +4,8 @@ type LoggerConfig struct {
 	Filename   string
 	MaxSizeMB  int // 每份日志大小
 	MaxBackups int // 日志保留多少份
-	MaxAgeDays int // 保留多少天的日志
-	Comptress  bool
+	MaxDays    int // 保留多少天的日志
+	Compress   bool
 }
 
 // Config app config
