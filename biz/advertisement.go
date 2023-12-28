@@ -108,7 +108,7 @@ func (s *AdvertisementAPIService) GetAdvertisementByPosition(ctx context.Context
 			"enable": {true},
 		},
 		QueryRange: map[string][2]interface{}{
-			"start_time": {now, nil},
+			"start_time": {nil, now},
 			"end_time":   {now, nil},
 		},
 	}
