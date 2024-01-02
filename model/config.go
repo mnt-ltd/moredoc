@@ -398,6 +398,7 @@ const (
 	ConfigDisplayPagesPerRead             = "pages_per_read"             // 每次阅读的页数
 	ConfigDisplayCopyrightStatement       = "copyright_statement"        // 在页面最底部的版权声明
 	ConfigDisplayMaxSearchPages           = "max_search_pages"           // 搜索结果最大页数
+	ConfigDisplayShowKeywordsOnLists      = "show_keywords_on_lists"     // 文档列表页是否显示关键字
 )
 
 type ConfigDisplay struct {
@@ -408,6 +409,7 @@ type ConfigDisplay struct {
 	PagesPerRead             int32  `json:"pages_per_read"`             // 每次阅读的页数
 	MaxSearchPages           int32  `json:"max_search_pages"`           // 搜索结果最大页数
 	CopyrightStatement       string `json:"copyright_statement"`        // 在页面最底部的版权声明
+	ShowKeywordsOnLists      bool   `json:"show_keywords_on_lists"`     // 文档列表页是否显示关键字
 }
 
 func (m *DBModel) GetConfigOfDisplay(name ...string) (config ConfigDisplay) {
@@ -752,6 +754,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayPagesPerRead, Label: "文档【继续阅读】的页数", Value: "5", Placeholder: "用户阅读文档，每次点击继续阅读按钮时阅读的页数，默认为5，表示5页", InputType: InputTypeNumber, Sort: 40, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayMaxSearchPages, Label: "文档搜索结果最大页数", Value: "100", Placeholder: "搜索结果，默认最大展示100页，0表示不限制", InputType: InputTypeNumber, Sort: 50, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayCopyrightStatement, Label: "版权声明", Value: "本站文档数据由用户上传，仅供学习交流，如侵犯您的权益，请联系我们进行删除。", Placeholder: "网站最底部版权声明，支持HTML", InputType: InputTypeTextarea, Sort: 60, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowKeywordsOnLists, Label: "显示关键字", Value: "true", Placeholder: "文档列表页，是否显示右侧关键字", InputType: InputTypeSwitch, Sort: 70, Options: ""},
 	}
 
 	for _, cfg := range cfgs {
