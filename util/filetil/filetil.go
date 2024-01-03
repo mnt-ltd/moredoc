@@ -19,8 +19,8 @@ var imagesExt = map[string]struct{}{
 	".png":  {},
 	".gif":  {},
 	".ico":  {},
-	// ".bmp":  {},
-	// ".webp": {},
+	".bmp":  {},
+	".webp": {},
 }
 
 var documentExtMap = map[string][]string{

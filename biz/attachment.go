@@ -381,7 +381,7 @@ func (s *AttachmentAPIService) uploadImage(ctx *gin.Context, attachmentType int)
 
 	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
 	if !filetil.IsImage(ext) {
-		message := "请上传图片格式文件，支持.jpg、.jpeg、.png、.gif和.ico格式图片"
+		message := "请上传图片格式文件，支持.jpg、.jpeg、.png、.gif、.webp、.bmp和.ico格式图片"
 		ctx.JSON(http.StatusBadRequest, ginResponse{Code: http.StatusBadRequest, Message: message, Error: message})
 		return
 	}
