@@ -57,7 +57,7 @@ func (s *SearchRecordAPIService) ListSearchRecord(ctx context.Context, req *pb.L
 	}
 
 	if req.Keywords != "" {
-		opt.QueryLike["keyword"] = []interface{}{req.Keywords}
+		opt.QueryLike["keywords"] = []interface{}{req.Keywords}
 	}
 
 	if len(req.UserId) > 0 {
@@ -80,6 +80,34 @@ func (s *SearchRecordAPIService) ListSearchRecord(ctx context.Context, req *pb.L
 	err = util.CopyStruct(&records, &res.SearchRecord)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "获取列表失败:"+err.Error())
+	}
+
+	var (
+		userIds          []interface{}
+		userIdMapIndexes = make(map[int64][]int)
+	)
+	for idx, record := range records {
+		if record.UserId > 0 {
+			userIds = append(userIds, record.UserId)
+			userIdMapIndexes[record.UserId] = append(userIdMapIndexes[record.UserId], idx)
+		}
+	}
+
+	if len(userIds) > 0 {
+		users, _, _ := s.dbModel.GetUserList(&model.OptionGetUserList{
+			QueryIn: map[string][]interface{}{
+				"id": userIds,
+			},
+			WithCount:    false,
+			SelectFields: []string{"id", "username"},
+		})
+		for _, user := range users {
+			if indexes, ok := userIdMapIndexes[user.Id]; ok {
+				for _, idx := range indexes {
+					res.SearchRecord[idx].Username = user.Username
+				}
+			}
+		}
 	}
 
 	return res, nil

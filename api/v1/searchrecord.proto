@@ -41,7 +41,7 @@ message ListSearchRecordRequest {
 
 message ListSearchRecordReply {
   int64 total = 1;
-  repeated SearchRecord SearchRecord = 2;
+  repeated SearchRecord search_record = 2;
 }
 
 service SearchRecordAPI {
