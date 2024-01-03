@@ -1,6 +1,7 @@
 package model
 
 import (
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -58,6 +59,7 @@ type DBModel struct {
 	tableFieldsMap map[string]map[string]struct{}
 	validToken     sync.Map // map[tokenUUID]struct{} 有效的token uuid
 	invalidToken   sync.Map // map[tokenUUID]struct{} 存在，未过期但无效token，比如读者退出登录后的token
+	ctx            context.Context
 }
 
 func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
@@ -179,6 +181,7 @@ func (m *DBModel) SyncDB() (err error) {
 		&Punishment{},
 		&EmailCode{},
 		&Advertisement{},
+		&SearchRecord{},
 	}
 
 	m.alterTableBeforeSyncDB()
@@ -199,9 +202,24 @@ func (m *DBModel) RunTasks() {
 	go m.cronUpdateSitemap()
 	go m.cronMarkAttachmentDeleted()
 	go m.cronCleanInvalidAttachment()
+	go m.createSearchRecordFromQueue()
 }
 
 func (m *DBModel) GetDB() *gorm.DB {
+	return m.db
+}
+
+// 用来承载事务的上下文
+type contextTxKey struct{}
+
+// DB 根据此方法来判断当前的 db 是不是使用 事务的 DB
+func (m *DBModel) DB() *gorm.DB {
+	if m.ctx != nil {
+		tx, ok := m.ctx.Value(contextTxKey{}).(*gorm.DB)
+		if ok {
+			return tx
+		}
+	}
 	return m.db
 }
 

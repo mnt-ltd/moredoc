@@ -686,7 +686,27 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 	}
 
 	res.Total = total
-	res.Spend = fmt.Sprintf("%.3f", time.Since(now).Seconds())
+	spendTime := time.Since(now).Seconds()
+	res.Spend = fmt.Sprintf("%.3f", spendTime)
+
+	retentionDays := s.dbModel.GetConfigOfSecurity(model.ConfigSecuritySearchRecordRetentionDays).SearchRecordRetentionDays
+	if retentionDays > 0 {
+		var userId int64
+		userCliaims, _ := s.checkLogin(ctx)
+		if userCliaims != nil {
+			userId = userCliaims.UserId
+		}
+		s.dbModel.CreateSearchRecord(&model.SearchRecord{
+			Ip:        util.GetGRPCRemoteIP(ctx),
+			Total:     int(total),
+			Page:      int(opt.Page),
+			UserAgent: util.GetGRPCUserAgent(ctx),
+			UserId:    userId,
+			SpendTime: spendTime,
+			Keywords:  req.Wd,
+		})
+	}
+
 	return res, nil
 }
 

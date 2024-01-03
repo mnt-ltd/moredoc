@@ -245,6 +245,7 @@ const (
 	ConfigSecurityLoginRequired             = "login_required"               // 是否需要登录才能查看文档
 	ConfigSecurityAttachmentRetentionMinute = "attachment_retention_minute"  // 被删除的附件，保留时长，单位分钟
 	ConfigSecurityEnableVerifyRegisterEmail = "enable_verify_register_email" // 是否开启注册邮箱验证
+	ConfigSecuritySearchRecordRetentionDays = "search_record_retention_days" // 搜索日志保留天数
 )
 
 type ConfigSecurity struct {
@@ -262,6 +263,7 @@ type ConfigSecurity struct {
 	EnableVerifyRegisterEmail bool     `json:"enable_verify_register_email"` // 是否开启注册邮箱验证
 	DocumentAllowedExt        []string `json:"document_allowed_ext"`         // 允许上传的文档类型
 	LoginRequired             bool     `json:"login_required"`               // 是否需要登录才能查看文档
+	SearchRecordRetentionDays int32    `json:"search_record_retention_days"` // 搜索日志保留天数
 }
 
 const (
@@ -687,6 +689,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityCommentInterval, Label: "评论时间间隔", Value: "10", Placeholder: "用户评论时间间隔，单位为秒。0表示不限制。", InputType: InputTypeNumber, Sort: 2, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityDocumentRelatedDuration, Label: "文档的【相关文档】有效期", Value: "7", Placeholder: "文档的相关联文档的有效期，默认为7，即7天，0或小于0，表示不开启相关文档功能", InputType: InputTypeNumber, Sort: 15, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityAttachmentRetentionMinute, Label: "从回收站清除的文档文件保留时长", Value: "1440", Placeholder: "单位为分钟，默认为1440，即24小时。文档被从回收站清除之后，文档文件并未真正删除，用以规避操作失误的情况。设为 0 则表示即时删除文档文件，用以释放存储空间。", InputType: InputTypeNumber, Sort: 16, Options: ""},
+		{Category: ConfigCategorySecurity, Name: ConfigSecuritySearchRecordRetentionDays, Label: "搜索日志保留天数", Value: "7", Placeholder: "单位为天，默认为7，即7天。0表示不记录用户搜索记录。", InputType: InputTypeNumber, Sort: 17, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityDocumentAllowedExt, Label: "允许上传的文档类型", Value: "", Placeholder: "留空表示允许程序所支持的全部文档类型", InputType: InputTypeSelectMulti, Sort: 30, Options: strings.Join(filetil.GetDocumentExts(), "\n")},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityIsClose, Label: "是否关闭网站", Value: "false", Placeholder: "请选择是否关闭网站", InputType: InputTypeSwitch, Sort: 160, Options: ""},
 		{Category: ConfigCategorySecurity, Name: ConfigSecurityCloseStatement, Label: "闭站说明", Value: closeStatement, Placeholder: "关闭网站后，页面提示内容（支持HTML）", InputType: InputTypeTextarea, Sort: 170, Options: ""},

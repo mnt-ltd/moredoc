@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+// 这里是proto文件中的结构体，可以根据需要删除或者调整
+message SearchRecord {
+  int64 id = 1;
+  int64 user_id = 2;
+  string ip = 3;
+  int32 total = 4;
+  int32 page = 5;
+  string user_agent = 6;
+  string keywords = 7;
+  google.protobuf.Timestamp created_at = 8 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 9 [ (gogoproto.stdtime) = true ];
+  float spend_time = 10;
+  string username = 11;
+}
+
+message DeleteSearchRecordRequest { repeated int64 id = 1; }
+
+message ListSearchRecordRequest {
+  int32 page = 1;
+  int32 size = 2;
+  string keywords = 3;
+  repeated string field = 4;
+  string order = 5;
+  repeated int64 user_id = 6;
+  string ip = 7;
+}
+
+message ListSearchRecordReply {
+  int64 total = 1;
+  repeated SearchRecord SearchRecord = 2;
+}
+
+service SearchRecordAPI {
+  rpc DeleteSearchRecord(DeleteSearchRecordRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/searchrecord',
+    };
+  }
+
+  rpc ListSearchRecord(ListSearchRecordRequest)
+      returns (ListSearchRecordReply) {
+    option (google.api.http) = {
+      get : '/api/v1/searchrecord/list',
+    };
+  }
+}

@@ -61,6 +61,21 @@ func GetGRPCRemoteIP(ctx context.Context) (ip string) {
 	return
 }
 
+// 获取user-agent
+func GetGRPCUserAgent(ctx context.Context) (userAgent string) {
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		if values := md.Get("grpcgateway-user-agent"); len(values) > 0 {
+			userAgent = values[0]
+			return
+		}
+		if values := md.Get("user-agent"); len(values) > 0 {
+			userAgent = values[0]
+			return
+		}
+	}
+	return
+}
+
 // 图片缩放居中裁剪
 func CropImage(file string, width, height int) (err error) {
 	var img image.Image

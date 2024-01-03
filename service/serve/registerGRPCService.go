@@ -166,5 +166,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 搜索记录服务
+	searchRecordAPIService := biz.NewSearchRecordAPIService(dbModel, logger)
+	v1.RegisterSearchRecordAPIServer(grpcServer, searchRecordAPIService)
+	err = v1.RegisterSearchRecordAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterSearchRecordAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }
