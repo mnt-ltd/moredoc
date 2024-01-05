@@ -241,7 +241,6 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 	}
 
 	if desc := strings.TrimSpace(pbDoc.Description); desc == "" {
-		desc = doc.Title // 默认
 		textFile := strings.TrimLeft(strings.TrimSuffix(attchment.Path, filepath.Ext(attchment.Path)), "./") + "/content.txt"
 		if content, errRead := os.ReadFile(textFile); errRead == nil { // 读取文本内容，以提取关键字和摘要
 			contentStr := string(content)
@@ -251,8 +250,12 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 				desc = contentStr
 			}
 		}
-		doc.Description = desc
-		fixedData["description"] = desc
+		if desc != "" {
+			pbDoc.Description = desc
+			fixedData["description"] = desc
+		} else {
+			pbDoc.Description = pbDoc.Title
+		}
 	}
 
 	if len(fixedData) > 0 {
