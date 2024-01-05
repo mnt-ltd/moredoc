@@ -81,7 +81,7 @@ message ConfigDisplay {
   int32 pages_per_read = 3;            // 每次阅读的页数
   string copyright_statement = 4;      // 在页面最底部的版权声明
   bool show_document_descriptions = 5; // 是否显示文档描述
-  bool show_keywords_on_lists = 6; // 是否在文档列表页显示关键词
+  bool hide_keywords_on_lists = 6; // 是否在文档列表页隐藏右侧关键词
 }
 
 // 安全配置
