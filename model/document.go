@@ -731,14 +731,21 @@ func (m *DBModel) ConvertDocument() (err error) {
 	}
 
 	// 提取PDF文本以及获取文档信息
-	textFile, _ := cvt.ConvertPDFToTxt(dstPDF)
-	util.CopyFile(textFile, baseDir+"/content.txt")
+	textFile, errPdf2text := cvt.ConvertPDFToTxt(dstPDF)
+	if errPdf2text != nil {
+		// 只记录错误。不影响文档转换
+		m.logger.Error("ConvertPDFToTxt", zap.Error(errPdf2text))
+	}
 
 	// 读取文本内容，以提取关键字和摘要
 	if content, errRead := os.ReadFile(textFile); errRead == nil {
 		contentStr := string(content)
 		replacer := strings.NewReplacer("\r", " ", "\n", " ", "\t", " ")
-		document.Description = strings.TrimSpace(replacer.Replace(util.Substr(contentStr, 255)))
+		contentStr = strings.TrimSpace(replacer.Replace(contentStr))
+		if errContent := m.SetAttachmentContentByType(AttachmentTypeDocument, document.Id, []byte(contentStr)); errContent != nil {
+			m.logger.Error("SetAttachmentContentByType", zap.Error(errContent))
+		}
+		document.Description = util.Substr(contentStr, 255)
 	}
 
 	document.Status = DocumentStatusConverted

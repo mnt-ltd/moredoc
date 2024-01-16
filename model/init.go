@@ -155,6 +155,7 @@ func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
 func (m *DBModel) SyncDB() (err error) {
 	tableModels := []interface{}{
 		&Attachment{},
+		&AttachmentContent{},
 		&Banner{},
 		&Category{},
 		&Config{},
@@ -475,13 +476,18 @@ func (m *DBModel) initGroupAndPermission() (err error) {
 
 	// 功能权限
 	for _, permission := range m.getPermissionAccesses() {
+		permissionId := permission.Id
 		err = sess.Where("method = ? and path = ?", permission.Method, permission.Path).FirstOrCreate(&permission).Error
 		if err != nil {
 			m.logger.Error("initPermission", zap.Error(err))
 			return
 		}
 		// 给用户组ID为1的用户组授权
-		err = sess.Where("group_id = ? and permission_id = ?", 1, permission.Id).FirstOrCreate(&GroupPermission{}).Error
+		gp := &GroupPermission{
+			GroupId:      1,
+			PermissionId: permissionId,
+		}
+		err = sess.Where("group_id = ? and permission_id = ?", gp.GroupId, gp.PermissionId).FirstOrCreate(gp).Error
 		if err != nil {
 			m.logger.Error("initGroupPermission", zap.Error(err))
 			return

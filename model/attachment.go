@@ -52,8 +52,21 @@ type Attachment struct {
 	DeletedAt   *gorm.DeletedAt `form:"deleted_at" json:"deleted_at,omitempty" gorm:"column:deleted_at;type:datetime;comment:删除时间;index:idx_deleted_at"`
 }
 
+type AttachmentContent struct {
+	Id          int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:自增ID;"`
+	Hash        string     `form:"hash" json:"hash,omitempty" gorm:"column:hash;type:char(32);size:32;index:idx_hash,unique;comment:文件MD5;"`
+	Content     string     `form:"content" json:"content,omitempty" gorm:"column:content;type:longtext;comment:内容;"`
+	ContentSize int64      `form:"content_size" json:"content_size,omitempty" gorm:"column:content_size;type:bigint(20);default:0;comment:内容大小;"`
+	CreatedAt   *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	UpdatedAt   *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+}
+
 func (Attachment) TableName() string {
 	return tablePrefix + "attachment"
+}
+
+func (AttachmentContent) TableName() string {
+	return tablePrefix + "attachment_content"
 }
 
 // CreateAttachment 创建Attachment
@@ -232,4 +245,58 @@ func (m *DBModel) SetAttachmentTypeId(attachIdTypeIdMap map[int64]int64) {
 			return
 		}
 	}
+}
+
+// 根据附件ID更新内容字段
+func (m *DBModel) SetAttachmentContent(id int64, content []byte) (err error) {
+	attachment, err := m.GetAttachment(id, "hash")
+	if err != nil {
+		m.logger.Error("SetAttachmentContent", zap.Error(err))
+		return
+	}
+	return m.SetAttachmentContentByHash(attachment.Hash, content)
+}
+
+// 根据文档ID更新内容字段
+func (m *DBModel) SetAttachmentContentByType(typ int, typeId int64, content []byte) (err error) {
+	attachment := m.GetAttachmentByTypeAndTypeId(typ, typeId, "hash")
+	if attachment.Hash == "" {
+		return
+	}
+	return m.SetAttachmentContentByHash(attachment.Hash, content)
+}
+
+func (m *DBModel) SetAttachmentContentByHash(hash string, content []byte) (err error) {
+	if hash == "" {
+		return
+	}
+	existAttachmentContent := &AttachmentContent{}
+	err = m.db.Model(&AttachmentContent{}).Where("hash = ?", hash).First(existAttachmentContent).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("SetAttachmentContent", zap.Error(err))
+		return
+	}
+	existAttachmentContent.Hash = hash
+	existAttachmentContent.Content = string(content)
+	existAttachmentContent.ContentSize = int64(len(content))
+	if existAttachmentContent.Id == 0 {
+		err = m.db.Create(existAttachmentContent).Error
+	} else {
+		err = m.db.Save(existAttachmentContent).Error
+	}
+	if err != nil {
+		m.logger.Error("SetAttachmentContent", zap.Error(err))
+	}
+	return
+}
+
+func (m *DBModel) GetAttachmentContent(hash string) (content *AttachmentContent, err error) {
+	content = &AttachmentContent{}
+	err = m.db.Model(&AttachmentContent{}).Where("hash = ?", hash).First(content).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetAttachmentContent", zap.Error(err))
+		return
+	}
+	err = nil
+	return
 }

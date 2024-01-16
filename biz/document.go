@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"html"
 	"net/url"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -227,6 +226,7 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 		s.dbModel.UpdateDocumentField(doc.Id, map[string]interface{}{"view_count": doc.ViewCount})
 	}
 
+	desc := strings.TrimSpace(pbDoc.Description)
 	// 查找文档相关联的附件。对于列表，只返回hash和id，不返回其他字段
 	attchment := s.dbModel.GetAttachmentByTypeAndTypeId(model.AttachmentTypeDocument, doc.Id, "hash", "path")
 	fixedData := make(map[string]interface{})
@@ -240,15 +240,10 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 		}
 	}
 
-	if desc := strings.TrimSpace(pbDoc.Description); desc == "" {
-		textFile := strings.TrimLeft(strings.TrimSuffix(attchment.Path, filepath.Ext(attchment.Path)), "./") + "/content.txt"
-		if content, errRead := os.ReadFile(textFile); errRead == nil { // 读取文本内容，以提取关键字和摘要
-			contentStr := string(content)
-			replacer := strings.NewReplacer("\r", " ", "\n", " ", "\t", " ")
-			contentStr = strings.TrimSpace(replacer.Replace(util.Substr(contentStr, 255)))
-			if contentStr != "" {
-				desc = contentStr
-			}
+	if desc == "" {
+		attachCont, _ := s.dbModel.GetAttachmentContent(attchment.Hash)
+		if attachCont.Content != "" {
+			desc = util.Substr(attachCont.Content, 255)
 		}
 		if desc != "" {
 			pbDoc.Description = desc
