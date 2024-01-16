@@ -82,6 +82,9 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 		documents        []model.Document
 		docMapAttachment = make(map[int]int64)
 	)
+
+	documentStatus := model.DocumentStatusPending
+
 	for idx, doc := range req.Document {
 		attachment, ok := attachmentMap[doc.AttachmentId]
 		if !ok {
@@ -97,7 +100,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 			Price:  int(doc.Price),
 			Size:   attachment.Size,
 			Ext:    attachment.Ext,
-			Status: model.DocumentStatusPending,
+			Status: documentStatus,
 		}
 		docMapAttachment[idx] = attachment.Id
 		documents = append(documents, doc)

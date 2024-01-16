@@ -294,3 +294,21 @@ func (m *DBModel) CountComment() (count int64, err error) {
 	}
 	return
 }
+
+func (m *DBModel) GetDefaultCommentStatus(userId int64) (status int) {
+	// 默认待审核
+	status = CommentStatusPending
+
+	var group Group
+	// 查询用户所在用户组，是否评论不需要审核
+	m.db.Where("ug.user_id = ? and g.enable_comment_approval = ?", userId, false).Table(Group{}.TableName() + " g").Joins(
+		"left join " + UserGroup{}.TableName() + " ug on g.id=ug.group_id",
+	).Find(&group)
+
+	m.logger.Debug("GetDefaultCommentStatus", zap.Any("group", group))
+
+	if group.Id > 0 && !group.EnableCommentApproval {
+		status = CommentStatusApproved
+	}
+	return
+}

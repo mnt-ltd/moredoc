@@ -28,6 +28,8 @@ message Group {
       [ (gogoproto.stdtime) = true ]; // 创建时间
   google.protobuf.Timestamp updated_at = 10
       [ (gogoproto.stdtime) = true ]; // 更新时间
+  bool enable_comment = 13;          // 是否允许评论
+  bool enable_document_review = 14;  // 文档是否需要审核
 }
 
 // 删除用户组，可以批量删除

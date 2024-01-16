@@ -52,8 +52,8 @@ func (s *CommentAPIService) CreateComment(ctx context.Context, req *pb.CreateCom
 		}
 	}
 
-	if yes, _ := s.dbModel.CanIAccessComment(userClaims.UserId); !yes {
-		return nil, status.Errorf(codes.PermissionDenied, "您已经被禁止发表评论")
+	if _, err = s.dbModel.CanIAccessComment(userClaims.UserId); err != nil {
+		return nil, status.Errorf(codes.PermissionDenied, err.Error())
 	}
 
 	comment := &model.Comment{}
@@ -71,13 +71,8 @@ func (s *CommentAPIService) CreateComment(ctx context.Context, req *pb.CreateCom
 		return nil, status.Errorf(codes.InvalidArgument, "评论内容不能为空")
 	}
 
-	defaultStatus, err := s.dbModel.CanIPublishComment(userClaims.UserId)
-	if err != nil {
-		return nil, status.Error(codes.PermissionDenied, err.Error())
-	}
-
 	comment.IP = util.GetGRPCRemoteIP(ctx)
-	comment.Status = defaultStatus
+	comment.Status = int8(s.dbModel.GetDefaultCommentStatus(userClaims.UserId))
 	comment.UserId = userClaims.UserId
 	err = s.dbModel.CreateComment(comment)
 	if err != nil {

@@ -22,12 +22,14 @@ const (
 )
 
 const (
-	DocumentStatusPending    = iota // 待转换
-	DocumentStatusConverting        // 转换中
-	DocumentStatusConverted         // 已转换
-	DocumentStatusFailed            // 转换失败
-	DocumentStatusDisabled          // 已禁用
-	DocumentStatusRePending         // 重新等待转换
+	DocumentStatusPending       = iota // 待转换
+	DocumentStatusConverting           // 转换中
+	DocumentStatusConverted            // 已转换
+	DocumentStatusFailed               // 转换失败
+	DocumentStatusDisabled             // 已禁用
+	DocumentStatusRePending            // 重新等待转换
+	DocumentStatusPendingReview        // 待审核
+	DocumentStatusReviewReject
 )
 
 var DocumentStatusMap = map[int]struct{}{

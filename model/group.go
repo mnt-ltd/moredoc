@@ -18,6 +18,8 @@ type Group struct {
 	UserCount             int        `form:"user_count" json:"user_count,omitempty" gorm:"column:user_count;type:int(11);size:11;default:0;comment:用户数量;"`
 	Sort                  int        `form:"sort" json:"sort,omitempty" gorm:"column:sort;type:int(11);size:11;default:0;comment:排序，值越大越靠前;"`
 	EnableUpload          bool       `form:"enable_upload" json:"enable_upload,omitempty" gorm:"column:enable_upload;type:tinyint(3);default:0;comment:是否允许上传文档;"`
+	EnableDocumentReview  bool       `form:"enable_document_review" json:"enable_document_review,omitempty" gorm:"column:enable_document_review;type:tinyint(3);default:0;comment:文档是否需要审核;"`
+	EnableComment         bool       `form:"enable_comment" json:"enable_comment,omitempty" gorm:"column:enable_comment;type:tinyint(3);default:1;comment:是否允许评论;"`
 	EnableCommentApproval bool       `form:"enable_comment_approval" json:"enable_comment_approval,omitempty" gorm:"column:enable_comment_approval;type:tinyint(3);default:0;comment:评论是否需要审核;"`
 	CreatedAt             *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt             *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
