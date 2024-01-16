@@ -83,8 +83,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 		docMapAttachment = make(map[int]int64)
 	)
 
-	documentStatus := model.DocumentStatusPending
-
+	documentStatus := s.dbModel.GetDefaultDocumentStatus(userCliams.UserId)
 	for idx, doc := range req.Document {
 		attachment, ok := attachmentMap[doc.AttachmentId]
 		if !ok {

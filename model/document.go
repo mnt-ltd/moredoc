@@ -850,3 +850,24 @@ func (m *DBModel) SetDocumentsCategory(documentId, categoryId []int64) (err erro
 	}
 	return
 }
+
+func (m *DBModel) GetDefaultDocumentStatus(userId int64) (status int) {
+	status = DocumentStatusPendingReview // 默认文档待审核
+	if userId <= 0 {
+		return
+	}
+
+	var group Group
+
+	// 查询用户组。只要用户组中有一个允许评论，就允许评论，以及用户组，有一个评论不需要审核，就不需要审核
+	m.db.Select("g.id", "min(g.enable_document_review) as enable_document_review").Table(Group{}.TableName()+" g").Joins(
+		"left join "+UserGroup{}.TableName()+" ug on g.id=ug.group_id",
+	).Where("ug.user_id = ?", userId).Find(&group)
+
+	m.logger.Debug("GetDefaultDocumentStatus", zap.Any("group", group))
+
+	if group.Id > 0 && !group.EnableDocumentReview {
+		status = DocumentStatusPending // 待转换
+	}
+	return
+}
