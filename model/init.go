@@ -346,93 +346,9 @@ func (m *DBModel) initDatabase() (err error) {
 		return
 	}
 
-	// 从group中迁移权限(需要先检测数据库表permission中是否已存在相应权限id)
-	if err = m.migratePermissionAccesses(); err != nil {
-		m.logger.Error("migratePermissionAccesses", zap.Error(err))
-	}
-
 	// 初始化静态页面SEO
 	m.InitSEO()
 
-	return
-}
-
-func (m *DBModel) migratePermissionAccesses() (err error) {
-	// 1. 查询所有 access permission
-	var (
-		permissions           []Permission
-		permissionId          []int64
-		existGroupPermissions []GroupPermission
-		accessMap             = make(map[string]Permission)
-	)
-
-	err = m.db.Where("method = ?", PermissionMethodAccess).Find(&permissions).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		m.logger.Error("migratePermissionAccesses", zap.Error(err))
-		return
-	}
-
-	for _, permission := range permissions {
-		permissionId = append(permissionId, permission.Id)
-		accessMap[strings.ToLower(permission.Path)] = permission
-	}
-
-	// 在 group_permission
-	m.db.Where("permission_id in (?)", permissionId).Find(&existGroupPermissions)
-	if len(existGroupPermissions) > 0 { // 已存在，不用迁移
-		return
-	}
-
-	// 2. 查询所有用户组
-	var groups []Group
-	err = m.db.Find(&groups).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		m.logger.Error("migratePermissionAccesses", zap.Error(err))
-		return
-	}
-
-	// 3. 给所有用户组授权
-	var groupPermissions []GroupPermission
-	for _, group := range groups {
-
-		// 默认允许评论
-		if p, ok := accessMap[strings.ToLower(PermissionAccessComment)]; ok {
-			groupPermissions = append(groupPermissions, GroupPermission{
-				GroupId:      group.Id,
-				PermissionId: p.Id,
-			})
-		}
-
-		// 评论是否需要审核
-		if group.EnableCommentApproval {
-			if p, ok := accessMap[strings.ToLower(PermissionAccessCommentNeedReview)]; ok {
-				groupPermissions = append(groupPermissions, GroupPermission{
-					GroupId:      group.Id,
-					PermissionId: p.Id,
-				})
-			}
-		}
-
-		// 上传文档。如果用户组允许上传文档，则给用户组授权，同时默认文档免审
-		if group.EnableUpload {
-			if p, ok := accessMap[strings.ToLower(PermissionAccessUploadDocument)]; ok {
-				groupPermissions = append(groupPermissions, GroupPermission{
-					GroupId:      group.Id,
-					PermissionId: p.Id,
-				})
-			}
-		}
-
-	}
-
-	if len(groupPermissions) == 0 {
-		return
-	}
-
-	err = m.db.Create(&groupPermissions).Error
-	if err != nil {
-		m.logger.Error("migratePermissionAccesses", zap.Error(err))
-	}
 	return
 }
 
@@ -473,27 +389,6 @@ func (m *DBModel) initGroupAndPermission() (err error) {
 			return
 		}
 	}
-
-	// 功能权限
-	for _, permission := range m.getPermissionAccesses() {
-		permissionId := permission.Id
-		err = sess.Where("method = ? and path = ?", permission.Method, permission.Path).FirstOrCreate(&permission).Error
-		if err != nil {
-			m.logger.Error("initPermission", zap.Error(err))
-			return
-		}
-		// 给用户组ID为1的用户组授权
-		gp := &GroupPermission{
-			GroupId:      1,
-			PermissionId: permissionId,
-		}
-		err = sess.Where("group_id = ? and permission_id = ?", gp.GroupId, gp.PermissionId).FirstOrCreate(gp).Error
-		if err != nil {
-			m.logger.Error("initGroupPermission", zap.Error(err))
-			return
-		}
-	}
-
 	return
 }
 

@@ -7,31 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const (
-	// GRPC 请求
-	PermissionMethodGRPC = "GRPC"
-
-	// 前台功能权限
-	PermissionMethodAccess = "ACCESS"
-
-	// 普通的HTTP请求
-	PermissionMethodPost = "POST"
-	PermissionMethodGet  = "GET"
-	PermissionMethodPut  = "PUT"
-	PermissionMethodDel  = "DELETE"
-)
-
-const (
-	// 是否允许发表评论
-	PermissionAccessComment = "Comment"
-	// 评论是否免审
-	PermissionAccessCommentNeedReview = "CommentNeedReview"
-	// 是否允许上传文档
-	PermissionAccessUploadDocument = "UploadDocument"
-	// 上传的文档是否需要审核
-	PermissionAccessDocumentNeedReview = "DocumentNeedReview"
-)
-
 type Permission struct {
 	Id          int64      `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Method      string     `form:"method" json:"method,omitempty" gorm:"column:method;type:varchar(16);size:16;index:method_path,unique;index:idx_method;comment:请求方法，如GRPC、GET、POST、PUT、DELETE、ACCESS等，其中ACCESS表示前台功能;"`
@@ -205,7 +180,6 @@ func (m *DBModel) GetPermissionList(opt *OptionGetPermissionList) (permissionLis
 
 	db = m.generateQueryIn(db, tableName, opt.QueryIn)
 	db = m.generateQueryLike(db, tableName, opt.QueryLike)
-	db = db.Where("method != ?", PermissionMethodAccess)
 
 	if opt.WithCount {
 		err = db.Count(&total).Error
@@ -225,16 +199,6 @@ func (m *DBModel) GetPermissionList(opt *OptionGetPermissionList) (permissionLis
 	err = db.Find(&permissionList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetPermissionList", zap.Error(err))
-	}
-	return
-}
-
-func (m *DBModel) getPermissionAccesses() (accesses []Permission) {
-	accesses = []Permission{
-		{Method: PermissionMethodAccess, Path: PermissionAccessComment, Title: "允许评论", Description: "是否允许用户进行评论。"},
-		{Method: PermissionMethodAccess, Path: PermissionAccessCommentNeedReview, Title: "评论审核", Description: "用户发表的评论是否需要审核才能显示。"},
-		{Method: PermissionMethodAccess, Path: PermissionAccessUploadDocument, Title: "上传文档", Description: "是否允许用户上传文档。"},
-		{Method: PermissionMethodAccess, Path: PermissionAccessDocumentNeedReview, Title: "文档审核", Description: "用户上传的文档是否需要审核才能显示。"},
 	}
 	return
 }
