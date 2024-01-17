@@ -115,7 +115,7 @@ func (m *DBModel) GetDownloadList(opt *OptionGetDownloadList) (downloadList []*v
 	}
 
 	// size 为了避免字段冲突，加上了后缀_，即 size_
-	db = db.Select(fmt.Sprintf("%s.*, %s.*, %s.size as size_", tableDocument, tableDownload, tableDocument))
+	db = db.Select(fmt.Sprintf("%s.*, %s.*, %s.size as size_,%s.uuid as document_uuid", tableDocument, tableDownload, tableDocument, tableDocument))
 	db = db.Order(fmt.Sprintf("%s.id desc", tableDownload))
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 

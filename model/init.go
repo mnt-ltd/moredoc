@@ -346,6 +346,9 @@ func (m *DBModel) initDatabase() (err error) {
 		return
 	}
 
+	// 更新uuid
+	m.checkAndUpdateDocumentUUID()
+
 	// 初始化静态页面SEO
 	m.InitSEO()
 

@@ -133,7 +133,7 @@ func (m *DBModel) GetRelatedDocuments(documentId int64) (docs []Document, err er
 			QueryIn:   make(map[string][]interface{}),
 			QueryLike: make(map[string][]interface{}),
 			SelectFields: []string{
-				"id", "title", "ext",
+				"id", "title", "ext", "uuid",
 			},
 		}
 		isExpired bool

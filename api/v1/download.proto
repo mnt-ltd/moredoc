@@ -25,6 +25,7 @@ message Download {
   int32 score = 10;
   int64 size = 11;
   int32 pages = 12;
+  string document_uuid = 13;
 }
 
 // message DeleteDownloadRequest { repeated int64 id = 1; }

@@ -52,7 +52,7 @@ func (m *DBModel) UpdateSitemap() (err error) {
 		domain         = strings.TrimRight(m.GetConfigOfSystem(ConfigSystemDomain).Domain, "/")
 	)
 	for {
-		if err = m.db.Model(modelDocument).Select("id", "updated_at").Limit(limit).Offset((page - 1) * limit).Order("id asc").Find(&documents).Error; err != nil && err != gorm.ErrRecordNotFound {
+		if err = m.db.Model(modelDocument).Select("id", "updated_at", "uuid").Limit(limit).Offset((page - 1) * limit).Order("id asc").Find(&documents).Error; err != nil && err != gorm.ErrRecordNotFound {
 			m.logger.Error("execUpdateSitemap", zap.Error(err))
 			return
 		}
@@ -63,7 +63,8 @@ func (m *DBModel) UpdateSitemap() (err error) {
 		var su []sitemap.SitemapUrl
 		for _, doc := range documents {
 			su = append(su, sitemap.SitemapUrl{
-				Loc:        fmt.Sprintf("%s/document/%d", domain, doc.Id),
+				// Loc:        fmt.Sprintf("%s/document/%d", domain, doc.Id),
+				Loc:        fmt.Sprintf("%s/document/%s", domain, doc.UUID),
 				Lastmod:    doc.UpdatedAt.Format(time.RFC3339),
 				ChangeFreq: sitemap.DAILY,
 				Priority:   1.0,

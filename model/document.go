@@ -67,6 +67,7 @@ type Document struct {
 	EnableGZIP    bool            `form:"enable_gzip" json:"enable_gzip,omitempty" gorm:"column:enable_gzip;type:tinyint(1);size:1;default:0;comment:是否启用GZIP压缩;"`
 	RecommendAt   *time.Time      `form:"recommend_at" json:"recommend_at,omitempty" gorm:"column:recommend_at;type:datetime;comment:推荐时间;index:idx_recommend_at;"`
 	PreviewExt    string          `form:"preview_ext" json:"preview_ext,omitempty" gorm:"column:preview_ext;type:varchar(16);size:16;default:.svg;comment:预览图扩展名;"`
+	UUID          string          `form:"uuid" json:"uuid,omitempty" gorm:"column:uuid;type:char(16);index:idx_uuid;size:16;default:;comment:uuid值，这里用uuid的md5加密串的16位;"`
 }
 
 func (Document) TableName() string {
@@ -169,15 +170,21 @@ func (m *DBModel) UpdateDocumentField(id int64, fieldValue map[string]interface{
 }
 
 // GetDocument 根据id获取Document
-func (m *DBModel) GetDocument(id interface{}, fields ...string) (document Document, err error) {
+func (m *DBModel) GetDocument(idOrUUID interface{}, fields ...string) (document Document, err error) {
 	db := m.db
+
+	if id, ok := idOrUUID.(int64); ok {
+		db = db.Where("id = ?", id)
+	} else if uuid, ok := idOrUUID.(string); ok {
+		db = db.Where("uuid = ?", uuid)
+	}
 
 	fields = m.FilterValidFields(Document{}.TableName(), fields...)
 	if len(fields) > 0 {
 		db = db.Select(fields)
 	}
 
-	err = db.Where("id = ?", id).First(&document).Error
+	err = db.First(&document).Error
 	return
 }
 
@@ -540,7 +547,7 @@ func (m *DBModel) CreateDocuments(documents []Document, categoryIds []int64) (do
 		if idx < awardCount {
 			award = cfg.UploadDocument
 		}
-		content := fmt.Sprintf(`上传了文档《<a href="/document/%d">%s</a>》`, doc.Id, html.EscapeString(doc.Title))
+		content := fmt.Sprintf(`上传了文档《<a href="/document/%s">%s</a>》`, doc.UUID, html.EscapeString(doc.Title))
 		if award > 0 {
 			content += fmt.Sprintf(`，获得了 %d %s奖励`, award, m.GetCreditName())
 		}
@@ -870,4 +877,34 @@ func (m *DBModel) GetDefaultDocumentStatus(userId int64) (status int) {
 		status = DocumentStatusPending // 待转换
 	}
 	return
+}
+
+func (m *DBModel) checkAndUpdateDocumentUUID() {
+	// 查询所有uuid位空的文档，然后更新uuid
+	var (
+		size          = 100
+		modelDocument = &Document{}
+	)
+	for {
+		var documents []Document
+		err := m.db.Unscoped().Select("id").Limit(size).Where("uuid IS NULL").Find(&documents).Error
+		if err != nil && err != gorm.ErrRecordNotFound {
+			m.logger.Error("updateDocumentUUID", zap.Error(err))
+			return
+		}
+		if len(documents) == 0 {
+			break
+		}
+		tx := m.db.Begin()
+		for _, doc := range documents {
+			doc.UUID = util.GenDocumentMD5UUID()
+			err = tx.Unscoped().Model(modelDocument).Where("id = ?", doc.Id).Update("uuid", doc.UUID).Error
+			if err != nil {
+				m.logger.Error("updateDocumentUUID", zap.Error(err))
+				tx.Rollback()
+				return
+			}
+		}
+		tx.Commit()
+	}
 }

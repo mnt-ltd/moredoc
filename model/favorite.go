@@ -53,7 +53,7 @@ func (m *DBModel) CreateFavorite(favorite *Favorite) (err error) {
 		return
 	}
 
-	doc, _ := m.GetDocument(favorite.DocumentId, "id", "user_id", "title")
+	doc, _ := m.GetDocument(favorite.DocumentId, "id", "user_id", "title", "uuid")
 	if doc.Id == 0 {
 		return
 	}
@@ -61,7 +61,7 @@ func (m *DBModel) CreateFavorite(favorite *Favorite) (err error) {
 	err = tx.Create(&Dynamic{
 		UserId:  favorite.UserId,
 		Type:    DynamicTypeFavorite,
-		Content: fmt.Sprintf(`您收藏了文档《<a href="/document/%d">%s</a>》`, doc.Id, doc.Title),
+		Content: fmt.Sprintf(`您收藏了文档《<a href="/document/%s">%s</a>》`, doc.UUID, doc.Title),
 	}).Error
 	if err != nil {
 		m.logger.Error("CreateFavorite", zap.Error(err))
@@ -86,7 +86,7 @@ func (m *DBModel) CreateFavorite(favorite *Favorite) (err error) {
 		err = tx.Create(&Dynamic{
 			UserId:  doc.UserId,
 			Type:    DynamicTypeFavorite,
-			Content: fmt.Sprintf(`您分享的文档《<a href="/document/%d">%s</a>》被收藏，获得 %d %s奖励`, doc.Id, doc.Title, cfgScore.DocumentCollected, cfgScore.CreditName),
+			Content: fmt.Sprintf(`您分享的文档《<a href="/document/%s">%s</a>》被收藏，获得 %d %s奖励`, doc.UUID, doc.Title, cfgScore.DocumentCollected, cfgScore.CreditName),
 		}).Error
 		if err != nil {
 			m.logger.Error("CreateFavorite", zap.Error(err))
@@ -129,7 +129,7 @@ func (m *DBModel) GetFavoriteList(opt *OptionGetFavoriteList, documentStatus ...
 	db := m.db.
 		Table(tableFavorite).
 		Joins(
-			fmt.Sprintf("left join %s a on f.document_id = a.id", Document{}.TableName()),
+			fmt.Sprintf("left join %s d on f.document_id = d.id", Document{}.TableName()),
 		)
 	db = m.generateQueryIn(db, tableFavorite, opt.QueryIn)
 
@@ -152,7 +152,7 @@ func (m *DBModel) GetFavoriteList(opt *OptionGetFavoriteList, documentStatus ...
 
 	db = db.Order("id desc").Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
 	// 注意：size字段要用size_ 才能映射到pb.Favorite
-	err = db.Select("f.*, a.title, a.ext, a.score, a.pages, a.size as size_").Find(&favoriteList).Error
+	err = db.Select("f.*, d.title, d.ext, d.score, d.pages, d.size as size_, d.uuid as document_uuid").Find(&favoriteList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetFavoriteList", zap.Error(err))
 	}

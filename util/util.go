@@ -2,6 +2,7 @@ package util
 
 import (
 	"context"
+	"crypto/md5"
 	"errors"
 	"fmt"
 	"image"
@@ -14,6 +15,7 @@ import (
 	"strings"
 
 	"github.com/disintegration/imaging"
+	"github.com/gofrs/uuid"
 	jsoniter "github.com/json-iterator/go"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/peer"
@@ -257,4 +259,10 @@ func InSlice[T Any](slice []T, value T) bool {
 		}
 	}
 	return false
+}
+
+func GenDocumentMD5UUID() string {
+	h := md5.New()
+	h.Write([]byte(uuid.Must(uuid.NewV4()).String()))
+	return fmt.Sprintf("%x", h.Sum(nil))[8:24]
 }

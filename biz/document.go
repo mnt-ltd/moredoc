@@ -94,12 +94,12 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 			Title:    doc.Title,
 			Keywords: strings.Join(jieba.SegWords(doc.Title), ","),
 			UserId:   userCliams.UserId,
-			// UUID:     uuid.Must(uuid.NewV4()).String(),
-			Score:  300,
-			Price:  int(doc.Price),
-			Size:   attachment.Size,
-			Ext:    attachment.Ext,
-			Status: documentStatus,
+			UUID:     util.GenDocumentMD5UUID(),
+			Score:    300,
+			Price:    int(doc.Price),
+			Size:     attachment.Size,
+			Ext:      attachment.Ext,
+			Status:   documentStatus,
 		}
 		docMapAttachment[idx] = attachment.Id
 		documents = append(documents, doc)
@@ -196,7 +196,13 @@ func (s *DocumentAPIService) DeleteDocument(ctx context.Context, req *pb.DeleteD
 
 // GetDocument 获取文档（任何人都可以调用）。当文档禁用之后，只有管理员可以查看
 func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumentRequest) (*pb.Document, error) {
-	doc, _ := s.dbModel.GetDocument(req.Id)
+	var id interface{}
+	if req.Id > 0 {
+		id = req.Id
+	} else if req.Uuid != "" {
+		id = req.Uuid
+	}
+	doc, _ := s.dbModel.GetDocument(id)
 	if doc.Id == 0 {
 		return nil, status.Error(codes.NotFound, "文档不存在")
 	}
@@ -603,7 +609,7 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 		limit = int(req.Limit)
 	}
 
-	defaultFields := []string{"id", "title", "ext"}
+	defaultFields := []string{"id", "title", "ext", "uuid"}
 	if len(req.Field) > 0 {
 		defaultFields = append(defaultFields, req.Field...)
 	}
@@ -799,7 +805,7 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 	}
 
 	// 查询文档存不存在
-	doc, err := s.dbModel.GetDocument(req.Id, "id", "price", "status", "title", "ext", "user_id")
+	doc, err := s.dbModel.GetDocument(req.Id, "id", "price", "status", "title", "ext", "user_id", "uuid")
 	if err != nil || doc.Status == model.DocumentStatusDisabled {
 		return res, status.Errorf(codes.NotFound, "文档不存在")
 	}
@@ -840,7 +846,7 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 	s.dbModel.CreateDynamic(&model.Dynamic{
 		UserId:  userId,
 		Type:    model.DynamicTypeDownload,
-		Content: fmt.Sprintf(`下载了文档《<a href="/document/%d">%s</a>》`, doc.Id, html.EscapeString(doc.Title)),
+		Content: fmt.Sprintf(`下载了文档《<a href="/document/%s">%s</a>》`, doc.UUID, html.EscapeString(doc.Title)),
 	})
 
 	link, err := s.generateDownloadURL(doc, cfg, attachment.Hash)

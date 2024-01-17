@@ -22,6 +22,7 @@ message Favorite {
   int32 score = 8;
   int64 size = 9;
   int32 pages = 10;
+  string document_uuid = 11;
   google.protobuf.Timestamp created_at = 4 [ (gogoproto.stdtime) = true ];
   google.protobuf.Timestamp updated_at = 5 [ (gogoproto.stdtime) = true ];
 }

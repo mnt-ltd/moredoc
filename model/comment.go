@@ -39,7 +39,7 @@ func (Comment) TableName() string {
 // CreateComment 创建Comment
 func (m *DBModel) CreateComment(comment *Comment) (err error) {
 	doc := &Document{}
-	m.db.Where("id = ?", comment.DocumentId).Select("id", "title", "user_id").Find(doc)
+	m.db.Where("id = ?", comment.DocumentId).Select("id", "title", "user_id", "uuid").Find(doc)
 
 	tx := m.db.Begin()
 	defer func() {
@@ -81,9 +81,9 @@ func (m *DBModel) CreateComment(comment *Comment) (err error) {
 			m.logger.Error("CreateComment", zap.Error(err))
 			return
 		}
-		dynamic.Content = fmt.Sprintf(`在文档《<a href="/document/%d">%s</a>》中回复了评论`, doc.Id, html.EscapeString(doc.Title))
+		dynamic.Content = fmt.Sprintf(`在文档《<a href="/document/%s">%s</a>》中回复了评论`, doc.UUID, html.EscapeString(doc.Title))
 	} else {
-		dynamic.Content = fmt.Sprintf(`评论了文档《<a href="/document/%d">%s</a>》`, doc.Id, html.EscapeString(doc.Title))
+		dynamic.Content = fmt.Sprintf(`评论了文档《<a href="/document/%s">%s</a>》`, doc.UUID, html.EscapeString(doc.Title))
 	}
 
 	// 增加评论动态
@@ -120,10 +120,10 @@ func (m *DBModel) CreateComment(comment *Comment) (err error) {
 	newDynamic := &Dynamic{
 		UserId:  doc.UserId,
 		Type:    DynamicTypeComment,
-		Content: fmt.Sprintf(`您上传的文档《<a href="/document/%d">%s</a>》被评论了`, doc.Id, html.EscapeString(doc.Title)),
+		Content: fmt.Sprintf(`您上传的文档《<a href="/document/%s">%s</a>》被评论了`, doc.UUID, html.EscapeString(doc.Title)),
 	}
 	if canRewarded {
-		newDynamic.Content = fmt.Sprintf(`您上传的文档《<a href="/document/%d">%s</a>》被评论了，获得 %d %s奖励`, doc.Id, html.EscapeString(doc.Title), cfgScore.DocumentCommented, cfgScore.CreditName)
+		newDynamic.Content = fmt.Sprintf(`您上传的文档《<a href="/document/%s">%s</a>》被评论了，获得 %d %s奖励`, doc.UUID, html.EscapeString(doc.Title), cfgScore.DocumentCommented, cfgScore.CreditName)
 	}
 
 	err = tx.Create(newDynamic).Error
