@@ -202,3 +202,24 @@ func (m *DBModel) GetPermissionList(opt *OptionGetPermissionList) (permissionLis
 	}
 	return
 }
+
+// 用户是否是管理员
+func (m *DBModel) IsAdmin(userId int64) bool {
+	if userId <= 0 {
+		return false
+	}
+
+	var (
+		userGroups []UserGroup
+		groupIds   []int64
+	)
+
+	m.db.Select("group_id").Where("user_id = ?", userId).Find(&userGroups)
+	for _, ug := range userGroups {
+		groupIds = append(groupIds, ug.GroupId)
+	}
+
+	var gp GroupPermission
+	m.db.Where("group_id in (?)", groupIds).First(&gp)
+	return gp.Id > 0
+}

@@ -202,9 +202,17 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 	}
 	doc.ViewCount += 1
 
-	_, err := s.checkPermission(ctx)
-	if err != nil && doc.Status == model.DocumentStatusDisabled {
-		return nil, status.Error(codes.NotFound, "文档不存在或没有权限")
+	var userId int64
+	userClaims, _ := s.checkPermission(ctx)
+	if userClaims != nil {
+		userId = userClaims.UserId
+	}
+
+	// 文档待审核或者审核拒绝，内容只有管理员和文档上传者可见
+	if (doc.Status == model.DocumentStatusReviewReject ||
+		doc.Status == model.DocumentStatusPendingReview ||
+		doc.Status == model.DocumentStatusDisabled) && !(userId == doc.UserId || s.dbModel.IsAdmin(userId)) {
+		return nil, status.Error(codes.NotFound, "文档不存在")
 	}
 
 	pbDoc := &pb.Document{}
