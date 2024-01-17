@@ -890,3 +890,22 @@ func (s *DocumentAPIService) SetDocumentsCategory(ctx context.Context, req *pb.S
 
 	return &emptypb.Empty{}, nil
 }
+
+// CheckDocument 批量审核文档
+func (s *DocumentAPIService) CheckDocument(ctx context.Context, req *pb.CheckDocumentRequest) (res *emptypb.Empty, err error) {
+	_, err = s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(req.Id) == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "文档ID不能为空")
+	}
+
+	err = s.dbModel.SetDocumentStatus(req.Id, int(req.Status))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "审核文档失败：%s", err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}

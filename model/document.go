@@ -619,11 +619,11 @@ func (m *DBModel) ConvertDocument() (err error) {
 	}()
 	// 文档转为PDF
 	cfg := m.GetConfigOfConverter()
-	m.SetDocumentStatus(document.Id, DocumentStatusConverting)
+	m.SetDocumentStatus([]int64{document.Id}, DocumentStatusConverting)
 
 	attachment := m.GetAttachmentByTypeAndTypeId(AttachmentTypeDocument, document.Id)
 	if attachment.Id == 0 { // 附件不存在
-		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
+		m.SetDocumentStatus([]int64{document.Id}, DocumentStatusFailed)
 		if err != nil {
 			m.logger.Error("ConvertDocument", zap.Error(err))
 		}
@@ -664,7 +664,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 	defer cvt.Clean() // 清除缓存目录
 	dstPDF, err := cvt.ConvertToPDF(localFile)
 	if err != nil {
-		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
+		m.SetDocumentStatus([]int64{document.Id}, DocumentStatusFailed)
 		m.logger.Error("ConvertDocument", zap.Error(err))
 		return
 	}
@@ -713,7 +713,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 		Extension:  cfg.Extension,
 	})
 	if err != nil {
-		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
+		m.SetDocumentStatus([]int64{document.Id}, DocumentStatusFailed)
 		m.logger.Error("ConvertDocument", zap.Error(err))
 		return
 	}
@@ -755,14 +755,14 @@ func (m *DBModel) ConvertDocument() (err error) {
 	document.PreviewExt = strings.TrimPrefix(ext, ".gzip")
 	err = m.db.Select("description", "cover", "width", "height", "preview", "pages", "status", "enable_gzip", "preview_ext").Where("id = ?", document.Id).Updates(document).Error
 	if err != nil {
-		m.SetDocumentStatus(document.Id, DocumentStatusFailed)
+		m.SetDocumentStatus([]int64{document.Id}, DocumentStatusFailed)
 		m.logger.Error("ConvertDocument", zap.Error(err))
 	}
 	return
 }
 
-func (m *DBModel) SetDocumentStatus(documentId int64, status int) (err error) {
-	err = m.db.Model(&Document{}).Where("id = ?", documentId).Update("status", status).Error
+func (m *DBModel) SetDocumentStatus(documentIds []int64, status int) (err error) {
+	err = m.db.Model(&Document{}).Where("id in (?)", documentIds).Update("status", status).Error
 	if err != nil {
 		m.logger.Error("SetDocumentStatus", zap.Error(err))
 	}

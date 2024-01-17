@@ -59,6 +59,11 @@ message Document {
 // 删除文档，放入回收站
 message DeleteDocumentRequest { repeated int64 id = 1; }
 
+message CheckDocumentRequest {
+  repeated int64 id = 1; // 文档ID
+  int32 status = 2;      // 文档状态
+}
+
 // 恢复文档
 message RecoverRecycleDocumentRequest { repeated int64 id = 1; }
 
@@ -231,6 +236,14 @@ service DocumentAPI {
   rpc DownloadDocument(Document) returns (DownloadDocumentReply) {
     option (google.api.http) = {
       get : '/api/v1/document/download',
+    };
+  }
+
+  // 批量审核文档
+  rpc CheckDocument(CheckDocumentRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/document/check',
+      body : '*',
     };
   }
 
