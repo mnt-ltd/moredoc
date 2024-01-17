@@ -268,6 +268,23 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 	}
 
 	pbDoc.Attachment = &pb.Attachment{Hash: attchment.Hash}
+
+	// 如果不显示相关数据，则隐藏掉
+	display := s.dbModel.GetConfigOfDisplay(
+		model.ConfigDisplayShowDocumentDownloadCount,
+		model.ConfigDisplayShowDocumentViewCount,
+		model.ConfigDisplayShowDocumentFavoriteCount,
+	)
+	if !display.ShowDocumentDownloadCount {
+		pbDoc.DownloadCount = 0
+	}
+	if !display.ShowDocumentViewCount {
+		pbDoc.ViewCount = 0
+	}
+	if !display.ShowDocumentFavoriteCount {
+		pbDoc.FavoriteCount = 0
+	}
+
 	return pbDoc, nil
 }
 
@@ -344,7 +361,7 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 	}
 
 	s.logger.Debug("ListDocument", zap.Any("opt", opt))
-	return s.listDocument(opt)
+	return s.listDocument(opt, ctx)
 }
 
 // ListRecycleDocument 回收站文档
@@ -382,7 +399,7 @@ func (s *DocumentAPIService) ListRecycleDocument(ctx context.Context, req *pb.Li
 		opt.QueryIn["status"] = util.Slice2Interface(req.Status)
 	}
 
-	return s.listDocument(opt)
+	return s.listDocument(opt, ctx)
 }
 
 // RecoverRecycleDocument 恢复回收站文档
@@ -437,7 +454,7 @@ func (s *DocumentAPIService) ClearRecycleDocument(ctx context.Context, req *empt
 	return &emptypb.Empty{}, nil
 }
 
-func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList) (*pb.ListDocumentReply, error) {
+func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList, ctx context.Context) (*pb.ListDocumentReply, error) {
 	docs, total, err := s.dbModel.GetDocumentList(opt)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -457,8 +474,20 @@ func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList) (*pb
 		deletedUserIndexMap = make(map[int64][]int)
 		docIds              []int64
 		userIds             []int64
+		display             model.ConfigDisplay
+		userId              int64
 	)
 
+	userClaims, _ := s.checkLogin(ctx)
+	if userClaims != nil {
+		userId = userClaims.UserId
+	}
+	isAdmin := s.dbModel.IsAdmin(userId)
+	display = s.dbModel.GetConfigOfDisplay(
+		model.ConfigDisplayShowDocumentDownloadCount,
+		model.ConfigDisplayShowDocumentViewCount,
+		model.ConfigDisplayShowDocumentFavoriteCount,
+	)
 	for i, doc := range pbDocs {
 		docIndexMap[doc.Id] = i
 		userIndexesMap[doc.UserId] = append(userIndexesMap[doc.UserId], i)
@@ -470,6 +499,17 @@ func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList) (*pb
 			userIds = append(userIds, doc.DeletedUserId)
 			deletedUserIndexMap[doc.DeletedUserId] = append(deletedUserIndexMap[doc.DeletedUserId], i)
 		}
+
+		if !display.ShowDocumentDownloadCount && !(isAdmin || doc.UserId == userId) {
+			doc.DownloadCount = 0
+		}
+		if !display.ShowDocumentViewCount && !(isAdmin || doc.UserId == userId) {
+			doc.ViewCount = 0
+		}
+		if !display.ShowDocumentFavoriteCount && !(isAdmin || doc.UserId == userId) {
+			doc.FavoriteCount = 0
+		}
+		pbDocs[i] = doc
 	}
 
 	if len(pbDocs) > 0 {
@@ -713,6 +753,14 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 			SpendTime: spendTime,
 			Keywords:  req.Wd,
 		})
+	}
+
+	// 这里的数据均没必要返回给客户端
+	for idx, doc := range res.Document {
+		doc.DownloadCount = 0
+		doc.ViewCount = 0
+		doc.FavoriteCount = 0
+		res.Document[idx] = doc
 	}
 
 	return res, nil

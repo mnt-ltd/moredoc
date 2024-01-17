@@ -393,25 +393,33 @@ type ConfigScore struct {
 }
 
 const (
-	ConfigDisplayShowRegisterUserCount    = "show_register_user_count"   // 是否显示注册用户数量
-	ConfigDisplayShowDocumentDescriptions = "show_document_descriptions" // 是否在文档页显示文档摘要
-	ConfigDisplayVirtualRegisterCount     = "virtual_register_count"     // 虚拟注册用户数量
-	ConfigDisplayShowIndexCategories      = "show_index_categories"      // 是否显示首页分类
-	ConfigDisplayPagesPerRead             = "pages_per_read"             // 每次阅读的页数
-	ConfigDisplayCopyrightStatement       = "copyright_statement"        // 在页面最底部的版权声明
-	ConfigDisplayMaxSearchPages           = "max_search_pages"           // 搜索结果最大页数
-	ConfigDisplayHideKeywordsOnLists      = "hide_keywords_on_lists"     // 文档列表页是否显示关键字
+	ConfigDisplayShowRegisterUserCount     = "show_register_user_count"     // 是否显示注册用户数量
+	ConfigDisplayShowDocumentDescriptions  = "show_document_descriptions"   // 是否在文档页显示文档摘要
+	ConfigDisplayVirtualRegisterCount      = "virtual_register_count"       // 虚拟注册用户数量
+	ConfigDisplayShowIndexCategories       = "show_index_categories"        // 是否显示首页分类
+	ConfigDisplayPagesPerRead              = "pages_per_read"               // 每次阅读的页数
+	ConfigDisplayCopyrightStatement        = "copyright_statement"          // 在页面最底部的版权声明
+	ConfigDisplayMaxSearchPages            = "max_search_pages"             // 搜索结果最大页数
+	ConfigDisplayHideKeywordsOnLists       = "hide_keywords_on_lists"       // 文档列表页是否显示关键字
+	ConfigDisplayShowDocumentCount         = "show_document_count"          // 是否显示文档数量
+	ConfigDisplayShowDocumentDownloadCount = "show_document_download_count" // 是否显示文档下载数量
+	ConfigDisplayShowDocumentViewCount     = "show_document_view_count"     // 是否显示文档阅读数量
+	ConfigDisplayShowDocumentFavoriteCount = "show_document_favorite_count" // 是否显示文档收藏数量
 )
 
 type ConfigDisplay struct {
-	ShowRegisterUserCount    bool   `json:"show_register_user_count"`   // 是否显示注册用户数量
-	ShowDocumentDescriptions bool   `json:"show_document_descriptions"` // 是否在文档页显示文档摘要
-	VirtualRegisterCount     int64  `json:"virtual_register_count"`     // 虚拟注册用户数量
-	ShowIndexCategories      bool   `json:"show_index_categories"`      // 是否显示首页分类
-	PagesPerRead             int32  `json:"pages_per_read"`             // 每次阅读的页数
-	MaxSearchPages           int32  `json:"max_search_pages"`           // 搜索结果最大页数
-	CopyrightStatement       string `json:"copyright_statement"`        // 在页面最底部的版权声明
-	HideKeywordsOnLists      bool   `json:"hide_keywords_on_lists"`     // 文档列表页是否显示关键字
+	ShowRegisterUserCount     bool   `json:"show_register_user_count"`     // 是否显示注册用户数量
+	ShowDocumentCount         bool   `json:"show_document_count"`          // 是否显示文档数量
+	ShowDocumentDownloadCount bool   `json:"show_document_download_count"` // 是否显示文档下载数量
+	ShowDocumentViewCount     bool   `json:"show_document_view_count"`     // 是否显示文档阅读数量
+	ShowDocumentDescriptions  bool   `json:"show_document_descriptions"`   // 是否在文档页显示文档摘要
+	ShowDocumentFavoriteCount bool   `json:"show_document_favorite_count"` // 是否显示文档收藏数量
+	VirtualRegisterCount      int64  `json:"virtual_register_count"`       // 虚拟注册用户数量
+	ShowIndexCategories       bool   `json:"show_index_categories"`        // 是否显示首页分类
+	PagesPerRead              int32  `json:"pages_per_read"`               // 每次阅读的页数
+	MaxSearchPages            int32  `json:"max_search_pages"`             // 搜索结果最大页数
+	CopyrightStatement        string `json:"copyright_statement"`          // 在页面最底部的版权声明
+	HideKeywordsOnLists       bool   `json:"hide_keywords_on_lists"`       // 文档列表页是否显示关键字
 }
 
 func (m *DBModel) GetConfigOfDisplay(name ...string) (config ConfigDisplay) {
@@ -750,6 +758,10 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryEmail, Name: ConfigEmailTestEmail, Label: "测试邮箱", Value: "", Placeholder: "用于每次变更配置时保存发送测试邮件", InputType: InputTypeText, Sort: 90, Options: ""},
 
 		// 展示配置
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowDocumentCount, Label: "是否显示文档数", Value: "true", Placeholder: "是否显示网站文档数", InputType: InputTypeSwitch, Sort: 0, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowDocumentDownloadCount, Label: "是否显示文档下载数", Value: "true", Placeholder: "是否显示文档被下载次数", InputType: InputTypeSwitch, Sort: 1, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowDocumentViewCount, Label: "是否显示文档浏览数", Value: "true", Placeholder: "是否显示文档被浏览次数", InputType: InputTypeSwitch, Sort: 2, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowDocumentFavoriteCount, Label: "是否显示文档收藏数", Value: "true", Placeholder: "是否显示文档被收藏次数", InputType: InputTypeSwitch, Sort: 3, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowRegisterUserCount, Label: "是否显示注册用户数", Value: "true", Placeholder: "网站首页，是否显示注册用户数", InputType: InputTypeSwitch, Sort: 10, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayVirtualRegisterCount, Label: "网站虚拟注册用户数", Value: "0", Placeholder: "网站首页显示的用户数=真实注册用户数+虚拟注册用户数，用以避免网站初期用户注册数过少的尴尬窘境", InputType: InputTypeNumber, Sort: 20, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayShowDocumentDescriptions, Label: "是否显示文档摘要", Value: "true", Placeholder: "文档阅读页面，是否显示文档摘要等信息", InputType: InputTypeSwitch, Sort: 21, Options: ""},
