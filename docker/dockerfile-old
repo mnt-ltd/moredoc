@@ -1,0 +1,59 @@
+FROM ubuntu:jammy-20230126
+
+ARG uid=1001
+ARG gid=1001
+ARG basedir=workspace
+ARG DEBIAN_FRONTEND=noninteractive
+EXPOSE 8880
+# install wget
+# install libreoffice
+# install mupdf
+# install supervisor
+# install all needed tools
+RUN  apt-get update \
+  && apt-get install -y wget \
+  && apt-get install -y python3 \
+  && apt-get install -y libreoffice \
+  && apt-get install -y mupdf mupdf-tools \
+  && apt-get install -y supervisor \
+  && apt-get install -y libopengl0 \
+  && apt-get install -y xz-utils \
+  && apt-get install -y unzip \
+  && rm -rf /var/lib/apt/lists/*
+RUN  apt-get update \
+  && apt-get install -y language-pack-zh-hans \
+  && apt-get install -y language-pack-ja \
+  && apt-get install -y chinese* \
+  && apt-get install -y libreoffice-l10n-zh-cn libreoffice-help-zh-cn \
+  && apt-get install -y libreoffice-help-ja \
+  && rm -rf /var/lib/apt/lists/*
+# install calibre
+RUN wget -nv -O- https://download.calibre-ebook.com/linux-installer.py | python3 -c "import sys; main=lambda:sys.stderr.write('Download failed\n'); exec(sys.stdin.read()); main()"
+
+# Add non root user
+RUN addgroup --gid $gid --system moredoc\
+  && adduser --uid $uid --disabled-password --system --gid $gid moredoc
+# change to moredoc user
+USER moredoc
+WORKDIR /home/moredoc
+ENV VERSION ce_v1.1.0
+# Get and Unpack Tomcat
+RUN wget https://github.com/mnt-ltd/moredoc/releases/download/v1.1.0/moredoc_${VERSION}_linux_amd64.zip -O ~/moredoc_${VERSION}_linux_amd64.zip
+RUN cd ~/ && \ 
+  mkdir $basedir && \
+  unzip -n ~/moredoc_${VERSION}_linux_amd64.zip -d $basedir/
+COPY entrypoint.sh entrypoint.sh
+USER root
+RUN chmod 777 entrypoint.sh
+RUN chmod -R 777 /home/moredoc
+USER moredoc
+RUN mkdir $basedir/cache
+RUN mkdir $basedir/documents
+RUN mkdir $basedir/uploads
+VOLUME $basedir/cache
+VOLUME $basedir/documents
+VOLUME $basedir/uploads
+ENTRYPOINT ["./entrypoint.sh"]
+ENV MYSQL_CONNECTION=dummy
+CMD $MYSQL_CONNECTION
+
