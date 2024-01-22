@@ -1,19 +1,63 @@
-# 关于Docker
+# Docker部署魔豆文库
 
-## 端口
-docker 的-p参数，目前向外暴露了8880端口。
+当前`dockerfile`，在[@bluezealot](https://github.com/bluezealot)之前给魔豆文库提交的dockerfile PR的基础上修改调整而来。
 
-## 文件
-docker 的-v参数，目前向外暴露了三个路径
-- /home/moredoc/workspace/cache
-- /home/moredoc/workspace/documents
-- /home/moredoc/workspace/uploads
+> 您决定使用docker来部署魔豆文库，则默认您对docker有基本的了解。
 
-## 数据库链接地址
-提供环境变量 MYSQL_CONNECTION 来设置
 
-## docker run 命令启动例子
+**当前教程，所有操作指令，均为在`~/moredoc`目录下执行，特此说明。**
+
+## 安装docker
+
+略
+
+## 构建镜像
+
+下载当前`dockerfile`文件，将文件存放到`~/moredoc`下。或复制当前dockerfile文件内容，粘贴到`~/moredoc/dockerfile`文件中。
 
 ```
-sudo docker run -it -p 18880:8880 -v /home/bluezealot/work/morebook/cache:/home/moredoc/workspace/cache -v /home/bluezealot/work/morebook/document:/home/moredoc/workspace/documents -v /home/bluezealot/work/morebook/uploads:/home/moredoc/workspace/uploads -e MYSQL_CONNECTION="root:password@tcp(10.50.30.59:32306)/moredoc_test?charset=utf8mb4&loc=Local&parseTime=true" bluezealot/moredoc:Linux_ce_v1.0.0
+cd ~/moredoc
+[sudo] docker build -t moredoc:latest .
 ```
+
+## 下载魔豆文库
+
+当前魔豆文库`dockerfile`，是基于`ubuntu:22.04`构建镜像。如果您的docker所在服务器CPU架构是arm，则下载`xxx_linux_arm64.tar.gz`，否则下载`xxx_linux_amd64.tar.gz`。
+
+**下载地址：**
+- Gitee: https://gitee.com/mnt-ltd/moredoc/releases
+- Github: https://github.com/mnt-ltd/moredoc/releases
+
+下载之后，将程序解压到相应目录，这里解压目录为`~/moredoc/server`，如下：
+
+```
+-rw-r--r-- app.example.toml
+drwxr-xr-x dictionary
+drwxr-xr-x dist
+-rwxr-xr-x moredoc
+```
+
+需要注意的是，如果`moredoc`没有可执行权限，则需要设置下权限：
+```
+chmod +x moredoc
+```
+
+
+## 安装MySQL
+
+```
+cd ~/moredoc
+[sudo] docker run --name moredoc-mysql -d -p 127.0.0.1:33060:3306 -e MYSQL_ROOT_PASSWORD=moredoc --restart=always --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci -v $(pwd)/database:/var/lib/mysql
+```
+
+## 修改程序配置
+
+查看MySQL容器IP地址：
+```
+[sudo] docker inspect moredoc-mysql
+```
+
+这里，我们修改
+
+
+

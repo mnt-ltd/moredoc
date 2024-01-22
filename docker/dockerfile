@@ -5,11 +5,9 @@ ARG gid=1001
 ARG DEBIAN_FRONTEND=noninteractive
 EXPOSE 8880
 
-# 替换阿里云镜像源
-# amd
-RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
-# arm
-RUN sed -i 's/ports.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
+# 替换阿里云镜像源(arm的也一并替换)
+RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list \
+  && sed -i 's/ports.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 
 # 安装相关软件依赖
 RUN  apt update \
@@ -32,7 +30,7 @@ RUN  apt update \
 # 删除缓存
 RUN rm -rf /var/lib/apt/lists/*
 
-# 必须要用非root用户启动，以避免sandbox的问题
+# 必须要用非root用户启动，以避免sandbox等问题
 RUN addgroup --gid $gid --system moredoc\
   && adduser --uid $uid --disabled-password --system --gid $gid moredoc
 
