@@ -20,3 +20,5 @@ license.cert
 *.crt
 /tmp
 /web
+.DS_Store
+/moredoc

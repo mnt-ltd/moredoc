@@ -1,0 +1,33 @@
+version: '3'
+
+networks: 
+  moredoc-network:
+    # driver: bridge
+    external: false
+
+services: 
+  moredoc-mysql:
+    image: mysql:8.0.36
+    container_name: moredoc-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=moredoc
+    volumes:
+      - ./database:/var/lib/mysql
+    networks: 
+      - moredoc-network
+    restart: always
+    # 如果需要外部访问数据库，则开放端口
+    # ports:
+    #   - "127.0.0.1:3306:3306"
+  moredoc-server:
+    build: .
+    container_name: moredoc-server
+    depends_on: 
+      - moredoc-mysql
+    networks: 
+      - moredoc-network
+    ports:
+      - "8880:8880"
+    volumes:
+      - ./server:/home/moredoc
+    restart: always
