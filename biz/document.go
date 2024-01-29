@@ -621,6 +621,7 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 			WithCount: false,
 			QueryIn: map[string][]interface{}{
 				"category_id": {category.Id},
+				"status":      {model.DocumentStatusConverted},
 			},
 			Page:         1,
 			Size:         limit,
