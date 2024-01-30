@@ -293,6 +293,14 @@ service DocumentAPI {
       body : '*',
     };
   }
+
+  // 下载待审核的文档(只有待审核、审核拒绝的文档才能下载)
+  rpc DownloadDocumentToBeReviewed(Document)
+      returns (DownloadDocumentReply) {
+    option (google.api.http) = {
+      get : '/api/v1/document/download/bereviewed',
+    };
+  }
 }
 
 service RecycleAPI {

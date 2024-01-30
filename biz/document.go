@@ -972,3 +972,46 @@ func (s *DocumentAPIService) CheckDocument(ctx context.Context, req *pb.CheckDoc
 
 	return &emptypb.Empty{}, nil
 }
+
+// 下载待审核文档 DownloadDocumentToBeReviewed
+func (s *DocumentAPIService) DownloadDocumentToBeReviewed(ctx context.Context, req *pb.Document) (res *pb.DownloadDocumentReply, err error) {
+	userClaims, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 查询文档存不存在，以及文档是否是待审状态
+	doc, err := s.dbModel.GetDocument(req.Id, "id", "price", "status", "title", "ext", "user_id", "uuid")
+	if err != nil || !(doc.Status == model.DocumentStatusDisabled || doc.Status == model.DocumentStatusPendingReview || doc.Status == model.DocumentStatusReviewReject) {
+		return res, status.Errorf(codes.NotFound, "下载失败：文档不存在，或文档不属于待审、审核拒绝或禁用状态")
+	}
+
+	// 查询附件存不存在
+	attachment := s.dbModel.GetAttachmentByTypeAndTypeId(model.AttachmentTypeDocument, doc.Id, "id", "hash")
+	if attachment.Id == 0 {
+		return res, status.Errorf(codes.NotFound, "附件不存在")
+	}
+
+	down := &model.Download{
+		UserId:     userClaims.UserId,
+		DocumentId: doc.Id,
+		Ip:         util.GetGRPCRemoteIP(ctx),
+		IsPay:      false,
+	}
+
+	// 创建下载记录
+	err = s.dbModel.CreateDownload(down)
+	if err != nil {
+		return res, status.Errorf(codes.Internal, "创建下载失败：%s", err.Error())
+	}
+
+	cfgDown := s.dbModel.GetConfigOfDownload()
+	link, err := s.generateDownloadURL(doc, cfgDown, attachment.Hash)
+	if err != nil {
+		return res, status.Errorf(codes.Internal, "生成下载地址失败：%s", err.Error())
+	}
+	res = &pb.DownloadDocumentReply{
+		Url: link,
+	}
+	return res, nil
+}
