@@ -83,6 +83,8 @@ func getPermissions() (permissions []Permission) {
 		{Title: "删除广告", Description: "", Method: "GRPC", Path: "/api.v1.AdvertisementAPI/DeleteAdvertisement"},
 		{Title: "获取搜索记录列表", Description: "", Method: "GRPC", Path: "/api.v1.SearchRecordAPI/ListSearchRecord"},
 		{Title: "删除搜索记录", Description: "", Method: "GRPC", Path: "/api.v1.SearchRecordAPI/DeleteSearchRecord"},
+		{Title: "更新评论", Description: "", Method: "GRPC", Path: "/api.v1.CommentAPI/UpdateComment"},
+		{Title: "文档审核", Description: "", Method: "GRPC", Path: "/api.v1.DocumentAPI/CheckDocument"},
 	}
 	return
 }
