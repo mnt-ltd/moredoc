@@ -710,7 +710,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 	if maxPreview > 0 {
 		toPage = maxPreview
 	}
-	if toPage > document.Pages {
+	if toPage > document.Pages && document.Pages > 0 {
 		toPage = document.Pages
 	}
 
