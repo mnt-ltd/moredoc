@@ -186,8 +186,11 @@ func (m *UpdateLanguageStatusRequest) GetEnable() bool {
 }
 
 type ListLanguageRequest struct {
-	Wd     string `protobuf:"bytes,1,opt,name=wd,proto3" json:"wd,omitempty"`
-	Enable []bool `protobuf:"varint,2,rep,packed,name=enable,proto3" json:"enable,omitempty"`
+	Wd     string   `protobuf:"bytes,1,opt,name=wd,proto3" json:"wd,omitempty"`
+	Enable []bool   `protobuf:"varint,2,rep,packed,name=enable,proto3" json:"enable,omitempty"`
+	Field  []string `protobuf:"bytes,3,rep,name=field,proto3" json:"field,omitempty"`
+	Page   int32    `protobuf:"varint,4,opt,name=page,proto3" json:"page,omitempty"`
+	Size_  int32    `protobuf:"varint,5,opt,name=size,proto3" json:"size,omitempty"`
 }
 
 func (m *ListLanguageRequest) Reset()         { *m = ListLanguageRequest{} }
@@ -235,6 +238,27 @@ func (m *ListLanguageRequest) GetEnable() []bool {
 		return m.Enable
 	}
 	return nil
+}
+
+func (m *ListLanguageRequest) GetField() []string {
+	if m != nil {
+		return m.Field
+	}
+	return nil
+}
+
+func (m *ListLanguageRequest) GetPage() int32 {
+	if m != nil {
+		return m.Page
+	}
+	return 0
+}
+
+func (m *ListLanguageRequest) GetSize_() int32 {
+	if m != nil {
+		return m.Size_
+	}
+	return 0
 }
 
 type ListLanguageReply struct {
@@ -289,48 +313,99 @@ func (m *ListLanguageReply) GetLanguage() []*Language {
 	return nil
 }
 
+type DeleteLanguageRequest struct {
+	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
+}
+
+func (m *DeleteLanguageRequest) Reset()         { *m = DeleteLanguageRequest{} }
+func (m *DeleteLanguageRequest) String() string { return proto.CompactTextString(m) }
+func (*DeleteLanguageRequest) ProtoMessage()    {}
+func (*DeleteLanguageRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_4b7f0bb6aa63037c, []int{4}
+}
+func (m *DeleteLanguageRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *DeleteLanguageRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_DeleteLanguageRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *DeleteLanguageRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteLanguageRequest.Merge(m, src)
+}
+func (m *DeleteLanguageRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *DeleteLanguageRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteLanguageRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteLanguageRequest proto.InternalMessageInfo
+
+func (m *DeleteLanguageRequest) GetId() []int64 {
+	if m != nil {
+		return m.Id
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*Language)(nil), "api.v1.Language")
 	proto.RegisterType((*UpdateLanguageStatusRequest)(nil), "api.v1.UpdateLanguageStatusRequest")
 	proto.RegisterType((*ListLanguageRequest)(nil), "api.v1.ListLanguageRequest")
 	proto.RegisterType((*ListLanguageReply)(nil), "api.v1.ListLanguageReply")
+	proto.RegisterType((*DeleteLanguageRequest)(nil), "api.v1.DeleteLanguageRequest")
 }
 
 func init() { proto.RegisterFile("api/v1/language.proto", fileDescriptor_4b7f0bb6aa63037c) }
 
 var fileDescriptor_4b7f0bb6aa63037c = []byte{
-	// 495 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x93, 0x41, 0x8b, 0xd3, 0x40,
-	0x14, 0xc7, 0x3b, 0x49, 0x5b, 0xdb, 0xa9, 0x88, 0x3b, 0x76, 0x77, 0x63, 0xba, 0x66, 0x43, 0xbc,
-	0x04, 0x91, 0x84, 0x56, 0xbc, 0x28, 0x22, 0x5d, 0xd8, 0x83, 0xb0, 0x87, 0x25, 0x2a, 0x82, 0x17,
-	0x99, 0x36, 0x63, 0x08, 0xa4, 0x99, 0xd8, 0xbc, 0xb4, 0xf4, 0xea, 0x07, 0x90, 0x05, 0xbf, 0x94,
-	0xc7, 0x05, 0x2f, 0xde, 0x94, 0xd6, 0xab, 0xdf, 0x41, 0x3a, 0x99, 0xc9, 0xb6, 0xdb, 0x45, 0xbc,
-	0xbd, 0xf7, 0xe6, 0xfd, 0xff, 0x99, 0xf7, 0x9b, 0x17, 0xbc, 0x4f, 0xb3, 0xd8, 0x9f, 0xf5, 0xfd,
-	0x84, 0xa6, 0x51, 0x41, 0x23, 0xe6, 0x65, 0x53, 0x0e, 0x9c, 0x34, 0x69, 0x16, 0x7b, 0xb3, 0xbe,
-	0x79, 0x1c, 0x71, 0x1e, 0x25, 0xcc, 0x17, 0xd5, 0x51, 0xf1, 0xd1, 0x87, 0x78, 0xc2, 0x72, 0xa0,
-	0x93, 0xac, 0x6c, 0x34, 0xbb, 0x11, 0x8f, 0xb8, 0x08, 0xfd, 0x75, 0x24, 0xab, 0x47, 0x52, 0xb6,
-	0x36, 0xa7, 0x69, 0xca, 0x81, 0x42, 0xcc, 0xd3, 0x5c, 0x9e, 0xf6, 0xae, 0x9b, 0xb2, 0x49, 0x06,
-	0x8b, 0xf2, 0xd0, 0xf9, 0xa2, 0xe1, 0xd6, 0x99, 0xbc, 0x0c, 0xb9, 0x83, 0xb5, 0x38, 0x34, 0x90,
-	0x8d, 0x5c, 0x3d, 0xd0, 0xe2, 0x90, 0x98, 0xb8, 0xa5, 0x2e, 0x6a, 0x68, 0x36, 0x72, 0xdb, 0x41,
-	0x95, 0x93, 0x03, 0xdc, 0x64, 0x29, 0x1d, 0x25, 0xcc, 0xd0, 0x6d, 0xe4, 0xb6, 0x02, 0x99, 0x11,
-	0x82, 0xeb, 0x63, 0x1e, 0x32, 0xa3, 0x2e, 0xfa, 0x45, 0x4c, 0xba, 0xb8, 0x01, 0x1c, 0x68, 0x62,
-	0x34, 0x6c, 0xe4, 0x36, 0x82, 0x32, 0x59, 0x77, 0xe6, 0x7c, 0x0a, 0x46, 0x53, 0x14, 0x45, 0x4c,
-	0x5e, 0x62, 0x3c, 0x9e, 0x32, 0x0a, 0x2c, 0xfc, 0x40, 0xc1, 0xb8, 0x65, 0x23, 0xb7, 0x33, 0x30,
-	0xbd, 0x72, 0x00, 0x4f, 0x0d, 0xe0, 0xbd, 0x51, 0x54, 0x4e, 0xea, 0x17, 0x3f, 0x8f, 0x51, 0xd0,
-	0x96, 0x9a, 0xa1, 0x30, 0x28, 0xb2, 0x50, 0x19, 0xb4, 0xfe, 0xd7, 0x40, 0x6a, 0x86, 0xe0, 0x9c,
-	0xe2, 0xde, 0x5b, 0x91, 0x28, 0x2a, 0xaf, 0x81, 0x42, 0x91, 0x07, 0xec, 0x53, 0xc1, 0x72, 0xa8,
-	0x10, 0xe9, 0x12, 0xd1, 0x15, 0x06, 0x6d, 0x13, 0x83, 0xf3, 0x02, 0xdf, 0x3b, 0x8b, 0x73, 0x50,
-	0x26, 0x1b, 0xf2, 0x79, 0x49, 0xb8, 0x1d, 0x68, 0xf3, 0x6d, 0xb9, 0xbe, 0x21, 0x7f, 0x87, 0xf7,
-	0xb6, 0xe5, 0x59, 0xb2, 0xb8, 0xc2, 0x58, 0xbe, 0x90, 0xc4, 0xf8, 0x78, 0xeb, 0x91, 0x74, 0xb7,
-	0x33, 0xb8, 0xeb, 0x95, 0xeb, 0xe4, 0x55, 0xf2, 0xaa, 0x63, 0xf0, 0x07, 0xe1, 0x8e, 0x2a, 0x0f,
-	0xcf, 0x5f, 0x91, 0x39, 0xee, 0xde, 0x34, 0x2e, 0x79, 0xa8, 0x3c, 0xfe, 0x01, 0xc3, 0x3c, 0xd8,
-	0x01, 0x7b, 0xba, 0x5e, 0x2d, 0xc7, 0xf9, 0xfc, 0xfd, 0xf7, 0x57, 0xed, 0xc8, 0x3c, 0xf4, 0xaf,
-	0xad, 0xbb, 0x9f, 0x0b, 0xfd, 0x33, 0xf4, 0x88, 0x30, 0x7c, 0x7b, 0x73, 0x42, 0xd2, 0xab, 0x2e,
-	0xbd, 0x8b, 0xcd, 0xbc, 0x7f, 0xf3, 0x61, 0x96, 0x2c, 0x9c, 0x07, 0xe2, 0x5b, 0x87, 0x64, 0x7f,
-	0xe7, 0x5b, 0x49, 0x9c, 0xc3, 0xc9, 0xd3, 0x6f, 0x4b, 0x0b, 0x5d, 0x2e, 0x2d, 0xf4, 0x6b, 0x69,
-	0xa1, 0x8b, 0x95, 0x55, 0xbb, 0x5c, 0x59, 0xb5, 0x1f, 0x2b, 0xab, 0x86, 0xe5, 0x3f, 0x77, 0x8e,
-	0xde, 0xef, 0x4d, 0xf8, 0x94, 0x85, 0x7c, 0x2c, 0x1d, 0x9e, 0xcf, 0xfa, 0xa3, 0xa6, 0x98, 0xe8,
-	0xc9, 0xdf, 0x00, 0x00, 0x00, 0xff, 0xff, 0x59, 0x7e, 0xc6, 0x97, 0xb0, 0x03, 0x00, 0x00,
+	// 591 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x54, 0xcd, 0x6e, 0xd3, 0x4c,
+	0x14, 0xcd, 0xd8, 0x49, 0xbe, 0x64, 0xf2, 0x29, 0x6a, 0x87, 0xa4, 0x35, 0x4e, 0xeb, 0x5a, 0x66,
+	0x81, 0x55, 0x21, 0x5b, 0x09, 0x62, 0x03, 0x0b, 0x94, 0x42, 0x17, 0x48, 0x5d, 0x54, 0x06, 0x54,
+	0x89, 0x0d, 0x9a, 0xc4, 0x53, 0xcb, 0x92, 0x93, 0x31, 0xf1, 0x24, 0x51, 0x60, 0xd7, 0x07, 0x40,
+	0x95, 0x78, 0x29, 0x96, 0x95, 0xd8, 0xb0, 0x03, 0x25, 0x3c, 0x08, 0xf2, 0x78, 0xec, 0xfc, 0x38,
+	0x41, 0xb0, 0xbb, 0x77, 0xe6, 0x9e, 0x73, 0x3c, 0xe7, 0xdc, 0x04, 0x36, 0x71, 0xe8, 0xdb, 0x93,
+	0xb6, 0x1d, 0xe0, 0xa1, 0x37, 0xc6, 0x1e, 0xb1, 0xc2, 0x11, 0x65, 0x14, 0x95, 0x71, 0xe8, 0x5b,
+	0x93, 0xb6, 0x7a, 0xe2, 0x51, 0xea, 0x05, 0xc4, 0xe6, 0xa7, 0xbd, 0xf1, 0xb5, 0xcd, 0xfc, 0x01,
+	0x89, 0x18, 0x1e, 0x84, 0xc9, 0xa0, 0xda, 0xf0, 0xa8, 0x47, 0x79, 0x69, 0xc7, 0x95, 0x38, 0x3d,
+	0x12, 0xb0, 0x98, 0x1c, 0x0f, 0x87, 0x94, 0x61, 0xe6, 0xd3, 0x61, 0x24, 0x6e, 0x5b, 0x9b, 0xa4,
+	0x64, 0x10, 0xb2, 0x59, 0x72, 0x69, 0x7c, 0x96, 0x60, 0xe5, 0x42, 0x7c, 0x0c, 0xaa, 0x43, 0xc9,
+	0x77, 0x15, 0xa0, 0x03, 0x53, 0x76, 0x24, 0xdf, 0x45, 0x2a, 0xac, 0xa4, 0x1f, 0xaa, 0x48, 0x3a,
+	0x30, 0xab, 0x4e, 0xd6, 0xa3, 0x03, 0x58, 0x26, 0x43, 0xdc, 0x0b, 0x88, 0x22, 0xeb, 0xc0, 0xac,
+	0x38, 0xa2, 0x43, 0x08, 0x16, 0xfb, 0xd4, 0x25, 0x4a, 0x91, 0xcf, 0xf3, 0x1a, 0x35, 0x60, 0x89,
+	0x51, 0x86, 0x03, 0xa5, 0xa4, 0x03, 0xb3, 0xe4, 0x24, 0x4d, 0x3c, 0x19, 0xd1, 0x11, 0x53, 0xca,
+	0xfc, 0x90, 0xd7, 0xe8, 0x39, 0x84, 0xfd, 0x11, 0xc1, 0x8c, 0xb8, 0xef, 0x31, 0x53, 0xfe, 0xd3,
+	0x81, 0x59, 0xeb, 0xa8, 0x56, 0xf2, 0x00, 0x2b, 0x7d, 0x80, 0xf5, 0x26, 0x75, 0xe5, 0xac, 0x78,
+	0xfb, 0xe3, 0x04, 0x38, 0x55, 0x81, 0xe9, 0x72, 0x82, 0x71, 0xe8, 0xa6, 0x04, 0x95, 0xbf, 0x25,
+	0x10, 0x98, 0x2e, 0x33, 0xce, 0x61, 0xeb, 0x2d, 0x6f, 0x52, 0x57, 0x5e, 0x33, 0xcc, 0xc6, 0x91,
+	0x43, 0x3e, 0x8c, 0x49, 0xc4, 0x32, 0x8b, 0x64, 0x61, 0xd1, 0xd2, 0x06, 0x69, 0xd5, 0x06, 0xe3,
+	0x13, 0xbc, 0x77, 0xe1, 0x47, 0x2c, 0x25, 0x59, 0x81, 0x4f, 0x13, 0x87, 0xab, 0x8e, 0x34, 0x5d,
+	0x87, 0xcb, 0x2b, 0x2e, 0x36, 0x60, 0xe9, 0xda, 0x27, 0x81, 0xab, 0xc8, 0xba, 0x6c, 0x56, 0x9d,
+	0xa4, 0x89, 0x1d, 0x0b, 0xe3, 0x2c, 0x8a, 0x89, 0x63, 0x71, 0xcd, 0x5d, 0xf4, 0x3f, 0x12, 0x61,
+	0x2d, 0xaf, 0x8d, 0x2b, 0xb8, 0xbf, 0x2e, 0x1e, 0x06, 0xb3, 0x65, 0x08, 0x49, 0xbe, 0x22, 0x84,
+	0x47, 0x6b, 0x11, 0xcb, 0x66, 0xad, 0xb3, 0x67, 0x25, 0xcb, 0x68, 0x65, 0xf0, 0x6c, 0xc2, 0x78,
+	0x08, 0x9b, 0x2f, 0x49, 0x40, 0x96, 0xe6, 0xec, 0xb0, 0xa5, 0x73, 0x53, 0x84, 0xb5, 0x74, 0xa6,
+	0x7b, 0xf9, 0x0a, 0x5d, 0xc1, 0xfa, 0x0b, 0x9e, 0x51, 0xb6, 0x6b, 0x39, 0x19, 0xf5, 0x20, 0x17,
+	0xd3, 0x79, 0xbc, 0xa8, 0x46, 0xeb, 0xe6, 0xdb, 0xaf, 0x2f, 0x52, 0xd3, 0xd8, 0xb3, 0x37, 0x7e,
+	0x3c, 0x4f, 0xc1, 0x69, 0x4c, 0xbc, 0x1e, 0xd7, 0xbf, 0x13, 0xab, 0x5b, 0x89, 0xa7, 0xb0, 0xb1,
+	0x6d, 0x0f, 0xd0, 0x83, 0x94, 0xfe, 0x0f, 0x5b, 0xb2, 0x53, 0xd1, 0xe0, 0x8a, 0x47, 0xea, 0xe1,
+	0xa6, 0xa2, 0x1d, 0x71, 0x7c, 0x2c, 0x4c, 0xe0, 0xff, 0xab, 0xe1, 0xa1, 0x56, 0xf6, 0x9e, 0xfc,
+	0x3e, 0xa9, 0xf7, 0xb7, 0x5f, 0x86, 0xc1, 0xcc, 0x38, 0xe6, 0x5a, 0x87, 0xa8, 0x99, 0xd3, 0x0a,
+	0xfc, 0x88, 0x21, 0x0c, 0xeb, 0xeb, 0x51, 0xa2, 0xe3, 0x94, 0x6b, 0x6b, 0xc4, 0x3b, 0xdf, 0xa4,
+	0x70, 0x1d, 0x74, 0x9a, 0x73, 0xf1, 0xec, 0xc9, 0xd7, 0xb9, 0x06, 0xee, 0xe6, 0x1a, 0xf8, 0x39,
+	0xd7, 0xc0, 0xed, 0x42, 0x2b, 0xdc, 0x2d, 0xb4, 0xc2, 0xf7, 0x85, 0x56, 0x80, 0xe2, 0xff, 0xee,
+	0x12, 0xbc, 0xdb, 0x1f, 0xd0, 0x11, 0x71, 0x69, 0x5f, 0x80, 0x9f, 0x4d, 0xda, 0xbd, 0x32, 0x17,
+	0x78, 0xfc, 0x3b, 0x00, 0x00, 0xff, 0xff, 0x63, 0x8a, 0x2a, 0x8d, 0x2c, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -345,8 +420,11 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type LanguageAPIClient interface {
+	CreateLanguage(ctx context.Context, in *Language, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	UpdateLanguage(ctx context.Context, in *Language, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	UpdateLanguageStatus(ctx context.Context, in *UpdateLanguageStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	ListLanguage(ctx context.Context, in *ListLanguageRequest, opts ...grpc.CallOption) (*ListLanguageReply, error)
+	DeleteLanguage(ctx context.Context, in *DeleteLanguageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
 
 type languageAPIClient struct {
@@ -355,6 +433,24 @@ type languageAPIClient struct {
 
 func NewLanguageAPIClient(cc *grpc.ClientConn) LanguageAPIClient {
 	return &languageAPIClient{cc}
+}
+
+func (c *languageAPIClient) CreateLanguage(ctx context.Context, in *Language, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/api.v1.LanguageAPI/CreateLanguage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *languageAPIClient) UpdateLanguage(ctx context.Context, in *Language, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/api.v1.LanguageAPI/UpdateLanguage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *languageAPIClient) UpdateLanguageStatus(ctx context.Context, in *UpdateLanguageStatusRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
@@ -375,25 +471,82 @@ func (c *languageAPIClient) ListLanguage(ctx context.Context, in *ListLanguageRe
 	return out, nil
 }
 
+func (c *languageAPIClient) DeleteLanguage(ctx context.Context, in *DeleteLanguageRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/api.v1.LanguageAPI/DeleteLanguage", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // LanguageAPIServer is the server API for LanguageAPI service.
 type LanguageAPIServer interface {
+	CreateLanguage(context.Context, *Language) (*emptypb.Empty, error)
+	UpdateLanguage(context.Context, *Language) (*emptypb.Empty, error)
 	UpdateLanguageStatus(context.Context, *UpdateLanguageStatusRequest) (*emptypb.Empty, error)
 	ListLanguage(context.Context, *ListLanguageRequest) (*ListLanguageReply, error)
+	DeleteLanguage(context.Context, *DeleteLanguageRequest) (*emptypb.Empty, error)
 }
 
 // UnimplementedLanguageAPIServer can be embedded to have forward compatible implementations.
 type UnimplementedLanguageAPIServer struct {
 }
 
+func (*UnimplementedLanguageAPIServer) CreateLanguage(ctx context.Context, req *Language) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateLanguage not implemented")
+}
+func (*UnimplementedLanguageAPIServer) UpdateLanguage(ctx context.Context, req *Language) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateLanguage not implemented")
+}
 func (*UnimplementedLanguageAPIServer) UpdateLanguageStatus(ctx context.Context, req *UpdateLanguageStatusRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateLanguageStatus not implemented")
 }
 func (*UnimplementedLanguageAPIServer) ListLanguage(ctx context.Context, req *ListLanguageRequest) (*ListLanguageReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListLanguage not implemented")
 }
+func (*UnimplementedLanguageAPIServer) DeleteLanguage(ctx context.Context, req *DeleteLanguageRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteLanguage not implemented")
+}
 
 func RegisterLanguageAPIServer(s *grpc.Server, srv LanguageAPIServer) {
 	s.RegisterService(&_LanguageAPI_serviceDesc, srv)
+}
+
+func _LanguageAPI_CreateLanguage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Language)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LanguageAPIServer).CreateLanguage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.LanguageAPI/CreateLanguage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LanguageAPIServer).CreateLanguage(ctx, req.(*Language))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _LanguageAPI_UpdateLanguage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Language)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LanguageAPIServer).UpdateLanguage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.LanguageAPI/UpdateLanguage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LanguageAPIServer).UpdateLanguage(ctx, req.(*Language))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _LanguageAPI_UpdateLanguageStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -432,10 +585,36 @@ func _LanguageAPI_ListLanguage_Handler(srv interface{}, ctx context.Context, dec
 	return interceptor(ctx, in, info, handler)
 }
 
+func _LanguageAPI_DeleteLanguage_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteLanguageRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(LanguageAPIServer).DeleteLanguage(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.LanguageAPI/DeleteLanguage",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(LanguageAPIServer).DeleteLanguage(ctx, req.(*DeleteLanguageRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _LanguageAPI_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "api.v1.LanguageAPI",
 	HandlerType: (*LanguageAPIServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateLanguage",
+			Handler:    _LanguageAPI_CreateLanguage_Handler,
+		},
+		{
+			MethodName: "UpdateLanguage",
+			Handler:    _LanguageAPI_UpdateLanguage_Handler,
+		},
 		{
 			MethodName: "UpdateLanguageStatus",
 			Handler:    _LanguageAPI_UpdateLanguageStatus_Handler,
@@ -443,6 +622,10 @@ var _LanguageAPI_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListLanguage",
 			Handler:    _LanguageAPI_ListLanguage_Handler,
+		},
+		{
+			MethodName: "DeleteLanguage",
+			Handler:    _LanguageAPI_DeleteLanguage_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -603,6 +786,25 @@ func (m *ListLanguageRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if m.Size_ != 0 {
+		i = encodeVarintLanguage(dAtA, i, uint64(m.Size_))
+		i--
+		dAtA[i] = 0x28
+	}
+	if m.Page != 0 {
+		i = encodeVarintLanguage(dAtA, i, uint64(m.Page))
+		i--
+		dAtA[i] = 0x20
+	}
+	if len(m.Field) > 0 {
+		for iNdEx := len(m.Field) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.Field[iNdEx])
+			copy(dAtA[i:], m.Field[iNdEx])
+			i = encodeVarintLanguage(dAtA, i, uint64(len(m.Field[iNdEx])))
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
 	if len(m.Enable) > 0 {
 		for iNdEx := len(m.Enable) - 1; iNdEx >= 0; iNdEx-- {
 			i--
@@ -664,6 +866,48 @@ func (m *ListLanguageReply) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 		i = encodeVarintLanguage(dAtA, i, uint64(m.Total))
 		i--
 		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *DeleteLanguageRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *DeleteLanguageRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *DeleteLanguageRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Id) > 0 {
+		dAtA6 := make([]byte, len(m.Id)*10)
+		var j5 int
+		for _, num1 := range m.Id {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA6[j5] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j5++
+			}
+			dAtA6[j5] = uint8(num)
+			j5++
+		}
+		i -= j5
+		copy(dAtA[i:], dAtA6[:j5])
+		i = encodeVarintLanguage(dAtA, i, uint64(j5))
+		i--
+		dAtA[i] = 0xa
 	}
 	return len(dAtA) - i, nil
 }
@@ -748,6 +992,18 @@ func (m *ListLanguageRequest) Size() (n int) {
 	if len(m.Enable) > 0 {
 		n += 1 + sovLanguage(uint64(len(m.Enable))) + len(m.Enable)*1
 	}
+	if len(m.Field) > 0 {
+		for _, s := range m.Field {
+			l = len(s)
+			n += 1 + l + sovLanguage(uint64(l))
+		}
+	}
+	if m.Page != 0 {
+		n += 1 + sovLanguage(uint64(m.Page))
+	}
+	if m.Size_ != 0 {
+		n += 1 + sovLanguage(uint64(m.Size_))
+	}
 	return n
 }
 
@@ -765,6 +1021,22 @@ func (m *ListLanguageReply) Size() (n int) {
 			l = e.Size()
 			n += 1 + l + sovLanguage(uint64(l))
 		}
+	}
+	return n
+}
+
+func (m *DeleteLanguageRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Id) > 0 {
+		l = 0
+		for _, e := range m.Id {
+			l += sovLanguage(uint64(e))
+		}
+		n += 1 + sovLanguage(uint64(l)) + l
 	}
 	return n
 }
@@ -1315,6 +1587,76 @@ func (m *ListLanguageRequest) Unmarshal(dAtA []byte) error {
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Enable", wireType)
 			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Field", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLanguage
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthLanguage
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthLanguage
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Field = append(m.Field, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 4:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Page", wireType)
+			}
+			m.Page = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLanguage
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Page |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 5:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Size_", wireType)
+			}
+			m.Size_ = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowLanguage
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Size_ |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipLanguage(dAtA[iNdEx:])
@@ -1418,6 +1760,132 @@ func (m *ListLanguageReply) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipLanguage(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthLanguage
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *DeleteLanguageRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowLanguage
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: DeleteLanguageRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: DeleteLanguageRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowLanguage
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Id = append(m.Id, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowLanguage
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthLanguage
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthLanguage
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.Id) == 0 {
+					m.Id = make([]int64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowLanguage
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Id = append(m.Id, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
 		default:
 			iNdEx = preIndex
 			skippy, err := skipLanguage(dAtA[iNdEx:])
