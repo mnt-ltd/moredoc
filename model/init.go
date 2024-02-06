@@ -183,6 +183,7 @@ func (m *DBModel) SyncDB() (err error) {
 		&EmailCode{},
 		&Advertisement{},
 		&SearchRecord{},
+		&Language{},
 	}
 
 	m.alterTableBeforeSyncDB()
@@ -390,6 +391,14 @@ func (m *DBModel) initGroupAndPermission() (err error) {
 		if err != nil {
 			m.logger.Error("initPermission", zap.Error(err))
 			return
+		}
+	}
+
+	// 初始化语言
+	for _, lang := range getLangs() {
+		err = sess.Where("code = ?", lang.Code).FirstOrCreate(&lang).Error
+		if err != nil {
+			m.logger.Error("initLanguage", zap.Error(err))
 		}
 	}
 	return
