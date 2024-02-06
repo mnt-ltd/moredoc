@@ -68,6 +68,7 @@ type Document struct {
 	RecommendAt   *time.Time      `form:"recommend_at" json:"recommend_at,omitempty" gorm:"column:recommend_at;type:datetime;comment:推荐时间;index:idx_recommend_at;"`
 	PreviewExt    string          `form:"preview_ext" json:"preview_ext,omitempty" gorm:"column:preview_ext;type:varchar(16);size:16;default:.svg;comment:预览图扩展名;"`
 	UUID          string          `form:"uuid" json:"uuid,omitempty" gorm:"column:uuid;type:char(16);index:idx_uuid;size:16;default:;comment:uuid值，这里用uuid的md5加密串的16位;"`
+	Language      string          `form:"language" json:"language,omitempty" gorm:"column:language;type:varchar(16);size:16;comment:语言;index:idx_language;"`
 }
 
 func (Document) TableName() string {

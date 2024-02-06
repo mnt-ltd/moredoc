@@ -54,6 +54,7 @@ message Document {
   bool enable_gzip = 32;              // 是否启用gzip压缩
   string convert_error = 33;          // 转换错误信息
   string preview_ext = 34;            // 预览文件扩展名
+  string language = 35;               // 文档语言
 }
 
 // 删除文档，放入回收站
@@ -295,8 +296,7 @@ service DocumentAPI {
   }
 
   // 下载待审核的文档(只有待审核、审核拒绝的文档才能下载)
-  rpc DownloadDocumentToBeReviewed(Document)
-      returns (DownloadDocumentReply) {
+  rpc DownloadDocumentToBeReviewed(Document) returns (DownloadDocumentReply) {
     option (google.api.http) = {
       get : '/api/v1/document/download/bereviewed',
     };
