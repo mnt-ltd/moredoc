@@ -350,9 +350,28 @@ func (m *DBModel) initDatabase() (err error) {
 	// 更新uuid
 	m.checkAndUpdateDocumentUUID()
 
+	// 初始化语言
+	if err = m.initLanguage(); err != nil {
+		m.logger.Error("initLanguage", zap.Error(err))
+	}
+
 	// 初始化静态页面SEO
 	m.InitSEO()
+	return
+}
 
+func (m *DBModel) initLanguage() (err error) {
+	// 初始化语言
+	var lang Language
+	m.db.Find(&lang)
+	if lang.Id > 0 {
+		return
+	}
+	langs := getLangs()
+	err = m.db.Create(&langs).Error
+	if err != nil {
+		m.logger.Error("initLanguage", zap.Error(err))
+	}
 	return
 }
 
@@ -391,14 +410,6 @@ func (m *DBModel) initGroupAndPermission() (err error) {
 		if err != nil {
 			m.logger.Error("initPermission", zap.Error(err))
 			return
-		}
-	}
-
-	// 初始化语言
-	for _, lang := range getLangs() {
-		err = sess.Where("code = ?", lang.Code).FirstOrCreate(&lang).Error
-		if err != nil {
-			m.logger.Error("initLanguage", zap.Error(err))
 		}
 	}
 	return

@@ -82,7 +82,6 @@ func (s *LanguageAPIService) ListLanguage(ctx context.Context, req *pb.ListLangu
 	opt := &model.OptionGetLanguageList{
 		WithCount:    true,
 		QueryIn:      map[string][]interface{}{},
-		Sort:         []string{"enable desc", "sort desc", "id asc"},
 		SelectFields: req.Field,
 		Page:         int(req.Page),
 		Size:         int(req.Size_),

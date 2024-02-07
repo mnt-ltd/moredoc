@@ -163,6 +163,14 @@ func (s *ConfigAPIService) GetSettings(ctx context.Context, req *emptypb.Empty) 
 		s.logger.Error("util.CopyStruct", zap.Any("display", display), zap.Any("res.Display", res.Display), zap.Error(err))
 	}
 
+	langs, _, _ := s.dbModel.GetLanguageList(&model.OptionGetLanguageList{
+		WithCount:    false,
+		SelectFields: []string{"id", "language", "code"},
+		QueryIn: map[string][]interface{}{
+			"enable": {true},
+		},
+	})
+	util.CopyStruct(&langs, &res.Language)
 	return res, nil
 }
 

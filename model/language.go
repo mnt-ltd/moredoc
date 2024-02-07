@@ -94,6 +94,9 @@ func (m *DBModel) GetLanguageList(opt *OptionGetLanguageList) (languageList []La
 		db = db.Select(opt.SelectFields)
 	}
 
+	if len(opt.Sort) == 0 {
+		opt.Sort = []string{"enable desc", "sort desc", "id asc"}
+	}
 	db = m.generateQuerySort(db, tableName, opt.Sort)
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)

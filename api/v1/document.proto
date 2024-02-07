@@ -108,6 +108,7 @@ message CreateDocumentItem {
   string title = 1;        // 文档标题
   int64 attachment_id = 2; // 文档附件ID
   int32 price = 3;         // 文档价格
+  string language = 4;     // 文档语言
 }
 
 // 创建文档
