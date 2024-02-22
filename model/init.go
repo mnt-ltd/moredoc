@@ -250,7 +250,17 @@ func (m *DBModel) alterTableBeforeSyncDB() {
 }
 
 func (m *DBModel) alterTableAfterSyncDB() {
+	// 分类修正：用total替换doc_count字段
+	sqls := []string{
+		"UPDATE `mnt_category` SET `total`=`doc_count` where `type`=0 and `total`=0",
+	}
 
+	for _, sql := range sqls {
+		err := m.db.Exec(sql).Error
+		if err != nil {
+			m.logger.Error("alterTableAfterSyncDB", zap.Error(err))
+		}
+	}
 }
 
 func (m *DBModel) ShowIndexes(table string) (indexes []TableIndex) {
