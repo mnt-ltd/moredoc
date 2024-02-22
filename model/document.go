@@ -174,12 +174,11 @@ func (m *DBModel) UpdateDocumentField(id int64, fieldValue map[string]interface{
 func (m *DBModel) GetDocument(idOrUUID interface{}, fields ...string) (document Document, err error) {
 	db := m.db
 
-	// if id, ok := idOrUUID.(int64); ok {
-	// 	db = db.Where("id = ?", id)
-	// } else if uuid, ok := idOrUUID.(string); ok {
-	// 	db = db.Where("uuid = ?", uuid)
-	// }
-	db = db.Where("id = ? or uuid = ?", idOrUUID, idOrUUID)
+	if id, ok := idOrUUID.(int64); ok {
+		db = db.Where("id = ?", id)
+	} else {
+		db = db.Where("uuid = ?", idOrUUID)
+	}
 
 	fields = m.FilterValidFields(Document{}.TableName(), fields...)
 	if len(fields) > 0 {
