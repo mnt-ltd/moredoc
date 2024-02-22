@@ -80,6 +80,11 @@ message SetDocumentsCategoryRequest {
   repeated int64 category_id = 2; // 分类ID
 }
 
+message SetDocumentsLanguageRequest {
+  repeated int64 document_id = 1; // 文档ID
+  string language = 2;            // 文档语言代码
+}
+
 // 文档列表
 message ListDocumentRequest {
   int64 page = 1;                 // 页码
@@ -95,6 +100,7 @@ message ListDocumentRequest {
   string ext = 11;                 // 文档扩展名
   repeated string created_at = 12; // 创建时间
   string fee_type = 13;            // 收费类型
+  repeated string language = 14;   // 文档语言
 }
 
 // 文档列表
@@ -154,6 +160,7 @@ message SearchDocumentRequest {
   int64 user_id = 8;              // 用户ID
   // 时间区间
   repeated string created_at = 9; // 时间范围
+  repeated string language = 10;  // 文档语言
 }
 
 // 文档评分
@@ -292,6 +299,15 @@ service DocumentAPI {
       returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/document/category',
+      body : '*',
+    };
+  }
+
+  // 批量更新文档所属语言
+  rpc SetDocumentsLanguage(SetDocumentsLanguageRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/document/language',
       body : '*',
     };
   }

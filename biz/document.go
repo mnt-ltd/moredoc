@@ -100,6 +100,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 			Size:     attachment.Size,
 			Ext:      attachment.Ext,
 			Status:   documentStatus,
+			Language: doc.Language,
 		}
 		docMapAttachment[idx] = attachment.Id
 		documents = append(documents, doc)
@@ -132,7 +133,7 @@ func (s *DocumentAPIService) UpdateDocument(ctx context.Context, req *pb.Documen
 		return nil, err
 	}
 
-	fields := []string{"id", "title", "keywords", "description", "price"}
+	fields := []string{"id", "title", "keywords", "description", "price", "language"}
 	doc := &model.Document{}
 	util.CopyStruct(req, doc)
 
@@ -320,6 +321,19 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 
 	if len(req.UserId) > 0 {
 		opt.QueryIn["user_id"] = []interface{}{req.UserId[0]}
+	}
+
+	if len(req.Language) > 0 {
+		var languages []interface{}
+		for _, lang := range req.Language {
+			if lang == "" {
+				continue
+			}
+			languages = append(languages, lang)
+		}
+		if len(languages) > 0 {
+			opt.QueryIn["language"] = languages
+		}
 	}
 
 	if exts := filetil.GetExts(req.Ext); len(exts) > 0 {
@@ -722,6 +736,19 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 		}
 	}
 
+	if len(req.Language) > 0 {
+		var languages []interface{}
+		for _, lang := range req.Language {
+			if lang == "" {
+				continue
+			}
+			languages = append(languages, lang)
+		}
+		if len(languages) > 0 {
+			opt.QueryIn["language"] = util.Slice2Interface(req.Language)
+		}
+	}
+
 	if req.Sort != "" {
 		if req.Sort == "latest" {
 			opt.Sort = []string{"id"}
@@ -1014,4 +1041,23 @@ func (s *DocumentAPIService) DownloadDocumentToBeReviewed(ctx context.Context, r
 		Url: link,
 	}
 	return res, nil
+}
+
+// 批量设置文档语言
+func (s *DocumentAPIService) SetDocumentsLanguage(ctx context.Context, req *pb.SetDocumentsLanguageRequest) (res *emptypb.Empty, err error) {
+	_, err = s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(req.DocumentId) == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "文档ID不能为空")
+	}
+
+	err = s.dbModel.SetDocumentsLanguage(req.DocumentId, req.Language)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "设置文档语言失败：%s", err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
 }

@@ -860,6 +860,14 @@ func (m *DBModel) SetDocumentsCategory(documentId, categoryId []int64) (err erro
 	return
 }
 
+func (m *DBModel) SetDocumentsLanguage(documentId []int64, language string) (err error) {
+	err = m.db.Model(&Document{}).Where("id in (?)", documentId).Update("language", language).Error
+	if err != nil {
+		m.logger.Error("SetDocumentsLanguage", zap.Error(err))
+	}
+	return
+}
+
 func (m *DBModel) GetDefaultDocumentStatus(userId int64) (status int) {
 	status = DocumentStatusPendingReview // 默认文档待审核
 	if userId <= 0 {
