@@ -917,4 +917,30 @@ func (m *DBModel) checkAndUpdateDocumentUUID() {
 		}
 		tx.Commit()
 	}
+
+	// 查询可能重复的uuid(2.4版本用uuid.NewV4()生成的uuid，存在部分重复的情况，因此需要检测是否有重复的uuid，然后重新生成)
+	var uuids []string
+	err := m.db.Unscoped().Model(modelDocument).Select("uuid").Group("uuid").Having("count(uuid) > 1").Pluck("uuid", &uuids).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("updateDocumentUUID", zap.Error(err))
+		return
+	}
+	if len(uuids) == 0 {
+		return
+	}
+	for _, uuid := range uuids {
+		var doc Document
+		err = m.db.Unscoped().Model(modelDocument).Where("uuid = ?", uuid).First(&doc).Error
+		if err != nil {
+			m.logger.Error("updateDocumentUUID", zap.Error(err))
+			return
+		}
+		doc.UUID = util.GenDocumentMD5UUID()
+		err = m.db.Unscoped().Model(modelDocument).Where("id = ?", doc.Id).Update("uuid", doc.UUID).Error
+		if err != nil {
+			m.logger.Error("updateDocumentUUID", zap.Error(err))
+			return
+		}
+	}
+	m.checkAndUpdateDocumentUUID()
 }

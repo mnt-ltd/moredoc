@@ -420,7 +420,7 @@ func (s *AttachmentAPIService) saveFile(ctx *gin.Context, fileHeader *multipart.
 	cacheDir := fmt.Sprintf("cache/uploads/%s", time.Now().Format("2006/01/02"))
 	os.MkdirAll(cacheDir, os.ModePerm)
 	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
-	cachePath := fmt.Sprintf("%s/%s%s", cacheDir, uuid.Must(uuid.NewV4()).String(), ext)
+	cachePath := fmt.Sprintf("%s/%s%s", cacheDir, uuid.Must(uuid.NewV1()).String(), ext)
 	defer func() {
 		os.Remove(cachePath)
 	}()
