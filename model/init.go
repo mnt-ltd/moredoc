@@ -541,3 +541,28 @@ func (m *DBModel) generateQuerySort(db *gorm.DB, tableName string, querySort []s
 	}
 	return db
 }
+
+// 检查MySQL数据库是否支持group by 查询
+func (m *DBModel) IsSupportGroupBy() (yes bool, sqlMode string) {
+	var variables struct {
+		VariableName string `gorm:"column:Variable_name"`
+		Value        string `gorm:"column:Value"`
+	}
+	err := m.db.Raw("SHOW VARIABLES LIKE 'sql_mode'").Scan(&variables).Error
+	if err != nil {
+		m.logger.Error("CheckMySQLGroupBy", zap.Error(err))
+		return
+	}
+	m.logger.Debug("CheckMySQLGroupBy", zap.Any("variables", variables))
+	yes = !strings.Contains(variables.Value, "ONLY_FULL_GROUP_BY")
+	return yes, variables.Value
+}
+
+// 设置数据库的sql_mode，去掉 ONLY_FULL_GROUP_BY，使得支持group by查询
+func (m *DBModel) SetSQLMode() (err error) {
+	err = m.db.Exec("set global sql_mode=(select replace(@@sql_mode,'ONLY_FULL_GROUP_BY',''))").Error
+	if err != nil {
+		m.logger.Error("SetSQLMode", zap.Error(err))
+	}
+	return
+}
