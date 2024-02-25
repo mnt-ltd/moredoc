@@ -233,4 +233,11 @@ service ConfigAPI {
       get : "/api/v1/device"
     };
   }
+
+  // 设置SQL mode，只针对id=1的用户，且sql_mode只处理only_full_group_by问题
+  rpc SetSQLMode(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/api/v1/sqlmode"
+    };
+  }
 }

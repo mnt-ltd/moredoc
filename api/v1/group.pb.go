@@ -636,15 +636,15 @@ const _ = grpc.SupportPackageIsVersion4
 type GroupAPIClient interface {
 	// 创建用户组
 	CreateGroup(ctx context.Context, in *Group, opts ...grpc.CallOption) (*Group, error)
-	//   更新用户组
+	// 更新用户组
 	UpdateGroup(ctx context.Context, in *Group, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	//   删除用户组
+	// 删除用户组
 	DeleteGroup(ctx context.Context, in *DeleteGroupRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	//   获取用户组
+	// 获取用户组
 	GetGroup(ctx context.Context, in *GetGroupRequest, opts ...grpc.CallOption) (*Group, error)
-	//  获取用户组列表
+	// 获取用户组列表
 	ListGroup(ctx context.Context, in *ListGroupRequest, opts ...grpc.CallOption) (*ListGroupReply, error)
-	//  获取用户组权限列表
+	// 获取用户组权限列表
 	GetGroupPermission(ctx context.Context, in *GetGroupPermissionRequest, opts ...grpc.CallOption) (*GroupPermissions, error)
 	// 更新用户组权限，给用户组设置权限
 	UpdateGroupPermission(ctx context.Context, in *UpdateGroupPermissionRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -725,15 +725,15 @@ func (c *groupAPIClient) UpdateGroupPermission(ctx context.Context, in *UpdateGr
 type GroupAPIServer interface {
 	// 创建用户组
 	CreateGroup(context.Context, *Group) (*Group, error)
-	//   更新用户组
+	// 更新用户组
 	UpdateGroup(context.Context, *Group) (*emptypb.Empty, error)
-	//   删除用户组
+	// 删除用户组
 	DeleteGroup(context.Context, *DeleteGroupRequest) (*emptypb.Empty, error)
-	//   获取用户组
+	// 获取用户组
 	GetGroup(context.Context, *GetGroupRequest) (*Group, error)
-	//  获取用户组列表
+	// 获取用户组列表
 	ListGroup(context.Context, *ListGroupRequest) (*ListGroupReply, error)
-	//  获取用户组权限列表
+	// 获取用户组权限列表
 	GetGroupPermission(context.Context, *GetGroupPermissionRequest) (*GroupPermissions, error)
 	// 更新用户组权限，给用户组设置权限
 	UpdateGroupPermission(context.Context, *UpdateGroupPermissionRequest) (*emptypb.Empty, error)
