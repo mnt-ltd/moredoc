@@ -60,6 +60,7 @@ type DBModel struct {
 	validToken     sync.Map // map[tokenUUID]struct{} 有效的token uuid
 	invalidToken   sync.Map // map[tokenUUID]struct{} 存在，未过期但无效token，比如读者退出登录后的token
 	ctx            context.Context
+	cfg            *conf.Database
 }
 
 func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
@@ -75,6 +76,7 @@ func NewDBModel(cfg *conf.Database, lg *zap.Logger) (m *DBModel, err error) {
 		tablePrefix:    cfg.Prefix,
 		tableFields:    make(map[string][]string),
 		tableFieldsMap: make(map[string]map[string]struct{}),
+		cfg:            cfg,
 	}
 
 	var (
@@ -540,4 +542,85 @@ func (m *DBModel) generateQuerySort(db *gorm.DB, tableName string, querySort []s
 		db = db.Order(fmt.Sprintf("%sid desc", alias))
 	}
 	return db
+}
+
+// 检查MySQL数据库是否支持group by 查询
+func (m *DBModel) IsSupportGroupBy() (yes bool, sqlMode string) {
+	var variables struct {
+		VariableName string `gorm:"column:Variable_name"`
+		Value        string `gorm:"column:Value"`
+	}
+	err := m.db.Raw("SHOW VARIABLES LIKE 'sql_mode'").Scan(&variables).Error
+	if err != nil {
+		m.logger.Error("CheckMySQLGroupBy", zap.Error(err))
+		return
+	}
+	m.logger.Debug("CheckMySQLGroupBy", zap.Any("variables", variables))
+	yes = !strings.Contains(variables.Value, "ONLY_FULL_GROUP_BY")
+	return yes, variables.Value
+}
+
+// 设置数据库的sql_mode，去掉 ONLY_FULL_GROUP_BY，使得支持group by查询
+func (m *DBModel) SetSQLMode() (err error) {
+	err = m.db.Exec("set global sql_mode=(select replace(@@sql_mode,'ONLY_FULL_GROUP_BY',''))").Error
+	if err != nil {
+		m.logger.Error("SetSQLMode", zap.Error(err))
+		return
+	}
+
+	err = m.resetDB()
+	if err != nil {
+		m.logger.Error("resetDB", zap.Error(err))
+	}
+	return
+}
+
+func (m *DBModel) resetDB() (err error) {
+	var (
+		db    *gorm.DB
+		sqlDB *sql.DB
+	)
+
+	sqlLogLevel := logger.Info
+	if !m.cfg.ShowSQL {
+		sqlLogLevel = logger.Silent
+	}
+
+	db, err = gorm.Open(mysql.New(mysql.Config{
+		DSN:                       m.cfg.DSN, // DSN data source name
+		DefaultStringSize:         255,       // string 类型字段的默认长度
+		DisableDatetimePrecision:  true,      // 禁用 datetime 精度，MySQL 5.6 之前的数据库不支持
+		DontSupportRenameIndex:    true,      // 重命名索引时采用删除并新建的方式，MySQL 5.7 之前的数据库和 MariaDB 不支持重命名索引
+		DontSupportRenameColumn:   true,      // 用 `change` 重命名列，MySQL 8 之前的数据库和 MariaDB 不支持重命名列
+		SkipInitializeWithVersion: false,     // 根据当前 MySQL 版本自动配置
+	}), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix:   m.cfg.Prefix, // 表名前缀，`User`表为`t_users`
+			SingularTable: true,         // 使用单数表名，启用该选项后，`User` 表将是`user`
+		},
+		Logger: logger.Default.LogMode(sqlLogLevel),
+	})
+	if err != nil {
+		m.logger.Error("NewDBModel", zap.Error(err), zap.Any("config", m.cfg))
+		return
+	}
+
+	sqlDB, err = db.DB()
+	if err != nil {
+		m.logger.Error("db.DB()", zap.Error(err))
+		return
+	}
+
+	if m.cfg.MaxIdle > 0 {
+		sqlDB.SetMaxIdleConns(m.cfg.MaxIdle)
+	}
+
+	if m.cfg.MaxOpen > 0 {
+		sqlDB.SetMaxIdleConns(m.cfg.MaxOpen)
+	}
+
+	sqlDB.SetConnMaxLifetime(time.Hour)
+	m.CloseDB() // 关闭旧的数据库连接
+	m.db = db   // 更新新的数据库连接
+	return
 }
