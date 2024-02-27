@@ -86,6 +86,12 @@ func getPermissions() (permissions []Permission) {
 		{Title: "更新评论", Description: "", Method: "GRPC", Path: "/api.v1.CommentAPI/UpdateComment"},
 		{Title: "文档审核", Description: "", Method: "GRPC", Path: "/api.v1.DocumentAPI/CheckDocument"},
 		{Title: "下载待审文档", Description: "", Method: "GRPC", Path: "/api.v1.DocumentAPI/DownloadDocumentToBeReviewed"},
+		{Title: "语言管理", Description: "", Method: "GRPC", Path: "/api.v1.LanguageAPI/ListLanguage"},
+		{Title: "更新语言状态", Description: "", Method: "GRPC", Path: "/api.v1.LanguageAPI/UpdateLanguageStatus"},
+		{Title: "删除语言", Description: "", Method: "GRPC", Path: "/api.v1.LanguageAPI/DeleteLanguage"},
+		{Title: "更新语言", Description: "", Method: "GRPC", Path: "/api.v1.LanguageAPI/UpdateLanguage"},
+		{Title: "批量设置文档语言", Description: "", Method: "GRPC", Path: "/api.v1.DocumentAPI/SetDocumentsLanguage"},
+		{Title: "查看服务器硬件信息", Description: "", Method: "GRPC", Path: "/api.v1.ConfigAPI/GetDeviceInfo"},
 	}
 	return
 }

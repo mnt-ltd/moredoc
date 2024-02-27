@@ -311,6 +311,11 @@ func (s *ConfigAPIService) GetEnvs(ctx context.Context, req *emptypb.Empty) (res
 }
 
 func (s *ConfigAPIService) GetDeviceInfo(ctx context.Context, req *emptypb.Empty) (res *pb.DeviceInfo, err error) {
+	_, err = s.checkPermission(ctx)
+	if err != nil {
+		return
+	}
+
 	res = &pb.DeviceInfo{
 		Cpu:    &pb.CPUInfo{},
 		Memory: &pb.MemoryInfo{},
