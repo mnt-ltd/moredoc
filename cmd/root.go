@@ -18,8 +18,14 @@ package cmd
 import (
 	"fmt"
 	"moredoc/conf"
+	"moredoc/service"
+	"moredoc/util"
+	"moredoc/util/command"
 	"os"
+	"os/signal"
+	"path/filepath"
 	"strings"
+	"syscall"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
@@ -53,6 +59,7 @@ func Execute() {
 }
 
 func init() {
+	os.Chdir(filepath.Dir(os.Args[0]))
 	cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
@@ -81,6 +88,7 @@ func initConfig() {
 
 		// Search config in home directory with name "app" (without extension).
 		viper.AddConfigPath(home)
+		viper.AddConfigPath(filepath.Dir(os.Args[0]))
 		viper.AddConfigPath(".")
 		viper.SetConfigName("app")
 	}
@@ -93,17 +101,16 @@ func initConfig() {
 		fmt.Println(err)
 	}
 
-	fmt.Println("Using config file:", viper.ConfigFileUsed())
 	err = viper.Unmarshal(cfg)
 	if err != nil {
-		fmt.Println("viper.Unmarshal", err)
+		fmt.Println("viper.Unmarshal", err, viper.ConfigFileUsed())
 	}
 
 	initLogger(cfg.Level, cfg.LogEncoding, cfg.Logger)
 
 	cfg.Database.Prefix = "mnt_"
 
-	logger.Info("config", zap.Any("config", cfg))
+	logger.Debug("config", zap.String("Using config file:", viper.ConfigFileUsed()), zap.Any("config", cfg))
 }
 
 func initLogger(level, LogEncoding string, logCfg ...conf.LoggerConfig) {
@@ -166,4 +173,26 @@ func initLogger(level, LogEncoding string, logCfg ...conf.LoggerConfig) {
 		zap.AddCaller(),
 		// zap.AddCallerSkip(1),
 	)
+}
+
+func runServer() {
+	util.Version = Version
+	util.Hash = GitHash
+	util.BuildAt = BuildAt
+
+	c := make(chan os.Signal, 1)
+	// 监听退出信号
+	signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	go func() {
+		//阻塞直至有信号传入
+		s := <-c
+		// 收到退出信号，关闭子进程
+		fmt.Println("get signal：", s)
+		fmt.Println("close child process...")
+		command.CloseChildProccess()
+		fmt.Println("close child process done.")
+		fmt.Println("exit.")
+		os.Exit(0)
+	}()
+	service.Run(cfg, logger)
 }

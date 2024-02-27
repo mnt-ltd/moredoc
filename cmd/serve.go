@@ -16,15 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"moredoc/service"
-	"moredoc/util"
-	"moredoc/util/command"
-	"os"
-	"os/signal"
-	"syscall"
-
 	"github.com/spf13/cobra"
+	"go.uber.org/zap"
 )
 
 // serveCmd represents the serve command
@@ -33,25 +26,12 @@ var serveCmd = &cobra.Command{
 	Short: "启动服务",
 	Long:  `启动魔豆文库程序服务，提供文档管理与预览。`,
 	Run: func(cmd *cobra.Command, args []string) {
-		util.Version = Version
-		util.Hash = GitHash
-		util.BuildAt = BuildAt
-
-		c := make(chan os.Signal, 1)
-		// 监听退出信号
-		signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
-		go func() {
-			//阻塞直至有信号传入
-			s := <-c
-			// 收到退出信号，关闭子进程
-			fmt.Println("get signal：", s)
-			fmt.Println("close child process...")
-			command.CloseChildProccess()
-			fmt.Println("close child process done.")
-			fmt.Println("exit.")
-			os.Exit(0)
-		}()
-		service.Run(cfg, logger)
+		d, err := NewDaemon()
+		if err != nil {
+			logger.Error("启动服务失败：", zap.Error(err))
+			return
+		}
+		d.Service.Run()
 	},
 }
 
