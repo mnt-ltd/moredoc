@@ -408,10 +408,24 @@ func (m *DBModel) initGroupAndPermission() (err error) {
 
 	// 初始化权限
 	for _, permission := range getPermissions() {
-		err = sess.Where("method = ? and path = ?", permission.Method, permission.Path).FirstOrCreate(&permission).Error
-		if err != nil {
-			m.logger.Error("initPermission", zap.Error(err))
-			return
+		var existPermission Permission
+		sess.Where("method = ? and path = ?", permission.Method, permission.Path).First(&existPermission)
+		if existPermission.Id == 0 {
+			err = sess.Create(&permission).Error
+			if err != nil {
+				m.logger.Error("initPermission", zap.Error(err))
+				return
+			}
+			continue
+		}
+
+		if existPermission.Title == "" {
+			existPermission.Title = permission.Title
+			err = sess.Save(&existPermission).Error
+			if err != nil {
+				m.logger.Error("initPermission", zap.Error(err))
+				return
+			}
 		}
 	}
 	return
