@@ -88,6 +88,7 @@ message ConfigDisplay {
   bool show_document_view_count = 8;      // 是否显示文档阅读数量
   bool show_document_download_count = 9;  // 是否显示文档评论数量
   bool show_document_favorite_count = 10; // 是否显示文档收藏数量
+  bool hide_category_without_document = 11; // 是否隐藏没有文档的分类
 }
 
 // 安全配置

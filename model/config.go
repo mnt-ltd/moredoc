@@ -393,33 +393,35 @@ type ConfigScore struct {
 }
 
 const (
-	ConfigDisplayShowRegisterUserCount     = "show_register_user_count"     // 是否显示注册用户数量
-	ConfigDisplayShowDocumentDescriptions  = "show_document_descriptions"   // 是否在文档页显示文档摘要
-	ConfigDisplayVirtualRegisterCount      = "virtual_register_count"       // 虚拟注册用户数量
-	ConfigDisplayShowIndexCategories       = "show_index_categories"        // 是否显示首页分类
-	ConfigDisplayPagesPerRead              = "pages_per_read"               // 每次阅读的页数
-	ConfigDisplayCopyrightStatement        = "copyright_statement"          // 在页面最底部的版权声明
-	ConfigDisplayMaxSearchPages            = "max_search_pages"             // 搜索结果最大页数
-	ConfigDisplayHideKeywordsOnLists       = "hide_keywords_on_lists"       // 文档列表页是否显示关键字
-	ConfigDisplayShowDocumentCount         = "show_document_count"          // 是否显示文档数量
-	ConfigDisplayShowDocumentDownloadCount = "show_document_download_count" // 是否显示文档下载数量
-	ConfigDisplayShowDocumentViewCount     = "show_document_view_count"     // 是否显示文档阅读数量
-	ConfigDisplayShowDocumentFavoriteCount = "show_document_favorite_count" // 是否显示文档收藏数量
+	ConfigDisplayShowRegisterUserCount       = "show_register_user_count"       // 是否显示注册用户数量
+	ConfigDisplayShowDocumentDescriptions    = "show_document_descriptions"     // 是否在文档页显示文档摘要
+	ConfigDisplayVirtualRegisterCount        = "virtual_register_count"         // 虚拟注册用户数量
+	ConfigDisplayShowIndexCategories         = "show_index_categories"          // 是否显示首页分类
+	ConfigDisplayPagesPerRead                = "pages_per_read"                 // 每次阅读的页数
+	ConfigDisplayCopyrightStatement          = "copyright_statement"            // 在页面最底部的版权声明
+	ConfigDisplayMaxSearchPages              = "max_search_pages"               // 搜索结果最大页数
+	ConfigDisplayHideKeywordsOnLists         = "hide_keywords_on_lists"         // 文档列表页是否显示关键字
+	ConfigDisplayShowDocumentCount           = "show_document_count"            // 是否显示文档数量
+	ConfigDisplayShowDocumentDownloadCount   = "show_document_download_count"   // 是否显示文档下载数量
+	ConfigDisplayShowDocumentViewCount       = "show_document_view_count"       // 是否显示文档阅读数量
+	ConfigDisplayShowDocumentFavoriteCount   = "show_document_favorite_count"   // 是否显示文档收藏数量
+	ConfigDisplayHideCategoryWithontDocument = "hide_category_without_document" // 是否隐藏没有文档的分类
 )
 
 type ConfigDisplay struct {
-	ShowRegisterUserCount     bool   `json:"show_register_user_count"`     // 是否显示注册用户数量
-	ShowDocumentCount         bool   `json:"show_document_count"`          // 是否显示文档数量
-	ShowDocumentDownloadCount bool   `json:"show_document_download_count"` // 是否显示文档下载数量
-	ShowDocumentViewCount     bool   `json:"show_document_view_count"`     // 是否显示文档阅读数量
-	ShowDocumentDescriptions  bool   `json:"show_document_descriptions"`   // 是否在文档页显示文档摘要
-	ShowDocumentFavoriteCount bool   `json:"show_document_favorite_count"` // 是否显示文档收藏数量
-	VirtualRegisterCount      int64  `json:"virtual_register_count"`       // 虚拟注册用户数量
-	ShowIndexCategories       bool   `json:"show_index_categories"`        // 是否显示首页分类
-	PagesPerRead              int32  `json:"pages_per_read"`               // 每次阅读的页数
-	MaxSearchPages            int32  `json:"max_search_pages"`             // 搜索结果最大页数
-	CopyrightStatement        string `json:"copyright_statement"`          // 在页面最底部的版权声明
-	HideKeywordsOnLists       bool   `json:"hide_keywords_on_lists"`       // 文档列表页是否显示关键字
+	ShowRegisterUserCount       bool   `json:"show_register_user_count"`       // 是否显示注册用户数量
+	ShowDocumentCount           bool   `json:"show_document_count"`            // 是否显示文档数量
+	ShowDocumentDownloadCount   bool   `json:"show_document_download_count"`   // 是否显示文档下载数量
+	ShowDocumentViewCount       bool   `json:"show_document_view_count"`       // 是否显示文档阅读数量
+	ShowDocumentDescriptions    bool   `json:"show_document_descriptions"`     // 是否在文档页显示文档摘要
+	ShowDocumentFavoriteCount   bool   `json:"show_document_favorite_count"`   // 是否显示文档收藏数量
+	VirtualRegisterCount        int64  `json:"virtual_register_count"`         // 虚拟注册用户数量
+	ShowIndexCategories         bool   `json:"show_index_categories"`          // 是否显示首页分类
+	PagesPerRead                int32  `json:"pages_per_read"`                 // 每次阅读的页数
+	MaxSearchPages              int32  `json:"max_search_pages"`               // 搜索结果最大页数
+	CopyrightStatement          string `json:"copyright_statement"`            // 在页面最底部的版权声明
+	HideKeywordsOnLists         bool   `json:"hide_keywords_on_lists"`         // 文档列表页是否显示关键字
+	HideCategoryWithoutDocument bool   `json:"hide_category_without_document"` // 是否隐藏没有文档的分类
 }
 
 func (m *DBModel) GetConfigOfDisplay(name ...string) (config ConfigDisplay) {
@@ -770,6 +772,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayMaxSearchPages, Label: "文档搜索结果最大页数", Value: "100", Placeholder: "搜索结果，默认最大展示100页，0表示不限制", InputType: InputTypeNumber, Sort: 50, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayCopyrightStatement, Label: "版权声明", Value: "本站文档数据由用户上传，仅供学习交流，如侵犯您的权益，请联系我们进行删除。", Placeholder: "网站最底部版权声明，支持HTML", InputType: InputTypeTextarea, Sort: 60, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayHideKeywordsOnLists, Label: "隐藏关键字", Value: "false", Placeholder: "文档列表页，是否隐藏右侧关键字", InputType: InputTypeSwitch, Sort: 70, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayHideCategoryWithontDocument, Label: "隐藏无文档分类", Value: "false", Placeholder: "对于分类下没有文档的分类，是否在前台页面进行隐藏", InputType: InputTypeSwitch, Sort: 80, Options: ""},
 	}
 
 	for _, cfg := range cfgs {
