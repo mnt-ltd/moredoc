@@ -6,13 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"moredoc/util"
-	"moredoc/util/command"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/mnt-ltd/command"
 
 	"github.com/gofrs/uuid"
 	"go.uber.org/zap"
