@@ -349,6 +349,8 @@ github.com/mitchellh/mapstructure v0.0.0-20160808181253-ca63d7c062ee/go.mod h1:F
 github.com/mitchellh/mapstructure v1.1.2/go.mod h1:FVVH3fgwuzCH5S8UJGiWEs2h04kUh9fWfEaFds41c1Y=
 github.com/mitchellh/mapstructure v1.4.3 h1:OVowDSCllw/YjdLkam3/sm7wEtOy59d8ndGgCcyj8cs=
 github.com/mitchellh/mapstructure v1.4.3/go.mod h1:bFUtVrKA4DC2yAKiSyO/QUcy7e+RRV2QTWOzhPopBRo=
+github.com/mnt-ltd/command v0.0.0-20240306131933-eea2488c4522 h1:nCR34SSnxF8EszEDQVPIYzl6bmihnQm3J4Oe29TOdOE=
+github.com/mnt-ltd/command v0.0.0-20240306131933-eea2488c4522/go.mod h1:ZwAMyJ9L2HJ10HQtugaQU58n7KpNkajnSENdN5J83mg=
 github.com/mnt-ltd/daemore v0.0.0-20240227053424-d57afb9f5e67 h1:FwZKvOo7GBVNZag6Haz7YLFevjuaXFa3QzZLlBy0J1k=
 github.com/mnt-ltd/daemore v0.0.0-20240227053424-d57afb9f5e67/go.mod h1:Q3UZ78AAwc//JEww0t/Jt8b0vgWV9UrmwZGgFBGX5ZM=
 github.com/modern-go/concurrent v0.0.0-20180228061459-e0a39a4cb421/go.mod h1:6dJC0mAP4ikYIbvyc7fijjWJddQyLn8Ig3JB5CqoB9Q=

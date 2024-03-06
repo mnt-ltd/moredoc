@@ -20,12 +20,13 @@ import (
 	"moredoc/conf"
 	"moredoc/service"
 	"moredoc/util"
-	"moredoc/util/command"
 	"os"
 	"os/signal"
 	"path/filepath"
 	"strings"
 	"syscall"
+
+	"github.com/mnt-ltd/command"
 
 	"github.com/spf13/cobra"
 	"go.uber.org/zap"
