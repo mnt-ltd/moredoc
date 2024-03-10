@@ -51,7 +51,7 @@ func (s *CategoryAPIService) CreateCategory(ctx context.Context, req *pb.Categor
 		}
 
 		cate.Title = title
-		exist, _ := s.dbModel.GetCategoryByParentIdTitle(cate.ParentId, cate.Title, "id")
+		exist, _ := s.dbModel.GetCategoryByParentIdTitle(cate.ParentId, cate.Title, int(req.Type), "id")
 		if exist.Id > 0 {
 			continue
 		}
@@ -81,7 +81,7 @@ func (s *CategoryAPIService) UpdateCategory(ctx context.Context, req *pb.Categor
 	cate := &model.Category{}
 	util.CopyStruct(req, &cate)
 
-	exist, _ := s.dbModel.GetCategoryByParentIdTitle(cate.ParentId, cate.Title, "id")
+	exist, _ := s.dbModel.GetCategoryByParentIdTitle(cate.ParentId, cate.Title, int(req.Type), "id")
 	if exist.Id > 0 && exist.Id != cate.Id {
 		return nil, status.Error(codes.Internal, "分类名称已存在")
 	}
