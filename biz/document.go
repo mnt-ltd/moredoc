@@ -611,6 +611,7 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 		QueryIn: map[string][]interface{}{
 			"enable":    {true},
 			"parent_id": {0},
+			"type":      {model.CategoryTypeDocument}, // 仅限文档分类
 		},
 	})
 

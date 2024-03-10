@@ -154,6 +154,8 @@ func (s *CategoryAPIService) ListCategory(ctx context.Context, req *pb.ListCateg
 
 	if len(req.Type) > 0 {
 		opt.QueryIn["type"] = util.Slice2Interface(req.Type)
+	} else {
+		opt.QueryIn["type"] = []interface{}{0}
 	}
 
 	cates, total, err := s.dbModel.GetCategoryList(opt)
