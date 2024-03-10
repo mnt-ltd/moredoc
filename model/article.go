@@ -12,16 +12,17 @@ import (
 )
 
 type Article struct {
-	Id          int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
-	Identifier  string    `form:"identifier" json:"identifier,omitempty" gorm:"column:identifier;type:varchar(64);size:64;index:identifier,unique;comment:文章标识，唯一;"`
-	Author      string    `form:"author" json:"author,omitempty" gorm:"column:author;type:varchar(64);size:64;comment:作者;"`
-	ViewCount   int       `form:"view_count" json:"view_count,omitempty" gorm:"column:view_count;type:int(11);size:11;default:0;comment:阅读;"`
-	Title       string    `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;comment:文章标题;"`
-	Keywords    string    `form:"keywords" json:"keywords,omitempty" gorm:"column:keywords;type:varchar(255);size:255;comment:关键字;"`
-	Description string    `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(255);size:255;comment:摘要;"`
-	Content     string    `form:"content" json:"content,omitempty" gorm:"column:content;type:longtext;comment:内容;"`
-	CreatedAt   time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
-	UpdatedAt   time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	Id          int64          `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
+	Identifier  string         `form:"identifier" json:"identifier,omitempty" gorm:"column:identifier;type:varchar(64);size:64;index:identifier,unique;comment:文章标识，唯一;"`
+	Author      string         `form:"author" json:"author,omitempty" gorm:"column:author;type:varchar(64);size:64;comment:作者;"`
+	ViewCount   int            `form:"view_count" json:"view_count,omitempty" gorm:"column:view_count;type:int(11);size:11;default:0;comment:阅读;"`
+	Title       string         `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;comment:文章标题;"`
+	Keywords    string         `form:"keywords" json:"keywords,omitempty" gorm:"column:keywords;type:varchar(255);size:255;comment:关键字;"`
+	Description string         `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(255);size:255;comment:摘要;"`
+	Content     string         `form:"content" json:"content,omitempty" gorm:"column:content;type:longtext;comment:内容;"`
+	CreatedAt   time.Time      `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
+	UpdatedAt   time.Time      `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	DeletedAt   gorm.DeletedAt `form:"deleted_at" json:"deleted_at,omitempty" gorm:"column:deleted_at;type:datetime;comment:删除时间;index:idx_deleted_at"`
 }
 
 func (Article) TableName() string {
