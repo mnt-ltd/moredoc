@@ -163,6 +163,14 @@ func (s *ConfigAPIService) GetSettings(ctx context.Context, req *emptypb.Empty) 
 		s.logger.Error("util.CopyStruct", zap.Any("display", display), zap.Any("res.Display", res.Display), zap.Error(err))
 	}
 
+	langs, _, _ := s.dbModel.GetLanguageList(&model.OptionGetLanguageList{
+		WithCount:    false,
+		SelectFields: []string{"id", "language", "code"},
+		QueryIn: map[string][]interface{}{
+			"enable": {true},
+		},
+	})
+	util.CopyStruct(&langs, &res.Language)
 	return res, nil
 }
 
@@ -280,11 +288,34 @@ func (s *ConfigAPIService) GetEnvs(ctx context.Context, req *emptypb.Empty) (res
 			envs[i].Error = err.Error()
 		}
 	}
+
+	// MySQL 的group by 查询
+	yes, sqlMode := s.dbModel.IsSupportGroupBy()
+	if !yes {
+		now := time.Now()
+		envs = append(envs, &pb.EnvDependent{
+			Name:        "GroupBy",
+			IsRequired:  true,
+			IsInstalled: false, // 表示
+			Description: "魔豆文库的部分查询需要MySQL的group by功能，如果不支持，将导致部分功能无法正常使用和出错。",
+			Error: fmt.Sprintf(
+				`您当前MySQL数据库不支持 group by 查询，请修改数据库的 sql_mode 配置，去掉 ONLY_FULL_GROUP_BY。<br> 如将当前的 <br/>sql_mode=%s <br/>修改为<br/>sql_mode=%s`,
+				sqlMode, strings.ReplaceAll(sqlMode, "ONLY_FULL_GROUP_BY,", ""),
+			),
+			CheckedAt: &now,
+		})
+	}
+
 	res.Envs = envs
 	return
 }
 
 func (s *ConfigAPIService) GetDeviceInfo(ctx context.Context, req *emptypb.Empty) (res *pb.DeviceInfo, err error) {
+	_, err = s.checkPermission(ctx)
+	if err != nil {
+		return
+	}
+
 	res = &pb.DeviceInfo{
 		Cpu:    &pb.CPUInfo{},
 		Memory: &pb.MemoryInfo{},
@@ -320,4 +351,23 @@ func (s *ConfigAPIService) GetDeviceInfo(ctx context.Context, req *emptypb.Empty
 		}
 	}
 	return res, nil
+}
+
+// 设置sql_mode
+func (s *ConfigAPIService) SetSQLMode(ctx context.Context, req *emptypb.Empty) (res *emptypb.Empty, err error) {
+	var userClaims *auth.UserClaims
+	userClaims, err = checkGRPCLogin(s.dbModel, ctx)
+	if err != nil {
+		return
+	}
+
+	if userClaims.UserId != 1 {
+		return nil, status.Error(codes.PermissionDenied, "只有用户ID为1的用户才有权限执行此操作！")
+	}
+
+	err = s.dbModel.SetSQLMode()
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
 }

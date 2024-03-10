@@ -520,7 +520,7 @@ func (c *Converter) makeWorkspace() (workspaceDir string) {
 		workspaceDir = c.workspace
 		return
 	}
-	uid := uuid.Must(uuid.NewV4()).String()
+	uid := uuid.Must(uuid.NewV1()).String()
 	c.workspace = filepath.ToSlash(filepath.Join(c.cachePath, time.Now().Format(dirDteFmt), uid))
 	return c.workspace
 }

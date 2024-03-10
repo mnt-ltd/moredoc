@@ -93,7 +93,7 @@ func (p *Auth) CreateJWTToken(userId int64) (string, error) {
 	expireTime := time.Now().Add(time.Duration(p.jwt.ExpireDays) * 24 * time.Hour).Unix()
 	claims := UserClaims{
 		UserId: userId,
-		UUID:   uuid.Must(uuid.NewV4()).String(),
+		UUID:   uuid.Must(uuid.NewV1()).String(),
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expireTime,
 			Issuer:    "moredoc",

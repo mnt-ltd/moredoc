@@ -175,5 +175,14 @@ func RegisterGRPCService(dbModel *model.DBModel, logger *zap.Logger, endpoint st
 		return
 	}
 
+	// 语言服务
+	languageAPIService := biz.NewLanguageAPIService(dbModel, logger)
+	v1.RegisterLanguageAPIServer(grpcServer, languageAPIService)
+	err = v1.RegisterLanguageAPIHandlerFromEndpoint(context.Background(), gwmux, endpoint, dialOpts)
+	if err != nil {
+		logger.Error("RegisterLanguageAPIHandlerFromEndpoint", zap.Error(err))
+		return
+	}
+
 	return
 }

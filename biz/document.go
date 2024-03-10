@@ -100,6 +100,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 			Size:     attachment.Size,
 			Ext:      attachment.Ext,
 			Status:   documentStatus,
+			Language: doc.Language,
 		}
 		docMapAttachment[idx] = attachment.Id
 		documents = append(documents, doc)
@@ -132,7 +133,7 @@ func (s *DocumentAPIService) UpdateDocument(ctx context.Context, req *pb.Documen
 		return nil, err
 	}
 
-	fields := []string{"id", "title", "keywords", "description", "price"}
+	fields := []string{"id", "title", "keywords", "description", "price", "language"}
 	doc := &model.Document{}
 	util.CopyStruct(req, doc)
 
@@ -320,6 +321,19 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 
 	if len(req.UserId) > 0 {
 		opt.QueryIn["user_id"] = []interface{}{req.UserId[0]}
+	}
+
+	if len(req.Language) > 0 {
+		var languages []interface{}
+		for _, lang := range req.Language {
+			if lang == "" {
+				continue
+			}
+			languages = append(languages, lang)
+		}
+		if len(languages) > 0 {
+			opt.QueryIn["language"] = languages
+		}
 	}
 
 	if exts := filetil.GetExts(req.Ext); len(exts) > 0 {
@@ -621,6 +635,7 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 			WithCount: false,
 			QueryIn: map[string][]interface{}{
 				"category_id": {category.Id},
+				"status":      {model.DocumentStatusConverted},
 			},
 			Page:         1,
 			Size:         limit,
@@ -718,6 +733,19 @@ func (s *DocumentAPIService) SearchDocument(ctx context.Context, req *pb.SearchD
 		exts := filetil.GetExts(req.Ext)
 		if len(exts) > 0 {
 			opt.QueryIn["ext"] = util.Slice2Interface(exts)
+		}
+	}
+
+	if len(req.Language) > 0 {
+		var languages []interface{}
+		for _, lang := range req.Language {
+			if lang == "" {
+				continue
+			}
+			languages = append(languages, lang)
+		}
+		if len(languages) > 0 {
+			opt.QueryIn["language"] = util.Slice2Interface(req.Language)
 		}
 	}
 
@@ -967,6 +995,68 @@ func (s *DocumentAPIService) CheckDocument(ctx context.Context, req *pb.CheckDoc
 	err = s.dbModel.SetDocumentStatus(req.Id, int(req.Status))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "审核文档失败：%s", err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+// 下载待审核文档 DownloadDocumentToBeReviewed
+func (s *DocumentAPIService) DownloadDocumentToBeReviewed(ctx context.Context, req *pb.Document) (res *pb.DownloadDocumentReply, err error) {
+	userClaims, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 查询文档存不存在，以及文档是否是待审状态
+	doc, err := s.dbModel.GetDocument(req.Id, "id", "price", "status", "title", "ext", "user_id", "uuid")
+	if err != nil || !(doc.Status == model.DocumentStatusDisabled || doc.Status == model.DocumentStatusPendingReview || doc.Status == model.DocumentStatusReviewReject) {
+		return res, status.Errorf(codes.NotFound, "下载失败：文档不存在，或文档不属于待审、审核拒绝或禁用状态")
+	}
+
+	// 查询附件存不存在
+	attachment := s.dbModel.GetAttachmentByTypeAndTypeId(model.AttachmentTypeDocument, doc.Id, "id", "hash")
+	if attachment.Id == 0 {
+		return res, status.Errorf(codes.NotFound, "附件不存在")
+	}
+
+	down := &model.Download{
+		UserId:     userClaims.UserId,
+		DocumentId: doc.Id,
+		Ip:         util.GetGRPCRemoteIP(ctx),
+		IsPay:      false,
+	}
+
+	// 创建下载记录
+	err = s.dbModel.CreateDownload(down)
+	if err != nil {
+		return res, status.Errorf(codes.Internal, "创建下载失败：%s", err.Error())
+	}
+
+	cfgDown := s.dbModel.GetConfigOfDownload()
+	link, err := s.generateDownloadURL(doc, cfgDown, attachment.Hash)
+	if err != nil {
+		return res, status.Errorf(codes.Internal, "生成下载地址失败：%s", err.Error())
+	}
+	res = &pb.DownloadDocumentReply{
+		Url: link,
+	}
+	return res, nil
+}
+
+// 批量设置文档语言
+func (s *DocumentAPIService) SetDocumentsLanguage(ctx context.Context, req *pb.SetDocumentsLanguageRequest) (res *emptypb.Empty, err error) {
+	_, err = s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(req.DocumentId) == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "文档ID不能为空")
+	}
+
+	err = s.dbModel.SetDocumentsLanguage(req.DocumentId, req.Language)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "设置文档语言失败：%s", err.Error())
 	}
 
 	return &emptypb.Empty{}, nil

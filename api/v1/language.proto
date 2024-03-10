@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "gogoproto/gogo.proto";
+// import "validate/validate.proto";
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+
+package api.v1;
+
+option go_package = "moredoc/api/v1;v1";
+option java_multiple_files = true;
+option java_package = "api.v1";
+
+message Language {
+  int64 id = 1;
+  string language = 2;
+  bool enable = 3;
+  string code = 4;
+  int32 total = 5;
+  int32 sort = 6;
+  google.protobuf.Timestamp created_at = 7 [ (gogoproto.stdtime) = true ];
+  google.protobuf.Timestamp updated_at = 8 [ (gogoproto.stdtime) = true ];
+}
+
+message UpdateLanguageStatusRequest {
+  repeated int64 id = 1;
+  bool enable = 2;
+}
+
+message ListLanguageRequest {
+  string wd = 1;
+  repeated bool enable = 2;
+  repeated string field = 3;
+  int32 page = 4;
+  int32 size = 5;
+}
+
+message ListLanguageReply {
+  int64 total = 1;
+  repeated Language language = 2;
+}
+
+message DeleteLanguageRequest { repeated int64 id = 1; }
+
+service LanguageAPI {
+  rpc CreateLanguage(Language) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : '/api/v1/language',
+      body : '*',
+    };
+  }
+
+  rpc UpdateLanguage(Language) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/language',
+      body : '*',
+    };
+  }
+
+  rpc UpdateLanguageStatus(UpdateLanguageStatusRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/language/status',
+      body : '*',
+    };
+  }
+
+  rpc ListLanguage(ListLanguageRequest) returns (ListLanguageReply) {
+    option (google.api.http) = {
+      get : '/api/v1/language/list',
+    };
+  }
+
+  rpc DeleteLanguage(DeleteLanguageRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/language',
+    };
+  }
+}

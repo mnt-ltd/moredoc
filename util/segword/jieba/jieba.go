@@ -1,6 +1,8 @@
 package jieba
 
 import (
+	"os"
+	"path/filepath"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -16,7 +18,7 @@ var (
 		"〈": true, "〉": true, "﹑": true, "●": true, "…": true, "—": true, "～": true,
 	}
 	seg        jiebago.Segmenter
-	dictPath   = "dictionary/dict.txt"
+	dictPath   = filepath.Join(filepath.Dir(os.Args[0]), "dictionary/dict.txt")
 	dictLoaded = false
 )
 

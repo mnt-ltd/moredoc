@@ -68,6 +68,7 @@ type Document struct {
 	RecommendAt   *time.Time      `form:"recommend_at" json:"recommend_at,omitempty" gorm:"column:recommend_at;type:datetime;comment:推荐时间;index:idx_recommend_at;"`
 	PreviewExt    string          `form:"preview_ext" json:"preview_ext,omitempty" gorm:"column:preview_ext;type:varchar(16);size:16;default:.svg;comment:预览图扩展名;"`
 	UUID          string          `form:"uuid" json:"uuid,omitempty" gorm:"column:uuid;type:char(16);index:idx_uuid;size:16;default:;comment:uuid值，这里用uuid的md5加密串的16位;"`
+	Language      string          `form:"language" json:"language,omitempty" gorm:"column:language;type:varchar(16);size:16;comment:语言;index:idx_language;"`
 }
 
 func (Document) TableName() string {
@@ -175,8 +176,8 @@ func (m *DBModel) GetDocument(idOrUUID interface{}, fields ...string) (document 
 
 	if id, ok := idOrUUID.(int64); ok {
 		db = db.Where("id = ?", id)
-	} else if uuid, ok := idOrUUID.(string); ok {
-		db = db.Where("uuid = ?", uuid)
+	} else {
+		db = db.Where("uuid = ?", idOrUUID)
 	}
 
 	fields = m.FilterValidFields(Document{}.TableName(), fields...)
@@ -710,7 +711,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 	if maxPreview > 0 {
 		toPage = maxPreview
 	}
-	if toPage > document.Pages {
+	if toPage > document.Pages && document.Pages > 0 {
 		toPage = document.Pages
 	}
 
@@ -858,6 +859,14 @@ func (m *DBModel) SetDocumentsCategory(documentId, categoryId []int64) (err erro
 	return
 }
 
+func (m *DBModel) SetDocumentsLanguage(documentId []int64, language string) (err error) {
+	err = m.db.Model(&Document{}).Where("id in (?)", documentId).Update("language", language).Error
+	if err != nil {
+		m.logger.Error("SetDocumentsLanguage", zap.Error(err))
+	}
+	return
+}
+
 func (m *DBModel) GetDefaultDocumentStatus(userId int64) (status int) {
 	status = DocumentStatusPendingReview // 默认文档待审核
 	if userId <= 0 {
@@ -907,4 +916,30 @@ func (m *DBModel) checkAndUpdateDocumentUUID() {
 		}
 		tx.Commit()
 	}
+
+	// 查询可能重复的uuid(2.4版本用uuid.NewV4()生成的uuid，存在部分重复的情况，因此需要检测是否有重复的uuid，然后重新生成)
+	var uuids []string
+	err := m.db.Unscoped().Model(modelDocument).Select("uuid").Group("uuid").Having("count(uuid) > 1").Pluck("uuid", &uuids).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("updateDocumentUUID", zap.Error(err))
+		return
+	}
+	if len(uuids) == 0 {
+		return
+	}
+	for _, uuid := range uuids {
+		var doc Document
+		err = m.db.Unscoped().Model(modelDocument).Where("uuid = ?", uuid).First(&doc).Error
+		if err != nil {
+			m.logger.Error("updateDocumentUUID", zap.Error(err))
+			return
+		}
+		doc.UUID = util.GenDocumentMD5UUID()
+		err = m.db.Unscoped().Model(modelDocument).Where("id = ?", doc.Id).Update("uuid", doc.UUID).Error
+		if err != nil {
+			m.logger.Error("updateDocumentUUID", zap.Error(err))
+			return
+		}
+	}
+	m.checkAndUpdateDocumentUUID()
 }

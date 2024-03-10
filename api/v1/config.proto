@@ -6,6 +6,8 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 
+import "api/v1/language.proto";
+
 package api.v1;
 
 option go_package = "moredoc/api/v1;v1";
@@ -82,10 +84,11 @@ message ConfigDisplay {
   string copyright_statement = 4;      // 在页面最底部的版权声明
   bool show_document_descriptions = 5; // 是否显示文档描述
   bool hide_keywords_on_lists = 6; // 是否在文档列表页隐藏右侧关键词
-  bool show_document_count = 7;     // 是否显示文档数量
-  bool show_document_view_count = 8; // 是否显示文档阅读数量
-  bool show_document_download_count = 9; // 是否显示文档评论数量
+  bool show_document_count = 7;    // 是否显示文档数量
+  bool show_document_view_count = 8;      // 是否显示文档阅读数量
+  bool show_document_download_count = 9;  // 是否显示文档评论数量
   bool show_document_favorite_count = 10; // 是否显示文档收藏数量
+  bool hide_category_without_document = 11; // 是否隐藏没有文档的分类
 }
 
 // 安全配置
@@ -106,10 +109,11 @@ message ConfigSecurity {
 
 // 系统配置
 message Settings {
-  ConfigSystem system = 1;     // 系统配置
-  ConfigFooter footer = 2;     // 底链配置
-  ConfigSecurity security = 3; // 安全配置
-  ConfigDisplay display = 4;   // 显示配置
+  ConfigSystem system = 1;        // 系统配置
+  ConfigFooter footer = 2;        // 底链配置
+  ConfigSecurity security = 3;    // 安全配置
+  ConfigDisplay display = 4;      // 显示配置
+  repeated Language language = 5; // 语言配置
 }
 
 // 依赖项
@@ -228,6 +232,13 @@ service ConfigAPI {
   rpc GetDeviceInfo(google.protobuf.Empty) returns (DeviceInfo) {
     option (google.api.http) = {
       get : "/api/v1/device"
+    };
+  }
+
+  // 设置SQL mode，只针对id=1的用户，且sql_mode只处理only_full_group_by问题
+  rpc SetSQLMode(google.protobuf.Empty) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/api/v1/sqlmode"
     };
   }
 }

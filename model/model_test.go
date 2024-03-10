@@ -23,6 +23,14 @@ func getPermissions() (permissions []Permission) {
 	}
 	return
 }
+
+func getLangs() (langs []Language) {
+	langs = []Language{
+		{{ range .Languages }}{Language: "{{.Language}}", Code: "{{.Code}}", Enable: {{.Enable}}},
+		{{end}}
+	}
+	return
+}
 `
 
 func TestGenData(t *testing.T) {
@@ -46,10 +54,18 @@ func TestGenData(t *testing.T) {
 
 	var (
 		permissions         []Permission
+		languages           []Language
 		permissionTableName = Permission{}.TableName()
+		languageTableName   = Language{}.TableName()
 	)
 
 	err = db.Table(permissionTableName).Find(&permissions).Error
+	if err != nil {
+		t.Errorf("生成 data.go 文件失败： %s", err.Error())
+		return
+	}
+
+	err = db.Table(languageTableName).Find(&languages).Error
 	if err != nil {
 		t.Errorf("生成 data.go 文件失败： %s", err.Error())
 		return
@@ -66,7 +82,10 @@ func TestGenData(t *testing.T) {
 		t.Fatal(err.Error())
 	}
 	buf := new(bytes.Buffer)
-	if err := tmpl.Execute(buf, map[string]interface{}{"Permissions": permissions}); err != nil {
+	if err := tmpl.Execute(buf, map[string]interface{}{
+		"Permissions": permissions,
+		"Languages":   languages,
+	}); err != nil {
 		t.Fatal(err.Error())
 	}
 
