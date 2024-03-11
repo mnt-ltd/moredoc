@@ -172,3 +172,52 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 		Article: pbArticle,
 	}, nil
 }
+
+func (s *ArticleAPIService) ListRecycleArticle(ctx context.Context, req *pb.ListArticleRequest) (*pb.ListArticleReply, error) {
+	opt := &model.OptionGetArticleList{
+		Page:      int(req.Page),
+		Size:      int(req.Size_),
+		WithCount: true,
+		QueryLike: make(map[string][]interface{}),
+		Sort:      []string{req.Order},
+		IsRecycle: true,
+	}
+
+	_, err := s.checkPermission(ctx)
+	if err == nil && req.Wd != "" {
+		opt.QueryLike["title"] = []interface{}{req.Wd}
+		opt.QueryLike["keywords"] = []interface{}{req.Wd}
+		opt.QueryLike["description"] = []interface{}{req.Wd}
+		opt.QueryLike["content"] = []interface{}{req.Wd}
+	}
+
+	articles, total, err := s.dbModel.GetArticleList(opt)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		s.logger.Error("ListArticle", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "获取文章列表失败")
+	}
+
+	var pbArticle []*pb.Article
+	err = util.CopyStruct(articles, &pbArticle)
+	if err != nil {
+		s.logger.Error("ListArticle", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "获取文章列表失败"+err.Error())
+	}
+
+	return &pb.ListArticleReply{
+		Total:   total,
+		Article: pbArticle,
+	}, nil
+}
+
+func (s *ArticleAPIService) RestoreRecycleArticle(ctx context.Context, req *pb.RestoreArticleRequest) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
+}
+
+func (s *ArticleAPIService) DeleteRecycleArticle(ctx context.Context, req *pb.DeleteArticleRequest) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
+}
+
+func (s *ArticleAPIService) EmptyRecycleArticle(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	return &emptypb.Empty{}, nil
+}

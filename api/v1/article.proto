@@ -31,6 +31,8 @@ message Article {
 // 删除文章请求，传入单个或者多个文章ID
 message DeleteArticleRequest { repeated int64 id = 1; }
 
+message RestoreArticleRequest { repeated int64 id = 1; }
+
 // 根据ID或者文章标识获取文章，二选一
 message GetArticleRequest {
   int64 id = 1;          // 文章ID
@@ -89,6 +91,38 @@ service ArticleAPI {
   rpc ListArticle(ListArticleRequest) returns (ListArticleReply) {
     option (google.api.http) = {
       get : '/api/v1/article/list',
+    };
+  }
+
+  // 回收站文章列表
+  rpc ListRecycleArticle(ListArticleRequest) returns (ListArticleReply) {
+    option (google.api.http) = {
+      get : '/api/v1/article/recycle/list',
+    };
+  }
+
+  // 恢复回收站文章
+  rpc RestoreRecycleArticle(RestoreArticleRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : '/api/v1/article/recycle/restore',
+      body : '*',
+    };
+  }
+
+  // 从回收站删除文章
+  rpc DeleteRecycleArticle(DeleteArticleRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/article/recycle',
+    };
+  }
+
+  // 清空回收站
+  rpc EmptyRecycleArticle(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/article/recycle/empty',
     };
   }
 }

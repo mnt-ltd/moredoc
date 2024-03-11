@@ -167,6 +167,7 @@ type OptionGetArticleList struct {
 	QueryIn      map[string][]interface{}  // map[field][]{value1,value2,...}
 	QueryLike    map[string][]interface{}  // map[field][]{value1,value2,...}
 	Sort         []string
+	IsRecycle    bool // 是否是回收站模式查询
 }
 
 // GetArticleList 获取Article列表
@@ -179,6 +180,12 @@ func (m *DBModel) GetArticleList(opt *OptionGetArticleList) (articleList []Artic
 
 	if len(opt.Ids) > 0 {
 		db = db.Where("id in (?)", opt.Ids)
+	}
+
+	if opt.IsRecycle {
+		db = db.Unscoped().Where("deleted_at is not null")
+		// 回收站模式下，按删除时间倒序
+		opt.Sort = []string{"deleted_at desc"}
 	}
 
 	if opt.WithCount {
