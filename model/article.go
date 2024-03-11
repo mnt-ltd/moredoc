@@ -330,7 +330,30 @@ func (m *DBModel) GetArticleList(opt *OptionGetArticleList) (articleList []Artic
 	err = db.Find(&articleList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetArticleList", zap.Error(err))
+		return
 	}
+
+	if len(articleList) == 0 {
+		return
+	}
+
+	var (
+		articleIds        []int64
+		articleIdMapIndex = make(map[int64]int)
+	)
+
+	for index, article := range articleList {
+		articleIds = append(articleIds, article.Id)
+		articleIdMapIndex[article.Id] = index
+	}
+
+	articleCategories, _ := m.GetArticleCategories(articleIds...)
+	for _, articleCategory := range articleCategories {
+		if index, ok := articleIdMapIndex[articleCategory.ArticleId]; ok {
+			articleList[index].CategoryId = append(articleList[index].CategoryId, articleCategory.CategoryId)
+		}
+	}
+
 	return
 }
 
@@ -357,6 +380,59 @@ func (m *DBModel) DeleteArticle(ids []int64) (err error) {
 		return
 	}
 
+	return
+}
+
+func (m *DBModel) SetArticlesCategory(articleId, categoryId []int64) (err error) {
+	tx := m.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	for _, id := range articleId {
+		// 1. 旧的文档分类，减少计数
+		var articleCates []ArticleCategory
+		m.db.Model(&ArticleCategory{}).Where("article_id = ?", id).Find(&articleCates)
+		for _, cate := range articleCates {
+			err = tx.Model(&Category{}).Where("id = ?", cate.CategoryId).Update("doc_count", gorm.Expr("doc_count - ?", 1)).Error
+			if err != nil {
+				m.logger.Error("SetArticlesCategory", zap.Error(err))
+				return
+			}
+		}
+
+		// 2. 删除旧的分类
+		err = tx.Model(&ArticleCategory{}).Where("article_id = ?", id).Delete(&DocumentCategory{}).Error
+		if err != nil {
+			m.logger.Error("SetArticlesCategory", zap.Error(err))
+			return
+		}
+
+		// 3. 添加新的分类
+		articleCates = []ArticleCategory{}
+		for _, cid := range categoryId {
+			articleCates = append(articleCates, ArticleCategory{
+				ArticleId:  id,
+				CategoryId: cid,
+			})
+		}
+		err = tx.Create(&articleCates).Error
+		if err != nil {
+			m.logger.Error("SetArticlesCategory", zap.Error(err))
+			return
+		}
+
+		// 4. 更新文档分类统计
+		err = tx.Model(&Category{}).Where("id in (?)", categoryId).Update("doc_count", gorm.Expr("doc_count + ?", 1)).Error
+		if err != nil {
+			m.logger.Error("SetArticlesCategory", zap.Error(err))
+			return
+		}
+	}
 	return
 }
 

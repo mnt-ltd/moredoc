@@ -36,6 +36,11 @@ message DeleteArticleRequest { repeated int64 id = 1; }
 
 message RestoreArticleRequest { repeated int64 id = 1; }
 
+message SetArticlesCategoryRequest {
+  repeated int64 article_id = 1;  // 文章ID
+  repeated int64 category_id = 2; // 分类ID
+}
+
 // 根据ID或者文章标识获取文章，二选一
 message GetArticleRequest {
   int64 id = 1;          // 文章ID
@@ -94,6 +99,15 @@ service ArticleAPI {
   rpc ListArticle(ListArticleRequest) returns (ListArticleReply) {
     option (google.api.http) = {
       get : '/api/v1/article/list',
+    };
+  }
+
+  // 批量更新文档分类
+  rpc SetArticlesCategory(SetArticlesCategoryRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/article/category',
+      body : '*',
     };
   }
 

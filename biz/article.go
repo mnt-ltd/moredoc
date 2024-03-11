@@ -173,6 +173,21 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 	}, nil
 }
 
+// SetArticlesCategory
+func (s *ArticleAPIService) SetArticlesCategory(ctx context.Context, req *pb.SetArticlesCategoryRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.dbModel.SetArticlesCategory(req.ArticleId, req.CategoryId)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "设置文档分类失败：%s", err.Error())
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
 func (s *ArticleAPIService) ListRecycleArticle(ctx context.Context, req *pb.ListArticleRequest) (*pb.ListArticleReply, error) {
 	opt := &model.OptionGetArticleList{
 		Page:      int(req.Page),

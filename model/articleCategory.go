@@ -19,8 +19,12 @@ func (ArticleCategory) TableName() string {
 	return tablePrefix + "article_category"
 }
 
-func (m *DBModel) GetArticleCategories(articleId int64) (categories []ArticleCategory, err error) {
-	err = m.db.Where("article_id = ?", articleId).Find(&categories).Error
+func (m *DBModel) GetArticleCategories(articleId ...int64) (categories []ArticleCategory, err error) {
+	if len(articleId) == 0 {
+		return
+	}
+
+	err = m.db.Where("article_id in ?", articleId).Find(&categories).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
 		m.logger.Error("GetArticleCategories", zap.Error(err))
 	}
