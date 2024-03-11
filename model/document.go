@@ -222,7 +222,7 @@ func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Do
 	db = m.generateQueryLike(db, tableDocument, opt.QueryLike)
 	db = m.generateQueryRange(db, tableDocument, opt.QueryRange)
 	if len(opt.Ids) > 0 {
-		db = db.Where("id in (?)", opt.Ids)
+		db = db.Where("d.id in (?)", opt.Ids)
 	}
 
 	if categoryIds, ok := opt.QueryIn["category_id"]; ok && len(categoryIds) > 0 {

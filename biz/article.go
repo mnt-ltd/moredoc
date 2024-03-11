@@ -143,6 +143,7 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 		Size:      int(req.Size_),
 		WithCount: true,
 		QueryLike: make(map[string][]interface{}),
+		QueryIn:   make(map[string][]interface{}),
 		Sort:      []string{req.Order},
 	}
 
@@ -152,6 +153,10 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 		opt.QueryLike["keywords"] = []interface{}{req.Wd}
 		opt.QueryLike["description"] = []interface{}{req.Wd}
 		opt.QueryLike["content"] = []interface{}{req.Wd}
+	}
+
+	if len(req.CategoryId) > 0 {
+		opt.QueryIn["category_id"] = util.Slice2Interface(req.CategoryId)
 	}
 
 	articles, total, err := s.dbModel.GetArticleList(opt)
@@ -230,9 +235,55 @@ func (s *ArticleAPIService) RestoreRecycleArticle(ctx context.Context, req *pb.R
 }
 
 func (s *ArticleAPIService) DeleteRecycleArticle(ctx context.Context, req *pb.DeleteArticleRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.dbModel.DeleteArticle(req.Id, true)
+	if err != nil {
+		s.logger.Error("DeleteRecycleArticle", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "删除文章失败")
+	}
+
 	return &emptypb.Empty{}, nil
 }
 
 func (s *ArticleAPIService) EmptyRecycleArticle(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	opt := &model.OptionGetArticleList{
+		IsRecycle:    true,
+		SelectFields: []string{"id"},
+	}
+
+	for {
+		articles, _, err := s.dbModel.GetArticleList(opt)
+		if err != nil && err != gorm.ErrRecordNotFound {
+			s.logger.Error("EmptyRecycleArticle", zap.Error(err))
+			return nil, status.Errorf(codes.Internal, "清空回收站失败")
+		}
+
+		var ids []int64
+		for _, article := range articles {
+			ids = append(ids, article.Id)
+		}
+
+		if len(ids) > 0 {
+			err = s.dbModel.DeleteArticle(ids, true)
+			if err != nil {
+				s.logger.Error("EmptyRecycleArticle", zap.Error(err))
+				return nil, status.Errorf(codes.Internal, "清空回收站失败")
+			}
+		}
+
+		if len(articles) == 0 {
+			break
+		}
+	}
+
 	return &emptypb.Empty{}, nil
 }

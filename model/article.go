@@ -288,20 +288,27 @@ type OptionGetArticleList struct {
 
 // GetArticleList 获取Article列表
 func (m *DBModel) GetArticleList(opt *OptionGetArticleList) (articleList []Article, total int64, err error) {
-	tableName := Article{}.TableName()
-	db := m.db.Model(&Article{})
+	tableName := Article{}.TableName() + " a"
+	db := m.db.Table(tableName).Unscoped()
 	db = m.generateQueryRange(db, tableName, opt.QueryRange)
 	db = m.generateQueryIn(db, tableName, opt.QueryIn)
 	db = m.generateQueryLike(db, tableName, opt.QueryLike)
 
 	if len(opt.Ids) > 0 {
-		db = db.Where("id in (?)", opt.Ids)
+		db = db.Where("a.id in (?)", opt.Ids)
+	}
+
+	if categoryIds, ok := opt.QueryIn["category_id"]; ok && len(categoryIds) > 0 {
+		tableCategory := ArticleCategory{}.TableName()
+		db = db.Joins("left join "+tableCategory+" ac on ac.article_id = a.id").Where("ac.category_id in (?)", categoryIds)
 	}
 
 	if opt.IsRecycle {
-		db = db.Unscoped().Where("deleted_at is not null")
+		db = db.Where("a.deleted_at is not null")
 		// 回收站模式下，按删除时间倒序
-		opt.Sort = []string{"deleted_at desc"}
+		opt.Sort = []string{"a.deleted_at desc"}
+	} else {
+		db = db.Where("a.deleted_at is null")
 	}
 
 	if opt.WithCount {
@@ -316,13 +323,13 @@ func (m *DBModel) GetArticleList(opt *OptionGetArticleList) (articleList []Artic
 	if len(opt.SelectFields) > 0 {
 		db = db.Select(opt.SelectFields)
 	} else {
-		db = db.Omit("content")
+		db = db.Select(m.GetTableFields(tableName, "a.content"))
 	}
 
 	if len(opt.Sort) > 0 {
 		db = m.generateQuerySort(db, tableName, opt.Sort)
 	} else {
-		db = db.Order("id desc")
+		db = db.Order("a.id desc")
 	}
 
 	db = db.Offset((opt.Page - 1) * opt.Size).Limit(opt.Size)
@@ -358,28 +365,74 @@ func (m *DBModel) GetArticleList(opt *OptionGetArticleList) (articleList []Artic
 }
 
 // DeleteArticle 删除数据
-func (m *DBModel) DeleteArticle(ids []int64) (err error) {
-	sess := m.db.Begin()
+func (m *DBModel) DeleteArticle(ids []int64, deepDelete ...bool) (err error) {
+	if len(ids) == 0 {
+		return
+	}
+
+	tx := m.db.Begin()
 	defer func() {
 		if err != nil {
-			sess.Rollback()
+			tx.Rollback()
 		} else {
-			sess.Commit()
+			tx.Commit()
 		}
 	}()
 
-	err = sess.Where("id in (?)", ids).Delete(&Article{}).Error
+	deep := false
+	if len(deepDelete) > 0 {
+		deep = deepDelete[0]
+	}
+
+	if !deep {
+		// 软删除：删除文章、文章关联分类数量-1
+		err = tx.Where("id in (?)", ids).Delete(&Article{}).Error
+		if err != nil {
+			m.logger.Error("DeleteArticle", zap.Error(err))
+			return
+		}
+
+		// 查找文章已存在的分类，减少分类的文档数量
+		var (
+			articleCategories      []ArticleCategory
+			articleIdMapCategories = make(map[int64][]int64)
+		)
+
+		tx.Where("article_id in (?)", ids).Find(&articleCategories)
+		for _, cate := range articleCategories {
+			articleIdMapCategories[cate.ArticleId] = append(articleIdMapCategories[cate.ArticleId], cate.CategoryId)
+		}
+
+		for _, cateIds := range articleIdMapCategories {
+			err = tx.Model(&Category{}).Where("id in (?)", cateIds).Update("doc_count", gorm.Expr("doc_count - 1")).Error
+			if err != nil {
+				m.logger.Error("DeleteArticle", zap.Error(err))
+				return
+			}
+		}
+		return
+	}
+
+	// 文章删除
+	err = tx.Unscoped().Where("id in (?)", ids).Delete(&Article{}).Error
 	if err != nil {
 		m.logger.Error("DeleteArticle", zap.Error(err))
 		return
 	}
 
-	err = sess.Where("type = ? and type_id in (?)", AttachmentTypeArticle, ids).Delete(&Attachment{}).Error
+	// 文章分类关联删除
+	err = tx.Where("article_id in (?)", ids).Delete(&ArticleCategory{}).Error
 	if err != nil {
 		m.logger.Error("DeleteArticle", zap.Error(err))
 		return
 	}
 
+	// 附件标记删除
+	err = tx.Where("type = ? and type_id in (?)", AttachmentTypeArticle, ids).Delete(&Attachment{}).Error
+	if err != nil {
+		m.logger.Error("DeleteArticle", zap.Error(err))
+		return
+	}
 	return
 }
 

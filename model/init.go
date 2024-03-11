@@ -301,7 +301,12 @@ func (m *DBModel) FilterValidFields(tableName string, fields ...string) (validFi
 }
 
 // GetTableFields 查询指定表的所有字段
-func (m *DBModel) GetTableFields(tableName string) (fields []string) {
+func (m *DBModel) GetTableFields(tableName string, ignoreField ...string) (fields []string) {
+	ignoreFieldMap := make(map[string]struct{})
+	for _, field := range ignoreField {
+		ignoreFieldMap[field] = struct{}{}
+	}
+
 	slice := strings.Split(tableName, " ")
 	alias := ""
 	if len(slice) == 2 {
@@ -311,7 +316,13 @@ func (m *DBModel) GetTableFields(tableName string) (fields []string) {
 	fieldsMap, ok := m.tableFieldsMap[tableName]
 	if ok {
 		for field := range fieldsMap {
-			fields = append(fields, fmt.Sprintf("%s%s", alias, field))
+			f := fmt.Sprintf("%s%s", alias, field)
+			_, ok1 := ignoreFieldMap[f]
+			_, ok2 := ignoreFieldMap[field]
+			if ok1 || ok2 {
+				continue
+			}
+			fields = append(fields, f)
 		}
 	}
 	return

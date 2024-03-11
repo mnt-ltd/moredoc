@@ -54,6 +54,7 @@ message ListArticleRequest {
   string wd = 3;             // 搜索关键字
   repeated string field = 4; // 查询字段
   string order = 5;          // 排序字段，根据指定的字段倒序排序
+  repeated int64 category_id = 6; // 分类ID
 }
 
 // 文章列表响应
