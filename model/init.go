@@ -175,6 +175,7 @@ func (m *DBModel) SyncDB() (err error) {
 		&GroupPermission{},
 		&Logout{},
 		&Article{},
+		&ArticleCategory{},
 		&Favorite{},
 		&Comment{},
 		&Dynamic{},
@@ -253,10 +254,7 @@ func (m *DBModel) alterTableBeforeSyncDB() {
 
 	// 查询category表，将原本有title和parent_id的唯一索引删除
 	tableCategory := Category{}.TableName()
-	err := m.db.Exec(fmt.Sprintf("alter table %s drop index %s", tableCategory, "parent_id_title")).Error
-	if err != nil {
-		m.logger.Error("alterTableBeforeSyncDB", zap.Error(err))
-	}
+	m.db.Exec(fmt.Sprintf("alter table %s drop index %s", tableCategory, "parent_id_title"))
 }
 
 func (m *DBModel) alterTableAfterSyncDB() {

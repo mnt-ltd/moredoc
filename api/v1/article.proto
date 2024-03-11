@@ -26,6 +26,9 @@ message Article {
       [ (gogoproto.stdtime) = true ]; // 文章创建时间
   google.protobuf.Timestamp updated_at = 10
       [ (gogoproto.stdtime) = true ]; // 文章更新时间
+  google.protobuf.Timestamp deleted_at = 11
+      [ (gogoproto.stdtime) = true ]; // 文章删除时间
+  repeated int64 category_id = 12;    // 文章分类ID
 }
 
 // 删除文章请求，传入单个或者多个文章ID

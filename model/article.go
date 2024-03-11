@@ -23,6 +23,7 @@ type Article struct {
 	CreatedAt   time.Time      `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt   time.Time      `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 	DeletedAt   gorm.DeletedAt `form:"deleted_at" json:"deleted_at,omitempty" gorm:"column:deleted_at;type:datetime;comment:删除时间;index:idx_deleted_at"`
+	CategoryId  []int64        `form:"category_id" json:"category_id,omitempty" gorm:"-"`
 }
 
 func (Article) TableName() string {
@@ -84,11 +85,52 @@ func (m *DBModel) initArticle() (err error) {
 
 // CreateArticle 创建Article
 func (m *DBModel) CreateArticle(article *Article) (err error) {
-	err = m.db.Create(article).Error
+	tx := m.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	err = tx.Create(article).Error
 	if err != nil {
 		m.logger.Error("CreateArticle", zap.Error(err))
 		return
 	}
+
+	if len(article.CategoryId) > 0 {
+		err = tx.Model(&Category{}).Where("id in ?", article.CategoryId).Update("doc_count", gorm.Expr("doc_count + 1")).Error
+		if err != nil {
+			m.logger.Error("CreateArticle", zap.Error(err))
+			return
+		}
+
+		// 增加文档与分类的关联
+		var (
+			articleCategories []ArticleCategory
+			existMap          = make(map[int64]bool)
+		)
+
+		for _, categoryId := range article.CategoryId {
+			if existMap[categoryId] {
+				continue
+			}
+			articleCategories = append(articleCategories, ArticleCategory{
+				ArticleId:  article.Id,
+				CategoryId: categoryId,
+			})
+			existMap[categoryId] = true
+		}
+
+		err = tx.Create(&articleCategories).Error
+		if err != nil {
+			m.logger.Error("CreateArticle", zap.Error(err))
+			return
+		}
+	}
+
 	m.checkArticleFile(article)
 	return
 }
@@ -96,19 +138,77 @@ func (m *DBModel) CreateArticle(article *Article) (err error) {
 // UpdateArticle 更新Article，如果需要更新指定字段，则请指定updateFields参数
 // 注意：不支持更新identifier
 func (m *DBModel) UpdateArticle(article *Article, updateFields ...string) (err error) {
-	db := m.db.Model(article)
-	tableName := Article{}.TableName()
+	tx := m.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
 
-	updateFields = m.FilterValidFields(tableName, updateFields...)
-	if len(updateFields) > 0 { // 更新指定字段
-		db = db.Select(updateFields)
-	} else { // 更新全部字段，包括零值字段
-		db = db.Select(m.GetTableFields(tableName))
+	var (
+		existArticleCategories []ArticleCategory
+		existCategoryIds       []int64
+	)
+	tx.Model(&ArticleCategory{}).Where("article_id = ?", article.Id).Find(&existArticleCategories)
+	for _, cate := range existArticleCategories {
+		existCategoryIds = append(existCategoryIds, cate.CategoryId)
 	}
 
-	err = db.Where("id = ?", article.Id).Omit("identifier").Updates(article).Error
+	if len(existCategoryIds) > 0 {
+		err = tx.Model(&Category{}).Where("id in ?", existCategoryIds).Update("doc_count", gorm.Expr("doc_count - 1")).Error
+		if err != nil {
+			m.logger.Error("UpdateArticle", zap.Error(err))
+			return
+		}
+
+		err = tx.Where("article_id = ?", article.Id).Delete(&ArticleCategory{}).Error
+		if err != nil {
+			m.logger.Error("UpdateArticle", zap.Error(err))
+			return
+		}
+	}
+
+	if len(article.CategoryId) > 0 {
+		err = tx.Model(&Category{}).Where("id in ?", article.CategoryId).Update("doc_count", gorm.Expr("doc_count + 1")).Error
+		if err != nil {
+			m.logger.Error("UpdateArticle", zap.Error(err))
+			return
+		}
+
+		// 增加文档与分类的关联
+		var (
+			articleCategories []ArticleCategory
+			exist             = make(map[int64]bool)
+		)
+		for _, categoryId := range article.CategoryId {
+			if exist[categoryId] {
+				continue
+			}
+			exist[categoryId] = true
+			articleCategories = append(articleCategories, ArticleCategory{
+				ArticleId:  article.Id,
+				CategoryId: categoryId,
+			})
+		}
+
+		err = tx.Create(&articleCategories).Error
+		if err != nil {
+			m.logger.Error("UpdateArticle", zap.Error(err))
+			return
+		}
+	}
+
+	tableName := Article{}.TableName()
+	updateFields = m.FilterValidFields(tableName, updateFields...)
+	if len(updateFields) == 0 { // 更新全部字段，包括零值字段
+		updateFields = m.GetTableFields(tableName)
+	}
+	err = tx.Model(article).Select(updateFields).Where("id = ?", article.Id).Omit("identifier").Updates(article).Error
 	if err != nil {
 		m.logger.Error("UpdateArticle", zap.Error(err))
+		return
 	}
 
 	m.checkArticleFile(article)
@@ -135,6 +235,15 @@ func (m *DBModel) GetArticle(id interface{}, fields ...string) (article Article,
 	}
 
 	err = db.Where("id = ?", id).First(&article).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetArticle", zap.Error(err))
+		return
+	}
+	cates, _ := m.GetArticleCategories(article.Id)
+	article.CategoryId = make([]int64, 0, len(cates))
+	for _, cate := range cates {
+		article.CategoryId = append(article.CategoryId, cate.CategoryId)
+	}
 	return
 }
 
@@ -154,6 +263,13 @@ func (m *DBModel) GetArticleByIdentifier(identifier string, fields ...string) (a
 		m.logger.Error("GetArticleByIdentifier", zap.Error(err))
 		return
 	}
+
+	cates, _ := m.GetArticleCategories(article.Id)
+	article.CategoryId = make([]int64, 0, len(cates))
+	for _, cate := range cates {
+		article.CategoryId = append(article.CategoryId, cate.CategoryId)
+	}
+
 	return
 }
 
