@@ -231,6 +231,17 @@ func (s *ArticleAPIService) ListRecycleArticle(ctx context.Context, req *pb.List
 }
 
 func (s *ArticleAPIService) RestoreRecycleArticle(ctx context.Context, req *pb.RestoreArticleRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.dbModel.RestoreArticle(req.Id)
+	if err != nil {
+		s.logger.Error("RestoreRecycleArticle", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "恢复文章失败："+err.Error())
+	}
+
 	return &emptypb.Empty{}, nil
 }
 

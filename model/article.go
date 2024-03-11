@@ -527,3 +527,46 @@ func (m *DBModel) CountArticle() (count int64, err error) {
 	err = m.db.Model(&Article{}).Count(&count).Error
 	return
 }
+
+// 从回收站中恢复选中的文章
+func (m *DBModel) RestoreArticle(ids []int64) (err error) {
+	if len(ids) == 0 {
+		return
+	}
+
+	tx := m.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	err = tx.Model(&Article{}).Unscoped().Where("id in (?)", ids).Update("deleted_at", nil).Error
+	if err != nil {
+		m.logger.Error("RestoreArticle", zap.Error(err))
+		return
+	}
+
+	// 查找文章已存在的分类，增加分类的文档数量
+	var (
+		articleCategories      []ArticleCategory
+		articleIdMapCategories = make(map[int64][]int64)
+	)
+
+	tx.Where("article_id in (?)", ids).Find(&articleCategories)
+	for _, cate := range articleCategories {
+		articleIdMapCategories[cate.ArticleId] = append(articleIdMapCategories[cate.ArticleId], cate.CategoryId)
+	}
+
+	for _, cateIds := range articleIdMapCategories {
+		err = tx.Model(&Category{}).Where("id in (?)", cateIds).Update("doc_count", gorm.Expr("doc_count + 1")).Error
+		if err != nil {
+			m.logger.Error("RestoreArticle", zap.Error(err))
+			return
+		}
+	}
+
+	return
+}
