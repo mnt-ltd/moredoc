@@ -36,6 +36,10 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 		return nil, err
 	}
 
+	if req.Identifier == "" {
+		req.Identifier = util.GenDocumentMD5UUID()
+	}
+
 	existArticle, _ := s.dbModel.GetArticleByIdentifier(req.Identifier, "id")
 	if existArticle.Id > 0 {
 		return nil, status.Errorf(codes.AlreadyExists, "文章标识符已存在")
