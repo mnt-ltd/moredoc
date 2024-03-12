@@ -24,12 +24,13 @@ type Comment struct {
 	UserId       int64      `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);size:20;index:idx_user_id;comment:发布评论的用户;"`
 	ParentId     int64      `form:"parent_id" json:"parent_id,omitempty" gorm:"column:parent_id;type:bigint(20);size:20;default:0;comment:上级ID;index:idx_parent_id;"`
 	Content      string     `form:"content" json:"content,omitempty" gorm:"column:content;type:text;comment:评论内容;"`
-	DocumentId   int64      `form:"document_id" json:"document_id,omitempty" gorm:"column:document_id;type:bigint(20);size:20;default:0;comment:文档ID;index:idx_document_id;"`
+	DocumentId   int64      `form:"document_id" json:"document_id,omitempty" gorm:"column:document_id;type:bigint(20);size:20;default:0;comment:兼容字段，文档ID或文章ID;index:idx_document_id;"`
 	Status       int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;comment:0 待审，1过审，2拒绝;"`
 	CommentCount int        `form:"comment_count" json:"comment_count,omitempty" gorm:"column:comment_count;type:int(11);size:11;default:0;comment:评论数量;"`
 	IP           string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(64);size:64;default:'';comment:IP地址;"`
 	CreatedAt    *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:评论时间;index:idx_created_at;"`
 	UpdatedAt    *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:评论更新时间;"`
+	Type         int32      `form:"type" json:"type,omitempty" gorm:"column:type;type:int(11);size:11;default:0;comment:评论类型，0表示文档评论，1表示文章评论"` // 枚举见CategoryType
 }
 
 func (Comment) TableName() string {
@@ -131,7 +132,6 @@ func (m *DBModel) CreateComment(comment *Comment) (err error) {
 		m.logger.Error("CreateComment", zap.Error(err))
 		return
 	}
-
 	return
 }
 

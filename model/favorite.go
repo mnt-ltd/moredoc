@@ -12,9 +12,11 @@ import (
 type Favorite struct {
 	Id         int64     `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:自增主键;"`
 	UserId     int64     `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint(20);size:20;default:0;comment:用户id;index:idx_user_id;index:idx_user_document,unique"`
-	DocumentId int64     `form:"document_id" json:"document_id,omitempty" gorm:"column:document_id;type:bigint(20);size:20;default:0;comment:;index:idx_user_document,unique"`
+	DocumentId int64     `form:"document_id" json:"document_id,omitempty" gorm:"column:document_id;type:bigint(20);size:20;default:0;comment:字段兼容，表示文档ID或者文章ID等;index:idx_user_document,unique"`
+	Type       int32     `form:"type" json:"type,omitempty" gorm:"column:type;type:int(11);size:11;default:0;comment:收藏类型，0表示文档，1表示文章"` // 枚举见 CategoryType
 	CreatedAt  time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:;index:idx_created_at"`
 	UpdatedAt  time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:;"`
+	IP         string    `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(64);size:64;default:'';comment:IP地址;"`
 }
 
 func (Favorite) TableName() string {

@@ -42,6 +42,7 @@ func (s *FavoriteAPIService) CreateFavorite(ctx context.Context, req *pb.Favorit
 	favorite := &model.Favorite{
 		UserId:     userClaims.UserId,
 		DocumentId: req.DocumentId,
+		IP:         util.GetGRPCRemoteIP(ctx),
 	}
 
 	exsit, _ := s.dbModel.GetUserFavorite(favorite.UserId, favorite.DocumentId)

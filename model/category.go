@@ -7,9 +7,11 @@ import (
 	"gorm.io/gorm"
 )
 
+type CategoryType int32
+
 const (
-	CategoryTypeDocument = 0 // 文档分类(默认)
-	CategoryTypeArticle  = 1 // 文章分类
+	CategoryTypeDocument CategoryType = 0 // 文档分类(默认)
+	CategoryTypeArticle  CategoryType = 1 // 文章分类
 )
 
 type Category struct {
