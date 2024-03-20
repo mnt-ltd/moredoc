@@ -120,7 +120,7 @@ func (m *DBModel) DeleteDocumentRelate(ids []interface{}) (err error) {
 	return
 }
 
-func (m *DBModel) GetRelatedDocuments(documentId int64) (docs []Document, err error) {
+func (m *DBModel) GetRelatedDocuments(documentId int64, fields ...string) (docs []Document, err error) {
 	var (
 		docRelate DocumentRelate
 		docIds    []int64
@@ -132,12 +132,12 @@ func (m *DBModel) GetRelatedDocuments(documentId int64) (docs []Document, err er
 			Size:      11,
 			QueryIn:   make(map[string][]interface{}),
 			QueryLike: make(map[string][]interface{}),
-			SelectFields: []string{
-				"id", "title", "ext", "uuid",
-			},
 		}
 		isExpired bool
 	)
+	if len(fields) > 0 {
+		opt.SelectFields = fields
+	}
 
 	if cfg.DocumentRelatedDuration <= 0 {
 		return

@@ -907,6 +907,54 @@ func (s *DocumentAPIService) GetRelatedDocuments(ctx context.Context, req *pb.Do
 	docs, _ := s.dbModel.GetRelatedDocuments(req.Id)
 	res = &pb.ListDocumentReply{}
 	util.CopyStruct(&docs, &res.Document)
+
+	if len(res.Document) == 0 {
+		return
+	}
+
+	var (
+		userIds       []interface{}
+		docIds        []interface{}
+		userIdMapDocs = make(map[int64][]int)
+		docIdMapIndex = make(map[int64]int)
+	)
+	for idx, doc := range res.Document {
+		userIds = append(userIds, doc.UserId)
+		docIds = append(docIds, doc.Id)
+		userIdMapDocs[doc.UserId] = append(userIdMapDocs[doc.UserId], idx)
+		docIdMapIndex[doc.Id] = idx
+	}
+
+	docUsers, _, _ := s.dbModel.GetUserList(&model.OptionGetUserList{
+		WithCount:    false,
+		SelectFields: []string{"id", "username"},
+		QueryIn:      map[string][]interface{}{"id": userIds},
+	})
+
+	for _, docUser := range docUsers {
+		indexes := userIdMapDocs[docUser.Id]
+		for _, index := range indexes {
+			res.Document[index].Username = docUser.Username
+		}
+	}
+
+	// 查找文档相关联的附件。对于列表，只返回hash和id，不返回其他字段
+	attachments, _, _ := s.dbModel.GetAttachmentList(&model.OptionGetAttachmentList{
+		WithCount:    false,
+		SelectFields: []string{"hash", "id", "type_id"},
+		QueryIn: map[string][]interface{}{
+			"type_id": docIds,
+			"type":    {model.AttachmentTypeDocument},
+		},
+	})
+
+	for _, attachment := range attachments {
+		index := docIdMapIndex[attachment.TypeId]
+		res.Document[index].Attachment = &pb.Attachment{
+			Hash: attachment.Hash,
+		}
+	}
+
 	return res, nil
 }
 
