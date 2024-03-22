@@ -14,7 +14,7 @@ import (
 type Article struct {
 	Id            int64          `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Identifier    string         `form:"identifier" json:"identifier,omitempty" gorm:"column:identifier;type:varchar(64);size:64;index:identifier,unique;comment:文章标识，唯一;"`
-	Author        string         `form:"author" json:"author,omitempty" gorm:"column:author;type:varchar(64);size:64;comment:作者;"`
+	UserId        int64          `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint;comment:用户ID;index:user_id"`
 	ViewCount     int            `form:"view_count" json:"view_count,omitempty" gorm:"column:view_count;type:int(11);size:11;default:0;comment:阅读;"`
 	FavoriteCount int            `form:"favorite_count" json:"favorite_count,omitempty" gorm:"column:favorite_count;type:int(11);size:11;default:0;comment:收藏;"`
 	CommentCount  int            `form:"comment_count" json:"comment_count,omitempty" gorm:"column:comment_count;type:int(11);size:11;default:0;comment:评论;"`
@@ -208,7 +208,7 @@ func (m *DBModel) UpdateArticle(article *Article, updateFields ...string) (err e
 	if len(updateFields) == 0 { // 更新全部字段，包括零值字段
 		updateFields = m.GetTableFields(tableName)
 	}
-	ignoreFields := []string{"identifier", "view_count", "favorite_count", "comment_count"}
+	ignoreFields := []string{"identifier", "view_count", "favorite_count", "comment_count", "user_id"}
 	err = tx.Model(article).Select(updateFields).Where("id = ?", article.Id).Omit(ignoreFields...).Updates(article).Error
 	if err != nil {
 		m.logger.Error("UpdateArticle", zap.Error(err))

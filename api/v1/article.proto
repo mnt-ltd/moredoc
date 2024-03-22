@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 // import "validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "api/v1/user.proto";
 
 package api.v1;
 
@@ -34,6 +35,8 @@ message Article {
   google.protobuf.Timestamp recommend_at = 15
       [ (gogoproto.stdtime) = true ]; // 文章推荐时间
   bool is_recommend = 16;             // 是否推荐
+  int64 user_id = 17;                 // 文章作者ID
+  User user = 18;                     // 文章作者
 }
 
 // 删除文章请求，传入单个或者多个文章ID

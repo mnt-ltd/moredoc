@@ -32,7 +32,7 @@ func (s *ArticleAPIService) checkPermission(ctx context.Context) (userClaims *au
 
 // CreateArticle 创建文章
 func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) (*pb.Article, error) {
-	_, err := s.checkPermission(ctx)
+	userClaims, err := s.checkPermission(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -58,6 +58,7 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 		article.RecommendAt = &now
 	}
 
+	article.UserId = userClaims.UserId
 	err = s.dbModel.CreateArticle(article)
 	if err != nil {
 		s.logger.Error("CreateArticle", zap.Error(err))
@@ -188,6 +189,31 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 	if err != nil {
 		s.logger.Error("ListArticle", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "获取文章列表失败"+err.Error())
+	}
+
+	var (
+		userIds         []int64
+		userMapArticles = make(map[int64][]int)
+	)
+	for idx, article := range articles {
+		userIds = append(userIds, article.UserId)
+		userMapArticles[article.UserId] = append(userMapArticles[article.UserId], idx)
+	}
+
+	if len(userIds) > 0 {
+		users, _, _ := s.dbModel.GetUserList(&model.OptionGetUserList{
+			QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(userIds)},
+			SelectFields: []string{"id", "username"},
+		})
+
+		for _, user := range users {
+			for _, idx := range userMapArticles[user.Id] {
+				pbArticle[idx].User = &pb.User{
+					Id:       user.Id,
+					Username: user.Username,
+				}
+			}
+		}
 	}
 
 	return &pb.ListArticleReply{
