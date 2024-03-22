@@ -287,7 +287,8 @@ type OptionGetArticleList struct {
 	QueryIn      map[string][]interface{}  // map[field][]{value1,value2,...}
 	QueryLike    map[string][]interface{}  // map[field][]{value1,value2,...}
 	Sort         []string
-	IsRecycle    bool // 是否是回收站模式查询
+	IsRecycle    bool   // 是否是回收站模式查询
+	IsRecommend  []bool // 是否是推荐模式查询
 }
 
 // GetArticleList 获取Article列表
@@ -313,6 +314,14 @@ func (m *DBModel) GetArticleList(opt *OptionGetArticleList) (articleList []Artic
 		opt.Sort = []string{"a.deleted_at desc"}
 	} else {
 		db = db.Where("a.deleted_at is null")
+	}
+
+	if len(opt.IsRecommend) == 1 {
+		if opt.IsRecommend[0] {
+			db = db.Where("a.recommend_at is not null")
+		} else {
+			db = db.Where("a.recommend_at is null")
+		}
 	}
 
 	if opt.WithCount {

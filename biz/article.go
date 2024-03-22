@@ -53,7 +53,7 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 		return nil, status.Errorf(codes.Internal, "创建文章失败")
 	}
 
-	if req.IsRecommend {
+	if req.IsRecommend && req.RecommendAt == nil {
 		now := time.Now()
 		article.RecommendAt = &now
 	}
@@ -88,7 +88,7 @@ func (s *ArticleAPIService) UpdateArticle(ctx context.Context, req *pb.Article) 
 		return nil, status.Errorf(codes.Internal, "更新文章失败")
 	}
 
-	if req.IsRecommend {
+	if req.IsRecommend && req.RecommendAt == nil {
 		now := time.Now()
 		article.RecommendAt = &now
 	} else {
@@ -156,12 +156,13 @@ func (s *ArticleAPIService) GetArticle(ctx context.Context, req *pb.GetArticleRe
 // 如果是有权限，则可以根据关键字来查询，否则只能简单查询
 func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticleRequest) (*pb.ListArticleReply, error) {
 	opt := &model.OptionGetArticleList{
-		Page:      int(req.Page),
-		Size:      int(req.Size_),
-		WithCount: true,
-		QueryLike: make(map[string][]interface{}),
-		QueryIn:   make(map[string][]interface{}),
-		Sort:      []string{req.Order},
+		Page:        int(req.Page),
+		Size:        int(req.Size_),
+		WithCount:   true,
+		QueryLike:   make(map[string][]interface{}),
+		QueryIn:     make(map[string][]interface{}),
+		Sort:        []string{req.Order},
+		IsRecommend: req.IsRecommend,
 	}
 
 	_, err := s.checkPermission(ctx)
