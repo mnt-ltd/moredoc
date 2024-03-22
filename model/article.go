@@ -25,6 +25,7 @@ type Article struct {
 	CreatedAt     time.Time      `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt     time.Time      `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 	DeletedAt     gorm.DeletedAt `form:"deleted_at" json:"deleted_at,omitempty" gorm:"column:deleted_at;type:datetime;comment:删除时间;index:idx_deleted_at"`
+	RecommendAt   *time.Time     `form:"recommend_at" json:"recommend_at,omitempty" gorm:"column:recommend_at;type:datetime;comment:推荐时间;index:idx_recommend_at;default:null;"`
 	CategoryId    []int64        `form:"category_id" json:"category_id,omitempty" gorm:"-"`
 }
 
@@ -571,5 +572,17 @@ func (m *DBModel) RestoreArticle(ids []int64) (err error) {
 		}
 	}
 
+	return
+}
+
+func (m *DBModel) RecommendArticles(articleIds []int64, isRecommend bool) (err error) {
+	var val interface{} = time.Now()
+	if !isRecommend {
+		val = nil
+	}
+	err = m.db.Model(&Article{}).Where("id in (?)", articleIds).Update("recommend_at", val).Error
+	if err != nil {
+		m.logger.Error("RecommendArticles", zap.Error(err))
+	}
 	return
 }

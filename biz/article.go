@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"time"
 
 	pb "moredoc/api/v1"
 	"moredoc/middleware/auth"
@@ -52,6 +53,11 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 		return nil, status.Errorf(codes.Internal, "创建文章失败")
 	}
 
+	if req.IsRecommend {
+		now := time.Now()
+		article.RecommendAt = &now
+	}
+
 	err = s.dbModel.CreateArticle(article)
 	if err != nil {
 		s.logger.Error("CreateArticle", zap.Error(err))
@@ -80,6 +86,13 @@ func (s *ArticleAPIService) UpdateArticle(ctx context.Context, req *pb.Article) 
 	if err != nil {
 		s.logger.Error("UpdateArticle", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "更新文章失败")
+	}
+
+	if req.IsRecommend {
+		now := time.Now()
+		article.RecommendAt = &now
+	} else {
+		article.RecommendAt = nil
 	}
 
 	err = s.dbModel.UpdateArticle(article)
@@ -259,6 +272,21 @@ func (s *ArticleAPIService) DeleteRecycleArticle(ctx context.Context, req *pb.De
 	if err != nil {
 		s.logger.Error("DeleteRecycleArticle", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "删除文章失败")
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
+func (s *ArticleAPIService) RecommendArticles(ctx context.Context, req *pb.RecommendArticlesRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.dbModel.RecommendArticles(req.ArticleId, req.IsRecommend)
+	if err != nil {
+		s.logger.Error("RecommendArticles", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "推荐文章失败")
 	}
 
 	return &emptypb.Empty{}, nil

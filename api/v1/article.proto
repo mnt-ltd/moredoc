@@ -29,6 +29,11 @@ message Article {
   google.protobuf.Timestamp deleted_at = 11
       [ (gogoproto.stdtime) = true ]; // 文章删除时间
   repeated int64 category_id = 12;    // 文章分类ID
+  int64 favorite_count = 13;          // 文章收藏次数
+  int64 comment_count = 14;           // 文章评论次数
+  google.protobuf.Timestamp recommend_at = 15
+      [ (gogoproto.stdtime) = true ]; // 文章推荐时间
+  bool is_recommend = 16;             // 是否推荐
 }
 
 // 删除文章请求，传入单个或者多个文章ID
@@ -39,6 +44,11 @@ message RestoreArticleRequest { repeated int64 id = 1; }
 message SetArticlesCategoryRequest {
   repeated int64 article_id = 1;  // 文章ID
   repeated int64 category_id = 2; // 分类ID
+}
+
+message RecommendArticlesRequest {
+  repeated int64 article_id = 1; // 文章ID
+  bool is_recommend = 2;         // 是否推荐
 }
 
 // 根据ID或者文章标识获取文章，二选一
@@ -55,6 +65,7 @@ message ListArticleRequest {
   repeated string field = 4; // 查询字段
   string order = 5;          // 排序字段，根据指定的字段倒序排序
   repeated int64 category_id = 6; // 分类ID
+  repeated bool is_recommend = 7; // 是否推荐
 }
 
 // 文章列表响应
@@ -108,6 +119,15 @@ service ArticleAPI {
       returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/article/category',
+      body : '*',
+    };
+  }
+
+  // 批量推荐
+  rpc RecommendArticles(RecommendArticlesRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/article/recommend',
       body : '*',
     };
   }
