@@ -583,6 +583,19 @@ func (s *UserAPIService) CanIUploadDocument(ctx context.Context, req *emptypb.Em
 	return &emptypb.Empty{}, nil
 }
 
+func (s *UserAPIService) CanIPublishArticle(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	userClaims, err := checkGRPCLogin(s.dbModel, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	if !s.dbModel.CanIAccessPublishArticle(userClaims.UserId) {
+		return nil, status.Errorf(codes.PermissionDenied, "您没有发布文章的权限")
+	}
+
+	return &emptypb.Empty{}, nil
+}
+
 func (s *UserAPIService) GetSignedToday(ctx context.Context, req *emptypb.Empty) (*v1.Sign, error) {
 	userClaims, err := checkGRPCLogin(s.dbModel, ctx)
 	if err != nil {

@@ -21,6 +21,8 @@ type Group struct {
 	EnableDocumentReview  bool       `form:"enable_document_review" json:"enable_document_review,omitempty" gorm:"column:enable_document_review;type:tinyint(3);default:0;comment:文档是否需要审核;"`
 	EnableComment         bool       `form:"enable_comment" json:"enable_comment,omitempty" gorm:"column:enable_comment;type:tinyint(3);default:1;comment:是否允许评论;"`
 	EnableCommentApproval bool       `form:"enable_comment_approval" json:"enable_comment_approval,omitempty" gorm:"column:enable_comment_approval;type:tinyint(3);default:0;comment:评论是否需要审核;"`
+	EnableArticle         bool       `form:"enable_article" json:"enable_article,omitempty" gorm:"column:enable_article;type:tinyint(3);default:1;comment:是否允许发布文章;"`
+	EnableArticleApproval bool       `form:"enable_article_approval" json:"enable_article_approval,omitempty" gorm:"column:enable_article_approval;type:tinyint(3);default:0;comment:文章是否需要审核;"`
 	CreatedAt             *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt             *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 }

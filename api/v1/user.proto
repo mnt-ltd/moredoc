@@ -294,6 +294,14 @@ service UserAPI {
     };
   }
 
+  // 用户是否可以发布文章
+  rpc CanIPublishArticle(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      get : '/api/v1/user/canipublisharticle',
+    };
+  }
+
   // 获取用户动态，包括获取关注的用户的动态
   rpc ListUserDynamic(ListUserDynamicRequest) returns (ListUserDynamicReply) {
     option (google.api.http) = {

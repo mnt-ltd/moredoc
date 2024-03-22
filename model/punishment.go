@@ -9,11 +9,12 @@ import (
 )
 
 const (
-	PunishmentTypeDisabled        = 1 // 禁用账户：禁止登录、禁止评论、禁止上传、禁止下载、禁止收藏
-	PunishmentTypeCommentLimited  = 2 // 禁止评论
-	PunishmentTypeUploadLimited   = 3 // 禁止上传
-	PunishmentTypeDownloadLimited = 4 // 禁止下载
-	PunishmentTypeFavoriteLimited = 5 // 禁止收藏
+	PunishmentTypeDisabled              = 1 // 禁用账户：禁止登录、禁止评论、禁止上传、禁止下载、禁止收藏
+	PunishmentTypeCommentLimited        = 2 // 禁止评论
+	PunishmentTypeUploadLimited         = 3 // 禁止上传
+	PunishmentTypeDownloadLimited       = 4 // 禁止下载
+	PunishmentTypeFavoriteLimited       = 5 // 禁止收藏
+	PunishmentTypePublishArticleLimited = 6 // 禁止发布文章
 )
 
 type Punishment struct {

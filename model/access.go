@@ -30,6 +30,29 @@ func (m *DBModel) CanIAccessUploadDocument(userId int64) (yes bool) {
 	return group.Id > 0
 }
 
+// CanIUploadDocument 判断用户是否有上传文档的权限
+// 1. 用户是否被禁用或被处罚禁止发布文章
+// 2. 用户所在的用户组是否允许发布文章
+func (m *DBModel) CanIAccessPublishArticle(userId int64) (yes bool) {
+	if inPunishing, _ := m.isInPunishing(userId, []int{PunishmentTypeDisabled, PunishmentTypePublishArticleLimited}); inPunishing {
+		return false
+	}
+
+	var (
+		tableGroup     = Group{}.TableName()
+		tableUserGroup = UserGroup{}.TableName()
+		group          Group
+	)
+	err := m.db.Select("g.id").Table(tableGroup+" g").Joins(
+		"left join "+tableUserGroup+" ug on g.id=ug.group_id",
+	).Where("ug.user_id = ? and g.enable_article = ?", userId, true).Find(&group).Error
+	if err != nil {
+		m.logger.Error("CanIAccessPublishArticle", zap.Error(err))
+		return
+	}
+	return group.Id > 0
+}
+
 // 用户是否可以下载文档：被禁用的账号或被禁止下载的账户不能下载
 func (m *DBModel) CanIAccessDownload(userId int64) (yes bool, err error) {
 	yes, err = m.isInPunishing(userId, []int{PunishmentTypeDownloadLimited, PunishmentTypeDisabled})

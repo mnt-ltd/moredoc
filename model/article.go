@@ -11,6 +11,13 @@ import (
 	"gorm.io/gorm"
 )
 
+const (
+	// 审核状态：0，待审核; 1, 审核通过; 2, 审核拒绝
+	ArticleStatusPending = 0
+	ArticleStatusPass    = 1
+	ArticleStatusReject  = 2
+)
+
 type Article struct {
 	Id            int64          `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Identifier    string         `form:"identifier" json:"identifier,omitempty" gorm:"column:identifier;type:varchar(64);size:64;index:identifier,unique;comment:文章标识，唯一;"`
@@ -27,6 +34,8 @@ type Article struct {
 	DeletedAt     gorm.DeletedAt `form:"deleted_at" json:"deleted_at,omitempty" gorm:"column:deleted_at;type:datetime;comment:删除时间;index:idx_deleted_at"`
 	RecommendAt   *time.Time     `form:"recommend_at" json:"recommend_at,omitempty" gorm:"column:recommend_at;type:datetime;comment:推荐时间;index:idx_recommend_at;default:null;"`
 	CategoryId    []int64        `form:"category_id" json:"category_id,omitempty" gorm:"-"`
+	Status        int32          `form:"status" json:"status,omitempty" gorm:"column:status;type:int(11);size:11;default:0;comment:状态;index:idx_status"`
+	RejectReason  string         `form:"reject_reason" json:"reject_reason,omitempty" gorm:"column:reject_reason;type:varchar(2048);size:2048;comment:审核拒绝信息;"`
 }
 
 func (Article) TableName() string {
@@ -34,13 +43,6 @@ func (Article) TableName() string {
 }
 
 func (m *DBModel) initArticle() (err error) {
-	// 初始化文章:
-	// about 关于我们
-	// agreement 文库协议
-	// contact 联系我们
-	// feedback 意见反馈
-	// copyright 免责声明
-	// help 使用帮助
 	articles := []Article{
 		{
 			Identifier: "about",
