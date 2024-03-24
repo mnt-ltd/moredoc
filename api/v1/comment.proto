@@ -28,6 +28,8 @@ message Comment {
   int64 user_id = 9;                  // 用户ID
   User user = 10;                     // 用户信息
   string document_title = 11;         // 文档标题
+  int32 type = 12;           // 评论类型：0, 文档评论；1 文章评论
+  string document_uuid = 13; // 唯一标识
 }
 
 // 审核评论，修改评论状态
@@ -54,6 +56,7 @@ message ListCommentRequest {
   int64 user_id = 8;             // 用户ID
   repeated int64 parent_id = 9;  // 父评论ID
   bool with_document_title = 10; // 是否返回文档标题
+  repeated int32 type = 11;      // 0 文档，1文章
 }
 
 // 获取评论列表响应
@@ -69,6 +72,7 @@ message CreateCommentRequest {
   string content = 3;    // 评论内容
   string captcha_id = 4; // 验证码ID
   string captcha = 5;    // 验证码
+  int32 type = 6;
 }
 
 // 评论服务

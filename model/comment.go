@@ -30,7 +30,7 @@ type Comment struct {
 	IP           string     `form:"ip" json:"ip,omitempty" gorm:"column:ip;type:varchar(64);size:64;default:'';comment:IP地址;"`
 	CreatedAt    *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:评论时间;index:idx_created_at;"`
 	UpdatedAt    *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:评论更新时间;"`
-	Type         int32      `form:"type" json:"type,omitempty" gorm:"column:type;type:int(11);size:11;default:0;comment:评论类型，0表示文档评论，1表示文章评论"` // 枚举见CategoryType
+	Type         int32      `form:"type" json:"type,omitempty" gorm:"column:type;type:int(11);size:11;default:0;comment:评论类型，0表示文档评论，1表示文章评论;index:idx_type"` // 枚举见CategoryType
 }
 
 func (Comment) TableName() string {
@@ -38,7 +38,7 @@ func (Comment) TableName() string {
 }
 
 // CreateComment 创建Comment
-func (m *DBModel) CreateComment(comment *Comment) (err error) {
+func (m *DBModel) CreateDocumentComment(comment *Comment) (err error) {
 	doc := &Document{}
 	m.db.Where("id = ?", comment.DocumentId).Select("id", "title", "user_id", "uuid").Find(doc)
 
@@ -128,6 +128,68 @@ func (m *DBModel) CreateComment(comment *Comment) (err error) {
 	}
 
 	err = tx.Create(newDynamic).Error
+	if err != nil {
+		m.logger.Error("CreateComment", zap.Error(err))
+		return
+	}
+	return
+}
+
+// 创建文章评论
+func (m *DBModel) CreateArticleComment(comment *Comment) (err error) {
+	article := &Article{}
+	m.db.Where("id = ?", comment.DocumentId).Select("id", "title", "user_id", "identifier").Find(article)
+	if article.Id == 0 {
+		return errors.New("文章不存在")
+	}
+
+	tx := m.db.Begin()
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	err = tx.Create(comment).Error
+	if err != nil {
+		m.logger.Error("CreateComment", zap.Error(err))
+		return
+	}
+
+	// 文档评论数+1
+	err = tx.Model(article).Where("id = ?", comment.DocumentId).Update("comment_count", gorm.Expr("comment_count + ?", 1)).Error
+	if err != nil {
+		m.logger.Error("CreateComment", zap.Error(err))
+		return
+	}
+
+	// 用户评论数+1
+	err = tx.Model(&User{}).Where("id = ?", comment.UserId).Update("comment_count", gorm.Expr("comment_count + ?", 1)).Error
+	if err != nil {
+		m.logger.Error("CreateComment", zap.Error(err))
+		return
+	}
+
+	dynamic := &Dynamic{
+		UserId: comment.UserId,
+		Type:   DynamicTypeComment,
+	}
+	// 更新上级评论的评论数
+	if comment.ParentId > 0 {
+		err = tx.Model(&Comment{}).Where("id = ?", comment.ParentId).Update("comment_count", gorm.Expr("comment_count + ?", 1)).Error
+		if err != nil {
+			m.logger.Error("CreateComment", zap.Error(err))
+			return
+		}
+		dynamic.Content = fmt.Sprintf(`在文章《<a href="/article/%s">%s</a>》中回复了评论`, article.Identifier, html.EscapeString(article.Title))
+	} else {
+		dynamic.Content = fmt.Sprintf(`评论了文档《<a href="/article/%s">%s</a>》`, article.Identifier, html.EscapeString(article.Title))
+	}
+
+	// 增加评论动态
+	err = tx.Create(dynamic).Error
 	if err != nil {
 		m.logger.Error("CreateComment", zap.Error(err))
 		return
@@ -301,13 +363,17 @@ func (m *DBModel) GetDefaultCommentStatus(userId int64) (status int) {
 
 	var group Group
 	// 查询用户所在用户组，是否评论不需要审核
-	m.db.Where("ug.user_id = ? and g.enable_comment_approval = ?", userId, false).Table(Group{}.TableName() + " g").Joins(
+	err := m.db.Select("g.id").Where("ug.user_id = ? and g.enable_comment_approval = ?", userId, false).Table(Group{}.TableName() + " g").Joins(
 		"left join " + UserGroup{}.TableName() + " ug on g.id=ug.group_id",
-	).Find(&group)
+	).Find(&group).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetDefaultCommentStatus", zap.Error(err))
+		return
+	}
 
 	m.logger.Debug("GetDefaultCommentStatus", zap.Any("group", group))
 
-	if group.Id > 0 && !group.EnableCommentApproval {
+	if group.Id > 0 {
 		status = CommentStatusApproved
 	}
 	return

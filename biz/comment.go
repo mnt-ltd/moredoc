@@ -74,7 +74,11 @@ func (s *CommentAPIService) CreateComment(ctx context.Context, req *pb.CreateCom
 	comment.IP = util.GetGRPCRemoteIP(ctx)
 	comment.Status = int8(s.dbModel.GetDefaultCommentStatus(userClaims.UserId))
 	comment.UserId = userClaims.UserId
-	err = s.dbModel.CreateComment(comment)
+	if req.Type == 1 {
+		err = s.dbModel.CreateArticleComment(comment)
+	} else {
+		err = s.dbModel.CreateDocumentComment(comment)
+	}
 	if err != nil {
 		s.logger.Error("CreateComment", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "发布评论失败："+err.Error())
@@ -180,6 +184,10 @@ func (s *CommentAPIService) ListComment(ctx context.Context, req *pb.ListComment
 		opt.Size = 1000000
 	}
 
+	if len(req.Type) > 0 {
+		opt.QueryIn["type"] = util.Slice2Interface(req.Type)
+	}
+
 	if len(req.ParentId) > 0 {
 		opt.QueryIn["parent_id"] = util.Slice2Interface(req.ParentId)
 	}
@@ -212,14 +220,21 @@ func (s *CommentAPIService) ListComment(ctx context.Context, req *pb.ListComment
 	var (
 		userIds                 []int64
 		documentIds             []int64
+		articleIds              []int64
 		userIdMapCommentIdx     = make(map[int64][]int)
 		documentIdMapCommentIdx = make(map[int64][]int)
+		articleIdMapCommentIdx  = make(map[int64][]int)
 	)
 	for idx, comment := range comments {
 		userIds = append(userIds, comment.UserId)
-		documentIds = append(documentIds, comment.DocumentId)
+		if comment.Type == 1 {
+			articleIds = append(articleIds, comment.DocumentId)
+			articleIdMapCommentIdx[comment.DocumentId] = append(articleIdMapCommentIdx[comment.DocumentId], idx)
+		} else {
+			documentIds = append(documentIds, comment.DocumentId)
+			documentIdMapCommentIdx[comment.DocumentId] = append(documentIdMapCommentIdx[comment.DocumentId], idx)
+		}
 		userIdMapCommentIdx[comment.UserId] = append(userIdMapCommentIdx[comment.UserId], idx)
-		documentIdMapCommentIdx[comment.DocumentId] = append(documentIdMapCommentIdx[comment.DocumentId], idx)
 	}
 
 	if len(userIds) > 0 {
@@ -237,19 +252,39 @@ func (s *CommentAPIService) ListComment(ctx context.Context, req *pb.ListComment
 		}
 	}
 
-	if len(documentIds) > 0 {
-		documents, _, _ := s.dbModel.GetDocumentList(&model.OptionGetDocumentList{
-			SelectFields: []string{"id", "title"},
-			WithCount:    false,
-			QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(documentIds)},
-		})
+	if req.WithDocumentTitle {
+		if len(documentIds) > 0 {
+			documents, _, _ := s.dbModel.GetDocumentList(&model.OptionGetDocumentList{
+				SelectFields: []string{"id", "title", "uuid"},
+				WithCount:    false,
+				QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(documentIds)},
+			})
 
-		for _, document := range documents {
-			indexes := documentIdMapCommentIdx[document.Id]
-			for _, idx := range indexes {
-				resp.Comment[idx].DocumentTitle = document.Title
+			for _, document := range documents {
+				indexes := documentIdMapCommentIdx[document.Id]
+				for _, idx := range indexes {
+					resp.Comment[idx].DocumentTitle = document.Title
+					resp.Comment[idx].DocumentUuid = document.UUID
+				}
 			}
 		}
+
+		if len(articleIds) > 0 {
+			articles, _, _ := s.dbModel.GetArticleList(&model.OptionGetArticleList{
+				SelectFields: []string{"id", "title", "identifier"},
+				WithCount:    false,
+				QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(articleIds)},
+			})
+
+			for _, article := range articles {
+				indexes := articleIdMapCommentIdx[article.Id]
+				for _, idx := range indexes {
+					resp.Comment[idx].DocumentTitle = article.Title
+					resp.Comment[idx].DocumentUuid = article.Identifier
+				}
+			}
+		}
+
 	}
 
 	return resp, nil
