@@ -597,3 +597,21 @@ func (m *DBModel) RecommendArticles(articleIds []int64, isRecommend bool) (err e
 	}
 	return
 }
+
+func (m *DBModel) CheckArticles(ids []int64, status int32, reason ...string) (err error) {
+	if len(ids) == 0 {
+		return
+	}
+	r := ""
+	if len(reason) > 0 {
+		r = reason[0]
+	}
+	err = m.db.Model(&Article{}).Where("id in (?)", ids).Updates(map[string]interface{}{
+		"status":        status,
+		"reject_reason": r,
+	}).Error
+	if err != nil {
+		m.logger.Error("CheckArticles", zap.Error(err))
+	}
+	return
+}

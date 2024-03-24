@@ -56,6 +56,12 @@ message RecommendArticlesRequest {
   bool is_recommend = 2;         // 是否推荐
 }
 
+message CheckArticlesRequest {
+  repeated int64 article_id = 1; // 文章ID
+  int32 status = 2;              // 文章状态
+  string rejeact_reason = 3;     // 拒绝原因
+}
+
 // 根据ID或者文章标识获取文章，二选一
 message GetArticleRequest {
   int64 id = 1;          // 文章ID
@@ -71,6 +77,7 @@ message ListArticleRequest {
   string order = 5;          // 排序字段，根据指定的字段倒序排序
   repeated int64 category_id = 6; // 分类ID
   repeated bool is_recommend = 7; // 是否推荐
+  repeated int32 status = 8;      // 文章状态
 }
 
 // 文章列表响应
@@ -133,6 +140,14 @@ service ArticleAPI {
       returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : '/api/v1/article/recommend',
+      body : '*',
+    };
+  }
+
+  // 批量审核文档
+  rpc CheckArticles(CheckArticlesRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/article/check',
       body : '*',
     };
   }

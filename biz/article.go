@@ -174,6 +174,10 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 		opt.QueryLike["content"] = []interface{}{req.Wd}
 	}
 
+	if len(req.Status) > 0 {
+		opt.QueryIn["status"] = util.Slice2Interface(req.Status)
+	}
+
 	if len(req.CategoryId) > 0 {
 		opt.QueryIn["category_id"] = util.Slice2Interface(req.CategoryId)
 	}
@@ -355,5 +359,20 @@ func (s *ArticleAPIService) EmptyRecycleArticle(ctx context.Context, req *emptyp
 		}
 	}
 
+	return &emptypb.Empty{}, nil
+}
+
+// 批量审核文档
+func (s *ArticleAPIService) CheckArticles(ctx context.Context, req *pb.CheckArticlesRequest) (*emptypb.Empty, error) {
+	_, err := s.checkPermission(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = s.dbModel.CheckArticles(req.ArticleId, req.Status, req.RejeactReason)
+	if err != nil {
+		s.logger.Error("CheckArticles", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "审核文章失败")
+	}
 	return &emptypb.Empty{}, nil
 }

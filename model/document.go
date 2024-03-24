@@ -120,6 +120,7 @@ func (m *DBModel) UpdateDocument(document *Document, categoryId []int64, updateF
 			CategoryId: cateId,
 		})
 	}
+
 	if len(newDocCategories) > 0 {
 		m.logger.Debug("newDocCategories", zap.Any("newDocCategories", newDocCategories))
 		err = sess.Create(&newDocCategories).Error
