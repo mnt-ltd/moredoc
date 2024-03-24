@@ -23,6 +23,7 @@ message Favorite {
   int64 size = 9;
   int32 pages = 10;
   string document_uuid = 11;
+  int32 type = 12; // 0: 文档 1: 文章
   google.protobuf.Timestamp created_at = 4 [ (gogoproto.stdtime) = true ];
   google.protobuf.Timestamp updated_at = 5 [ (gogoproto.stdtime) = true ];
 }
@@ -36,6 +37,7 @@ message ListFavoriteRequest {
   int64 size = 2;
   // int64 user_id = 3;
   reserved 3;
+  int32 type = 4; // 0: 文档 1: 文章
 }
 
 // 查询用户的收藏
@@ -45,7 +47,10 @@ message ListFavoriteReply {
 }
 
 // 根据文章id，查询用户是否有收藏某篇文档
-message GetFavoriteRequest { int64 document_id = 1; }
+message GetFavoriteRequest {
+  int64 document_id = 1;
+  int32 type = 2;
+}
 
 service FavoriteAPI {
   // 添加收藏

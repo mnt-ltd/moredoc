@@ -255,6 +255,11 @@ func (m *DBModel) alterTableBeforeSyncDB() {
 	// 查询category表，将原本有title和parent_id的唯一索引删除
 	tableCategory := Category{}.TableName()
 	m.db.Exec(fmt.Sprintf("alter table %s drop index %s", tableCategory, "parent_id_title"))
+
+	// 删除favorite表相关索引
+	tableFavorite := Favorite{}.TableName()
+	m.db.Exec(fmt.Sprintf("alter table %s drop index %s", tableFavorite, "idx_user_document"))
+	m.db.Exec(fmt.Sprintf("alter table %s drop index %s", tableFavorite, "idx_created_at"))
 }
 
 func (m *DBModel) alterTableAfterSyncDB() {

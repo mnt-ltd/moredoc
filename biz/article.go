@@ -167,15 +167,17 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 	}
 
 	_, err := s.checkPermission(ctx)
-	if err == nil && req.Wd != "" {
-		opt.QueryLike["title"] = []interface{}{req.Wd}
-		opt.QueryLike["keywords"] = []interface{}{req.Wd}
-		opt.QueryLike["description"] = []interface{}{req.Wd}
-		opt.QueryLike["content"] = []interface{}{req.Wd}
-	}
-
-	if len(req.Status) > 0 {
-		opt.QueryIn["status"] = util.Slice2Interface(req.Status)
+	if err == nil {
+		if req.Wd != "" {
+			opt.QueryLike["title"] = []interface{}{req.Wd}
+			opt.QueryLike["keywords"] = []interface{}{req.Wd}
+			opt.QueryLike["description"] = []interface{}{req.Wd}
+		}
+		if len(req.Status) > 0 {
+			opt.QueryIn["status"] = util.Slice2Interface(req.Status)
+		}
+	} else {
+		opt.QueryLike["status"] = []interface{}{1}
 	}
 
 	if len(req.CategoryId) > 0 {
@@ -207,7 +209,7 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 	if len(userIds) > 0 {
 		users, _, _ := s.dbModel.GetUserList(&model.OptionGetUserList{
 			QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(userIds)},
-			SelectFields: []string{"id", "username"},
+			SelectFields: []string{"id", "username", "avatar"},
 		})
 
 		for _, user := range users {
@@ -215,6 +217,7 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 				pbArticle[idx].User = &pb.User{
 					Id:       user.Id,
 					Username: user.Username,
+					Avatar:   user.Avatar,
 				}
 			}
 		}
