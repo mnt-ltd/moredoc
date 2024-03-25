@@ -41,6 +41,7 @@ message User {
   string realname = 17;         // 真实姓名
   repeated int64 group_id = 18; // 用户组ID
   int32 credit_count = 22;      // 积分
+  int32 article_count = 23;     // 文章数量
 }
 
 // 用户注册登录请求

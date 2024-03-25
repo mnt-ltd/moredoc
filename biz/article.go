@@ -128,6 +128,7 @@ func (s *ArticleAPIService) GetArticle(ctx context.Context, req *pb.GetArticleRe
 		article model.Article
 		err     error
 	)
+
 	if req.Id > 0 {
 		article, err = s.dbModel.GetArticle(req.Id)
 		if err != nil && err != gorm.ErrRecordNotFound {
@@ -150,6 +151,11 @@ func (s *ArticleAPIService) GetArticle(ctx context.Context, req *pb.GetArticleRe
 
 	pbArticle := &pb.Article{}
 	util.CopyStruct(article, pbArticle)
+	if pbArticle.UserId > 0 {
+		user, _ := s.dbModel.GetUser(pbArticle.UserId, s.dbModel.GetUserPublicFields()...)
+		pbArticle.User = &pb.User{}
+		util.CopyStruct(&user, pbArticle.User)
+	}
 	return pbArticle, nil
 }
 
