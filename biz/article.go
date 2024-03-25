@@ -76,11 +76,13 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 	}
 
 	article.UserId = userClaims.UserId
-	if isAdmin { // 管理员发布的文章，直接通过
+	if isAdmin {
 		article.Status = model.ArticleStatusPass
 	} else {
 		article.Status = s.dbModel.GetDefaultArticleStatus(userClaims.UserId)
 	}
+
+	s.logger.Debug("CreateArticle", zap.Any("article", article))
 
 	err = s.dbModel.CreateArticle(article)
 	if err != nil {
@@ -117,15 +119,27 @@ func (s *ArticleAPIService) UpdateArticle(ctx context.Context, req *pb.Article) 
 		return nil, status.Errorf(codes.PermissionDenied, "您没有权限修改此文章")
 	}
 
+	article.RecommendAt = existArticle.RecommendAt
 	if isAdmin {
-		if req.IsRecommend && req.RecommendAt == nil {
+		if req.IsRecommend && existArticle.RecommendAt == nil {
 			now := time.Now()
 			article.RecommendAt = &now
-		} else {
-			article.RecommendAt = nil
 		}
+
+		// 如果文章之前被拒绝，则修改后状态变为待审核
+		if existArticle.Status == model.ArticleStatusReject {
+			article.Status = model.ArticleStatusPending
+		} else {
+			article.Status = existArticle.Status
+		}
+
 	} else {
-		article.RecommendAt = existArticle.RecommendAt
+		// 如果文章之前被拒绝，则修改后状态变为待审核
+		if existArticle.Status == model.ArticleStatusReject {
+			article.Status = model.ArticleStatusPending
+		} else {
+			article.Status = existArticle.Status
+		}
 	}
 
 	err = s.dbModel.UpdateArticle(article)
@@ -204,9 +218,10 @@ func (s *ArticleAPIService) GetArticle(ctx context.Context, req *pb.GetArticleRe
 	}
 
 	userClaims, err := s.checkPermission(ctx)
+	s.logger.Debug("GetArticle", zap.Any("userClaims", userClaims), zap.Any("article", article))
 	isAdmin := err == nil
-	if (userClaims == nil || !isAdmin || userClaims.UserId != article.UserId) && article.Status != model.ArticleStatusPass {
-		// 未登录 || 不是管理员 || 不是文章作者， 且文章未通过审核
+	// 管理员或者是作者，可以查看未通过的文章
+	if article.Status != model.ArticleStatusPass && !(isAdmin || userClaims.UserId == article.UserId) {
 		err = errors.New("文章不存在")
 		return nil, err
 	}
