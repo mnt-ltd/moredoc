@@ -48,12 +48,12 @@ func (s *DocumentAPIService) checkLogin(ctx context.Context) (userClaims *auth.U
 // 2. 相同hash的文档如果已经被转换了，则该文档的状态直接改为已转换
 // 3. 判断附件ID是否与用户ID匹配，不匹配则跳过该文档
 func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateDocumentRequest) (*emptypb.Empty, error) {
-	userCliams, err := s.checkLogin(ctx)
+	userClaims, err := s.checkLogin(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if !s.dbModel.CanIAccessUploadDocument(userCliams.UserId) {
+	if !s.dbModel.CanIAccessUploadDocument(userClaims.UserId) {
 		return nil, status.Error(codes.PermissionDenied, "没有权限上传文档")
 	}
 
@@ -68,7 +68,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 
 	attachments, _, _ := s.dbModel.GetAttachmentList(&model.OptionGetAttachmentList{
 		Ids:     attachmentIds,
-		QueryIn: map[string][]interface{}{"user_id": {userCliams.UserId}},
+		QueryIn: map[string][]interface{}{"user_id": {userClaims.UserId}},
 	})
 	if len(attachments) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "文档文件参数attachment_id不正确")
@@ -83,7 +83,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 		docMapAttachment = make(map[int]int64)
 	)
 
-	documentStatus := s.dbModel.GetDefaultDocumentStatus(userCliams.UserId)
+	documentStatus := s.dbModel.GetDefaultDocumentStatus(userClaims.UserId)
 	for idx, doc := range req.Document {
 		attachment, ok := attachmentMap[doc.AttachmentId]
 		if !ok {
@@ -93,7 +93,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 		doc := model.Document{
 			Title:    doc.Title,
 			Keywords: strings.Join(jieba.SegWords(doc.Title), ","),
-			UserId:   userCliams.UserId,
+			UserId:   userClaims.UserId,
 			UUID:     util.GenDocumentMD5UUID(),
 			Score:    300,
 			Price:    int(doc.Price),

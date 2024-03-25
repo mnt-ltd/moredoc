@@ -615,3 +615,21 @@ func (m *DBModel) CheckArticles(ids []int64, status int32, reason ...string) (er
 	}
 	return
 }
+
+func (m *DBModel) GetDefaultArticleStatus(userId int64) (status int32) {
+	status = ArticleStatusPending
+	if userId == 0 {
+		return
+	}
+
+	var group Group
+	m.db.Select("g.id", "min(g.enable_article_approval) as enable_article_approval").Table(Group{}.TableName()+" g").Joins(
+		"left join "+UserGroup{}.TableName()+" ug on g.id=ug.group_id",
+	).Where("ug.user_id = ? and g.enable_article = ?", userId, true).Find(&group)
+
+	m.logger.Debug("GetDefaultArticleStatus", zap.Any("group", group))
+	if group.Id > 0 && !group.EnableArticleApproval {
+		status = ArticleStatusPass
+	}
+	return
+}

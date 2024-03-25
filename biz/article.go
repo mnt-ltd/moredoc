@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -40,8 +41,16 @@ func (s *ArticleAPIService) checkLogin(ctx context.Context) (userClaims *auth.Us
 // CreateArticle 创建文章
 func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) (*pb.Article, error) {
 	userClaims, err := s.checkPermission(ctx)
-	if err != nil {
+	if userClaims == nil { // 未登录
 		return nil, err
+	}
+	isAdmin := err == nil // err为nil表示管理员，否则为普通用户
+	if isAdmin || !s.dbModel.CanIAccessPublishArticle(userClaims.UserId) {
+		return nil, status.Errorf(codes.PermissionDenied, "您没有权限发布文章")
+	}
+
+	if !isAdmin && req.Identifier != "" { // 只有管理员才可以指定uuid
+		req.Identifier = ""
 	}
 
 	if req.Identifier == "" {
@@ -60,12 +69,19 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 		return nil, status.Errorf(codes.Internal, "创建文章失败")
 	}
 
-	if req.IsRecommend && req.RecommendAt == nil {
+	// 管理员在创建文章的时候，可以直接设置为推荐文章
+	if isAdmin && req.IsRecommend && req.RecommendAt == nil {
 		now := time.Now()
 		article.RecommendAt = &now
 	}
 
 	article.UserId = userClaims.UserId
+	if isAdmin { // 管理员发布的文章，直接通过
+		article.Status = model.ArticleStatusPass
+	} else {
+		article.Status = s.dbModel.GetDefaultArticleStatus(userClaims.UserId)
+	}
+
 	err = s.dbModel.CreateArticle(article)
 	if err != nil {
 		s.logger.Error("CreateArticle", zap.Error(err))
@@ -84,11 +100,11 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 
 // UpdateArticle 更新文章。注意：不支持更新identifier
 func (s *ArticleAPIService) UpdateArticle(ctx context.Context, req *pb.Article) (*emptypb.Empty, error) {
-	_, err := s.checkPermission(ctx)
-	if err != nil {
+	userClaims, err := s.checkPermission(ctx)
+	if userClaims == nil {
 		return nil, err
 	}
-
+	isAdmin := err == nil
 	article := &model.Article{}
 	err = util.CopyStruct(req, article)
 	if err != nil {
@@ -96,11 +112,20 @@ func (s *ArticleAPIService) UpdateArticle(ctx context.Context, req *pb.Article) 
 		return nil, status.Errorf(codes.Internal, "更新文章失败")
 	}
 
-	if req.IsRecommend && req.RecommendAt == nil {
-		now := time.Now()
-		article.RecommendAt = &now
+	existArticle, _ := s.dbModel.GetArticle(article.Id)
+	if !isAdmin && existArticle.UserId != userClaims.UserId {
+		return nil, status.Errorf(codes.PermissionDenied, "您没有权限修改此文章")
+	}
+
+	if isAdmin {
+		if req.IsRecommend && req.RecommendAt == nil {
+			now := time.Now()
+			article.RecommendAt = &now
+		} else {
+			article.RecommendAt = nil
+		}
 	} else {
-		article.RecommendAt = nil
+		article.RecommendAt = existArticle.RecommendAt
 	}
 
 	err = s.dbModel.UpdateArticle(article)
@@ -114,12 +139,35 @@ func (s *ArticleAPIService) UpdateArticle(ctx context.Context, req *pb.Article) 
 
 // DeleteArticle 删除文章
 func (s *ArticleAPIService) DeleteArticle(ctx context.Context, req *pb.DeleteArticleRequest) (*emptypb.Empty, error) {
-	_, err := s.checkPermission(ctx)
-	if err != nil {
+	userClaims, err := s.checkPermission(ctx)
+	if userClaims == nil {
 		return nil, err
 	}
 
-	err = s.dbModel.DeleteArticle(req.Id)
+	isAdmin := err == nil
+	ids := req.Id
+	if len(ids) == 0 {
+		return &emptypb.Empty{}, nil
+	}
+
+	if !isAdmin { // 非管理员，只能删除自己的文章
+		articles, _, _ := s.dbModel.GetArticleList(&model.OptionGetArticleList{
+			Ids:          util.Slice2Interface(req.Id),
+			WithCount:    false,
+			SelectFields: []string{"id"},
+			QueryIn: map[string][]interface{}{
+				"user_id": {userClaims.UserId},
+			},
+		})
+		if len(articles) == 0 {
+			return nil, errors.New("您没有权限删除指定文章")
+		}
+		for _, article := range articles {
+			ids = append(ids, article.Id)
+		}
+	}
+
+	err = s.dbModel.DeleteArticle(ids)
 	if err != nil {
 		s.logger.Error("DeleteArticle", zap.Error(err))
 		return nil, status.Errorf(codes.Internal, "删除文章失败")
@@ -149,13 +197,21 @@ func (s *ArticleAPIService) GetArticle(ctx context.Context, req *pb.GetArticleRe
 			return nil, status.Errorf(codes.Internal, "获取文章失败")
 		}
 		article.ViewCount += 1
-		s.dbModel.UpdateArticleViewCount(article.Id, article.ViewCount)
 	}
 
 	if article.Id == 0 {
 		return nil, status.Errorf(codes.NotFound, "文章不存在")
 	}
 
+	userClaims, err := s.checkPermission(ctx)
+	isAdmin := err == nil
+	if (userClaims == nil || !isAdmin || userClaims.UserId != article.UserId) && article.Status != model.ArticleStatusPass {
+		// 未登录 || 不是管理员 || 不是文章作者， 且文章未通过审核
+		err = errors.New("文章不存在")
+		return nil, err
+	}
+
+	s.dbModel.UpdateArticleViewCount(article.Id, article.ViewCount)
 	pbArticle := &pb.Article{}
 	util.CopyStruct(article, pbArticle)
 	if pbArticle.UserId > 0 {
@@ -179,8 +235,10 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 		IsRecommend: req.IsRecommend,
 	}
 
-	_, err := s.checkPermission(ctx)
-	if err == nil {
+	userClaims, err := s.checkPermission(ctx)
+	isAdmin := err == nil
+	if isAdmin || (userClaims != nil && len(req.UserId) > 0 && userClaims.UserId == req.UserId[0]) {
+		// 管理员或者是作者，可以查询相关状态的文档
 		if req.Wd != "" {
 			opt.QueryLike["title"] = []interface{}{req.Wd}
 			opt.QueryLike["keywords"] = []interface{}{req.Wd}
