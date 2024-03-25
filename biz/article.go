@@ -385,3 +385,27 @@ func (s *ArticleAPIService) CheckArticles(ctx context.Context, req *pb.CheckArti
 	}
 	return &emptypb.Empty{}, nil
 }
+
+// 相关文章
+func (s *ArticleAPIService) GetRelatedArticles(ctx context.Context, req *pb.GetArticleRequest) (*pb.ListArticleReply, error) {
+	if req.Identifier == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "参数错误:文章标识为空")
+	}
+	articles, _ := s.dbModel.GetRelatedArticles(req.Identifier)
+	if len(articles) == 0 {
+		return nil, status.Errorf(codes.NotFound, "相关文章不存在")
+	}
+
+	var pbArticle []*pb.Article
+	err := util.CopyStruct(articles, &pbArticle)
+	if err != nil {
+		s.logger.Error("GetRelatedArticles", zap.Error(err))
+		return nil, status.Errorf(codes.Internal, "获取相关文章失败")
+	}
+	return &pb.ListArticleReply{Article: pbArticle}, nil
+}
+
+// 搜索文章
+func (s *ArticleAPIService) SearchArticles(ctx context.Context, req *pb.ListArticleRequest) (*pb.ListArticleReply, error) {
+	return nil, nil
+}

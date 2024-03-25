@@ -187,6 +187,7 @@ func (m *DBModel) SyncDB() (err error) {
 		&Advertisement{},
 		&SearchRecord{},
 		&Language{},
+		&ArticleRelate{},
 	}
 
 	m.alterTableBeforeSyncDB()

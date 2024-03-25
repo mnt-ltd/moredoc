@@ -75,9 +75,11 @@ message ListArticleRequest {
   string wd = 3;             // 搜索关键字
   repeated string field = 4; // 查询字段
   string order = 5;          // 排序字段，根据指定的字段倒序排序
-  repeated int64 category_id = 6; // 分类ID
-  repeated bool is_recommend = 7; // 是否推荐
-  repeated int32 status = 8;      // 文章状态
+  repeated int64 category_id = 6;  // 分类ID
+  repeated bool is_recommend = 7;  // 是否推荐
+  repeated int32 status = 8;       // 文章状态
+  repeated int64 user_id = 9;      // 用户ID
+  repeated string created_at = 10; // 时间范围
 }
 
 // 文章列表响应
@@ -181,6 +183,20 @@ service ArticleAPI {
       returns (google.protobuf.Empty) {
     option (google.api.http) = {
       delete : '/api/v1/article/recycle/empty',
+    };
+  }
+
+  // 搜索文章
+  rpc SearchArticle(ListArticleRequest) returns (ListArticleReply) {
+    option (google.api.http) = {
+      get : '/api/v1/article/search',
+    };
+  }
+
+  // 相关文章
+  rpc GetRelatedArticles(GetArticleRequest) returns (ListArticleReply) {
+    option (google.api.http) = {
+      get : '/api/v1/article/related',
     };
   }
 }
