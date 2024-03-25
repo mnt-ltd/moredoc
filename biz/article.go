@@ -2,6 +2,8 @@ package biz
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	pb "moredoc/api/v1"
@@ -9,6 +11,7 @@ import (
 	"moredoc/model"
 	"moredoc/util"
 
+	"github.com/araddon/dateparse"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -28,6 +31,10 @@ func NewArticleAPIService(dbModel *model.DBModel, logger *zap.Logger) (service *
 
 func (s *ArticleAPIService) checkPermission(ctx context.Context) (userClaims *auth.UserClaims, err error) {
 	return checkGRPCPermission(s.dbModel, ctx)
+}
+
+func (s *ArticleAPIService) checkLogin(ctx context.Context) (userClaims *auth.UserClaims, err error) {
+	return checkGRPCLogin(s.dbModel, ctx)
 }
 
 // CreateArticle 创建文章
@@ -406,6 +413,90 @@ func (s *ArticleAPIService) GetRelatedArticles(ctx context.Context, req *pb.GetA
 }
 
 // 搜索文章
-func (s *ArticleAPIService) SearchArticles(ctx context.Context, req *pb.ListArticleRequest) (*pb.ListArticleReply, error) {
-	return nil, nil
+func (s *ArticleAPIService) SearchArticle(ctx context.Context, req *pb.ListArticleRequest) (*pb.SearchArticleReply, error) {
+	res := &pb.SearchArticleReply{}
+	now := time.Now()
+	opt := &model.OptionGetArticleList{
+		WithCount:  true,
+		Page:       int(req.Page),
+		Size:       int(req.Size_),
+		QueryIn:    make(map[string][]interface{}),
+		QueryRange: make(map[string][2]interface{}),
+	}
+
+	opt.Size = util.LimitRange(opt.Size, 10, 10)
+	opt.Page = util.LimitRange(opt.Page, 1, 10000) // 最大默认1w页，等同于不限制页数
+	maxPages := s.dbModel.GetConfigOfDisplay(model.ConfigDisplayMaxSearchPages).MaxSearchPages
+	if maxPages > 0 {
+		opt.Page = util.LimitRange(opt.Page, 1, int(maxPages))
+	}
+	if req.Wd == "" {
+		return res, nil
+	}
+	opt.QueryLike = map[string][]interface{}{
+		"title":       util.Slice2Interface(strings.Split(req.Wd, " ")),
+		"keywords":    util.Slice2Interface(strings.Split(req.Wd, " ")),
+		"description": util.Slice2Interface(strings.Split(req.Wd, " ")),
+	}
+
+	if len(req.CategoryId) > 0 {
+		opt.QueryIn = map[string][]interface{}{
+			"category_id": util.Slice2Interface(req.CategoryId),
+		}
+	}
+
+	if l := len(req.CreatedAt); l > 0 {
+		end := time.Now()
+		start, _ := dateparse.ParseLocal(req.CreatedAt[0])
+		if l > 1 {
+			end, _ = dateparse.ParseLocal(req.CreatedAt[1])
+		}
+		opt.QueryRange["created_at"] = [2]interface{}{start, end}
+	}
+
+	if len(req.UserId) > 0 {
+		opt.QueryIn["user_id"] = util.Slice2Interface(req.UserId)
+	}
+
+	if req.Sort != "" {
+		if req.Sort == "latest" {
+			opt.Sort = []string{"id"}
+		} else {
+			opt.Sort = []string{req.Sort}
+		}
+	}
+
+	articles, total, err := s.dbModel.GetArticleList(opt)
+	if err != nil {
+		return res, status.Errorf(codes.Internal, "搜索文章失败：%s", err)
+	}
+	util.CopyStruct(&articles, &res.Article)
+
+	if maxPages > 0 && total > int64(maxPages)*int64(opt.Size) {
+		total = int64(maxPages) * int64(opt.Size)
+	}
+
+	res.Total = total
+	spendTime := time.Since(now).Seconds()
+	res.Spend = fmt.Sprintf("%.3f", spendTime)
+
+	retentionDays := s.dbModel.GetConfigOfSecurity(model.ConfigSecuritySearchRecordRetentionDays).SearchRecordRetentionDays
+	if retentionDays > 0 {
+		var userId int64
+		userCliaims, _ := s.checkLogin(ctx)
+		if userCliaims != nil {
+			userId = userCliaims.UserId
+		}
+		s.dbModel.CreateSearchRecord(&model.SearchRecord{
+			Ip:        util.GetGRPCRemoteIP(ctx),
+			Total:     int(total),
+			Page:      int(opt.Page),
+			UserAgent: util.GetGRPCUserAgent(ctx),
+			UserId:    userId,
+			SpendTime: spendTime,
+			Keywords:  req.Wd,
+			Type:      1, // 搜文章
+		})
+	}
+	return res, nil
 }

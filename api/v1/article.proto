@@ -80,12 +80,20 @@ message ListArticleRequest {
   repeated int32 status = 8;       // 文章状态
   repeated int64 user_id = 9;      // 用户ID
   repeated string created_at = 10; // 时间范围
+  string sort = 11;                // 排序：latest-最新
 }
 
 // 文章列表响应
 message ListArticleReply {
   int64 total = 1;              // 文章总数
   repeated Article article = 2; // 文章列表
+}
+
+// 文档搜索响应
+message SearchArticleReply {
+  int64 total = 1;              // 文档总数
+  string spend = 2;             // 搜索耗时
+  repeated Article article = 3; // 文档列表
 }
 
 // 文章API服务
@@ -187,7 +195,7 @@ service ArticleAPI {
   }
 
   // 搜索文章
-  rpc SearchArticle(ListArticleRequest) returns (ListArticleReply) {
+  rpc SearchArticle(ListArticleRequest) returns (SearchArticleReply) {
     option (google.api.http) = {
       get : '/api/v1/article/search',
     };

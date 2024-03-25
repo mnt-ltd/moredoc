@@ -133,7 +133,7 @@ func (m *DBModel) GetRelatedArticles(identifier string, fields ...string) (artic
 			Size:         11,
 			QueryIn:      make(map[string][]interface{}),
 			QueryLike:    make(map[string][]interface{}),
-			SelectFields: []string{"id", "title", "keywords"},
+			SelectFields: []string{"id", "title", "keywords", "identifier"},
 		}
 		isExpired bool
 		article   Article
