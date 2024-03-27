@@ -624,7 +624,7 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 		limit = int(req.Limit)
 	}
 
-	defaultFields := []string{"id", "title", "ext", "uuid"}
+	defaultFields := []string{"id", "title", "ext", "uuid", "pages"}
 	if len(req.Field) > 0 {
 		defaultFields = append(defaultFields, req.Field...)
 	}
