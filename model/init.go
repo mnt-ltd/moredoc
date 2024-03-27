@@ -175,6 +175,7 @@ func (m *DBModel) SyncDB() (err error) {
 		&GroupPermission{},
 		&Logout{},
 		&Article{},
+		&ArticleCategory{},
 		&Favorite{},
 		&Comment{},
 		&Dynamic{},
@@ -186,6 +187,7 @@ func (m *DBModel) SyncDB() (err error) {
 		&Advertisement{},
 		&SearchRecord{},
 		&Language{},
+		&ArticleRelate{},
 	}
 
 	m.alterTableBeforeSyncDB()
@@ -250,10 +252,29 @@ func (m *DBModel) alterTableBeforeSyncDB() {
 			}
 		}
 	}
+
+	// 查询category表，将原本有title和parent_id的唯一索引删除
+	tableCategory := Category{}.TableName()
+	m.db.Exec(fmt.Sprintf("alter table %s drop index %s", tableCategory, "parent_id_title"))
+
+	// 删除favorite表相关索引
+	tableFavorite := Favorite{}.TableName()
+	m.db.Exec(fmt.Sprintf("alter table %s drop index %s", tableFavorite, "idx_user_document"))
+	m.db.Exec(fmt.Sprintf("alter table %s drop index %s", tableFavorite, "idx_created_at"))
 }
 
 func (m *DBModel) alterTableAfterSyncDB() {
+	// 分类修正：用total替换doc_count字段
+	sqls := []string{
+		"UPDATE `mnt_category` SET `total`=`doc_count` where `type`=0 and `total`=0",
+	}
 
+	for _, sql := range sqls {
+		err := m.db.Exec(sql).Error
+		if err != nil {
+			m.logger.Error("alterTableAfterSyncDB", zap.Error(err))
+		}
+	}
 }
 
 func (m *DBModel) ShowIndexes(table string) (indexes []TableIndex) {
@@ -286,7 +307,12 @@ func (m *DBModel) FilterValidFields(tableName string, fields ...string) (validFi
 }
 
 // GetTableFields 查询指定表的所有字段
-func (m *DBModel) GetTableFields(tableName string) (fields []string) {
+func (m *DBModel) GetTableFields(tableName string, ignoreField ...string) (fields []string) {
+	ignoreFieldMap := make(map[string]struct{})
+	for _, field := range ignoreField {
+		ignoreFieldMap[field] = struct{}{}
+	}
+
 	slice := strings.Split(tableName, " ")
 	alias := ""
 	if len(slice) == 2 {
@@ -296,7 +322,13 @@ func (m *DBModel) GetTableFields(tableName string) (fields []string) {
 	fieldsMap, ok := m.tableFieldsMap[tableName]
 	if ok {
 		for field := range fieldsMap {
-			fields = append(fields, fmt.Sprintf("%s%s", alias, field))
+			f := fmt.Sprintf("%s%s", alias, field)
+			_, ok1 := ignoreFieldMap[f]
+			_, ok2 := ignoreFieldMap[field]
+			if ok1 || ok2 {
+				continue
+			}
+			fields = append(fields, f)
 		}
 	}
 	return

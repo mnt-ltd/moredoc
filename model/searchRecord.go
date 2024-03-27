@@ -18,6 +18,7 @@ type SearchRecord struct {
 	SpendTime float64    `form:"spend_time" json:"spend_time,omitempty" gorm:"column:spend_time;type:decimal(10,2);size:10;default:0.00;comment:搜索耗时;"`
 	CreatedAt *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;index:idx_created_at;comment:创建时间，搜索时间;"`
 	UpdatedAt *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	Type      int        `form:"type" json:"type,omitempty" gorm:"column:type;type:int(11);size:11;default:0;comment:搜索类型,0文档，1文章;"`
 }
 
 var searchRecordQueue = make(chan *SearchRecord, 1024)

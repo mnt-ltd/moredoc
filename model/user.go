@@ -43,6 +43,7 @@ type User struct {
 	FavoriteCount int        `form:"favorite_count" json:"favorite_count,omitempty" gorm:"column:favorite_count;type:int(10);default:0;comment:收藏数;"`
 	CommentCount  int        `form:"comment_count" json:"comment_count,omitempty" gorm:"column:comment_count;type:int(11);size:11;default:0;comment:评论数;"`
 	CreditCount   int        `form:"credit_count" json:"credit_count,omitempty" gorm:"column:credit_count;type:int(11);size:11;default:0;comment:积分数量;"`
+	ArticleCount  int        `form:"article_count" json:"article_count,omitempty" gorm:"column:article_count;type:int(11);size:11;default:0;comment:文章数量;"`
 	Avatar        string     `form:"avatar" json:"avatar,omitempty" gorm:"column:avatar;type:varchar(255);size:255;comment:头像;"`
 	Identity      string     `form:"identity" json:"identity,omitempty" gorm:"column:identity;type:char(18);size:18;comment:身份证号码;"`
 	Realname      string     `form:"realname" json:"realname,omitempty" gorm:"column:realname;type:varchar(20);size:20;comment:身份证姓名;"`
@@ -58,7 +59,7 @@ func (User) TableName() string {
 
 // GetUserPublicFields 获取用户公开字段
 func (m *DBModel) GetUserPublicFields() []string {
-	return []string{"id", "username", "avatar", "signature", "doc_count", "follow_count", "fans_count", "favorite_count", "comment_count", "credit_count"}
+	return []string{"id", "username", "avatar", "signature", "doc_count", "follow_count", "fans_count", "favorite_count", "comment_count", "credit_count", "article_count"}
 }
 
 // CreateUser 创建User

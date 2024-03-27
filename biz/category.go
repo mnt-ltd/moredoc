@@ -51,7 +51,7 @@ func (s *CategoryAPIService) CreateCategory(ctx context.Context, req *pb.Categor
 		}
 
 		cate.Title = title
-		exist, _ := s.dbModel.GetCategoryByParentIdTitle(cate.ParentId, cate.Title, "id")
+		exist, _ := s.dbModel.GetCategoryByParentIdTitle(cate.ParentId, cate.Title, int(req.Type), "id")
 		if exist.Id > 0 {
 			continue
 		}
@@ -81,7 +81,7 @@ func (s *CategoryAPIService) UpdateCategory(ctx context.Context, req *pb.Categor
 	cate := &model.Category{}
 	util.CopyStruct(req, &cate)
 
-	exist, _ := s.dbModel.GetCategoryByParentIdTitle(cate.ParentId, cate.Title, "id")
+	exist, _ := s.dbModel.GetCategoryByParentIdTitle(cate.ParentId, cate.Title, int(req.Type), "id")
 	if exist.Id > 0 && exist.Id != cate.Id {
 		return nil, status.Error(codes.Internal, "分类名称已存在")
 	}
@@ -150,6 +150,12 @@ func (s *CategoryAPIService) ListCategory(ctx context.Context, req *pb.ListCateg
 	} else {
 		// 非管理员，只能查询启用的
 		opt.QueryIn["enable"] = []interface{}{true}
+	}
+
+	if len(req.Type) > 0 {
+		opt.QueryIn["type"] = util.Slice2Interface(req.Type)
+	} else {
+		opt.QueryIn["type"] = []interface{}{0}
 	}
 
 	cates, total, err := s.dbModel.GetCategoryList(opt)

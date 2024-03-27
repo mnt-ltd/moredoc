@@ -5,6 +5,7 @@ import "gogoproto/gogo.proto";
 // import "validate/validate.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
+import "api/v1/user.proto";
 
 package api.v1;
 
@@ -26,10 +27,40 @@ message Article {
       [ (gogoproto.stdtime) = true ]; // 文章创建时间
   google.protobuf.Timestamp updated_at = 10
       [ (gogoproto.stdtime) = true ]; // 文章更新时间
+  google.protobuf.Timestamp deleted_at = 11
+      [ (gogoproto.stdtime) = true ]; // 文章删除时间
+  repeated int64 category_id = 12;    // 文章分类ID
+  int64 favorite_count = 13;          // 文章收藏次数
+  int64 comment_count = 14;           // 文章评论次数
+  google.protobuf.Timestamp recommend_at = 15
+      [ (gogoproto.stdtime) = true ]; // 文章推荐时间
+  bool is_recommend = 16;             // 是否推荐
+  int64 user_id = 17;                 // 文章作者ID
+  User user = 18;                     // 文章作者
+  int32 status = 19;                  // 文章状态
+  string reject_reason = 20;          // 文章拒绝原因
 }
 
 // 删除文章请求，传入单个或者多个文章ID
 message DeleteArticleRequest { repeated int64 id = 1; }
+
+message RestoreArticleRequest { repeated int64 id = 1; }
+
+message SetArticlesCategoryRequest {
+  repeated int64 article_id = 1;  // 文章ID
+  repeated int64 category_id = 2; // 分类ID
+}
+
+message RecommendArticlesRequest {
+  repeated int64 article_id = 1; // 文章ID
+  bool is_recommend = 2;         // 是否推荐
+}
+
+message CheckArticlesRequest {
+  repeated int64 article_id = 1; // 文章ID
+  int32 status = 2;              // 文章状态
+  string rejeact_reason = 3;     // 拒绝原因
+}
 
 // 根据ID或者文章标识获取文章，二选一
 message GetArticleRequest {
@@ -44,12 +75,25 @@ message ListArticleRequest {
   string wd = 3;             // 搜索关键字
   repeated string field = 4; // 查询字段
   string order = 5;          // 排序字段，根据指定的字段倒序排序
+  repeated int64 category_id = 6;  // 分类ID
+  repeated bool is_recommend = 7;  // 是否推荐
+  repeated int32 status = 8;       // 文章状态
+  repeated int64 user_id = 9;      // 用户ID
+  repeated string created_at = 10; // 时间范围
+  string sort = 11;                // 排序：latest-最新
 }
 
 // 文章列表响应
 message ListArticleReply {
   int64 total = 1;              // 文章总数
   repeated Article article = 2; // 文章列表
+}
+
+// 文档搜索响应
+message SearchArticleReply {
+  int64 total = 1;              // 文档总数
+  string spend = 2;             // 搜索耗时
+  repeated Article article = 3; // 文档列表
 }
 
 // 文章API服务
@@ -89,6 +133,78 @@ service ArticleAPI {
   rpc ListArticle(ListArticleRequest) returns (ListArticleReply) {
     option (google.api.http) = {
       get : '/api/v1/article/list',
+    };
+  }
+
+  // 批量更新文档分类
+  rpc SetArticlesCategory(SetArticlesCategoryRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/article/category',
+      body : '*',
+    };
+  }
+
+  // 批量推荐
+  rpc RecommendArticles(RecommendArticlesRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/article/recommend',
+      body : '*',
+    };
+  }
+
+  // 批量审核文档
+  rpc CheckArticles(CheckArticlesRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : '/api/v1/article/check',
+      body : '*',
+    };
+  }
+
+  // 回收站文章列表
+  rpc ListRecycleArticle(ListArticleRequest) returns (ListArticleReply) {
+    option (google.api.http) = {
+      get : '/api/v1/article/recycle/list',
+    };
+  }
+
+  // 恢复回收站文章
+  rpc RestoreRecycleArticle(RestoreArticleRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      post : '/api/v1/article/recycle/restore',
+      body : '*',
+    };
+  }
+
+  // 从回收站删除文章
+  rpc DeleteRecycleArticle(DeleteArticleRequest)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/article/recycle',
+    };
+  }
+
+  // 清空回收站
+  rpc EmptyRecycleArticle(google.protobuf.Empty)
+      returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete : '/api/v1/article/recycle/empty',
+    };
+  }
+
+  // 搜索文章
+  rpc SearchArticle(ListArticleRequest) returns (SearchArticleReply) {
+    option (google.api.http) = {
+      get : '/api/v1/article/search',
+    };
+  }
+
+  // 相关文章
+  rpc GetRelatedArticles(GetArticleRequest) returns (ListArticleReply) {
+    option (google.api.http) = {
+      get : '/api/v1/article/related',
     };
   }
 }

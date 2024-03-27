@@ -36,20 +36,25 @@ func (s *FavoriteAPIService) CreateFavorite(ctx context.Context, req *pb.Favorit
 
 	yes, _ := s.dbModel.CanIAccessFavorite(userClaims.UserId)
 	if !yes {
-		return nil, status.Errorf(codes.PermissionDenied, "您已经被禁止收藏文档")
+		return nil, status.Errorf(codes.PermissionDenied, "您已经被禁止使用收藏功能")
 	}
 
 	favorite := &model.Favorite{
 		UserId:     userClaims.UserId,
 		DocumentId: req.DocumentId,
+		Type:       req.Type,
+		IP:         util.GetGRPCRemoteIP(ctx),
 	}
 
-	exsit, _ := s.dbModel.GetUserFavorite(favorite.UserId, favorite.DocumentId)
+	exsit, _ := s.dbModel.GetUserFavorite(favorite.UserId, favorite.DocumentId, req.Type)
 	if exsit.Id > 0 {
 		return nil, status.Errorf(codes.AlreadyExists, "您已经收藏过了")
 	}
-
-	err = s.dbModel.CreateFavorite(favorite)
+	if req.Type == 1 {
+		err = s.dbModel.CreateArticleFavorite(favorite)
+	} else {
+		err = s.dbModel.CreateDocumentFavorite(favorite)
+	}
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "收藏失败:"+err.Error())
 	}
@@ -80,7 +85,7 @@ func (s *FavoriteAPIService) GetFavorite(ctx context.Context, req *pb.GetFavorit
 		return nil, err
 	}
 
-	favorite, _ := s.dbModel.GetUserFavorite(userClaims.UserId, req.DocumentId)
+	favorite, _ := s.dbModel.GetUserFavorite(userClaims.UserId, req.DocumentId, req.Type)
 
 	pbFavorite := &pb.Favorite{}
 	if favorite.Id > 0 {
@@ -90,21 +95,31 @@ func (s *FavoriteAPIService) GetFavorite(ctx context.Context, req *pb.GetFavorit
 	return pbFavorite, nil
 }
 
-// 获取用户自身的收藏列表
+// 获取用户自身的收藏列表(这里指的是文档的收藏)
 func (s *FavoriteAPIService) ListFavorite(ctx context.Context, req *pb.ListFavoriteRequest) (*pb.ListFavoriteReply, error) {
 	userClaims, err := s.checkLogin(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	favorites, total, err := s.dbModel.GetFavoriteList(&model.OptionGetFavoriteList{
+	opt := &model.OptionGetFavoriteList{
 		Page:      int(req.Page),
 		Size:      int(req.Size_),
 		WithCount: true,
 		QueryIn: map[string][]interface{}{
 			"user_id": {userClaims.UserId},
 		},
-	})
+	}
+
+	var (
+		favorites []*pb.Favorite
+		total     int64
+	)
+	if req.Type == 1 {
+		favorites, total, err = s.dbModel.GetArticleFavoriteList(opt)
+	} else {
+		favorites, total, err = s.dbModel.GetDocumentFavoriteList(opt)
+	}
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "获取失败:"+err.Error())
 	}

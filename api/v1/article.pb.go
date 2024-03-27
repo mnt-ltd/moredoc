@@ -35,16 +35,26 @@ const _ = proto.GoGoProtoPackageIsVersion3 // please upgrade the proto package
 
 // 文章
 type Article struct {
-	Id          int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Identifier  string     `protobuf:"bytes,2,opt,name=identifier,proto3" json:"identifier,omitempty"`
-	Author      string     `protobuf:"bytes,3,opt,name=author,proto3" json:"author,omitempty"`
-	ViewCount   int64      `protobuf:"varint,4,opt,name=view_count,json=viewCount,proto3" json:"view_count,omitempty"`
-	Title       string     `protobuf:"bytes,5,opt,name=title,proto3" json:"title,omitempty"`
-	Keywords    string     `protobuf:"bytes,6,opt,name=keywords,proto3" json:"keywords,omitempty"`
-	Description string     `protobuf:"bytes,7,opt,name=description,proto3" json:"description,omitempty"`
-	Content     string     `protobuf:"bytes,8,opt,name=content,proto3" json:"content,omitempty"`
-	CreatedAt   *time.Time `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3,stdtime" json:"created_at,omitempty"`
-	UpdatedAt   *time.Time `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3,stdtime" json:"updated_at,omitempty"`
+	Id            int64      `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Identifier    string     `protobuf:"bytes,2,opt,name=identifier,proto3" json:"identifier,omitempty"`
+	Author        string     `protobuf:"bytes,3,opt,name=author,proto3" json:"author,omitempty"`
+	ViewCount     int64      `protobuf:"varint,4,opt,name=view_count,json=viewCount,proto3" json:"view_count,omitempty"`
+	Title         string     `protobuf:"bytes,5,opt,name=title,proto3" json:"title,omitempty"`
+	Keywords      string     `protobuf:"bytes,6,opt,name=keywords,proto3" json:"keywords,omitempty"`
+	Description   string     `protobuf:"bytes,7,opt,name=description,proto3" json:"description,omitempty"`
+	Content       string     `protobuf:"bytes,8,opt,name=content,proto3" json:"content,omitempty"`
+	CreatedAt     *time.Time `protobuf:"bytes,9,opt,name=created_at,json=createdAt,proto3,stdtime" json:"created_at,omitempty"`
+	UpdatedAt     *time.Time `protobuf:"bytes,10,opt,name=updated_at,json=updatedAt,proto3,stdtime" json:"updated_at,omitempty"`
+	DeletedAt     *time.Time `protobuf:"bytes,11,opt,name=deleted_at,json=deletedAt,proto3,stdtime" json:"deleted_at,omitempty"`
+	CategoryId    []int64    `protobuf:"varint,12,rep,packed,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	FavoriteCount int64      `protobuf:"varint,13,opt,name=favorite_count,json=favoriteCount,proto3" json:"favorite_count,omitempty"`
+	CommentCount  int64      `protobuf:"varint,14,opt,name=comment_count,json=commentCount,proto3" json:"comment_count,omitempty"`
+	RecommendAt   *time.Time `protobuf:"bytes,15,opt,name=recommend_at,json=recommendAt,proto3,stdtime" json:"recommend_at,omitempty"`
+	IsRecommend   bool       `protobuf:"varint,16,opt,name=is_recommend,json=isRecommend,proto3" json:"is_recommend,omitempty"`
+	UserId        int64      `protobuf:"varint,17,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	User          *User      `protobuf:"bytes,18,opt,name=user,proto3" json:"user,omitempty"`
+	Status        int32      `protobuf:"varint,19,opt,name=status,proto3" json:"status,omitempty"`
+	RejectReason  string     `protobuf:"bytes,20,opt,name=reject_reason,json=rejectReason,proto3" json:"reject_reason,omitempty"`
 }
 
 func (m *Article) Reset()         { *m = Article{} }
@@ -150,6 +160,76 @@ func (m *Article) GetUpdatedAt() *time.Time {
 	return nil
 }
 
+func (m *Article) GetDeletedAt() *time.Time {
+	if m != nil {
+		return m.DeletedAt
+	}
+	return nil
+}
+
+func (m *Article) GetCategoryId() []int64 {
+	if m != nil {
+		return m.CategoryId
+	}
+	return nil
+}
+
+func (m *Article) GetFavoriteCount() int64 {
+	if m != nil {
+		return m.FavoriteCount
+	}
+	return 0
+}
+
+func (m *Article) GetCommentCount() int64 {
+	if m != nil {
+		return m.CommentCount
+	}
+	return 0
+}
+
+func (m *Article) GetRecommendAt() *time.Time {
+	if m != nil {
+		return m.RecommendAt
+	}
+	return nil
+}
+
+func (m *Article) GetIsRecommend() bool {
+	if m != nil {
+		return m.IsRecommend
+	}
+	return false
+}
+
+func (m *Article) GetUserId() int64 {
+	if m != nil {
+		return m.UserId
+	}
+	return 0
+}
+
+func (m *Article) GetUser() *User {
+	if m != nil {
+		return m.User
+	}
+	return nil
+}
+
+func (m *Article) GetStatus() int32 {
+	if m != nil {
+		return m.Status
+	}
+	return 0
+}
+
+func (m *Article) GetRejectReason() string {
+	if m != nil {
+		return m.RejectReason
+	}
+	return ""
+}
+
 // 删除文章请求，传入单个或者多个文章ID
 type DeleteArticleRequest struct {
 	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
@@ -195,6 +275,214 @@ func (m *DeleteArticleRequest) GetId() []int64 {
 	return nil
 }
 
+type RestoreArticleRequest struct {
+	Id []int64 `protobuf:"varint,1,rep,packed,name=id,proto3" json:"id,omitempty"`
+}
+
+func (m *RestoreArticleRequest) Reset()         { *m = RestoreArticleRequest{} }
+func (m *RestoreArticleRequest) String() string { return proto.CompactTextString(m) }
+func (*RestoreArticleRequest) ProtoMessage()    {}
+func (*RestoreArticleRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d5a9bcd2997b0bd3, []int{2}
+}
+func (m *RestoreArticleRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RestoreArticleRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RestoreArticleRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RestoreArticleRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RestoreArticleRequest.Merge(m, src)
+}
+func (m *RestoreArticleRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *RestoreArticleRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RestoreArticleRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RestoreArticleRequest proto.InternalMessageInfo
+
+func (m *RestoreArticleRequest) GetId() []int64 {
+	if m != nil {
+		return m.Id
+	}
+	return nil
+}
+
+type SetArticlesCategoryRequest struct {
+	ArticleId  []int64 `protobuf:"varint,1,rep,packed,name=article_id,json=articleId,proto3" json:"article_id,omitempty"`
+	CategoryId []int64 `protobuf:"varint,2,rep,packed,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+}
+
+func (m *SetArticlesCategoryRequest) Reset()         { *m = SetArticlesCategoryRequest{} }
+func (m *SetArticlesCategoryRequest) String() string { return proto.CompactTextString(m) }
+func (*SetArticlesCategoryRequest) ProtoMessage()    {}
+func (*SetArticlesCategoryRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d5a9bcd2997b0bd3, []int{3}
+}
+func (m *SetArticlesCategoryRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SetArticlesCategoryRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SetArticlesCategoryRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SetArticlesCategoryRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SetArticlesCategoryRequest.Merge(m, src)
+}
+func (m *SetArticlesCategoryRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *SetArticlesCategoryRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_SetArticlesCategoryRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SetArticlesCategoryRequest proto.InternalMessageInfo
+
+func (m *SetArticlesCategoryRequest) GetArticleId() []int64 {
+	if m != nil {
+		return m.ArticleId
+	}
+	return nil
+}
+
+func (m *SetArticlesCategoryRequest) GetCategoryId() []int64 {
+	if m != nil {
+		return m.CategoryId
+	}
+	return nil
+}
+
+type RecommendArticlesRequest struct {
+	ArticleId   []int64 `protobuf:"varint,1,rep,packed,name=article_id,json=articleId,proto3" json:"article_id,omitempty"`
+	IsRecommend bool    `protobuf:"varint,2,opt,name=is_recommend,json=isRecommend,proto3" json:"is_recommend,omitempty"`
+}
+
+func (m *RecommendArticlesRequest) Reset()         { *m = RecommendArticlesRequest{} }
+func (m *RecommendArticlesRequest) String() string { return proto.CompactTextString(m) }
+func (*RecommendArticlesRequest) ProtoMessage()    {}
+func (*RecommendArticlesRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d5a9bcd2997b0bd3, []int{4}
+}
+func (m *RecommendArticlesRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *RecommendArticlesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_RecommendArticlesRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *RecommendArticlesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_RecommendArticlesRequest.Merge(m, src)
+}
+func (m *RecommendArticlesRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *RecommendArticlesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_RecommendArticlesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_RecommendArticlesRequest proto.InternalMessageInfo
+
+func (m *RecommendArticlesRequest) GetArticleId() []int64 {
+	if m != nil {
+		return m.ArticleId
+	}
+	return nil
+}
+
+func (m *RecommendArticlesRequest) GetIsRecommend() bool {
+	if m != nil {
+		return m.IsRecommend
+	}
+	return false
+}
+
+type CheckArticlesRequest struct {
+	ArticleId     []int64 `protobuf:"varint,1,rep,packed,name=article_id,json=articleId,proto3" json:"article_id,omitempty"`
+	Status        int32   `protobuf:"varint,2,opt,name=status,proto3" json:"status,omitempty"`
+	RejeactReason string  `protobuf:"bytes,3,opt,name=rejeact_reason,json=rejeactReason,proto3" json:"rejeact_reason,omitempty"`
+}
+
+func (m *CheckArticlesRequest) Reset()         { *m = CheckArticlesRequest{} }
+func (m *CheckArticlesRequest) String() string { return proto.CompactTextString(m) }
+func (*CheckArticlesRequest) ProtoMessage()    {}
+func (*CheckArticlesRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d5a9bcd2997b0bd3, []int{5}
+}
+func (m *CheckArticlesRequest) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *CheckArticlesRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_CheckArticlesRequest.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *CheckArticlesRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CheckArticlesRequest.Merge(m, src)
+}
+func (m *CheckArticlesRequest) XXX_Size() int {
+	return m.Size()
+}
+func (m *CheckArticlesRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CheckArticlesRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CheckArticlesRequest proto.InternalMessageInfo
+
+func (m *CheckArticlesRequest) GetArticleId() []int64 {
+	if m != nil {
+		return m.ArticleId
+	}
+	return nil
+}
+
+func (m *CheckArticlesRequest) GetStatus() int32 {
+	if m != nil {
+		return m.Status
+	}
+	return 0
+}
+
+func (m *CheckArticlesRequest) GetRejeactReason() string {
+	if m != nil {
+		return m.RejeactReason
+	}
+	return ""
+}
+
 // 根据ID或者文章标识获取文章，二选一
 type GetArticleRequest struct {
 	Id         int64  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -205,7 +493,7 @@ func (m *GetArticleRequest) Reset()         { *m = GetArticleRequest{} }
 func (m *GetArticleRequest) String() string { return proto.CompactTextString(m) }
 func (*GetArticleRequest) ProtoMessage()    {}
 func (*GetArticleRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5a9bcd2997b0bd3, []int{2}
+	return fileDescriptor_d5a9bcd2997b0bd3, []int{6}
 }
 func (m *GetArticleRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -250,18 +538,24 @@ func (m *GetArticleRequest) GetIdentifier() string {
 
 // 文章列表请求
 type ListArticleRequest struct {
-	Page  int64    `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
-	Size_ int64    `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
-	Wd    string   `protobuf:"bytes,3,opt,name=wd,proto3" json:"wd,omitempty"`
-	Field []string `protobuf:"bytes,4,rep,name=field,proto3" json:"field,omitempty"`
-	Order string   `protobuf:"bytes,5,opt,name=order,proto3" json:"order,omitempty"`
+	Page        int64    `protobuf:"varint,1,opt,name=page,proto3" json:"page,omitempty"`
+	Size_       int64    `protobuf:"varint,2,opt,name=size,proto3" json:"size,omitempty"`
+	Wd          string   `protobuf:"bytes,3,opt,name=wd,proto3" json:"wd,omitempty"`
+	Field       []string `protobuf:"bytes,4,rep,name=field,proto3" json:"field,omitempty"`
+	Order       string   `protobuf:"bytes,5,opt,name=order,proto3" json:"order,omitempty"`
+	CategoryId  []int64  `protobuf:"varint,6,rep,packed,name=category_id,json=categoryId,proto3" json:"category_id,omitempty"`
+	IsRecommend []bool   `protobuf:"varint,7,rep,packed,name=is_recommend,json=isRecommend,proto3" json:"is_recommend,omitempty"`
+	Status      []int32  `protobuf:"varint,8,rep,packed,name=status,proto3" json:"status,omitempty"`
+	UserId      []int64  `protobuf:"varint,9,rep,packed,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	CreatedAt   []string `protobuf:"bytes,10,rep,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	Sort        string   `protobuf:"bytes,11,opt,name=sort,proto3" json:"sort,omitempty"`
 }
 
 func (m *ListArticleRequest) Reset()         { *m = ListArticleRequest{} }
 func (m *ListArticleRequest) String() string { return proto.CompactTextString(m) }
 func (*ListArticleRequest) ProtoMessage()    {}
 func (*ListArticleRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5a9bcd2997b0bd3, []int{3}
+	return fileDescriptor_d5a9bcd2997b0bd3, []int{7}
 }
 func (m *ListArticleRequest) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -325,6 +619,48 @@ func (m *ListArticleRequest) GetOrder() string {
 	return ""
 }
 
+func (m *ListArticleRequest) GetCategoryId() []int64 {
+	if m != nil {
+		return m.CategoryId
+	}
+	return nil
+}
+
+func (m *ListArticleRequest) GetIsRecommend() []bool {
+	if m != nil {
+		return m.IsRecommend
+	}
+	return nil
+}
+
+func (m *ListArticleRequest) GetStatus() []int32 {
+	if m != nil {
+		return m.Status
+	}
+	return nil
+}
+
+func (m *ListArticleRequest) GetUserId() []int64 {
+	if m != nil {
+		return m.UserId
+	}
+	return nil
+}
+
+func (m *ListArticleRequest) GetCreatedAt() []string {
+	if m != nil {
+		return m.CreatedAt
+	}
+	return nil
+}
+
+func (m *ListArticleRequest) GetSort() string {
+	if m != nil {
+		return m.Sort
+	}
+	return ""
+}
+
 // 文章列表响应
 type ListArticleReply struct {
 	Total   int64      `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
@@ -335,7 +671,7 @@ func (m *ListArticleReply) Reset()         { *m = ListArticleReply{} }
 func (m *ListArticleReply) String() string { return proto.CompactTextString(m) }
 func (*ListArticleReply) ProtoMessage()    {}
 func (*ListArticleReply) Descriptor() ([]byte, []int) {
-	return fileDescriptor_d5a9bcd2997b0bd3, []int{4}
+	return fileDescriptor_d5a9bcd2997b0bd3, []int{8}
 }
 func (m *ListArticleReply) XXX_Unmarshal(b []byte) error {
 	return m.Unmarshal(b)
@@ -378,58 +714,158 @@ func (m *ListArticleReply) GetArticle() []*Article {
 	return nil
 }
 
+// 文档搜索响应
+type SearchArticleReply struct {
+	Total   int64      `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
+	Spend   string     `protobuf:"bytes,2,opt,name=spend,proto3" json:"spend,omitempty"`
+	Article []*Article `protobuf:"bytes,3,rep,name=article,proto3" json:"article,omitempty"`
+}
+
+func (m *SearchArticleReply) Reset()         { *m = SearchArticleReply{} }
+func (m *SearchArticleReply) String() string { return proto.CompactTextString(m) }
+func (*SearchArticleReply) ProtoMessage()    {}
+func (*SearchArticleReply) Descriptor() ([]byte, []int) {
+	return fileDescriptor_d5a9bcd2997b0bd3, []int{9}
+}
+func (m *SearchArticleReply) XXX_Unmarshal(b []byte) error {
+	return m.Unmarshal(b)
+}
+func (m *SearchArticleReply) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	if deterministic {
+		return xxx_messageInfo_SearchArticleReply.Marshal(b, m, deterministic)
+	} else {
+		b = b[:cap(b)]
+		n, err := m.MarshalToSizedBuffer(b)
+		if err != nil {
+			return nil, err
+		}
+		return b[:n], nil
+	}
+}
+func (m *SearchArticleReply) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_SearchArticleReply.Merge(m, src)
+}
+func (m *SearchArticleReply) XXX_Size() int {
+	return m.Size()
+}
+func (m *SearchArticleReply) XXX_DiscardUnknown() {
+	xxx_messageInfo_SearchArticleReply.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_SearchArticleReply proto.InternalMessageInfo
+
+func (m *SearchArticleReply) GetTotal() int64 {
+	if m != nil {
+		return m.Total
+	}
+	return 0
+}
+
+func (m *SearchArticleReply) GetSpend() string {
+	if m != nil {
+		return m.Spend
+	}
+	return ""
+}
+
+func (m *SearchArticleReply) GetArticle() []*Article {
+	if m != nil {
+		return m.Article
+	}
+	return nil
+}
+
 func init() {
 	proto.RegisterType((*Article)(nil), "api.v1.Article")
 	proto.RegisterType((*DeleteArticleRequest)(nil), "api.v1.DeleteArticleRequest")
+	proto.RegisterType((*RestoreArticleRequest)(nil), "api.v1.RestoreArticleRequest")
+	proto.RegisterType((*SetArticlesCategoryRequest)(nil), "api.v1.SetArticlesCategoryRequest")
+	proto.RegisterType((*RecommendArticlesRequest)(nil), "api.v1.RecommendArticlesRequest")
+	proto.RegisterType((*CheckArticlesRequest)(nil), "api.v1.CheckArticlesRequest")
 	proto.RegisterType((*GetArticleRequest)(nil), "api.v1.GetArticleRequest")
 	proto.RegisterType((*ListArticleRequest)(nil), "api.v1.ListArticleRequest")
 	proto.RegisterType((*ListArticleReply)(nil), "api.v1.ListArticleReply")
+	proto.RegisterType((*SearchArticleReply)(nil), "api.v1.SearchArticleReply")
 }
 
 func init() { proto.RegisterFile("api/v1/article.proto", fileDescriptor_d5a9bcd2997b0bd3) }
 
 var fileDescriptor_d5a9bcd2997b0bd3 = []byte{
-	// 625 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x8c, 0x94, 0xc1, 0x6e, 0xd3, 0x4c,
-	0x10, 0xc7, 0x6b, 0x3b, 0x4d, 0x9a, 0x89, 0xfa, 0xf5, 0xeb, 0x2a, 0x2a, 0x8b, 0x29, 0x6e, 0xe4,
-	0x03, 0x0a, 0x3d, 0xd8, 0x6a, 0x11, 0x17, 0x38, 0xa0, 0xb4, 0x20, 0x84, 0x04, 0x52, 0x09, 0xe5,
-	0xc2, 0x81, 0xca, 0xcd, 0x4e, 0xc3, 0x0a, 0xc7, 0x6b, 0xec, 0x4d, 0x42, 0x38, 0xf2, 0x04, 0x95,
-	0x78, 0x28, 0x38, 0x56, 0xe2, 0xc2, 0x8d, 0xaa, 0xe5, 0x41, 0x90, 0xd7, 0xbb, 0xa5, 0x4d, 0x1a,
-	0xa9, 0xb7, 0x99, 0xff, 0x78, 0x7e, 0x93, 0xcc, 0x7f, 0x6c, 0x68, 0x46, 0x29, 0x0f, 0x47, 0x5b,
-	0x61, 0x94, 0x49, 0xde, 0x8b, 0x31, 0x48, 0x33, 0x21, 0x05, 0xa9, 0x46, 0x29, 0x0f, 0x46, 0x5b,
-	0xee, 0x46, 0x5f, 0x88, 0x7e, 0x8c, 0xa1, 0x52, 0x0f, 0x87, 0x47, 0xa1, 0xe4, 0x03, 0xcc, 0x65,
-	0x34, 0x48, 0xcb, 0x07, 0xdd, 0x66, 0x5f, 0xf4, 0x85, 0x0a, 0xc3, 0x22, 0xd2, 0xea, 0xba, 0x6e,
-	0x2b, 0xd8, 0x51, 0x92, 0x08, 0x19, 0x49, 0x2e, 0x92, 0x5c, 0x57, 0xef, 0x4c, 0x43, 0x71, 0x90,
-	0xca, 0x49, 0x59, 0xf4, 0x4f, 0x6d, 0xa8, 0x75, 0xca, 0xdf, 0x42, 0xfe, 0x03, 0x9b, 0x33, 0x6a,
-	0xb5, 0xac, 0xb6, 0xd3, 0xb5, 0x39, 0x23, 0x1e, 0x00, 0x67, 0x98, 0x48, 0x7e, 0xc4, 0x31, 0xa3,
-	0x76, 0xcb, 0x6a, 0xd7, 0xbb, 0x97, 0x14, 0xb2, 0x06, 0xd5, 0x68, 0x28, 0x3f, 0x88, 0x8c, 0x3a,
-	0xaa, 0xa6, 0x33, 0x72, 0x17, 0x60, 0xc4, 0x71, 0x7c, 0xd0, 0x13, 0xc3, 0x44, 0xd2, 0x8a, 0xe2,
-	0xd5, 0x0b, 0x65, 0xb7, 0x10, 0x48, 0x13, 0x16, 0x25, 0x97, 0x31, 0xd2, 0x45, 0xd5, 0x55, 0x26,
-	0xc4, 0x85, 0xa5, 0x8f, 0x38, 0x19, 0x8b, 0x8c, 0xe5, 0xb4, 0xaa, 0x0a, 0x17, 0x39, 0x69, 0x41,
-	0x83, 0x61, 0xde, 0xcb, 0x78, 0x5a, 0xfc, 0x2f, 0x5a, 0x53, 0xe5, 0xcb, 0x12, 0xa1, 0x50, 0xeb,
-	0x89, 0x44, 0x62, 0x22, 0xe9, 0x92, 0xaa, 0x9a, 0x94, 0x3c, 0x01, 0xe8, 0x65, 0x18, 0x49, 0x64,
-	0x07, 0x91, 0xa4, 0xf5, 0x96, 0xd5, 0x6e, 0x6c, 0xbb, 0x41, 0xb9, 0x92, 0xc0, 0xac, 0x24, 0xd8,
-	0x37, 0x7b, 0xde, 0xa9, 0x1c, 0xff, 0xde, 0xb0, 0xba, 0x75, 0xdd, 0xd3, 0x51, 0x80, 0x61, 0xca,
-	0x0c, 0x00, 0x6e, 0x0a, 0xd0, 0x3d, 0x1d, 0xe9, 0xdf, 0x83, 0xe6, 0x53, 0x8c, 0x51, 0xa2, 0xde,
-	0x73, 0x17, 0x3f, 0x0d, 0x31, 0x97, 0x17, 0xeb, 0x76, 0xca, 0x75, 0xfb, 0xbb, 0xb0, 0xfa, 0x1c,
-	0xe5, 0x9c, 0x87, 0x6e, 0xe8, 0x89, 0xff, 0x19, 0xc8, 0x4b, 0x9e, 0x4f, 0x53, 0x08, 0x54, 0xd2,
-	0xa8, 0x8f, 0x9a, 0xa3, 0xe2, 0x42, 0xcb, 0xf9, 0x17, 0x54, 0x0c, 0xa7, 0xab, 0xe2, 0x62, 0xda,
-	0x98, 0x69, 0x37, 0xed, 0x31, 0x2b, 0xac, 0x3a, 0xe2, 0x18, 0x33, 0x5a, 0x69, 0x39, 0x85, 0x55,
-	0x2a, 0x29, 0x54, 0x91, 0x31, 0xcc, 0x8c, 0x81, 0x2a, 0xf1, 0xdf, 0xc0, 0xff, 0x57, 0x26, 0xa7,
-	0xf1, 0x44, 0x59, 0x2d, 0x64, 0x14, 0xeb, 0xc1, 0x65, 0x42, 0xee, 0x43, 0x4d, 0x9f, 0x3f, 0xb5,
-	0x5b, 0x4e, 0xbb, 0xb1, 0xbd, 0x12, 0x94, 0xf7, 0x1f, 0x98, 0x66, 0x53, 0xdf, 0xfe, 0xee, 0x00,
-	0x68, 0xb1, 0xb3, 0xf7, 0x82, 0xbc, 0x82, 0xe5, 0x5d, 0x65, 0x8c, 0x39, 0xd9, 0xe9, 0x4e, 0x77,
-	0x5a, 0xf0, 0xdd, 0xaf, 0x3f, 0xff, 0x7c, 0xb3, 0x9b, 0xfe, 0x4a, 0x78, 0xf5, 0xcd, 0x7b, 0x64,
-	0x6d, 0x92, 0x7d, 0x58, 0x7e, 0xab, 0x6c, 0x9a, 0x8b, 0x5b, 0x9b, 0x31, 0xfa, 0x59, 0xf1, 0xf2,
-	0x18, 0xaa, 0x7b, 0x1d, 0xf5, 0x3d, 0x2c, 0x5f, 0xf1, 0x9b, 0xac, 0x1b, 0xea, 0x75, 0x67, 0x30,
-	0x77, 0xc4, 0x2d, 0x35, 0x62, 0x75, 0x73, 0x7a, 0x04, 0x79, 0x0d, 0xf0, 0xef, 0x4e, 0xc8, 0x6d,
-	0x03, 0x9f, 0xb9, 0x9d, 0xd9, 0x5d, 0x68, 0x24, 0x99, 0x41, 0x46, 0xd0, 0xb8, 0xe4, 0x1d, 0x71,
-	0x4d, 0xe3, 0xec, 0x29, 0xb9, 0xf4, 0xda, 0x5a, 0x1a, 0x4f, 0xfc, 0x75, 0x45, 0x5f, 0x23, 0xcd,
-	0x29, 0x7a, 0x18, 0xf3, 0x5c, 0xee, 0x3c, 0xfc, 0x71, 0xe6, 0x59, 0x27, 0x67, 0x9e, 0x75, 0x7a,
-	0xe6, 0x59, 0xc7, 0xe7, 0xde, 0xc2, 0xc9, 0xb9, 0xb7, 0xf0, 0xeb, 0xdc, 0x5b, 0x00, 0xfd, 0xf1,
-	0xdb, 0xb3, 0xde, 0xad, 0x0e, 0x44, 0x86, 0x4c, 0xf4, 0x34, 0xe0, 0xf1, 0x68, 0xeb, 0xb0, 0xaa,
-	0xb6, 0xf2, 0xe0, 0x6f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x12, 0x22, 0xab, 0x1e, 0x38, 0x05, 0x00,
-	0x00,
+	// 1170 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xa4, 0x57, 0x4f, 0x6f, 0x1b, 0x45,
+	0x14, 0xef, 0xda, 0x89, 0x1d, 0x3f, 0xdb, 0x69, 0x3d, 0x71, 0x93, 0xcd, 0x12, 0xdb, 0xcb, 0xb6,
+	0x01, 0x93, 0x83, 0xad, 0x04, 0x71, 0x81, 0x03, 0x4a, 0x0d, 0xaa, 0x22, 0x81, 0x54, 0x36, 0xed,
+	0x05, 0x55, 0x58, 0xdb, 0xdd, 0x89, 0xb3, 0x8d, 0xed, 0x59, 0x76, 0xc7, 0x8e, 0xdc, 0x23, 0x9f,
+	0xa0, 0x12, 0x5f, 0x80, 0x2f, 0xc2, 0x9d, 0x63, 0x25, 0x2e, 0xdc, 0x40, 0x09, 0x67, 0x3e, 0x03,
+	0x9a, 0xb7, 0x33, 0xfe, 0xb3, 0xf6, 0x06, 0x03, 0xb7, 0x9d, 0x37, 0x33, 0xbf, 0xdf, 0xcc, 0xef,
+	0xbd, 0xf7, 0x1b, 0x1b, 0xaa, 0x4e, 0xe0, 0xb7, 0xc7, 0xc7, 0x6d, 0x27, 0xe4, 0xbe, 0xdb, 0xa7,
+	0xad, 0x20, 0x64, 0x9c, 0x91, 0x9c, 0x13, 0xf8, 0xad, 0xf1, 0xb1, 0xd1, 0xe8, 0x31, 0xd6, 0xeb,
+	0xd3, 0x36, 0x46, 0x5f, 0x8d, 0x2e, 0xda, 0xdc, 0x1f, 0xd0, 0x88, 0x3b, 0x83, 0x20, 0x5e, 0x68,
+	0x54, 0x7b, 0xac, 0xc7, 0xf0, 0xb3, 0x2d, 0xbe, 0x64, 0xf4, 0x40, 0x6e, 0x13, 0xd8, 0xce, 0x70,
+	0xc8, 0xb8, 0xc3, 0x7d, 0x36, 0x8c, 0xe4, 0xec, 0x7b, 0x49, 0x50, 0x3a, 0x08, 0xf8, 0x44, 0x4e,
+	0x56, 0xe4, 0x79, 0x46, 0x11, 0x0d, 0xe3, 0x90, 0xf5, 0xd7, 0x26, 0xe4, 0x4f, 0xe3, 0xe3, 0x91,
+	0x6d, 0xc8, 0xf8, 0x9e, 0xae, 0x99, 0x5a, 0x33, 0x6b, 0x67, 0x7c, 0x8f, 0xd4, 0x01, 0x7c, 0x8f,
+	0x0e, 0xb9, 0x7f, 0xe1, 0xd3, 0x50, 0xcf, 0x98, 0x5a, 0xb3, 0x60, 0xcf, 0x45, 0xc8, 0x2e, 0xe4,
+	0x9c, 0x11, 0xbf, 0x64, 0xa1, 0x9e, 0xc5, 0x39, 0x39, 0x22, 0x35, 0x80, 0xb1, 0x4f, 0xaf, 0xbb,
+	0x2e, 0x1b, 0x0d, 0xb9, 0xbe, 0x81, 0x78, 0x05, 0x11, 0xe9, 0x88, 0x00, 0xa9, 0xc2, 0x26, 0xf7,
+	0x79, 0x9f, 0xea, 0x9b, 0xb8, 0x2b, 0x1e, 0x10, 0x03, 0xb6, 0xae, 0xe8, 0xe4, 0x9a, 0x85, 0x5e,
+	0xa4, 0xe7, 0x70, 0x62, 0x3a, 0x26, 0x26, 0x14, 0x3d, 0x1a, 0xb9, 0xa1, 0x1f, 0x88, 0xab, 0xea,
+	0x79, 0x9c, 0x9e, 0x0f, 0x11, 0x1d, 0xf2, 0x2e, 0x1b, 0x72, 0x3a, 0xe4, 0xfa, 0x16, 0xce, 0xaa,
+	0x21, 0xf9, 0x1c, 0xc0, 0x0d, 0xa9, 0xc3, 0xa9, 0xd7, 0x75, 0xb8, 0x5e, 0x30, 0xb5, 0x66, 0xf1,
+	0xc4, 0x68, 0xc5, 0x2a, 0xb5, 0x94, 0x4a, 0xad, 0xe7, 0x4a, 0xfa, 0x27, 0x1b, 0x6f, 0x7f, 0x6f,
+	0x68, 0x76, 0x41, 0xee, 0x39, 0x45, 0x80, 0x51, 0xe0, 0x29, 0x00, 0x58, 0x17, 0x40, 0xee, 0x89,
+	0x01, 0x3c, 0xda, 0xa7, 0x12, 0xa0, 0xb8, 0x2e, 0x80, 0xdc, 0x73, 0xca, 0x49, 0x03, 0x8a, 0xae,
+	0xc3, 0x69, 0x8f, 0x85, 0x93, 0xae, 0xef, 0xe9, 0x25, 0x33, 0xdb, 0xcc, 0xda, 0xa0, 0x42, 0x67,
+	0x1e, 0x39, 0x84, 0xed, 0x0b, 0x67, 0xcc, 0x42, 0x9f, 0x53, 0x29, 0x7a, 0x19, 0x45, 0x2f, 0xab,
+	0x68, 0x2c, 0xfc, 0x23, 0x28, 0xbb, 0x6c, 0x30, 0xa0, 0x43, 0x2e, 0x57, 0x6d, 0xe3, 0xaa, 0x92,
+	0x0c, 0xc6, 0x8b, 0x3a, 0x50, 0x0a, 0x69, 0x1c, 0xc1, 0xf3, 0xde, 0x5f, 0xf3, 0xbc, 0xc5, 0xe9,
+	0xae, 0x53, 0x4e, 0xde, 0x87, 0x92, 0x1f, 0x75, 0xa7, 0x11, 0xfd, 0x81, 0xa9, 0x35, 0xb7, 0xec,
+	0xa2, 0x1f, 0xd9, 0x2a, 0x44, 0xf6, 0x20, 0x2f, 0xca, 0x50, 0x5c, 0xa8, 0x82, 0xc7, 0xc8, 0x89,
+	0xe1, 0x99, 0x47, 0x4c, 0xd8, 0x10, 0x5f, 0x3a, 0x41, 0xe2, 0x52, 0x2b, 0xee, 0x96, 0xd6, 0x8b,
+	0x88, 0x86, 0x36, 0xce, 0x88, 0xba, 0x8b, 0xb8, 0xc3, 0x47, 0x91, 0xbe, 0x63, 0x6a, 0xcd, 0x4d,
+	0x5b, 0x8e, 0xc4, 0xfd, 0x42, 0xfa, 0x9a, 0xba, 0xbc, 0x1b, 0x52, 0x27, 0x62, 0x43, 0xbd, 0x8a,
+	0xa5, 0x50, 0x8a, 0x83, 0x36, 0xc6, 0xac, 0x0f, 0xa0, 0xfa, 0x05, 0x2a, 0x2b, 0xab, 0xde, 0xa6,
+	0xdf, 0x8f, 0x68, 0xc4, 0xa7, 0xc5, 0x9f, 0x8d, 0x8b, 0xdf, 0xfa, 0x10, 0x1e, 0xda, 0x34, 0xe2,
+	0x2c, 0xfc, 0xa7, 0x85, 0x2f, 0xc1, 0x38, 0xa7, 0x5c, 0x2e, 0x8a, 0x3a, 0x32, 0x2b, 0x6a, 0x75,
+	0x0d, 0x40, 0x76, 0x7f, 0x77, 0xba, 0xab, 0x20, 0x23, 0x67, 0x5e, 0x32, 0xb5, 0x99, 0x64, 0x6a,
+	0xad, 0x97, 0xa0, 0x4f, 0x35, 0x53, 0x1c, 0x6b, 0x62, 0x27, 0x93, 0x90, 0x59, 0x4a, 0x82, 0xc5,
+	0xa1, 0xda, 0xb9, 0xa4, 0xee, 0xd5, 0xbf, 0x44, 0x9e, 0x25, 0x20, 0xb3, 0x90, 0x80, 0x43, 0xd8,
+	0x16, 0x5a, 0x3b, 0xb3, 0x0c, 0xc4, 0xc6, 0x50, 0x96, 0x51, 0x99, 0x82, 0x0e, 0x54, 0x9e, 0x4e,
+	0x15, 0x4b, 0xca, 0xba, 0xa6, 0xf9, 0x58, 0x3f, 0x65, 0x80, 0x7c, 0xe5, 0x47, 0x49, 0x18, 0x02,
+	0x1b, 0x81, 0xd3, 0xa3, 0x12, 0x08, 0xbf, 0x45, 0x2c, 0xf2, 0xdf, 0x50, 0x04, 0xc9, 0xda, 0xf8,
+	0x2d, 0xe8, 0xae, 0x3d, 0x79, 0xbc, 0xcc, 0xb5, 0x27, 0x4c, 0xe9, 0xc2, 0xa7, 0x7d, 0x4f, 0xdf,
+	0x30, 0xb3, 0xc2, 0x94, 0x70, 0x20, 0xa2, 0x2c, 0xf4, 0x68, 0xa8, 0xac, 0x0a, 0x07, 0xc9, 0xa4,
+	0xe5, 0x96, 0xfa, 0x31, 0xa9, 0x7c, 0xde, 0xcc, 0x26, 0xcb, 0x7f, 0x26, 0xe1, 0x96, 0x99, 0x9d,
+	0x93, 0x70, 0xae, 0x2d, 0x0a, 0x88, 0xab, 0xda, 0xa2, 0xb6, 0xe0, 0x63, 0x80, 0xa7, 0x9c, 0x73,
+	0x29, 0x71, 0x47, 0x16, 0xc6, 0xf6, 0x52, 0xb0, 0xf1, 0xdb, 0x3a, 0x87, 0x07, 0x0b, 0x0a, 0x05,
+	0xfd, 0x09, 0x9a, 0x2f, 0xe3, 0x4e, 0x5f, 0x0a, 0x14, 0x0f, 0xc8, 0x47, 0x90, 0x97, 0xd9, 0xc5,
+	0x12, 0x2c, 0x9e, 0xdc, 0x57, 0x6d, 0xa7, 0x36, 0xab, 0x79, 0xeb, 0x0a, 0xc8, 0x39, 0x75, 0x42,
+	0xf7, 0x72, 0x0d, 0xd8, 0x2a, 0x6c, 0x46, 0x81, 0x2a, 0xbd, 0x82, 0x1d, 0x0f, 0xe6, 0xc9, 0xb2,
+	0x77, 0x93, 0x9d, 0xfc, 0x5c, 0x04, 0x90, 0xc1, 0xd3, 0x67, 0x67, 0xe4, 0x6b, 0x28, 0x77, 0xf0,
+	0xc6, 0xea, 0xc5, 0x4a, 0xee, 0x34, 0x92, 0x01, 0xcb, 0xf8, 0xe1, 0xd7, 0x3f, 0x7f, 0xcc, 0x54,
+	0xad, 0xfb, 0xed, 0xc5, 0xb7, 0xf8, 0x53, 0xed, 0x88, 0x3c, 0x87, 0xf2, 0x0b, 0x74, 0xe9, 0x54,
+	0xb8, 0xdd, 0x25, 0xdb, 0xfb, 0x52, 0x3c, 0xa7, 0x0a, 0xd5, 0x58, 0x85, 0xfa, 0x1d, 0x94, 0x17,
+	0x0c, 0x86, 0x1c, 0x28, 0xd4, 0x55, 0xbe, 0x93, 0x4a, 0xb1, 0x87, 0x14, 0x95, 0xa3, 0x24, 0x05,
+	0xf9, 0x06, 0x60, 0xd6, 0x3d, 0x64, 0x5f, 0x81, 0x2f, 0x75, 0xd4, 0xb2, 0x16, 0x12, 0x92, 0x2c,
+	0x41, 0x3a, 0x50, 0x9c, 0x2b, 0x14, 0x62, 0xa8, 0x8d, 0xcb, 0xfd, 0x65, 0xe8, 0x2b, 0xe7, 0x82,
+	0xfe, 0xc4, 0x3a, 0x40, 0xf4, 0x5d, 0x52, 0x4d, 0xa0, 0xb7, 0xfb, 0x7e, 0xc4, 0xc9, 0x18, 0x76,
+	0x56, 0xb8, 0x24, 0xb1, 0x14, 0x5c, 0xba, 0x85, 0xa6, 0x2a, 0xf4, 0x08, 0x09, 0x6b, 0x86, 0x9e,
+	0x24, 0x54, 0x9d, 0x28, 0xb2, 0x11, 0x41, 0x65, 0xc9, 0x3f, 0x89, 0xa9, 0x58, 0xd3, 0xac, 0x35,
+	0x95, 0xf3, 0x31, 0x72, 0xd6, 0x8d, 0xfd, 0x24, 0xe7, 0xb4, 0xd9, 0x05, 0x69, 0x0f, 0xca, 0x0b,
+	0xb6, 0x3a, 0x2b, 0x81, 0x55, 0x6e, 0x9b, 0x4a, 0x66, 0x22, 0x99, 0x61, 0x3c, 0x5c, 0xba, 0xa0,
+	0x40, 0x11, 0x44, 0x41, 0xec, 0x81, 0x36, 0x75, 0x27, 0xa2, 0x45, 0xfe, 0x57, 0xfe, 0xe4, 0xd5,
+	0xc8, 0xc1, 0x8a, 0xab, 0x4d, 0xa6, 0x79, 0x7c, 0x33, 0x7d, 0x16, 0x13, 0xa4, 0xb5, 0x99, 0xa6,
+	0x2b, 0x5e, 0xcd, 0xd4, 0x3b, 0x1e, 0x21, 0xeb, 0x63, 0xab, 0x91, 0xc6, 0x1a, 0xc6, 0x70, 0xe2,
+	0xb6, 0x03, 0xf5, 0x74, 0x27, 0xa8, 0xff, 0x5b, 0x83, 0x35, 0x90, 0x79, 0xff, 0x68, 0x2f, 0x85,
+	0x99, 0xf4, 0x61, 0x07, 0x57, 0x26, 0xd8, 0x52, 0xf0, 0x52, 0x79, 0x0e, 0x91, 0xa7, 0x71, 0x54,
+	0x4b, 0xbb, 0x21, 0xfe, 0x42, 0x17, 0x35, 0xb3, 0xe0, 0xab, 0x77, 0x66, 0xd1, 0x98, 0xb5, 0x4d,
+	0xd2, 0x8a, 0xad, 0x3a, 0xf2, 0xe9, 0x64, 0x37, 0xc9, 0x17, 0xe1, 0x5a, 0xf2, 0x1a, 0xc8, 0x53,
+	0xca, 0x6d, 0xda, 0xc7, 0x97, 0x43, 0x55, 0xe8, 0x1d, 0x3e, 0x92, 0x5e, 0x32, 0x52, 0x42, 0xb2,
+	0x42, 0x42, 0x44, 0x7f, 0xf2, 0xc9, 0x2f, 0x37, 0x75, 0xed, 0xdd, 0x4d, 0x5d, 0xfb, 0xe3, 0xa6,
+	0xae, 0xbd, 0xbd, 0xad, 0xdf, 0x7b, 0x77, 0x5b, 0xbf, 0xf7, 0xdb, 0x6d, 0xfd, 0x1e, 0xc8, 0x3f,
+	0x41, 0xcf, 0xb4, 0x6f, 0x2b, 0x03, 0x16, 0x52, 0x8f, 0xb9, 0x12, 0xe3, 0xb3, 0xf1, 0xf1, 0xab,
+	0x1c, 0x4a, 0xf8, 0xf1, 0xdf, 0x01, 0x00, 0x00, 0xff, 0xff, 0xe8, 0x83, 0x0f, 0xcd, 0x40, 0x0d,
+	0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -454,6 +890,24 @@ type ArticleAPIClient interface {
 	GetArticle(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*Article, error)
 	// 文章列表
 	ListArticle(ctx context.Context, in *ListArticleRequest, opts ...grpc.CallOption) (*ListArticleReply, error)
+	// 批量更新文档分类
+	SetArticlesCategory(ctx context.Context, in *SetArticlesCategoryRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 批量推荐
+	RecommendArticles(ctx context.Context, in *RecommendArticlesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 批量审核文档
+	CheckArticles(ctx context.Context, in *CheckArticlesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 回收站文章列表
+	ListRecycleArticle(ctx context.Context, in *ListArticleRequest, opts ...grpc.CallOption) (*ListArticleReply, error)
+	// 恢复回收站文章
+	RestoreRecycleArticle(ctx context.Context, in *RestoreArticleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 从回收站删除文章
+	DeleteRecycleArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 清空回收站
+	EmptyRecycleArticle(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	// 搜索文章
+	SearchArticle(ctx context.Context, in *ListArticleRequest, opts ...grpc.CallOption) (*SearchArticleReply, error)
+	// 相关文章
+	GetRelatedArticles(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*ListArticleReply, error)
 }
 
 type articleAPIClient struct {
@@ -509,6 +963,87 @@ func (c *articleAPIClient) ListArticle(ctx context.Context, in *ListArticleReque
 	return out, nil
 }
 
+func (c *articleAPIClient) SetArticlesCategory(ctx context.Context, in *SetArticlesCategoryRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/api.v1.ArticleAPI/SetArticlesCategory", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articleAPIClient) RecommendArticles(ctx context.Context, in *RecommendArticlesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/api.v1.ArticleAPI/RecommendArticles", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articleAPIClient) CheckArticles(ctx context.Context, in *CheckArticlesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/api.v1.ArticleAPI/CheckArticles", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articleAPIClient) ListRecycleArticle(ctx context.Context, in *ListArticleRequest, opts ...grpc.CallOption) (*ListArticleReply, error) {
+	out := new(ListArticleReply)
+	err := c.cc.Invoke(ctx, "/api.v1.ArticleAPI/ListRecycleArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articleAPIClient) RestoreRecycleArticle(ctx context.Context, in *RestoreArticleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/api.v1.ArticleAPI/RestoreRecycleArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articleAPIClient) DeleteRecycleArticle(ctx context.Context, in *DeleteArticleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/api.v1.ArticleAPI/DeleteRecycleArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articleAPIClient) EmptyRecycleArticle(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/api.v1.ArticleAPI/EmptyRecycleArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articleAPIClient) SearchArticle(ctx context.Context, in *ListArticleRequest, opts ...grpc.CallOption) (*SearchArticleReply, error) {
+	out := new(SearchArticleReply)
+	err := c.cc.Invoke(ctx, "/api.v1.ArticleAPI/SearchArticle", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *articleAPIClient) GetRelatedArticles(ctx context.Context, in *GetArticleRequest, opts ...grpc.CallOption) (*ListArticleReply, error) {
+	out := new(ListArticleReply)
+	err := c.cc.Invoke(ctx, "/api.v1.ArticleAPI/GetRelatedArticles", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ArticleAPIServer is the server API for ArticleAPI service.
 type ArticleAPIServer interface {
 	// 创建文章
@@ -521,6 +1056,24 @@ type ArticleAPIServer interface {
 	GetArticle(context.Context, *GetArticleRequest) (*Article, error)
 	// 文章列表
 	ListArticle(context.Context, *ListArticleRequest) (*ListArticleReply, error)
+	// 批量更新文档分类
+	SetArticlesCategory(context.Context, *SetArticlesCategoryRequest) (*emptypb.Empty, error)
+	// 批量推荐
+	RecommendArticles(context.Context, *RecommendArticlesRequest) (*emptypb.Empty, error)
+	// 批量审核文档
+	CheckArticles(context.Context, *CheckArticlesRequest) (*emptypb.Empty, error)
+	// 回收站文章列表
+	ListRecycleArticle(context.Context, *ListArticleRequest) (*ListArticleReply, error)
+	// 恢复回收站文章
+	RestoreRecycleArticle(context.Context, *RestoreArticleRequest) (*emptypb.Empty, error)
+	// 从回收站删除文章
+	DeleteRecycleArticle(context.Context, *DeleteArticleRequest) (*emptypb.Empty, error)
+	// 清空回收站
+	EmptyRecycleArticle(context.Context, *emptypb.Empty) (*emptypb.Empty, error)
+	// 搜索文章
+	SearchArticle(context.Context, *ListArticleRequest) (*SearchArticleReply, error)
+	// 相关文章
+	GetRelatedArticles(context.Context, *GetArticleRequest) (*ListArticleReply, error)
 }
 
 // UnimplementedArticleAPIServer can be embedded to have forward compatible implementations.
@@ -541,6 +1094,33 @@ func (*UnimplementedArticleAPIServer) GetArticle(ctx context.Context, req *GetAr
 }
 func (*UnimplementedArticleAPIServer) ListArticle(ctx context.Context, req *ListArticleRequest) (*ListArticleReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListArticle not implemented")
+}
+func (*UnimplementedArticleAPIServer) SetArticlesCategory(ctx context.Context, req *SetArticlesCategoryRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SetArticlesCategory not implemented")
+}
+func (*UnimplementedArticleAPIServer) RecommendArticles(ctx context.Context, req *RecommendArticlesRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RecommendArticles not implemented")
+}
+func (*UnimplementedArticleAPIServer) CheckArticles(ctx context.Context, req *CheckArticlesRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CheckArticles not implemented")
+}
+func (*UnimplementedArticleAPIServer) ListRecycleArticle(ctx context.Context, req *ListArticleRequest) (*ListArticleReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListRecycleArticle not implemented")
+}
+func (*UnimplementedArticleAPIServer) RestoreRecycleArticle(ctx context.Context, req *RestoreArticleRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RestoreRecycleArticle not implemented")
+}
+func (*UnimplementedArticleAPIServer) DeleteRecycleArticle(ctx context.Context, req *DeleteArticleRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteRecycleArticle not implemented")
+}
+func (*UnimplementedArticleAPIServer) EmptyRecycleArticle(ctx context.Context, req *emptypb.Empty) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method EmptyRecycleArticle not implemented")
+}
+func (*UnimplementedArticleAPIServer) SearchArticle(ctx context.Context, req *ListArticleRequest) (*SearchArticleReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SearchArticle not implemented")
+}
+func (*UnimplementedArticleAPIServer) GetRelatedArticles(ctx context.Context, req *GetArticleRequest) (*ListArticleReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetRelatedArticles not implemented")
 }
 
 func RegisterArticleAPIServer(s *grpc.Server, srv ArticleAPIServer) {
@@ -637,6 +1217,168 @@ func _ArticleAPI_ListArticle_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ArticleAPI_SetArticlesCategory_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SetArticlesCategoryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticleAPIServer).SetArticlesCategory(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.ArticleAPI/SetArticlesCategory",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticleAPIServer).SetArticlesCategory(ctx, req.(*SetArticlesCategoryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticleAPI_RecommendArticles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RecommendArticlesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticleAPIServer).RecommendArticles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.ArticleAPI/RecommendArticles",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticleAPIServer).RecommendArticles(ctx, req.(*RecommendArticlesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticleAPI_CheckArticles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CheckArticlesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticleAPIServer).CheckArticles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.ArticleAPI/CheckArticles",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticleAPIServer).CheckArticles(ctx, req.(*CheckArticlesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticleAPI_ListRecycleArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListArticleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticleAPIServer).ListRecycleArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.ArticleAPI/ListRecycleArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticleAPIServer).ListRecycleArticle(ctx, req.(*ListArticleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticleAPI_RestoreRecycleArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(RestoreArticleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticleAPIServer).RestoreRecycleArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.ArticleAPI/RestoreRecycleArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticleAPIServer).RestoreRecycleArticle(ctx, req.(*RestoreArticleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticleAPI_DeleteRecycleArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteArticleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticleAPIServer).DeleteRecycleArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.ArticleAPI/DeleteRecycleArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticleAPIServer).DeleteRecycleArticle(ctx, req.(*DeleteArticleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticleAPI_EmptyRecycleArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticleAPIServer).EmptyRecycleArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.ArticleAPI/EmptyRecycleArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticleAPIServer).EmptyRecycleArticle(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticleAPI_SearchArticle_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListArticleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticleAPIServer).SearchArticle(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.ArticleAPI/SearchArticle",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticleAPIServer).SearchArticle(ctx, req.(*ListArticleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ArticleAPI_GetRelatedArticles_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetArticleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ArticleAPIServer).GetRelatedArticles(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/api.v1.ArticleAPI/GetRelatedArticles",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ArticleAPIServer).GetRelatedArticles(ctx, req.(*GetArticleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _ArticleAPI_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "api.v1.ArticleAPI",
 	HandlerType: (*ArticleAPIServer)(nil),
@@ -660,6 +1402,42 @@ var _ArticleAPI_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "ListArticle",
 			Handler:    _ArticleAPI_ListArticle_Handler,
+		},
+		{
+			MethodName: "SetArticlesCategory",
+			Handler:    _ArticleAPI_SetArticlesCategory_Handler,
+		},
+		{
+			MethodName: "RecommendArticles",
+			Handler:    _ArticleAPI_RecommendArticles_Handler,
+		},
+		{
+			MethodName: "CheckArticles",
+			Handler:    _ArticleAPI_CheckArticles_Handler,
+		},
+		{
+			MethodName: "ListRecycleArticle",
+			Handler:    _ArticleAPI_ListRecycleArticle_Handler,
+		},
+		{
+			MethodName: "RestoreRecycleArticle",
+			Handler:    _ArticleAPI_RestoreRecycleArticle_Handler,
+		},
+		{
+			MethodName: "DeleteRecycleArticle",
+			Handler:    _ArticleAPI_DeleteRecycleArticle_Handler,
+		},
+		{
+			MethodName: "EmptyRecycleArticle",
+			Handler:    _ArticleAPI_EmptyRecycleArticle_Handler,
+		},
+		{
+			MethodName: "SearchArticle",
+			Handler:    _ArticleAPI_SearchArticle_Handler,
+		},
+		{
+			MethodName: "GetRelatedArticles",
+			Handler:    _ArticleAPI_GetRelatedArticles_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
@@ -686,23 +1464,121 @@ func (m *Article) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
-	if m.UpdatedAt != nil {
-		n1, err1 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt):])
-		if err1 != nil {
-			return 0, err1
-		}
-		i -= n1
-		i = encodeVarintArticle(dAtA, i, uint64(n1))
+	if len(m.RejectReason) > 0 {
+		i -= len(m.RejectReason)
+		copy(dAtA[i:], m.RejectReason)
+		i = encodeVarintArticle(dAtA, i, uint64(len(m.RejectReason)))
 		i--
-		dAtA[i] = 0x52
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0xa2
 	}
-	if m.CreatedAt != nil {
-		n2, err2 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CreatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt):])
+	if m.Status != 0 {
+		i = encodeVarintArticle(dAtA, i, uint64(m.Status))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x98
+	}
+	if m.User != nil {
+		{
+			size, err := m.User.MarshalToSizedBuffer(dAtA[:i])
+			if err != nil {
+				return 0, err
+			}
+			i -= size
+			i = encodeVarintArticle(dAtA, i, uint64(size))
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x92
+	}
+	if m.UserId != 0 {
+		i = encodeVarintArticle(dAtA, i, uint64(m.UserId))
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x88
+	}
+	if m.IsRecommend {
+		i--
+		if m.IsRecommend {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x1
+		i--
+		dAtA[i] = 0x80
+	}
+	if m.RecommendAt != nil {
+		n2, err2 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.RecommendAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.RecommendAt):])
 		if err2 != nil {
 			return 0, err2
 		}
 		i -= n2
 		i = encodeVarintArticle(dAtA, i, uint64(n2))
+		i--
+		dAtA[i] = 0x7a
+	}
+	if m.CommentCount != 0 {
+		i = encodeVarintArticle(dAtA, i, uint64(m.CommentCount))
+		i--
+		dAtA[i] = 0x70
+	}
+	if m.FavoriteCount != 0 {
+		i = encodeVarintArticle(dAtA, i, uint64(m.FavoriteCount))
+		i--
+		dAtA[i] = 0x68
+	}
+	if len(m.CategoryId) > 0 {
+		dAtA4 := make([]byte, len(m.CategoryId)*10)
+		var j3 int
+		for _, num1 := range m.CategoryId {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA4[j3] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j3++
+			}
+			dAtA4[j3] = uint8(num)
+			j3++
+		}
+		i -= j3
+		copy(dAtA[i:], dAtA4[:j3])
+		i = encodeVarintArticle(dAtA, i, uint64(j3))
+		i--
+		dAtA[i] = 0x62
+	}
+	if m.DeletedAt != nil {
+		n5, err5 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.DeletedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.DeletedAt):])
+		if err5 != nil {
+			return 0, err5
+		}
+		i -= n5
+		i = encodeVarintArticle(dAtA, i, uint64(n5))
+		i--
+		dAtA[i] = 0x5a
+	}
+	if m.UpdatedAt != nil {
+		n6, err6 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.UpdatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt):])
+		if err6 != nil {
+			return 0, err6
+		}
+		i -= n6
+		i = encodeVarintArticle(dAtA, i, uint64(n6))
+		i--
+		dAtA[i] = 0x52
+	}
+	if m.CreatedAt != nil {
+		n7, err7 := github_com_gogo_protobuf_types.StdTimeMarshalTo(*m.CreatedAt, dAtA[i-github_com_gogo_protobuf_types.SizeOfStdTime(*m.CreatedAt):])
+		if err7 != nil {
+			return 0, err7
+		}
+		i -= n7
+		i = encodeVarintArticle(dAtA, i, uint64(n7))
 		i--
 		dAtA[i] = 0x4a
 	}
@@ -782,21 +1658,230 @@ func (m *DeleteArticleRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	var l int
 	_ = l
 	if len(m.Id) > 0 {
-		dAtA4 := make([]byte, len(m.Id)*10)
-		var j3 int
+		dAtA9 := make([]byte, len(m.Id)*10)
+		var j8 int
 		for _, num1 := range m.Id {
 			num := uint64(num1)
 			for num >= 1<<7 {
-				dAtA4[j3] = uint8(uint64(num)&0x7f | 0x80)
+				dAtA9[j8] = uint8(uint64(num)&0x7f | 0x80)
 				num >>= 7
-				j3++
+				j8++
 			}
-			dAtA4[j3] = uint8(num)
-			j3++
+			dAtA9[j8] = uint8(num)
+			j8++
 		}
-		i -= j3
-		copy(dAtA[i:], dAtA4[:j3])
-		i = encodeVarintArticle(dAtA, i, uint64(j3))
+		i -= j8
+		copy(dAtA[i:], dAtA9[:j8])
+		i = encodeVarintArticle(dAtA, i, uint64(j8))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *RestoreArticleRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RestoreArticleRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RestoreArticleRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Id) > 0 {
+		dAtA11 := make([]byte, len(m.Id)*10)
+		var j10 int
+		for _, num1 := range m.Id {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA11[j10] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j10++
+			}
+			dAtA11[j10] = uint8(num)
+			j10++
+		}
+		i -= j10
+		copy(dAtA[i:], dAtA11[:j10])
+		i = encodeVarintArticle(dAtA, i, uint64(j10))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *SetArticlesCategoryRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SetArticlesCategoryRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SetArticlesCategoryRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.CategoryId) > 0 {
+		dAtA13 := make([]byte, len(m.CategoryId)*10)
+		var j12 int
+		for _, num1 := range m.CategoryId {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA13[j12] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j12++
+			}
+			dAtA13[j12] = uint8(num)
+			j12++
+		}
+		i -= j12
+		copy(dAtA[i:], dAtA13[:j12])
+		i = encodeVarintArticle(dAtA, i, uint64(j12))
+		i--
+		dAtA[i] = 0x12
+	}
+	if len(m.ArticleId) > 0 {
+		dAtA15 := make([]byte, len(m.ArticleId)*10)
+		var j14 int
+		for _, num1 := range m.ArticleId {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA15[j14] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j14++
+			}
+			dAtA15[j14] = uint8(num)
+			j14++
+		}
+		i -= j14
+		copy(dAtA[i:], dAtA15[:j14])
+		i = encodeVarintArticle(dAtA, i, uint64(j14))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *RecommendArticlesRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *RecommendArticlesRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *RecommendArticlesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if m.IsRecommend {
+		i--
+		if m.IsRecommend {
+			dAtA[i] = 1
+		} else {
+			dAtA[i] = 0
+		}
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.ArticleId) > 0 {
+		dAtA17 := make([]byte, len(m.ArticleId)*10)
+		var j16 int
+		for _, num1 := range m.ArticleId {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA17[j16] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j16++
+			}
+			dAtA17[j16] = uint8(num)
+			j16++
+		}
+		i -= j16
+		copy(dAtA[i:], dAtA17[:j16])
+		i = encodeVarintArticle(dAtA, i, uint64(j16))
+		i--
+		dAtA[i] = 0xa
+	}
+	return len(dAtA) - i, nil
+}
+
+func (m *CheckArticlesRequest) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *CheckArticlesRequest) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *CheckArticlesRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.RejeactReason) > 0 {
+		i -= len(m.RejeactReason)
+		copy(dAtA[i:], m.RejeactReason)
+		i = encodeVarintArticle(dAtA, i, uint64(len(m.RejeactReason)))
+		i--
+		dAtA[i] = 0x1a
+	}
+	if m.Status != 0 {
+		i = encodeVarintArticle(dAtA, i, uint64(m.Status))
+		i--
+		dAtA[i] = 0x10
+	}
+	if len(m.ArticleId) > 0 {
+		dAtA19 := make([]byte, len(m.ArticleId)*10)
+		var j18 int
+		for _, num1 := range m.ArticleId {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA19[j18] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j18++
+			}
+			dAtA19[j18] = uint8(num)
+			j18++
+		}
+		i -= j18
+		copy(dAtA[i:], dAtA19[:j18])
+		i = encodeVarintArticle(dAtA, i, uint64(j18))
 		i--
 		dAtA[i] = 0xa
 	}
@@ -858,6 +1943,92 @@ func (m *ListArticleRequest) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	_ = i
 	var l int
 	_ = l
+	if len(m.Sort) > 0 {
+		i -= len(m.Sort)
+		copy(dAtA[i:], m.Sort)
+		i = encodeVarintArticle(dAtA, i, uint64(len(m.Sort)))
+		i--
+		dAtA[i] = 0x5a
+	}
+	if len(m.CreatedAt) > 0 {
+		for iNdEx := len(m.CreatedAt) - 1; iNdEx >= 0; iNdEx-- {
+			i -= len(m.CreatedAt[iNdEx])
+			copy(dAtA[i:], m.CreatedAt[iNdEx])
+			i = encodeVarintArticle(dAtA, i, uint64(len(m.CreatedAt[iNdEx])))
+			i--
+			dAtA[i] = 0x52
+		}
+	}
+	if len(m.UserId) > 0 {
+		dAtA21 := make([]byte, len(m.UserId)*10)
+		var j20 int
+		for _, num1 := range m.UserId {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA21[j20] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j20++
+			}
+			dAtA21[j20] = uint8(num)
+			j20++
+		}
+		i -= j20
+		copy(dAtA[i:], dAtA21[:j20])
+		i = encodeVarintArticle(dAtA, i, uint64(j20))
+		i--
+		dAtA[i] = 0x4a
+	}
+	if len(m.Status) > 0 {
+		dAtA23 := make([]byte, len(m.Status)*10)
+		var j22 int
+		for _, num1 := range m.Status {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA23[j22] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j22++
+			}
+			dAtA23[j22] = uint8(num)
+			j22++
+		}
+		i -= j22
+		copy(dAtA[i:], dAtA23[:j22])
+		i = encodeVarintArticle(dAtA, i, uint64(j22))
+		i--
+		dAtA[i] = 0x42
+	}
+	if len(m.IsRecommend) > 0 {
+		for iNdEx := len(m.IsRecommend) - 1; iNdEx >= 0; iNdEx-- {
+			i--
+			if m.IsRecommend[iNdEx] {
+				dAtA[i] = 1
+			} else {
+				dAtA[i] = 0
+			}
+		}
+		i = encodeVarintArticle(dAtA, i, uint64(len(m.IsRecommend)))
+		i--
+		dAtA[i] = 0x3a
+	}
+	if len(m.CategoryId) > 0 {
+		dAtA25 := make([]byte, len(m.CategoryId)*10)
+		var j24 int
+		for _, num1 := range m.CategoryId {
+			num := uint64(num1)
+			for num >= 1<<7 {
+				dAtA25[j24] = uint8(uint64(num)&0x7f | 0x80)
+				num >>= 7
+				j24++
+			}
+			dAtA25[j24] = uint8(num)
+			j24++
+		}
+		i -= j24
+		copy(dAtA[i:], dAtA25[:j24])
+		i = encodeVarintArticle(dAtA, i, uint64(j24))
+		i--
+		dAtA[i] = 0x32
+	}
 	if len(m.Order) > 0 {
 		i -= len(m.Order)
 		copy(dAtA[i:], m.Order)
@@ -936,6 +2107,55 @@ func (m *ListArticleReply) MarshalToSizedBuffer(dAtA []byte) (int, error) {
 	return len(dAtA) - i, nil
 }
 
+func (m *SearchArticleReply) Marshal() (dAtA []byte, err error) {
+	size := m.Size()
+	dAtA = make([]byte, size)
+	n, err := m.MarshalToSizedBuffer(dAtA[:size])
+	if err != nil {
+		return nil, err
+	}
+	return dAtA[:n], nil
+}
+
+func (m *SearchArticleReply) MarshalTo(dAtA []byte) (int, error) {
+	size := m.Size()
+	return m.MarshalToSizedBuffer(dAtA[:size])
+}
+
+func (m *SearchArticleReply) MarshalToSizedBuffer(dAtA []byte) (int, error) {
+	i := len(dAtA)
+	_ = i
+	var l int
+	_ = l
+	if len(m.Article) > 0 {
+		for iNdEx := len(m.Article) - 1; iNdEx >= 0; iNdEx-- {
+			{
+				size, err := m.Article[iNdEx].MarshalToSizedBuffer(dAtA[:i])
+				if err != nil {
+					return 0, err
+				}
+				i -= size
+				i = encodeVarintArticle(dAtA, i, uint64(size))
+			}
+			i--
+			dAtA[i] = 0x1a
+		}
+	}
+	if len(m.Spend) > 0 {
+		i -= len(m.Spend)
+		copy(dAtA[i:], m.Spend)
+		i = encodeVarintArticle(dAtA, i, uint64(len(m.Spend)))
+		i--
+		dAtA[i] = 0x12
+	}
+	if m.Total != 0 {
+		i = encodeVarintArticle(dAtA, i, uint64(m.Total))
+		i--
+		dAtA[i] = 0x8
+	}
+	return len(dAtA) - i, nil
+}
+
 func encodeVarintArticle(dAtA []byte, offset int, v uint64) int {
 	offset -= sovArticle(v)
 	base := offset
@@ -991,6 +2211,44 @@ func (m *Article) Size() (n int) {
 		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.UpdatedAt)
 		n += 1 + l + sovArticle(uint64(l))
 	}
+	if m.DeletedAt != nil {
+		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.DeletedAt)
+		n += 1 + l + sovArticle(uint64(l))
+	}
+	if len(m.CategoryId) > 0 {
+		l = 0
+		for _, e := range m.CategoryId {
+			l += sovArticle(uint64(e))
+		}
+		n += 1 + sovArticle(uint64(l)) + l
+	}
+	if m.FavoriteCount != 0 {
+		n += 1 + sovArticle(uint64(m.FavoriteCount))
+	}
+	if m.CommentCount != 0 {
+		n += 1 + sovArticle(uint64(m.CommentCount))
+	}
+	if m.RecommendAt != nil {
+		l = github_com_gogo_protobuf_types.SizeOfStdTime(*m.RecommendAt)
+		n += 1 + l + sovArticle(uint64(l))
+	}
+	if m.IsRecommend {
+		n += 3
+	}
+	if m.UserId != 0 {
+		n += 2 + sovArticle(uint64(m.UserId))
+	}
+	if m.User != nil {
+		l = m.User.Size()
+		n += 2 + l + sovArticle(uint64(l))
+	}
+	if m.Status != 0 {
+		n += 2 + sovArticle(uint64(m.Status))
+	}
+	l = len(m.RejectReason)
+	if l > 0 {
+		n += 2 + l + sovArticle(uint64(l))
+	}
 	return n
 }
 
@@ -1006,6 +2264,87 @@ func (m *DeleteArticleRequest) Size() (n int) {
 			l += sovArticle(uint64(e))
 		}
 		n += 1 + sovArticle(uint64(l)) + l
+	}
+	return n
+}
+
+func (m *RestoreArticleRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.Id) > 0 {
+		l = 0
+		for _, e := range m.Id {
+			l += sovArticle(uint64(e))
+		}
+		n += 1 + sovArticle(uint64(l)) + l
+	}
+	return n
+}
+
+func (m *SetArticlesCategoryRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.ArticleId) > 0 {
+		l = 0
+		for _, e := range m.ArticleId {
+			l += sovArticle(uint64(e))
+		}
+		n += 1 + sovArticle(uint64(l)) + l
+	}
+	if len(m.CategoryId) > 0 {
+		l = 0
+		for _, e := range m.CategoryId {
+			l += sovArticle(uint64(e))
+		}
+		n += 1 + sovArticle(uint64(l)) + l
+	}
+	return n
+}
+
+func (m *RecommendArticlesRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.ArticleId) > 0 {
+		l = 0
+		for _, e := range m.ArticleId {
+			l += sovArticle(uint64(e))
+		}
+		n += 1 + sovArticle(uint64(l)) + l
+	}
+	if m.IsRecommend {
+		n += 2
+	}
+	return n
+}
+
+func (m *CheckArticlesRequest) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if len(m.ArticleId) > 0 {
+		l = 0
+		for _, e := range m.ArticleId {
+			l += sovArticle(uint64(e))
+		}
+		n += 1 + sovArticle(uint64(l)) + l
+	}
+	if m.Status != 0 {
+		n += 1 + sovArticle(uint64(m.Status))
+	}
+	l = len(m.RejeactReason)
+	if l > 0 {
+		n += 1 + l + sovArticle(uint64(l))
 	}
 	return n
 }
@@ -1052,6 +2391,40 @@ func (m *ListArticleRequest) Size() (n int) {
 	if l > 0 {
 		n += 1 + l + sovArticle(uint64(l))
 	}
+	if len(m.CategoryId) > 0 {
+		l = 0
+		for _, e := range m.CategoryId {
+			l += sovArticle(uint64(e))
+		}
+		n += 1 + sovArticle(uint64(l)) + l
+	}
+	if len(m.IsRecommend) > 0 {
+		n += 1 + sovArticle(uint64(len(m.IsRecommend))) + len(m.IsRecommend)*1
+	}
+	if len(m.Status) > 0 {
+		l = 0
+		for _, e := range m.Status {
+			l += sovArticle(uint64(e))
+		}
+		n += 1 + sovArticle(uint64(l)) + l
+	}
+	if len(m.UserId) > 0 {
+		l = 0
+		for _, e := range m.UserId {
+			l += sovArticle(uint64(e))
+		}
+		n += 1 + sovArticle(uint64(l)) + l
+	}
+	if len(m.CreatedAt) > 0 {
+		for _, s := range m.CreatedAt {
+			l = len(s)
+			n += 1 + l + sovArticle(uint64(l))
+		}
+	}
+	l = len(m.Sort)
+	if l > 0 {
+		n += 1 + l + sovArticle(uint64(l))
+	}
 	return n
 }
 
@@ -1063,6 +2436,28 @@ func (m *ListArticleReply) Size() (n int) {
 	_ = l
 	if m.Total != 0 {
 		n += 1 + sovArticle(uint64(m.Total))
+	}
+	if len(m.Article) > 0 {
+		for _, e := range m.Article {
+			l = e.Size()
+			n += 1 + l + sovArticle(uint64(l))
+		}
+	}
+	return n
+}
+
+func (m *SearchArticleReply) Size() (n int) {
+	if m == nil {
+		return 0
+	}
+	var l int
+	_ = l
+	if m.Total != 0 {
+		n += 1 + sovArticle(uint64(m.Total))
+	}
+	l = len(m.Spend)
+	if l > 0 {
+		n += 1 + l + sovArticle(uint64(l))
 	}
 	if len(m.Article) > 0 {
 		for _, e := range m.Article {
@@ -1410,6 +2805,318 @@ func (m *Article) Unmarshal(dAtA []byte) error {
 				return err
 			}
 			iNdEx = postIndex
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field DeletedAt", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthArticle
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.DeletedAt == nil {
+				m.DeletedAt = new(time.Time)
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(m.DeletedAt, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 12:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.CategoryId = append(m.CategoryId, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthArticle
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthArticle
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.CategoryId) == 0 {
+					m.CategoryId = make([]int64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowArticle
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.CategoryId = append(m.CategoryId, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field CategoryId", wireType)
+			}
+		case 13:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field FavoriteCount", wireType)
+			}
+			m.FavoriteCount = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.FavoriteCount |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 14:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CommentCount", wireType)
+			}
+			m.CommentCount = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.CommentCount |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 15:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RecommendAt", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthArticle
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.RecommendAt == nil {
+				m.RecommendAt = new(time.Time)
+			}
+			if err := github_com_gogo_protobuf_types.StdTimeUnmarshal(m.RecommendAt, dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 16:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IsRecommend", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.IsRecommend = bool(v != 0)
+		case 17:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field UserId", wireType)
+			}
+			m.UserId = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.UserId |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 18:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field User", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthArticle
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			if m.User == nil {
+				m.User = &User{}
+			}
+			if err := m.User.Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		case 19:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+			}
+			m.Status = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Status |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 20:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RejectReason", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthArticle
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RejectReason = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipArticle(dAtA[iNdEx:])
@@ -1536,6 +3243,657 @@ func (m *DeleteArticleRequest) Unmarshal(dAtA []byte) error {
 			} else {
 				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
 			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipArticle(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RestoreArticleRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowArticle
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RestoreArticleRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RestoreArticleRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Id = append(m.Id, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthArticle
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthArticle
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.Id) == 0 {
+					m.Id = make([]int64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowArticle
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Id = append(m.Id, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Id", wireType)
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipArticle(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SetArticlesCategoryRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowArticle
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SetArticlesCategoryRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SetArticlesCategoryRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.ArticleId = append(m.ArticleId, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthArticle
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthArticle
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.ArticleId) == 0 {
+					m.ArticleId = make([]int64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowArticle
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.ArticleId = append(m.ArticleId, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field ArticleId", wireType)
+			}
+		case 2:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.CategoryId = append(m.CategoryId, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthArticle
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthArticle
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.CategoryId) == 0 {
+					m.CategoryId = make([]int64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowArticle
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.CategoryId = append(m.CategoryId, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field CategoryId", wireType)
+			}
+		default:
+			iNdEx = preIndex
+			skippy, err := skipArticle(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *RecommendArticlesRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowArticle
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: RecommendArticlesRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: RecommendArticlesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.ArticleId = append(m.ArticleId, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthArticle
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthArticle
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.ArticleId) == 0 {
+					m.ArticleId = make([]int64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowArticle
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.ArticleId = append(m.ArticleId, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field ArticleId", wireType)
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field IsRecommend", wireType)
+			}
+			var v int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				v |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			m.IsRecommend = bool(v != 0)
+		default:
+			iNdEx = preIndex
+			skippy, err := skipArticle(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *CheckArticlesRequest) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowArticle
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: CheckArticlesRequest: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: CheckArticlesRequest: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.ArticleId = append(m.ArticleId, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthArticle
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthArticle
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.ArticleId) == 0 {
+					m.ArticleId = make([]int64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowArticle
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.ArticleId = append(m.ArticleId, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field ArticleId", wireType)
+			}
+		case 2:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+			}
+			m.Status = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Status |= int32(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 3:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field RejeactReason", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthArticle
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.RejeactReason = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipArticle(dAtA[iNdEx:])
@@ -1821,6 +4179,368 @@ func (m *ListArticleRequest) Unmarshal(dAtA []byte) error {
 			}
 			m.Order = string(dAtA[iNdEx:postIndex])
 			iNdEx = postIndex
+		case 6:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.CategoryId = append(m.CategoryId, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthArticle
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthArticle
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.CategoryId) == 0 {
+					m.CategoryId = make([]int64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowArticle
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.CategoryId = append(m.CategoryId, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field CategoryId", wireType)
+			}
+		case 7:
+			if wireType == 0 {
+				var v int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.IsRecommend = append(m.IsRecommend, bool(v != 0))
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthArticle
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthArticle
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				elementCount = packedLen
+				if elementCount != 0 && len(m.IsRecommend) == 0 {
+					m.IsRecommend = make([]bool, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowArticle
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.IsRecommend = append(m.IsRecommend, bool(v != 0))
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field IsRecommend", wireType)
+			}
+		case 8:
+			if wireType == 0 {
+				var v int32
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int32(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.Status = append(m.Status, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthArticle
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthArticle
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.Status) == 0 {
+					m.Status = make([]int32, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int32
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowArticle
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int32(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.Status = append(m.Status, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field Status", wireType)
+			}
+		case 9:
+			if wireType == 0 {
+				var v int64
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					v |= int64(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				m.UserId = append(m.UserId, v)
+			} else if wireType == 2 {
+				var packedLen int
+				for shift := uint(0); ; shift += 7 {
+					if shift >= 64 {
+						return ErrIntOverflowArticle
+					}
+					if iNdEx >= l {
+						return io.ErrUnexpectedEOF
+					}
+					b := dAtA[iNdEx]
+					iNdEx++
+					packedLen |= int(b&0x7F) << shift
+					if b < 0x80 {
+						break
+					}
+				}
+				if packedLen < 0 {
+					return ErrInvalidLengthArticle
+				}
+				postIndex := iNdEx + packedLen
+				if postIndex < 0 {
+					return ErrInvalidLengthArticle
+				}
+				if postIndex > l {
+					return io.ErrUnexpectedEOF
+				}
+				var elementCount int
+				var count int
+				for _, integer := range dAtA[iNdEx:postIndex] {
+					if integer < 128 {
+						count++
+					}
+				}
+				elementCount = count
+				if elementCount != 0 && len(m.UserId) == 0 {
+					m.UserId = make([]int64, 0, elementCount)
+				}
+				for iNdEx < postIndex {
+					var v int64
+					for shift := uint(0); ; shift += 7 {
+						if shift >= 64 {
+							return ErrIntOverflowArticle
+						}
+						if iNdEx >= l {
+							return io.ErrUnexpectedEOF
+						}
+						b := dAtA[iNdEx]
+						iNdEx++
+						v |= int64(b&0x7F) << shift
+						if b < 0x80 {
+							break
+						}
+					}
+					m.UserId = append(m.UserId, v)
+				}
+			} else {
+				return fmt.Errorf("proto: wrong wireType = %d for field UserId", wireType)
+			}
+		case 10:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field CreatedAt", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthArticle
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.CreatedAt = append(m.CreatedAt, string(dAtA[iNdEx:postIndex]))
+			iNdEx = postIndex
+		case 11:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Sort", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthArticle
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Sort = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
 		default:
 			iNdEx = preIndex
 			skippy, err := skipArticle(dAtA[iNdEx:])
@@ -1891,6 +4611,141 @@ func (m *ListArticleReply) Unmarshal(dAtA []byte) error {
 				}
 			}
 		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Article", wireType)
+			}
+			var msglen int
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				msglen |= int(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			if msglen < 0 {
+				return ErrInvalidLengthArticle
+			}
+			postIndex := iNdEx + msglen
+			if postIndex < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Article = append(m.Article, &Article{})
+			if err := m.Article[len(m.Article)-1].Unmarshal(dAtA[iNdEx:postIndex]); err != nil {
+				return err
+			}
+			iNdEx = postIndex
+		default:
+			iNdEx = preIndex
+			skippy, err := skipArticle(dAtA[iNdEx:])
+			if err != nil {
+				return err
+			}
+			if (skippy < 0) || (iNdEx+skippy) < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if (iNdEx + skippy) > l {
+				return io.ErrUnexpectedEOF
+			}
+			iNdEx += skippy
+		}
+	}
+
+	if iNdEx > l {
+		return io.ErrUnexpectedEOF
+	}
+	return nil
+}
+func (m *SearchArticleReply) Unmarshal(dAtA []byte) error {
+	l := len(dAtA)
+	iNdEx := 0
+	for iNdEx < l {
+		preIndex := iNdEx
+		var wire uint64
+		for shift := uint(0); ; shift += 7 {
+			if shift >= 64 {
+				return ErrIntOverflowArticle
+			}
+			if iNdEx >= l {
+				return io.ErrUnexpectedEOF
+			}
+			b := dAtA[iNdEx]
+			iNdEx++
+			wire |= uint64(b&0x7F) << shift
+			if b < 0x80 {
+				break
+			}
+		}
+		fieldNum := int32(wire >> 3)
+		wireType := int(wire & 0x7)
+		if wireType == 4 {
+			return fmt.Errorf("proto: SearchArticleReply: wiretype end group for non-group")
+		}
+		if fieldNum <= 0 {
+			return fmt.Errorf("proto: SearchArticleReply: illegal tag %d (wire type %d)", fieldNum, wire)
+		}
+		switch fieldNum {
+		case 1:
+			if wireType != 0 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Total", wireType)
+			}
+			m.Total = 0
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				m.Total |= int64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+		case 2:
+			if wireType != 2 {
+				return fmt.Errorf("proto: wrong wireType = %d for field Spend", wireType)
+			}
+			var stringLen uint64
+			for shift := uint(0); ; shift += 7 {
+				if shift >= 64 {
+					return ErrIntOverflowArticle
+				}
+				if iNdEx >= l {
+					return io.ErrUnexpectedEOF
+				}
+				b := dAtA[iNdEx]
+				iNdEx++
+				stringLen |= uint64(b&0x7F) << shift
+				if b < 0x80 {
+					break
+				}
+			}
+			intStringLen := int(stringLen)
+			if intStringLen < 0 {
+				return ErrInvalidLengthArticle
+			}
+			postIndex := iNdEx + intStringLen
+			if postIndex < 0 {
+				return ErrInvalidLengthArticle
+			}
+			if postIndex > l {
+				return io.ErrUnexpectedEOF
+			}
+			m.Spend = string(dAtA[iNdEx:postIndex])
+			iNdEx = postIndex
+		case 3:
 			if wireType != 2 {
 				return fmt.Errorf("proto: wrong wireType = %d for field Article", wireType)
 			}

@@ -48,12 +48,12 @@ func (s *DocumentAPIService) checkLogin(ctx context.Context) (userClaims *auth.U
 // 2. 相同hash的文档如果已经被转换了，则该文档的状态直接改为已转换
 // 3. 判断附件ID是否与用户ID匹配，不匹配则跳过该文档
 func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateDocumentRequest) (*emptypb.Empty, error) {
-	userCliams, err := s.checkLogin(ctx)
+	userClaims, err := s.checkLogin(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	if !s.dbModel.CanIAccessUploadDocument(userCliams.UserId) {
+	if !s.dbModel.CanIAccessUploadDocument(userClaims.UserId) {
 		return nil, status.Error(codes.PermissionDenied, "没有权限上传文档")
 	}
 
@@ -68,7 +68,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 
 	attachments, _, _ := s.dbModel.GetAttachmentList(&model.OptionGetAttachmentList{
 		Ids:     attachmentIds,
-		QueryIn: map[string][]interface{}{"user_id": {userCliams.UserId}},
+		QueryIn: map[string][]interface{}{"user_id": {userClaims.UserId}},
 	})
 	if len(attachments) == 0 {
 		return nil, status.Error(codes.InvalidArgument, "文档文件参数attachment_id不正确")
@@ -83,7 +83,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 		docMapAttachment = make(map[int]int64)
 	)
 
-	documentStatus := s.dbModel.GetDefaultDocumentStatus(userCliams.UserId)
+	documentStatus := s.dbModel.GetDefaultDocumentStatus(userClaims.UserId)
 	for idx, doc := range req.Document {
 		attachment, ok := attachmentMap[doc.AttachmentId]
 		if !ok {
@@ -93,7 +93,7 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 		doc := model.Document{
 			Title:    doc.Title,
 			Keywords: strings.Join(jieba.SegWords(doc.Title), ","),
-			UserId:   userCliams.UserId,
+			UserId:   userClaims.UserId,
 			UUID:     util.GenDocumentMD5UUID(),
 			Score:    300,
 			Price:    int(doc.Price),
@@ -611,6 +611,7 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 		QueryIn: map[string][]interface{}{
 			"enable":    {true},
 			"parent_id": {0},
+			"type":      {model.CategoryTypeDocument}, // 仅限文档分类
 		},
 	})
 
@@ -623,7 +624,7 @@ func (s *DocumentAPIService) ListDocumentForHome(ctx context.Context, req *pb.Li
 		limit = int(req.Limit)
 	}
 
-	defaultFields := []string{"id", "title", "ext", "uuid"}
+	defaultFields := []string{"id", "title", "ext", "uuid", "pages"}
 	if len(req.Field) > 0 {
 		defaultFields = append(defaultFields, req.Field...)
 	}
@@ -906,6 +907,54 @@ func (s *DocumentAPIService) GetRelatedDocuments(ctx context.Context, req *pb.Do
 	docs, _ := s.dbModel.GetRelatedDocuments(req.Id)
 	res = &pb.ListDocumentReply{}
 	util.CopyStruct(&docs, &res.Document)
+
+	if len(res.Document) == 0 {
+		return
+	}
+
+	var (
+		userIds       []interface{}
+		docIds        []interface{}
+		userIdMapDocs = make(map[int64][]int)
+		docIdMapIndex = make(map[int64]int)
+	)
+	for idx, doc := range res.Document {
+		userIds = append(userIds, doc.UserId)
+		docIds = append(docIds, doc.Id)
+		userIdMapDocs[doc.UserId] = append(userIdMapDocs[doc.UserId], idx)
+		docIdMapIndex[doc.Id] = idx
+	}
+
+	docUsers, _, _ := s.dbModel.GetUserList(&model.OptionGetUserList{
+		WithCount:    false,
+		SelectFields: []string{"id", "username"},
+		QueryIn:      map[string][]interface{}{"id": userIds},
+	})
+
+	for _, docUser := range docUsers {
+		indexes := userIdMapDocs[docUser.Id]
+		for _, index := range indexes {
+			res.Document[index].Username = docUser.Username
+		}
+	}
+
+	// 查找文档相关联的附件。对于列表，只返回hash和id，不返回其他字段
+	attachments, _, _ := s.dbModel.GetAttachmentList(&model.OptionGetAttachmentList{
+		WithCount:    false,
+		SelectFields: []string{"hash", "id", "type_id"},
+		QueryIn: map[string][]interface{}{
+			"type_id": docIds,
+			"type":    {model.AttachmentTypeDocument},
+		},
+	})
+
+	for _, attachment := range attachments {
+		index := docIdMapIndex[attachment.TypeId]
+		res.Document[index].Attachment = &pb.Attachment{
+			Hash: attachment.Hash,
+		}
+	}
+
 	return res, nil
 }
 

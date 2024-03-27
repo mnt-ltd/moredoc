@@ -120,6 +120,7 @@ func (m *DBModel) UpdateDocument(document *Document, categoryId []int64, updateF
 			CategoryId: cateId,
 		})
 	}
+
 	if len(newDocCategories) > 0 {
 		m.logger.Debug("newDocCategories", zap.Any("newDocCategories", newDocCategories))
 		err = sess.Create(&newDocCategories).Error
@@ -222,7 +223,7 @@ func (m *DBModel) GetDocumentList(opt *OptionGetDocumentList) (documentList []Do
 	db = m.generateQueryLike(db, tableDocument, opt.QueryLike)
 	db = m.generateQueryRange(db, tableDocument, opt.QueryRange)
 	if len(opt.Ids) > 0 {
-		db = db.Where("id in (?)", opt.Ids)
+		db = db.Where("d.id in (?)", opt.Ids)
 	}
 
 	if categoryIds, ok := opt.QueryIn["category_id"]; ok && len(categoryIds) > 0 {
@@ -875,7 +876,6 @@ func (m *DBModel) GetDefaultDocumentStatus(userId int64) (status int) {
 
 	var group Group
 
-	// 查询用户组。只要用户组中有一个允许评论，就允许评论，以及用户组，有一个评论不需要审核，就不需要审核
 	m.db.Select("g.id", "min(g.enable_document_review) as enable_document_review").Table(Group{}.TableName()+" g").Joins(
 		"left join "+UserGroup{}.TableName()+" ug on g.id=ug.group_id",
 	).Where("ug.user_id = ?", userId).Find(&group)

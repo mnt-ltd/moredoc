@@ -29,6 +29,7 @@ message Category {
   string icon = 10;                   // 分类图标
   string description = 11;            // 分类描述
   bool show_description = 12; // 是否在分类筛选文档列表处显示分类描述
+  int32 type = 13;            // 分类类型
 }
 
 // 分类列表请求
@@ -39,6 +40,7 @@ message ListCategoryRequest {
   string wd = 4;                // 搜索关键字
   repeated bool enable = 5;     // 是否启用
   repeated string field = 6;    // 查询字段
+  repeated int32 type = 7;      // 分类类型
 }
 
 // 分类列表响应

@@ -14,6 +14,7 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/PuerkitoBio/goquery"
 	"github.com/alexandrevicenzi/unchained"
 	"github.com/disintegration/imaging"
 	"github.com/gofrs/uuid"
@@ -266,4 +267,12 @@ func GenDocumentMD5UUID() string {
 	h := md5.New()
 	h.Write([]byte(uuid.Must(uuid.NewV1()).String() + unchained.GetRandomString(6)))
 	return fmt.Sprintf("%x", h.Sum(nil))[8:24]
+}
+
+func GetTextFromHTML(html string) (text string) {
+	doc, _ := goquery.NewDocumentFromReader(strings.NewReader(html))
+	if doc != nil {
+		text = doc.Text()
+	}
+	return
 }
