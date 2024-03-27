@@ -11,6 +11,7 @@ import (
 	"moredoc/middleware/auth"
 	"moredoc/model"
 	"moredoc/util"
+	"moredoc/util/segword/jieba"
 
 	"github.com/araddon/dateparse"
 	"go.uber.org/zap"
@@ -44,12 +45,13 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 	if userClaims == nil { // 未登录
 		return nil, err
 	}
+
 	isAdmin := err == nil // err为nil表示管理员，否则为普通用户
-	if isAdmin || !s.dbModel.CanIAccessPublishArticle(userClaims.UserId) {
+	if !(isAdmin || s.dbModel.CanIAccessPublishArticle(userClaims.UserId)) {
 		return nil, status.Errorf(codes.PermissionDenied, "您没有权限发布文章")
 	}
 
-	if !isAdmin && req.Identifier != "" { // 只有管理员才可以指定uuid
+	if !isAdmin && req.Identifier != "" { // 只有管理员才可以设置uuid
 		req.Identifier = ""
 	}
 
@@ -83,7 +85,7 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 	}
 
 	s.logger.Debug("CreateArticle", zap.Any("article", article))
-
+	s.fixKeywordsAndDescription(article)
 	err = s.dbModel.CreateArticle(article)
 	if err != nil {
 		s.logger.Error("CreateArticle", zap.Error(err))
@@ -142,6 +144,7 @@ func (s *ArticleAPIService) UpdateArticle(ctx context.Context, req *pb.Article) 
 		}
 	}
 
+	s.fixKeywordsAndDescription(article)
 	err = s.dbModel.UpdateArticle(article)
 	if err != nil {
 		s.logger.Error("UpdateArticle", zap.Error(err))
@@ -268,6 +271,10 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 
 	if len(req.CategoryId) > 0 {
 		opt.QueryIn["category_id"] = util.Slice2Interface(req.CategoryId)
+	}
+
+	if len(req.UserId) > 0 {
+		opt.QueryIn["user_id"] = util.Slice2Interface(req.UserId)
 	}
 
 	articles, total, err := s.dbModel.GetArticleList(opt)
@@ -572,4 +579,15 @@ func (s *ArticleAPIService) SearchArticle(ctx context.Context, req *pb.ListArtic
 		})
 	}
 	return res, nil
+}
+
+func (s *ArticleAPIService) fixKeywordsAndDescription(article *model.Article) {
+	if strings.TrimSpace(article.Description) == "" {
+		text := strings.TrimSpace(util.GetTextFromHTML(article.Content))
+		article.Description = util.Substr(text, 200)
+	}
+
+	if strings.TrimSpace(article.Keywords) == "" {
+		article.Keywords = strings.Join(jieba.SegWords(article.Title), ", ")
+	}
 }

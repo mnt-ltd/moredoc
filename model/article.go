@@ -136,6 +136,13 @@ func (m *DBModel) CreateArticle(article *Article) (err error) {
 		}
 	}
 
+	// 作者文章数+1
+	err = tx.Model(&User{}).Where("id = ?", article.UserId).Update("article_count", gorm.Expr("article_count + 1")).Error
+	if err != nil {
+		m.logger.Error("CreateArticle", zap.Error(err))
+		return
+	}
+
 	m.checkArticleFile(article)
 	return
 }
