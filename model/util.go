@@ -176,7 +176,6 @@ func (m *DBModel) cronUpdateSitemap() {
 	lastUpdated := time.Now().Format(layout)
 	for {
 		hour, _ := strconv.Atoi(os.Getenv("MOREDOC_UPDATE_SITEMAP_HOUR")) // 默认为每天凌晨0点更新站点地图
-		hour = hour % 24
 		m.logger.Debug("cronUpdateSitemap", zap.Int("hour", hour), zap.String("lastUpdated", lastUpdated))
 		now := time.Now()
 		if now.Hour() == hour && now.Format(layout) != lastUpdated {
