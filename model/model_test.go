@@ -36,7 +36,7 @@ func getLangs() (langs []Language) {
 func TestGenData(t *testing.T) {
 	// 访问的数据库链接地址。 dsn: data source name
 	// 【注意】：以哪个数据库的【菜单】和【API】为准，则配置查询哪个数据库，以生成menu和api基础数据
-	dsn := "root:root@tcp(127.0.0.1)/moredoc?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:@tcp(127.0.0.1)/moredoc?charset=utf8mb4&parseTime=True&loc=Local"
 	t.Log("开始生成 data.go 文件")
 	t.Log("dsn:", dsn)
 

@@ -47,10 +47,10 @@ func getPermissions() (permissions []Permission) {
 		{Title: "恢复回收站文档", Description: "", Method: "GRPC", Path: "/api.v1.RecycleAPI/RecoverRecycleDocument"},
 		{Title: "清空回收站文档", Description: "", Method: "GRPC", Path: "/api.v1.RecycleAPI/ClearRecycleDocument"},
 		{Title: "删除回收站文档", Description: "", Method: "GRPC", Path: "/api.v1.RecycleAPI/DeleteRecycleDocument"},
-		{Title: "文章/单页管理", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/ListArticle"},
+		{Title: "查询文章列表", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/ListArticle"},
 		{Title: "更新文章/单页", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/UpdateArticle"},
-		{Title: "删除文章/单页", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/DeleteArticle"},
-		{Title: "创建文章/单页", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/CreateArticle"},
+		{Title: "删除文章", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/DeleteArticle"},
+		{Title: "后台创建文章", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/CreateArticle"},
 		{Title: "上传文章图片和音视频", Description: "", Method: "POST", Path: "/api/v1/upload/article"},
 		{Title: "上传文档分类封面", Description: "", Method: "POST", Path: "/api/v1/upload/category"},
 		{Title: "上传配置图片文件", Description: "", Method: "POST", Path: "/api/v1/upload/config"},
@@ -92,6 +92,14 @@ func getPermissions() (permissions []Permission) {
 		{Title: "更新语言", Description: "", Method: "GRPC", Path: "/api.v1.LanguageAPI/UpdateLanguage"},
 		{Title: "批量设置文档语言", Description: "", Method: "GRPC", Path: "/api.v1.DocumentAPI/SetDocumentsLanguage"},
 		{Title: "查看服务器硬件信息", Description: "", Method: "GRPC", Path: "/api.v1.ConfigAPI/GetDeviceInfo"},
+		{Title: "查询回收站文章列表", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/ListRecycleArticle"},
+		{Title: "文章批量分类", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/SetArticlesCategory"},
+		{Title: "从回收站恢复文章", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/RestoreRecycleArticle"},
+		{Title: "删除回收站文章", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/DeleteRecycleArticle"},
+		{Title: "清空回收站文章", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/EmptyRecycleArticle"},
+		{Title: "推荐文章", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/RecommendArticles"},
+		{Title: "批量审批文章", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/CheckArticles"},
+		{Title: "查阅所有状态文章", Description: "", Method: "GRPC", Path: "/api.v1.ArticleAPI/GetArticle"},
 	}
 	return
 }

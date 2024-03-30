@@ -1,6 +1,7 @@
 package jieba
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,7 +26,7 @@ var (
 func init() {
 	err := loadDictionary()
 	if err != nil {
-		panic(err)
+		fmt.Println("load dictionary failed:", err)
 	}
 }
 
