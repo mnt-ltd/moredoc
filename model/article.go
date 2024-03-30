@@ -21,7 +21,7 @@ const (
 type Article struct {
 	Id            int64          `form:"id" json:"id,omitempty" gorm:"primaryKey;autoIncrement;column:id;comment:;"`
 	Identifier    string         `form:"identifier" json:"identifier,omitempty" gorm:"column:identifier;type:varchar(64);size:64;index:identifier,unique;comment:文章标识，唯一;"`
-	UserId        int64          `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint;comment:用户ID;index:user_id"`
+	UserId        int64          `form:"user_id" json:"user_id,omitempty" gorm:"column:user_id;type:bigint;comment:用户ID;default:0;index:user_id"`
 	ViewCount     int            `form:"view_count" json:"view_count,omitempty" gorm:"column:view_count;type:int(11);size:11;default:0;comment:阅读;"`
 	FavoriteCount int            `form:"favorite_count" json:"favorite_count,omitempty" gorm:"column:favorite_count;type:int(11);size:11;default:0;comment:收藏;"`
 	CommentCount  int            `form:"comment_count" json:"comment_count,omitempty" gorm:"column:comment_count;type:int(11);size:11;default:0;comment:评论;"`
@@ -48,31 +48,37 @@ func (m *DBModel) initArticle() (err error) {
 			Identifier: "about",
 			Title:      "关于我们",
 			Content:    "请输入【关于我们】的内容",
+			UserId:     1,
 		},
 		{
 			Identifier: "agreement",
 			Title:      "文库协议",
 			Content:    "请输入【文库协议】的内容",
+			UserId:     1,
 		},
 		{
 			Identifier: "contact",
 			Title:      "联系我们",
 			Content:    "请输入【联系我们】的内容",
+			UserId:     1,
 		},
 		{
 			Identifier: "feedback",
 			Title:      "意见反馈",
 			Content:    "请输入【意见反馈】的内容",
+			UserId:     1,
 		},
 		{
 			Identifier: "copyright",
 			Title:      "免责声明",
 			Content:    "请输入【免责声明】的内容",
+			UserId:     1,
 		},
 		{
 			Identifier: "help",
 			Title:      "使用帮助",
 			Content:    "请输入【使用帮助】的内容",
+			UserId:     1,
 		},
 	}
 	for _, article := range articles {
@@ -85,6 +91,20 @@ func (m *DBModel) initArticle() (err error) {
 			}
 		}
 	}
+
+	// 更新未被删除的文章作者
+	rowsAffected := m.db.Where("user_id = ?", 0).Model(&Article{}).Update("user_id", 1).RowsAffected
+	if rowsAffected > 0 {
+		m.logger.Info("initArticle", zap.Int64("rowsAffected", rowsAffected))
+		// 更新作者文章数
+		err = m.db.Model(&User{}).Where("id = 1").Update("article_count", gorm.Expr("article_count + ?", rowsAffected)).Error
+		if err != nil {
+			m.logger.Error("initArticle", zap.Error(err))
+			return
+		}
+	}
+	// 更新已被删除文章的作者
+	m.db.Where("user_id = ?", 0).Unscoped().Model(&Article{}).Update("user_id", 1)
 	return
 }
 
