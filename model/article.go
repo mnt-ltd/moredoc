@@ -49,36 +49,42 @@ func (m *DBModel) initArticle() (err error) {
 			Title:      "关于我们",
 			Content:    "请输入【关于我们】的内容",
 			UserId:     1,
+			Status:     ArticleStatusPass,
 		},
 		{
 			Identifier: "agreement",
 			Title:      "文库协议",
 			Content:    "请输入【文库协议】的内容",
 			UserId:     1,
+			Status:     ArticleStatusPass,
 		},
 		{
 			Identifier: "contact",
 			Title:      "联系我们",
 			Content:    "请输入【联系我们】的内容",
 			UserId:     1,
+			Status:     ArticleStatusPass,
 		},
 		{
 			Identifier: "feedback",
 			Title:      "意见反馈",
 			Content:    "请输入【意见反馈】的内容",
 			UserId:     1,
+			Status:     ArticleStatusPass,
 		},
 		{
 			Identifier: "copyright",
 			Title:      "免责声明",
 			Content:    "请输入【免责声明】的内容",
 			UserId:     1,
+			Status:     ArticleStatusPass,
 		},
 		{
 			Identifier: "help",
 			Title:      "使用帮助",
 			Content:    "请输入【使用帮助】的内容",
 			UserId:     1,
+			Status:     ArticleStatusPass,
 		},
 	}
 	for _, article := range articles {
@@ -93,7 +99,12 @@ func (m *DBModel) initArticle() (err error) {
 	}
 
 	// 更新未被删除的文章作者
-	rowsAffected := m.db.Where("user_id = ? or user_id is NULL", 0).Model(&Article{}).Update("user_id", 1).RowsAffected
+	rowsAffected := m.db.Where("user_id = ? or user_id is NULL", 0).Model(&Article{}).Updates(
+		map[string]interface{}{
+			"user_id": 1,
+			"status":  ArticleStatusPass,
+		},
+	).RowsAffected
 	if rowsAffected > 0 {
 		m.logger.Info("initArticle", zap.Int64("rowsAffected", rowsAffected))
 		// 更新作者文章数
