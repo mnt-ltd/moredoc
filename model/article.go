@@ -93,7 +93,7 @@ func (m *DBModel) initArticle() (err error) {
 	}
 
 	// 更新未被删除的文章作者
-	rowsAffected := m.db.Where("user_id = ?", 0).Model(&Article{}).Update("user_id", 1).RowsAffected
+	rowsAffected := m.db.Where("user_id = ? or user_id is NULL", 0).Model(&Article{}).Update("user_id", 1).RowsAffected
 	if rowsAffected > 0 {
 		m.logger.Info("initArticle", zap.Int64("rowsAffected", rowsAffected))
 		// 更新作者文章数
@@ -104,7 +104,7 @@ func (m *DBModel) initArticle() (err error) {
 		}
 	}
 	// 更新已被删除文章的作者
-	m.db.Where("user_id = ?", 0).Unscoped().Model(&Article{}).Update("user_id", 1)
+	m.db.Where("user_id = ? or user_id is NULL", 0).Unscoped().Model(&Article{}).Update("user_id", 1)
 	return
 }
 
