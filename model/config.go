@@ -679,7 +679,7 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySystem, Name: ConfigSystemKeywords, Label: "网站关键字", Value: "MOREDOC · 魔豆文库", Placeholder: "请输入您网站的关键字", InputType: InputTypeText, Sort: 30, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemDescription, Label: "网站描述", Value: "MOREDOC · 魔豆文库", Placeholder: "请输入您网站的描述", InputType: InputTypeTextarea, Sort: 40, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemRecommendWords, Label: "首页搜索推荐词", Value: "", Placeholder: "网站首页搜索推荐关键字，多个关键字用英文逗号分隔", InputType: InputTypeText, Sort: 50, Options: ""},
-		{Category: ConfigCategorySystem, Name: ConfigSystemLogo, Label: "网站Logo", Value: "", Placeholder: "请上传一张图片作为网站Logo", InputType: InputTypeImage, Sort: 60, Options: ""},
+		{Category: ConfigCategorySystem, Name: ConfigSystemLogo, Label: "网站Logo", Value: "", Placeholder: "请上传一张图片作为网站Logo(透明背景，以便网站底部logo反色展示)", InputType: InputTypeImage, Sort: 60, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemFavicon, Label: "网站Favicon", Value: "", Placeholder: "请上传一张方方正正的小图片作为网站favicon，建议为 .ico 的图片", InputType: InputTypeImage, Sort: 61, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemRegistrerBackground, Label: "注册页背景图", Value: "", Placeholder: "请上传一张图片作为注册页背景图", InputType: InputTypeImage, Sort: 62, Options: ""},
 		{Category: ConfigCategorySystem, Name: ConfigSystemLoginBackground, Label: "登录页背景图", Value: "", Placeholder: "请上传一张图片作为登录页背景图", InputType: InputTypeImage, Sort: 63, Options: ""},
