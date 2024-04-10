@@ -315,8 +315,19 @@ func (c *Converter) convertPDFToPageByInkscape(src string, fromPage, toPage int,
 
 		_, err = command.ExecCommand(inkscape, args, c.timeout)
 		if err != nil {
+			// 兼容 --pages 参数，替换 --pdf-page 参数
 			c.logger.Error("convert pdf to page", zap.String("cmd", inkscape), zap.Strings("args", args), zap.Error(err))
-			return
+			argsV2 := []string{
+				"-o", pagePath,
+				"--pages", fmt.Sprintf("%d", fromPage+i),
+				"--pdf-poppler",
+			}
+			argsV2 = append(argsV2, src)
+			_, err = command.ExecCommand(inkscape, argsV2, c.timeout)
+			if err != nil {
+				c.logger.Error("convert pdf to page", zap.String("cmd", inkscape), zap.Strings("args", args), zap.Error(err))
+				return
+			}
 		}
 
 		if _, err = os.Stat(pagePath); err != nil {
