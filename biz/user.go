@@ -244,6 +244,7 @@ func (s *UserAPIService) GetUser(ctx context.Context, req *pb.GetUserRequest) (*
 	}
 	pbUser := &pb.User{}
 	util.CopyStruct(&user, pbUser)
+	pbUser.Remark = ""
 	return pbUser, nil
 }
 
@@ -269,9 +270,14 @@ func (s *UserAPIService) SetUser(ctx context.Context, req *pb.SetUserRequest) (*
 // 1. 用户更改自身信息
 // 2. 管理员更改用户信息
 func (s *UserAPIService) UpdateUserProfile(ctx context.Context, req *pb.User) (*emptypb.Empty, error) {
-	userClaims, ok := ctx.Value(auth.CtxKeyUserClaims).(*auth.UserClaims)
-	if !ok || s.dbModel.IsInvalidToken(userClaims.UUID) {
-		return nil, status.Errorf(codes.Unauthenticated, ErrorMessageInvalidToken)
+	userClaims, err := s.checkPermission(ctx)
+	if userClaims == nil {
+		// 未登录
+		return nil, err
+	}
+	isAdmin := err == nil // 管理权限
+	if !isAdmin && userClaims.UserId != req.Id {
+		return nil, status.Errorf(codes.PermissionDenied, "您没有权限更改他人信息")
 	}
 
 	// 允许更改的字段
@@ -280,42 +286,18 @@ func (s *UserAPIService) UpdateUserProfile(ctx context.Context, req *pb.User) (*
 		Mobile: req.Mobile, Email: req.Email, Address: req.Address,
 		Signature: req.Signature, Avatar: req.Avatar,
 		Realname: req.Realname, Identity: req.Identity,
-		// Status: int8(req.Status),
-		Id: req.Id,
+		Id: req.Id, Remark: req.Remark,
 	}
 
-	// 更改用户自己的资料
-	if req.Id <= 0 || req.Id == userClaims.UserId {
-		user.Id = userClaims.UserId
-		// exist, _ := s.dbModel.GetUser(user.Id, "status")
-		// if exist.Status != model.UserStatusNormal {
-		// 	// 非正常的用户状态，禁止修改个人信息，以避免用户修改成非法信息等
-		// 	return nil, status.Errorf(codes.InvalidArgument, "您的用户状态异常，禁止修改个人信息")
-		// }
-
-		if err := s.dbModel.UpdateUser(user, fields...); err != nil {
-			return nil, status.Errorf(codes.Internal, err.Error())
-		}
-		return &emptypb.Empty{}, nil
+	if isAdmin {
+		fields = append(fields, "remark")
+	} else {
+		user.Id = userClaims.UserId // 用户更改自身信息
 	}
 
-	// 管理员更改用户资料，验证是否有权限
-	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
-	if permission, yes := s.dbModel.CheckPermissionByUserId(userClaims.UserId, fullMethod); !yes {
-		item := permission.Title
-		if item == "" {
-			item = permission.Path
-		}
-		return nil, status.Errorf(codes.PermissionDenied, errorMessagePermissionDeniedFormat, item)
-	}
-
-	// 对于管理员，允许该更用户状态
-	fields = append(fields, "status")
-	err := s.dbModel.UpdateUser(user, fields...)
-	if err != nil {
+	if err := s.dbModel.UpdateUser(user, fields...); err != nil {
 		return nil, status.Errorf(codes.Internal, err.Error())
 	}
-
 	return &emptypb.Empty{}, nil
 }
 

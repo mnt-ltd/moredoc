@@ -51,6 +51,7 @@ type User struct {
 	CreatedAt     *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt     *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
 	// Status        int8       `form:"status" json:"status,omitempty" gorm:"column:status;type:tinyint(4);size:4;default:0;index:status;comment:用户状态，0表示正常，其他状态表示被惩罚;"`
+	Remark string `form:"remark" json:"remark,omitempty" gorm:"column:remark;type:varchar(255);size:255;comment:备注;"`
 }
 
 func (User) TableName() string {

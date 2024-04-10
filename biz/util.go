@@ -43,6 +43,9 @@ func checkGinLogin(dbModel *model.DBModel, ctx *gin.Context) (userClaims *auth.U
 }
 
 func checkGRPCPermission(dbModel *model.DBModel, ctx context.Context) (userClaims *auth.UserClaims, err error) {
+	// 检查权限。
+	// 如果userClaims为空，表示未登录(此时err一定不为nil)，否则表示已登录
+	// 如果userClaims不为空(已登录)，err==nil表示是有管理权限，否则表示没有权限
 	userClaims, err = checkGRPCLogin(dbModel, ctx)
 	if err != nil {
 		return
