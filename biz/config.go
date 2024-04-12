@@ -192,10 +192,10 @@ func (s *ConfigAPIService) GetStats(ctx context.Context, req *emptypb.Empty) (re
 	res.UserCount, _ = s.dbModel.CountUser()
 	res.UserCount += s.dbModel.GetConfigOfDisplay(model.ConfigDisplayVirtualRegisterCount).VirtualRegisterCount
 	res.DocumentCount, _ = s.dbModel.CountDocument()
+	res.ArticleCount, _ = s.dbModel.CountArticle()
 	_, errPermission := s.checkPermission(ctx)
 	if errPermission == nil {
 		res.CategoryCount, _ = s.dbModel.CountCategory()
-		res.ArticleCount, _ = s.dbModel.CountArticle()
 		res.CommentCount, _ = s.dbModel.CountComment()
 		res.BannerCount, _ = s.dbModel.CountBanner()
 		res.FriendlinkCount, _ = s.dbModel.CountFriendlink()
