@@ -52,13 +52,14 @@ func NewConverter(logger *zap.Logger, timeout ...time.Duration) *Converter {
 		expire = timeout[0]
 	}
 	defaultCachePath := "cache/convert"
-	os.MkdirAll(defaultCachePath, os.ModePerm)
 	cvt := &Converter{
 		cachePath: defaultCachePath,
 		timeout:   expire,
 		logger:    logger.Named("converter"),
 	}
 	cvt.workspace = cvt.makeWorkspace()
+	os.MkdirAll(defaultCachePath, os.ModePerm)
+	os.MkdirAll(cvt.workspace, os.ModePerm)
 	return cvt
 }
 

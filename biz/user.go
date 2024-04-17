@@ -653,7 +653,7 @@ func (s *UserAPIService) FindPasswordStepOne(ctx context.Context, req *v1.FindPa
 		if req.CaptchaId == "" || req.Captcha == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "请输入验证码")
 		}
-		if !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
+		if !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, false) {
 			return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
 		}
 	}
@@ -814,7 +814,7 @@ func (s *UserAPIService) SendEmailCode(ctx context.Context, req *v1.SendEmailCod
 		if req.CaptchaId == "" || req.Captcha == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "请输入验证码")
 		}
-		if !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, true) {
+		if !captcha.VerifyCaptcha(req.CaptchaId, req.Captcha, false) {
 			return nil, status.Errorf(codes.InvalidArgument, "验证码错误")
 		}
 	}

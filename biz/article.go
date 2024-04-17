@@ -68,7 +68,7 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 	err = util.CopyStruct(req, article)
 	if err != nil {
 		s.logger.Error("CreateArticle", zap.Error(err))
-		return nil, status.Errorf(codes.Internal, "创建文章失败")
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	// 管理员在创建文章的时候，可以直接设置为推荐文章
@@ -89,7 +89,7 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 	err = s.dbModel.CreateArticle(article)
 	if err != nil {
 		s.logger.Error("CreateArticle", zap.Error(err))
-		return nil, status.Errorf(codes.Internal, "创建文章失败")
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	res := &pb.Article{}
@@ -113,7 +113,7 @@ func (s *ArticleAPIService) UpdateArticle(ctx context.Context, req *pb.Article) 
 	err = util.CopyStruct(req, article)
 	if err != nil {
 		s.logger.Error("UpdateArticle", zap.Error(err))
-		return nil, status.Errorf(codes.Internal, "更新文章失败")
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	existArticle, _ := s.dbModel.GetArticle(article.Id)
@@ -148,7 +148,7 @@ func (s *ArticleAPIService) UpdateArticle(ctx context.Context, req *pb.Article) 
 	err = s.dbModel.UpdateArticle(article)
 	if err != nil {
 		s.logger.Error("UpdateArticle", zap.Error(err))
-		return nil, status.Errorf(codes.Internal, "更新文章失败")
+		return nil, status.Errorf(codes.Internal, err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -187,7 +187,7 @@ func (s *ArticleAPIService) DeleteArticle(ctx context.Context, req *pb.DeleteArt
 	err = s.dbModel.DeleteArticle(ids)
 	if err != nil {
 		s.logger.Error("DeleteArticle", zap.Error(err))
-		return nil, status.Errorf(codes.Internal, "删除文章失败")
+		return nil, status.Errorf(codes.Internal, "删除文章失败:"+err.Error())
 	}
 
 	return &emptypb.Empty{}, nil
@@ -211,7 +211,7 @@ func (s *ArticleAPIService) GetArticle(ctx context.Context, req *pb.GetArticleRe
 		article, err = s.dbModel.GetArticleByIdentifier(req.Identifier)
 		if err != nil && err != gorm.ErrRecordNotFound {
 			s.logger.Error("GetArticle", zap.Error(err))
-			return nil, status.Errorf(codes.Internal, "获取文章失败")
+			return nil, status.Errorf(codes.Internal, err.Error())
 		}
 		article.ViewCount += 1
 	}
