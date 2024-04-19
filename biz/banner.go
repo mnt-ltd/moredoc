@@ -28,7 +28,7 @@ func (s *BannerAPIService) checkPermission(ctx context.Context) (*auth.UserClaim
 	return checkGRPCPermission(s.dbModel, ctx)
 }
 
-// CreateBanner 创建横幅
+// CreateBanner 创建轮播图
 func (s *BannerAPIService) CreateBanner(ctx context.Context, req *pb.Banner) (*pb.Banner, error) {
 	_, err := s.checkPermission(ctx)
 	if err != nil {
@@ -47,7 +47,7 @@ func (s *BannerAPIService) CreateBanner(ctx context.Context, req *pb.Banner) (*p
 	return pbBanner, nil
 }
 
-// UpdateBanner 更新横幅
+// UpdateBanner 更新轮播图
 func (s *BannerAPIService) UpdateBanner(ctx context.Context, req *pb.Banner) (*emptypb.Empty, error) {
 	_, err := s.checkPermission(ctx)
 	if err != nil {
@@ -93,7 +93,7 @@ func (s *BannerAPIService) GetBanner(ctx context.Context, req *pb.GetBannerReque
 	return pbBanner, nil
 }
 
-// GetBanners 获取横幅列表
+// GetBanners 获取轮播图列表
 func (s *BannerAPIService) ListBanner(ctx context.Context, req *pb.ListBannerRequest) (*pb.ListBannerReply, error) {
 	var opt = &model.OptionGetBannerList{
 		Page:         int(req.Page),
@@ -109,7 +109,7 @@ func (s *BannerAPIService) ListBanner(ctx context.Context, req *pb.ListBannerReq
 
 	_, errPermission := s.checkPermission(ctx)
 	if errPermission != nil {
-		opt.QueryIn["enable"] = []interface{}{true} // 非权限用户，只能查询正常状态的横幅
+		opt.QueryIn["enable"] = []interface{}{true} // 非权限用户，只能查询正常状态的轮播图
 	} else {
 		opt.SelectFields = req.Field // 权限用户，可查询指定字段
 		if len(req.Enable) > 0 {

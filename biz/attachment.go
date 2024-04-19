@@ -352,7 +352,7 @@ func (s *AttachmentAPIService) UploadArticle(ctx *gin.Context) {
 	}
 }
 
-// UploadBanner 上传横幅，创建横幅的时候，要根据附件id，更新附件的type_id字段
+// UploadBanner 上传轮播图，创建轮播图的时候，要根据附件id，更新附件的type_id字段
 func (s *AttachmentAPIService) UploadBanner(ctx *gin.Context) {
 	s.uploadImage(ctx, model.AttachmentTypeBanner)
 }

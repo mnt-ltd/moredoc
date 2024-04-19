@@ -284,7 +284,7 @@ func (m *DBModel) cronMarkAttachmentDeleted() {
 
 		}
 
-		// 2. 查找横幅类配置
+		// 2. 查找轮播图类配置
 		m.db.Select("path").Find(&banners)
 		if len(banners) > 0 {
 			for _, banner := range banners {
@@ -303,7 +303,7 @@ func (m *DBModel) cronMarkAttachmentDeleted() {
 			}
 		}
 
-		// 非配置类和横幅类附件，如果type_id为0，则表示未被使用，超过24小时则标记删除
+		// 非配置类和轮播图类附件，如果type_id为0，则表示未被使用，超过24小时则标记删除
 		m.logger.Debug("cronMarkAttachmentDeleted start...")
 		err := m.db.Where("`type` not in (?)  and type_id = ?", []int{AttachmentTypeConfig, AttachmentTypeBanner}, 0).Where("created_at < ?", time.Now().Add(-time.Duration(24)*time.Hour)).Delete(&Attachment{}).Error
 		if err != nil {

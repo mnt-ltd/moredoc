@@ -17,7 +17,7 @@ const (
 	AttachmentTypeDocument             // 文档
 	AttachmentTypeArticle              // 文章
 	AttachmentTypeComment              // 评论
-	AttachmentTypeBanner               // 横幅
+	AttachmentTypeBanner               // 轮播图
 	AttachmentTypeCategoryCover        // 分类封面
 	AttachmentTypeConfig               // 配置
 )
@@ -25,7 +25,7 @@ const (
 var attachmentTypeName = map[int]string{
 	AttachmentTypeAvatar:        "头像",
 	AttachmentTypeArticle:       "文章",
-	AttachmentTypeBanner:        "横幅",
+	AttachmentTypeBanner:        "轮播图",
 	AttachmentTypeCategoryCover: "分类封面",
 	AttachmentTypeComment:       "评论",
 	AttachmentTypeDocument:      "文档",

@@ -432,7 +432,7 @@ banner，轮播图
 | path | [string](#string) |  | 图片地址 |
 | sort | [int32](#int32) |  | 排序，值越大越靠前 |
 | enable | [bool](#bool) |  | 是否启用 |
-| type | [int32](#int32) |  | 类型，如PC横幅、小程序横幅等，见 web/utils/enum.js 中的枚举 |
+| type | [int32](#int32) |  | 类型，如PC轮播图、小程序轮播图等，见 web/utils/enum.js 中的枚举 |
 | url | [string](#string) |  | 跳转地址 |
 | description | [string](#string) |  | 描述 |
 | created_at | [google.protobuf.Timestamp](#google-protobuf-Timestamp) |  | 创建时间 |
@@ -446,7 +446,7 @@ banner，轮播图
 <a name="api-v1-DeleteBannerRequest"></a>
 
 ### DeleteBannerRequest
-删除横幅
+删除轮播图
 
 
 | Field | Type | Label | Description |
@@ -461,7 +461,7 @@ banner，轮播图
 <a name="api-v1-GetBannerRequest"></a>
 
 ### GetBannerRequest
-获取横幅
+获取轮播图
 
 
 | Field | Type | Label | Description |
@@ -476,13 +476,13 @@ banner，轮播图
 <a name="api-v1-ListBannerReply"></a>
 
 ### ListBannerReply
-横幅列表
+轮播图列表
 
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
 | total | [int64](#int64) |  | 总数 |
-| banner | [Banner](#api-v1-Banner) | repeated | 横幅数组 |
+| banner | [Banner](#api-v1-Banner) | repeated | 轮播图数组 |
 
 
 
@@ -492,7 +492,7 @@ banner，轮播图
 <a name="api-v1-ListBannerRequest"></a>
 
 ### ListBannerRequest
-横幅列表请求
+轮播图列表请求
 
 
 | Field | Type | Label | Description |
@@ -518,15 +518,15 @@ banner，轮播图
 <a name="api-v1-BannerAPI"></a>
 
 ### BannerAPI
-横幅API服务
+轮播图API服务
 
 | Method Name | Request Type | Response Type | Description |
 | ----------- | ------------ | ------------- | ------------|
-| CreateBanner | [Banner](#api-v1-Banner) | [Banner](#api-v1-Banner) | 创建横幅 |
-| UpdateBanner | [Banner](#api-v1-Banner) | [.google.protobuf.Empty](#google-protobuf-Empty) | 更新横幅 |
-| DeleteBanner | [DeleteBannerRequest](#api-v1-DeleteBannerRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 删除横幅 |
-| GetBanner | [GetBannerRequest](#api-v1-GetBannerRequest) | [Banner](#api-v1-Banner) | 查询横幅 |
-| ListBanner | [ListBannerRequest](#api-v1-ListBannerRequest) | [ListBannerReply](#api-v1-ListBannerReply) | 横幅列表 |
+| CreateBanner | [Banner](#api-v1-Banner) | [Banner](#api-v1-Banner) | 创建轮播图 |
+| UpdateBanner | [Banner](#api-v1-Banner) | [.google.protobuf.Empty](#google-protobuf-Empty) | 更新轮播图 |
+| DeleteBanner | [DeleteBannerRequest](#api-v1-DeleteBannerRequest) | [.google.protobuf.Empty](#google-protobuf-Empty) | 删除轮播图 |
+| GetBanner | [GetBannerRequest](#api-v1-GetBannerRequest) | [Banner](#api-v1-Banner) | 查询轮播图 |
+| ListBanner | [ListBannerRequest](#api-v1-ListBannerRequest) | [ListBannerReply](#api-v1-ListBannerReply) | 轮播图列表 |
 
  
 
