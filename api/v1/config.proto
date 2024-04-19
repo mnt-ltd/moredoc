@@ -85,10 +85,14 @@ message ConfigDisplay {
   bool show_document_descriptions = 5; // 是否显示文档描述
   bool hide_keywords_on_lists = 6; // 是否在文档列表页隐藏右侧关键词
   bool show_document_count = 7;    // 是否显示文档数量
-  bool show_document_view_count = 8;      // 是否显示文档阅读数量
-  bool show_document_download_count = 9;  // 是否显示文档评论数量
-  bool show_document_favorite_count = 10; // 是否显示文档收藏数量
+  bool show_document_view_count = 8;        // 是否显示文档阅读数量
+  bool show_document_download_count = 9;    // 是否显示文档评论数量
+  bool show_document_favorite_count = 10;   // 是否显示文档收藏数量
   bool hide_category_without_document = 11; // 是否隐藏没有文档的分类
+  string wechat_tip = 13;                   // 微信公众号提示文案
+  string wechat_qrcode = 14;                // 微信公众号链接二维码
+  string contact_tip = 15;                  // 联系我们提示文案
+  string contact_link = 16;                 // 联系我们跳转地址
 }
 
 // 安全配置

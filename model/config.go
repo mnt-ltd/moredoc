@@ -406,6 +406,10 @@ const (
 	ConfigDisplayShowDocumentViewCount       = "show_document_view_count"       // 是否显示文档阅读数量
 	ConfigDisplayShowDocumentFavoriteCount   = "show_document_favorite_count"   // 是否显示文档收藏数量
 	ConfigDisplayHideCategoryWithontDocument = "hide_category_without_document" // 是否隐藏没有文档的分类
+	ConfigDisplayWechatQRCode                = "wechat_qrcode"                  // 微信公众号二维码
+	ConfigDisplayWechatTip                   = "wechat_tip"                     // 微信公众号提示
+	ConfigDisplayContactTip                  = "contact_tip"                    // 联系我们提示文案
+	ConfigDisplayContactLink                 = "contact_link"                   // 联系我们跳转地址
 )
 
 type ConfigDisplay struct {
@@ -422,6 +426,10 @@ type ConfigDisplay struct {
 	CopyrightStatement          string `json:"copyright_statement"`            // 在页面最底部的版权声明
 	HideKeywordsOnLists         bool   `json:"hide_keywords_on_lists"`         // 文档列表页是否显示关键字
 	HideCategoryWithoutDocument bool   `json:"hide_category_without_document"` // 是否隐藏没有文档的分类
+	WechatQRCode                string `json:"wechat_qrcode"`                  // 微信公众号二维码
+	WechatTip                   string `json:"wechat_tip"`                     // 微信公众号提示
+	ContactTip                  string `json:"contact_tip"`                    // 联系我们提示文案
+	ContactLink                 string `json:"contact_link"`                   // 联系我们跳转地址
 }
 
 func (m *DBModel) GetConfigOfDisplay(name ...string) (config ConfigDisplay) {
@@ -773,6 +781,10 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayCopyrightStatement, Label: "版权声明", Value: "本站文档数据由用户上传，仅供学习交流，如侵犯您的权益，请联系我们进行删除。", Placeholder: "网站最底部版权声明，支持HTML", InputType: InputTypeTextarea, Sort: 60, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayHideKeywordsOnLists, Label: "隐藏关键字", Value: "false", Placeholder: "文档列表页，是否隐藏右侧关键字", InputType: InputTypeSwitch, Sort: 70, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayHideCategoryWithontDocument, Label: "隐藏无文档分类", Value: "false", Placeholder: "对于分类下没有文档的分类，是否在前台页面进行隐藏", InputType: InputTypeSwitch, Sort: 80, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayWechatTip, Label: "微信/微信公众号提示文案", Value: "我们的公众号同样精彩", Placeholder: "全局右下角【固定栏】微信/微信公众号提示文案", InputType: InputTypeText, Sort: 100, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayWechatQRCode, Label: "微信/微信公众号二维码", Value: "", Placeholder: "全局右下角【固定栏】微信/微信公众号二维码图片。不存在则不显示", InputType: InputTypeImage, Sort: 110, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayContactTip, Label: "联系我们提示文案", Value: "联系我们，反馈您的意见与建议", Placeholder: "全局右下角【固定栏】联系我们的提示文案", InputType: InputTypeText, Sort: 120, Options: ""},
+		{Category: ConfigCategoryDisplay, Name: ConfigDisplayContactLink, Label: "联系我们跳转链接", Value: "", Placeholder: "全局右下角【固定栏】联系我们链接地址。不存在则不显示", InputType: InputTypeText, Sort: 130, Options: ""},
 	}
 
 	for _, cfg := range cfgs {
