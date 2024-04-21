@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"image"
+	"image/color"
 	"io"
 	"os"
 	"os/exec"
@@ -81,16 +82,30 @@ func GetGRPCUserAgent(ctx context.Context) (userAgent string) {
 }
 
 // 图片缩放居中裁剪
-func CropImage(file string, width, height int) (err error) {
+func CropImage(file string, width, height int, adjust ...bool) (err error) {
 	var img image.Image
 	img, err = imaging.Open(file)
 	if err != nil {
 		return
 	}
+
+	if img.Bounds().Max.X == width && img.Bounds().Max.Y == height {
+		return
+	}
+
 	ext := strings.ToLower(filepath.Ext(file))
 	switch ext {
 	case ".jpeg", ".jpg", ".png", ".gif":
-		img = imaging.Fill(img, width, height, imaging.Center, imaging.CatmullRom)
+		if len(adjust) > 0 && adjust[0] { // 按指定宽高裁剪图片，但必须包括图片的所有内容。如果图片尺寸小于指定尺寸，则填充空白
+			img = imaging.Fit(img, width, height, imaging.CatmullRom)
+			if img.Bounds().Max.X < width { // 水平居中
+				img = imaging.Paste(imaging.New(width, height, color.White), img, image.Pt((width-img.Bounds().Max.X)/2, 0))
+			} else if img.Bounds().Max.Y < height { // 垂直居中
+				img = imaging.Paste(imaging.New(width, height, color.White), img, image.Pt(0, (height-img.Bounds().Max.Y)/2))
+			}
+		} else {
+			img = imaging.Fill(img, width, height, imaging.Center, imaging.CatmullRom)
+		}
 	default:
 		err = errors.New("unsupported image format")
 		return

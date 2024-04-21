@@ -703,7 +703,7 @@ func (m *DBModel) ConvertDocument() (err error) {
 		coverBig := baseDir + "/cover.big.png"
 		util.CopyFile(pages[0].PagePath, coverBig)
 		util.CopyFile(pages[0].PagePath, cover)
-		util.CropImage(cover, DocumentCoverWidth, DocumentCoverHeight)
+		util.CropImage(cover, DocumentCoverWidth, DocumentCoverHeight, true)
 		document.Width, document.Height, _ = util.GetImageSize(coverBig) // 页面宽高
 	}
 
