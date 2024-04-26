@@ -209,6 +209,7 @@ func (m *DBModel) RunTasks() {
 	go m.cronMarkAttachmentDeleted()
 	go m.cronCleanInvalidAttachment()
 	go m.createSearchRecordFromQueue()
+	go m.cronCheckLatestVersion()
 }
 
 func (m *DBModel) GetDB() *gorm.DB {

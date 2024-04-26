@@ -209,6 +209,11 @@ func (m *DBModel) IsAdmin(userId int64) bool {
 		return false
 	}
 
+	// ID为1的用户，拥有所有权限，可以理解为类似linux的root用户
+	if userId == 1 {
+		return true
+	}
+
 	var (
 		userGroups []UserGroup
 		groupIds   []int64

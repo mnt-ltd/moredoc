@@ -51,6 +51,10 @@ func (s *ConfigAPIService) UpdateConfig(ctx context.Context, req *pb.Configs) (*
 	doesUpdateSEO := false
 	isEmail := false
 	for idx, cfg := range cfgs {
+		if cfg.Category == model.ConfigCategoryRelease {
+			return nil, status.Error(codes.PermissionDenied, "不允许修改此类配置！")
+		}
+
 		if cfg.Value == "******" {
 			// 6个星号，不修改原值
 			exist, _ := s.dbModel.GetConfigByNameCategory(cfg.Name, cfg.Category)
@@ -407,7 +411,7 @@ func (s *ConfigAPIService) RefreshLatestRelease(ctx context.Context, req *emptyp
 		return nil, status.Error(codes.PermissionDenied, "只有管理员才有权限执行此操作！")
 	}
 
-	err = s.dbModel.UpdateLatestRelease()
+	err = s.dbModel.RefreshLatestRelease()
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}

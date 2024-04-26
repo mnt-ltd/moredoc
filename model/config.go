@@ -706,7 +706,7 @@ func (m *DBModel) SetReleaseSource(source string) (err error) {
 	return
 }
 
-func (m *DBModel) UpdateLatestRelease() (err error) {
+func (m *DBModel) RefreshLatestRelease() (err error) {
 	source := m.GetConfigOfRelease(ConfigReleaseSource).Source
 	var release *util.Release
 	switch source {
