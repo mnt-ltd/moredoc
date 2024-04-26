@@ -371,3 +371,92 @@ func (s *ConfigAPIService) SetSQLMode(ctx context.Context, req *emptypb.Empty) (
 	}
 	return &emptypb.Empty{}, nil
 }
+
+// 获取最近发布版本
+func (s *ConfigAPIService) GetLatestRelease(ctx context.Context, req *emptypb.Empty) (res *pb.Release, err error) {
+	var userClaims *auth.UserClaims
+	userClaims, err = checkGRPCLogin(s.dbModel, ctx)
+	if err != nil {
+		return
+	}
+	if !s.dbModel.IsAdmin(userClaims.UserId) {
+		return nil, status.Error(codes.PermissionDenied, "只有管理员才有权限执行此操作！")
+	}
+
+	latestRelease := s.dbModel.GetConfigOfRelease()
+	res = &pb.Release{
+		TagName:   latestRelease.TagName,
+		Name:      latestRelease.Name,
+		Body:      latestRelease.Body,
+		Source:    latestRelease.Source,
+		Ignore:    latestRelease.Ignore,
+		ReleaseAt: latestRelease.ReleaseAt,
+		Current:   util.Version,
+	}
+	return
+}
+
+// 更新最新发布版本
+func (s *ConfigAPIService) RefreshLatestRelease(ctx context.Context, req *emptypb.Empty) (res *pb.Release, err error) {
+	var userClaims *auth.UserClaims
+	userClaims, err = checkGRPCLogin(s.dbModel, ctx)
+	if err != nil {
+		return
+	}
+	if !s.dbModel.IsAdmin(userClaims.UserId) {
+		return nil, status.Error(codes.PermissionDenied, "只有管理员才有权限执行此操作！")
+	}
+
+	err = s.dbModel.UpdateLatestRelease()
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	latestRelease := s.dbModel.GetConfigOfRelease()
+	res = &pb.Release{
+		TagName:   latestRelease.TagName,
+		Name:      latestRelease.Name,
+		Body:      latestRelease.Body,
+		Source:    latestRelease.Source,
+		Ignore:    latestRelease.Ignore,
+		ReleaseAt: latestRelease.ReleaseAt,
+		Current:   util.Version,
+	}
+	return
+}
+
+// 忽略版本
+func (s *ConfigAPIService) IgnoreRelease(ctx context.Context, req *pb.Release) (res *emptypb.Empty, err error) {
+	var userClaims *auth.UserClaims
+	userClaims, err = checkGRPCLogin(s.dbModel, ctx)
+	if err != nil {
+		return
+	}
+	if !s.dbModel.IsAdmin(userClaims.UserId) {
+		return nil, status.Error(codes.PermissionDenied, "只有管理员才有权限执行此操作！")
+	}
+
+	err = s.dbModel.IgnoreRelease(req.TagName)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
+}
+
+// 设置版本获取源
+func (s *ConfigAPIService) SetReleaseSource(ctx context.Context, req *pb.Release) (res *emptypb.Empty, err error) {
+	var userClaims *auth.UserClaims
+	userClaims, err = checkGRPCLogin(s.dbModel, ctx)
+	if err != nil {
+		return
+	}
+	if !s.dbModel.IsAdmin(userClaims.UserId) {
+		return nil, status.Error(codes.PermissionDenied, "只有管理员才有权限执行此操作！")
+	}
+
+	err = s.dbModel.SetReleaseSource(req.Source)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &emptypb.Empty{}, nil
+}

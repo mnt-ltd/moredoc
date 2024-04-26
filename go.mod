@@ -20,7 +20,7 @@ require (
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
 	go.uber.org/zap v1.27.0
-	golang.org/x/net v0.1.0
+	golang.org/x/net v0.22.0
 	google.golang.org/genproto v0.0.0-20220228195345-15d65a4533f7
 	google.golang.org/grpc v1.44.0
 	google.golang.org/protobuf v1.28.0
@@ -55,6 +55,7 @@ require (
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-playground/validator/v10 v10.10.1
+	github.com/go-resty/resty/v2 v2.12.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gofrs/uuid v4.3.0+incompatible
 	github.com/golang-jwt/jwt v3.2.2+incompatible
@@ -79,9 +80,9 @@ require (
 	github.com/ugorji/go/codec v1.2.7 // indirect
 	github.com/wangbin/jiebago v0.3.2
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3 // indirect
-	golang.org/x/sys v0.17.0 // indirect
-	golang.org/x/text v0.4.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/text v0.14.0 // indirect
 	gopkg.in/ini.v1 v1.66.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	rsc.io/pdf v0.1.1

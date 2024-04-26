@@ -186,6 +186,16 @@ message DeviceInfo {
                               // string architecture = 8; // 架构
 }
 
+message Release {
+  string tag_name = 1;   // 版本号
+  string name = 2;       // 版本名称
+  string body = 3;       // 版本说明
+  string release_at = 4; // 发布时间
+  string ignore = 5;     // 忽略版本
+  string source = 6;     // 更新源
+  string current = 7;    // 当前版本
+}
+
 // 配置服务
 service ConfigAPI {
 
@@ -243,6 +253,36 @@ service ConfigAPI {
   rpc SetSQLMode(google.protobuf.Empty) returns (google.protobuf.Empty) {
     option (google.api.http) = {
       put : "/api/v1/sqlmode"
+    };
+  }
+
+  // 获取最近发布版本
+  rpc GetLatestRelease(google.protobuf.Empty) returns (Release) {
+    option (google.api.http) = {
+      get : "/api/v1/release"
+    };
+  }
+
+  // 更新最新发布版本
+  rpc RefreshLatestRelease(google.protobuf.Empty) returns (Release) {
+    option (google.api.http) = {
+      post : "/api/v1/release",
+    };
+  }
+
+  // 忽略版本，设置ignore字段
+  rpc IgnoreRelease(Release) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/api/v1/release/ignore",
+      body : "*",
+    };
+  }
+
+  // 设置release源，主要是更新 source 字段
+  rpc SetReleaseSource(Release) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      put : "/api/v1/release/source",
+      body : "*",
     };
   }
 }

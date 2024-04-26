@@ -3,6 +3,7 @@ package model
 import (
 	"crypto/tls"
 	"errors"
+	"moredoc/util"
 	"moredoc/util/captcha"
 	"moredoc/util/filetil"
 	"strconv"
@@ -38,6 +39,8 @@ const (
 	ConfigCategoryScore = "score"
 	// 显示配置
 	ConfigCategoryDisplay = "display"
+	// 版本发布信息
+	ConfigCategoryRelease = "release"
 )
 
 const (
@@ -432,6 +435,24 @@ type ConfigDisplay struct {
 	ContactLink                 string `json:"contact_link"`                   // 联系我们跳转地址
 }
 
+const (
+	ConfigReleaseSource    = "source"     // 发布版查询来源，可以是 github、gitee、auto，也可以是空，即不检测发布版本来源
+	ConfigReleaseTagName   = "tag_name"   // 版本号
+	ConfigReleaseName      = "name"       // 发布名称
+	ConfigReleaseBody      = "body"       // 发布说明
+	ConfigReleaseReleaseAt = "release_at" // 发布时间
+	ConfigReleaseIgnore    = "ignore"     // 忽略的版本号
+)
+
+type ConfigRelease struct {
+	TagName   string `json:"tag_name"`
+	Name      string `json:"name"`
+	Body      string `json:"body"`
+	ReleaseAt string `json:"release_at"`
+	Source    string `json:"source"`
+	Ignore    string `json:"ignore"`
+}
+
 func (m *DBModel) GetConfigOfDisplay(name ...string) (config ConfigDisplay) {
 	var configs []Config
 
@@ -448,6 +469,24 @@ func (m *DBModel) GetConfigOfDisplay(name ...string) (config ConfigDisplay) {
 
 	bytes, _ := json.Marshal(data)
 	json.Unmarshal(bytes, &config)
+
+	return
+}
+
+func (m *DBModel) GetConfigOfRelease(name ...string) (release ConfigRelease) {
+	var configs []Config
+	db := m.db.Where("category = ?", ConfigCategoryRelease)
+	if len(name) > 0 {
+		db = db.Where("name in (?)", name)
+	}
+	err := db.Find(&configs).Error
+	if err != nil && err != gorm.ErrRecordNotFound {
+		m.logger.Error("GetConfigOfRelease", zap.Error(err))
+	}
+
+	data := m.convertConfig2Map(configs)
+	bytes, _ := json.Marshal(data)
+	json.Unmarshal(bytes, &release)
 
 	return
 }
@@ -640,6 +679,80 @@ func (m *DBModel) SendMail(subject, email string, body string) error {
 	}
 	return mail.DialAndSend(message)
 }
+
+func (m *DBModel) IgnoreRelease(version string) (err error) {
+	cfg, err := m.GetConfigByNameCategory(ConfigReleaseIgnore, ConfigCategoryRelease)
+	if err != nil {
+		return
+	}
+	cfg.Value = version
+	err = m.db.Save(&cfg).Error
+	if err != nil {
+		m.logger.Error("IgnoreRelease", zap.Error(err))
+	}
+	return
+}
+
+func (m *DBModel) SetReleaseSource(source string) (err error) {
+	cfg, err := m.GetConfigByNameCategory(ConfigReleaseSource, ConfigCategoryRelease)
+	if err != nil {
+		return
+	}
+	cfg.Value = source
+	err = m.db.Save(&cfg).Error
+	if err != nil {
+		m.logger.Error("SetReleaseSource", zap.Error(err))
+	}
+	return
+}
+
+func (m *DBModel) UpdateLatestRelease() (err error) {
+	source := m.GetConfigOfRelease(ConfigReleaseSource).Source
+	var release *util.Release
+	switch source {
+	case "github":
+		release, err = util.GetLatestVersionFromGithub()
+	case "gitee":
+		release, err = util.GetLatestVersionFromGitee()
+	case "auto":
+		release, err = util.GetLatestVersionFromGitee()
+		if err != nil {
+			m.logger.Error("GetLatestVersionFromGitee", zap.Error(err))
+			release, err = util.GetLatestVersionFromGithub()
+		}
+	default:
+		return errors.New("您未指定新版本检测来源，无法获取最新版本更新！")
+	}
+	if err != nil {
+		m.logger.Error("GetLatestVersionFromGithub", zap.Error(err))
+		return err
+	}
+
+	var cfgs []*Config
+	m.db.Where("category = ?", ConfigCategoryRelease).Find(&cfgs)
+	for _, cfg := range cfgs {
+		if cfg.Name == ConfigReleaseTagName {
+			cfg.Value = release.TagName
+		} else if cfg.Name == ConfigReleaseName {
+			cfg.Value = release.Name
+		} else if cfg.Name == ConfigReleaseBody {
+			cfg.Value = release.Body
+		} else if cfg.Name == ConfigReleaseReleaseAt {
+			releaseAt := ""
+			if release.PublishedAt != nil {
+				releaseAt = release.PublishedAt.Local().Format("2006-01-02 15:04:05")
+			} else if release.CreatedAt != nil {
+				releaseAt = release.CreatedAt.Local().Format("2006-01-02 15:04:05")
+			}
+			if releaseAt != "" {
+				cfg.Value = releaseAt
+			}
+		}
+		m.db.Save(cfg)
+	}
+	return
+}
+
 func (m *DBModel) GetCreditName() string {
 	creditName := m.GetConfigOfScore(ConfigScoreCreditName).CreditName
 	if creditName == "" {
@@ -785,6 +898,13 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayWechatQRCode, Label: "微信/微信公众号二维码", Value: "", Placeholder: "全局右下角【固定栏】微信/微信公众号二维码图片。不存在则不显示", InputType: InputTypeImage, Sort: 110, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayContactTip, Label: "联系我们提示文案", Value: "联系我们，反馈您的意见与建议", Placeholder: "全局右下角【固定栏】联系我们的提示文案", InputType: InputTypeText, Sort: 120, Options: ""},
 		{Category: ConfigCategoryDisplay, Name: ConfigDisplayContactLink, Label: "联系我们跳转链接", Value: "", Placeholder: "全局右下角【固定栏】联系我们链接地址。不存在则不显示", InputType: InputTypeText, Sort: 130, Options: ""},
+
+		// 版本配置
+		{Category: ConfigCategoryRelease, Name: ConfigReleaseSource, Label: "版本检测来源", Value: "auto", InputType: InputTypeSelect, Sort: 10, Options: "none:不检测\nauto:自动检测\ngitee:Gitee\ngithub:GitHub"},
+		{Category: ConfigCategoryRelease, Name: ConfigReleaseTagName, Label: "最新版版本号", Value: "", InputType: InputTypeText, Sort: 20, Options: ""},
+		{Category: ConfigCategoryRelease, Name: ConfigReleaseName, Label: "版本发布名称", Value: "", InputType: InputTypeText, Sort: 30, Options: ""},
+		{Category: ConfigCategoryRelease, Name: ConfigReleaseBody, Label: "版本发布说明", Value: "", InputType: InputTypeTextarea, Sort: 40, Options: ""},
+		{Category: ConfigCategoryRelease, Name: ConfigReleaseIgnore, Label: "忽略版本提示", Value: "", InputType: InputTypeText, Sort: 50, Options: ""},
 	}
 
 	for _, cfg := range cfgs {
