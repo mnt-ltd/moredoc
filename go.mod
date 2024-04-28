@@ -15,7 +15,7 @@ require (
 	github.com/json-iterator/go v1.1.12
 	github.com/kardianos/service v1.2.2
 	github.com/mitchellh/go-homedir v1.1.0
-	github.com/mnt-ltd/command v0.0.0-20240306131933-eea2488c4522
+	github.com/mnt-ltd/command v0.0.0-20240428110414-02dd86325b6e
 	github.com/mnt-ltd/daemore v0.0.0-20240227053424-d57afb9f5e67
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1

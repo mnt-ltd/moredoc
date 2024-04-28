@@ -16,6 +16,9 @@ import (
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/gin-gonic/gin"
+	"github.com/go-resty/resty/v2"
+	"github.com/mnt-ltd/command"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -520,5 +523,109 @@ func (m *DBModel) cronCheckLatestVersion() {
 		// 每小时检测一次
 		time.Sleep(1 * time.Hour)
 		m.RefreshLatestRelease()
+	}
+}
+
+// SSR中间件
+func (m *DBModel) SSRMidleware(c *gin.Context) {
+	path := c.Request.URL.Path
+	if c.Request.Method != "GET" ||
+		strings.HasPrefix(path, "/_nuxt/") ||
+		strings.HasPrefix(path, "/static/") ||
+		strings.HasPrefix(path, "/api/") ||
+		strings.HasPrefix(path, "/uploads/") ||
+		strings.HasSuffix(path, ".xml") ||
+		strings.HasPrefix(path, "/favicon.ico") ||
+		strings.HasPrefix(path, "/view/") {
+		c.Next()
+		return
+	}
+
+	cfg := m.GetConfigOfSSRByCache()
+	if !cfg.Enable {
+		c.Next()
+		return
+	}
+
+	addr := strings.TrimRight(cfg.Addr, "/")
+	if addr == "" || strings.Contains(addr, c.Request.Host) { // 防止死循环，服务间不停地来回调用
+		c.Next()
+		return
+	}
+
+	m.logger.Debug("SSRMidleware", zap.String("request host", c.Request.Host), zap.String("addr", addr), zap.Any("header", c.Request.Header))
+
+	if cfg.Timeout <= 0 {
+		cfg.Timeout = 10
+	}
+	addr = addr + c.Request.RequestURI
+	userAgents := strings.Split(cfg.Useragent, "\n")
+	reqUA := strings.ToLower(c.Request.Header.Get("User-Agent"))
+	for _, userAgent := range userAgents {
+		if strings.Contains(reqUA, userAgent) {
+			client := resty.New()
+			client.SetTimeout(time.Duration(cfg.Timeout) * time.Second)
+			req := client.R()
+			resp, err := req.Get(addr)
+			if err != nil {
+				m.logger.Error("SSRMidleware", zap.Error(err))
+				c.Next()
+				return
+			}
+
+			// 响应 resp 的内容
+			c.Writer.WriteHeader(resp.StatusCode())
+			c.Writer.Write(resp.Body())
+			c.Abort()
+			return
+		}
+	}
+	c.Next()
+}
+
+func (m *DBModel) checkAndStartSSR() {
+	var (
+		gPid    = 0
+		timeout = 10 * 365 * 24 * time.Hour
+	)
+	for {
+		cfg := m.GetConfigOfSSRByCache()
+		m.logger.Debug("checkAndStartSSR", zap.Any("config", cfg))
+		// 存在进程，但是配置关闭了SSR，则关闭进程
+		if gPid > 0 && (!cfg.Enable || (cfg.Enable && strings.TrimSpace(cfg.Folder) == "")) {
+			m.logger.Info("checkAndStartSSR", zap.Int("pid", gPid), zap.String("msg", "关闭SSR进程"), zap.Any("config", cfg))
+			command.CloseChildProccess(gPid)
+			gPid = 0
+		}
+
+		if cfg.Enable && strings.TrimSpace(cfg.Folder) != "" && gPid == 0 {
+			go func() {
+				// 启动前，先调用ping看下是否正常，如果不正常，则不启动
+				client := resty.New()
+				client.SetTimeout(5 * time.Second)
+				resp, e := client.R().Get(strings.TrimRight(cfg.Addr, "/") + "/ping")
+				if resp == nil || resp.StatusCode() != 200 || e != nil {
+					// 启动SSR进程
+					_, err := command.ExecCommandV2("node", []string{
+						filepath.Join(cfg.Folder, "main.js"),
+					}, command.Option{
+						Timeout: &timeout,
+						Stdout:  os.Stdout,
+						Stderr:  os.Stderr,
+						Callback: func(pid int) {
+							gPid = pid
+							m.logger.Debug("checkAndStartSSR", zap.Int("pid", pid))
+						},
+					})
+					if err != nil {
+						m.logger.Error("checkAndStartSSR", zap.Error(err))
+						command.CloseChildProccess(gPid)
+						gPid = 0
+					}
+				}
+			}()
+		}
+		// 间隔2秒检测
+		time.Sleep(2 * time.Second)
 	}
 }

@@ -210,6 +210,7 @@ func (m *DBModel) RunTasks() {
 	go m.cronCleanInvalidAttachment()
 	go m.createSearchRecordFromQueue()
 	go m.cronCheckLatestVersion()
+	go m.checkAndStartSSR()
 }
 
 func (m *DBModel) GetDB() *gorm.DB {
