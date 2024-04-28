@@ -566,6 +566,10 @@ func (m *DBModel) SSRMidleware(c *gin.Context) {
 			client := resty.New()
 			client.SetTimeout(time.Duration(cfg.Timeout) * time.Second)
 			req := client.R()
+
+			req.SetHeader("User-Agent", reqUA)
+			// req.SetHeader("Accept-Encoding", req.Header.Get("Accept-Encoding"))
+
 			resp, err := req.Get(addr)
 			if err != nil {
 				m.logger.Error("SSRMidleware", zap.Error(err))
