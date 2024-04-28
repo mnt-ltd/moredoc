@@ -529,14 +529,10 @@ func (m *DBModel) cronCheckLatestVersion() {
 // SSR中间件
 func (m *DBModel) SSRMidleware(c *gin.Context) {
 	path := c.Request.URL.Path
-	if c.Request.Method != "GET" ||
-		strings.HasPrefix(path, "/_nuxt/") ||
-		strings.HasPrefix(path, "/static/") ||
-		strings.HasPrefix(path, "/api/") ||
-		strings.HasPrefix(path, "/uploads/") ||
-		strings.HasSuffix(path, ".xml") ||
-		strings.HasPrefix(path, "/favicon.ico") ||
-		strings.HasPrefix(path, "/view/") {
+	// 只处理GET请求，且只处理首页、文档、文章
+	if c.Request.Method != "GET" || !(path == "/" ||
+		strings.HasPrefix(path, "/document") ||
+		strings.HasPrefix(path, "/article")) {
 		c.Next()
 		return
 	}
@@ -576,6 +572,7 @@ func (m *DBModel) SSRMidleware(c *gin.Context) {
 				c.Next()
 				return
 			}
+			defer resp.RawResponse.Body.Close()
 
 			// 响应 resp 的内容
 			c.Writer.WriteHeader(resp.StatusCode())
