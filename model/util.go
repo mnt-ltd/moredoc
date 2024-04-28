@@ -518,7 +518,7 @@ func (m *DBModel) ungzipSVG(svg string) {
 func (m *DBModel) cronCheckLatestVersion() {
 	for {
 		// 每小时检测一次
-		m.RefreshLatestRelease()
 		time.Sleep(1 * time.Hour)
+		m.RefreshLatestRelease()
 	}
 }

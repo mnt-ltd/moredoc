@@ -292,6 +292,13 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 		pbDoc.FavoriteCount = 0
 	}
 
+	if pbDoc.Attachment.Hash != "" {
+		if ac, _ := s.dbModel.GetAttachmentContent(attchment.Hash); ac != nil {
+			// 截取返回2048个文字，而非字符
+			pbDoc.Description = util.Substr(ac.Content, 2048)
+		}
+	}
+
 	return pbDoc, nil
 }
 
