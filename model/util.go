@@ -600,12 +600,14 @@ func (m *DBModel) SSRMidleware(c *gin.Context) {
 			body := resp.Body()
 			if resp.StatusCode() == http.StatusOK {
 				m.saveSSRCache(c.Request.RequestURI, body)
+				// 响应 resp 的内容
+				c.Writer.WriteHeader(resp.StatusCode())
+				c.Writer.Write(body)
+				c.Abort()
+			} else {
+				m.logger.Error("SSRMidleware", zap.String("msg", "ssr请求失败"), zap.Int("status", resp.StatusCode()))
+				c.Next()
 			}
-
-			// 响应 resp 的内容
-			c.Writer.WriteHeader(resp.StatusCode())
-			c.Writer.Write(body)
-			c.Abort()
 			return
 		}
 	}
