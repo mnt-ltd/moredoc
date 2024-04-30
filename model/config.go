@@ -972,11 +972,11 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategorySSR, Name: ConfigSSRUseragent, Label: "针对哪些客户端有效", Value: "googlebot\nbaiduspider\nbingbot", Placeholder: "请输入客户端关键字，多个请换行输入。（建议按默认的即可）", InputType: InputTypeTextarea, Sort: 30, Options: ""},
 		{Category: ConfigCategorySSR, Name: ConfigSSRFolder, Label: "SSR项目路径", Value: "", Placeholder: "如果您未使用pm2等来自行启动SSR项目，则在此次配置项目路径，以便文库程序调用指令启动，否则请留空", InputType: InputTypeText, Sort: 50, Options: ""},
 		{Category: ConfigCategorySSR, Name: ConfigSSRCacheHome, Label: "首页缓存时间", Value: "1", Placeholder: "首页SSR缓存时间，单位为天，默认为1天。0表示不启动首页SSR", InputType: InputTypeNumber, Sort: 60, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRCacheArticle, Label: "文章缓存时间", Value: "2", Placeholder: "文章SSR缓存时间，单位为天，默认为2天。0表示不启动文章SSR", InputType: InputTypeNumber, Sort: 70, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRCacheDocument, Label: "文档缓存时间", Value: "2", Placeholder: "文档SSR缓存时间，单位为天，默认为2天。0表示不启动文档SSR", InputType: InputTypeNumber, Sort: 80, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRCacheCategory, Label: "分类缓存时间", Value: "5", Placeholder: "分类SSR缓存时间，单位为天，默认为5天。0表示不启动分类SSR", InputType: InputTypeNumber, Sort: 90, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRCacheUser, Label: "用户主页缓存时间", Value: "5", Placeholder: "用户主页缓存时间，单位为天，默认为5天。0表示不启动用户SSR", InputType: InputTypeNumber, Sort: 100, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRCacheSearch, Label: "搜索结果缓存时间", Value: "7", Placeholder: "搜索结果缓存时间，单位为天，默认为7天。0表示不启动搜索结果SSR", InputType: InputTypeNumber, Sort: 110, Options: ""},
+		{Category: ConfigCategorySSR, Name: ConfigSSRCacheArticle, Label: "文章缓存时间", Value: "2", Placeholder: "文章SSR缓存时间，单位为天，默认为2天。0表示不启动文章页面SSR", InputType: InputTypeNumber, Sort: 70, Options: ""},
+		{Category: ConfigCategorySSR, Name: ConfigSSRCacheDocument, Label: "文档缓存时间", Value: "2", Placeholder: "文档SSR缓存时间，单位为天，默认为2天。0表示不启动文档页面SSR", InputType: InputTypeNumber, Sort: 80, Options: ""},
+		{Category: ConfigCategorySSR, Name: ConfigSSRCacheCategory, Label: "分类缓存时间", Value: "5", Placeholder: "分类SSR缓存时间，单位为天，默认为5天。0表示不启动分类页面SSR", InputType: InputTypeNumber, Sort: 90, Options: ""},
+		{Category: ConfigCategorySSR, Name: ConfigSSRCacheUser, Label: "用户主页缓存时间", Value: "5", Placeholder: "用户主页缓存时间，单位为天，默认为5天。0表示不启动用户页面SSR", InputType: InputTypeNumber, Sort: 100, Options: ""},
+		{Category: ConfigCategorySSR, Name: ConfigSSRCacheSearch, Label: "搜索结果缓存时间", Value: "7", Placeholder: "搜索结果缓存时间，单位为天，默认为7天。0表示不启动搜索结果页面SSR", InputType: InputTypeNumber, Sort: 110, Options: ""},
 	}
 
 	for _, cfg := range cfgs {

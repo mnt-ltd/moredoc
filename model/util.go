@@ -548,6 +548,17 @@ func (m *DBModel) SSRMidleware(c *gin.Context) {
 		return
 	}
 
+	// 如果缓存时间为0，则表示不开启SSR
+	if (cfg.CacheHome <= 0 && path == "/") ||
+		(cfg.CacheDocument <= 0 && strings.HasPrefix(path, "/document")) ||
+		(cfg.CacheCategory <= 0 && strings.HasPrefix(path, "/category")) ||
+		(cfg.CacheUser <= 0 && strings.HasPrefix(path, "/user")) ||
+		(cfg.CacheArticle <= 0 && strings.HasPrefix(path, "/article")) ||
+		(cfg.CacheSearch <= 0 && strings.HasPrefix(path, "/search")) {
+		c.Next()
+		return
+	}
+
 	addr := strings.TrimRight(cfg.Addr, "/")
 	if addr == "" || strings.Contains(addr, c.Request.Host) { // 防止死循环，服务间不停地来回调用
 		c.Next()
