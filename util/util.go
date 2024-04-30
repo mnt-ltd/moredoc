@@ -291,3 +291,9 @@ func GetTextFromHTML(html string) (text string) {
 	}
 	return
 }
+
+func CalcMD5(data []byte) string {
+	h := md5.New()
+	h.Write(data)
+	return fmt.Sprintf("%x", h.Sum(nil))
+}

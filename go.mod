@@ -49,7 +49,7 @@ require (
 require (
 	github.com/alexandrevicenzi/unchained v1.3.0
 	github.com/disintegration/imaging v1.6.2
-	github.com/fsnotify/fsnotify v1.5.1 // indirect
+	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/gin-contrib/static v0.0.1
 	github.com/go-playground/locales v0.14.0

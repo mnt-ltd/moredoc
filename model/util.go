@@ -9,6 +9,7 @@ import (
 	"moredoc/util"
 	"moredoc/util/converter"
 	"moredoc/util/sitemap"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -30,6 +31,7 @@ type reconvertDocument struct {
 var (
 	isCreatingSitemap bool
 	cacheReconvert    = "cache/reconvert"
+	cacheSSR          = "cache/ssr"
 )
 
 // UpdateSitemap 更新站点地图
@@ -532,7 +534,10 @@ func (m *DBModel) SSRMidleware(c *gin.Context) {
 	// 只处理GET请求，且只处理首页、文档、文章
 	if c.Request.Method != "GET" || !(path == "/" ||
 		strings.HasPrefix(path, "/document") ||
-		strings.HasPrefix(path, "/article")) {
+		strings.HasPrefix(path, "/category") ||
+		strings.HasPrefix(path, "/user") ||
+		strings.HasPrefix(path, "/article") ||
+		strings.HasPrefix(path, "/search")) {
 		c.Next()
 		return
 	}
@@ -551,21 +556,29 @@ func (m *DBModel) SSRMidleware(c *gin.Context) {
 
 	m.logger.Debug("SSRMidleware", zap.String("request host", c.Request.Host), zap.String("addr", addr), zap.Any("header", c.Request.Header))
 
-	if cfg.Timeout <= 0 {
-		cfg.Timeout = 10
-	}
 	addr = addr + c.Request.RequestURI
 	userAgents := strings.Split(cfg.Useragent, "\n")
 	reqUA := strings.ToLower(c.Request.Header.Get("User-Agent"))
 	for _, userAgent := range userAgents {
+		userAgent = strings.ToLower(strings.TrimSpace(userAgent))
+		if userAgent == "" {
+			continue
+		}
+
 		if strings.Contains(reqUA, userAgent) {
+			if cache, err := m._readSSRCacheFile(c.Request.RequestURI); err == nil {
+				m.logger.Debug("SSRMidleware", zap.Int("read from cache", len(cache)))
+				c.Writer.Header().Set("Content-Type", "text/html; charset=utf-8")
+				c.Writer.WriteHeader(http.StatusOK)
+				c.Writer.Write(cache)
+				c.Abort()
+				return
+			}
+
 			client := resty.New()
-			client.SetTimeout(time.Duration(cfg.Timeout) * time.Second)
+			client.SetTimeout(10 * time.Second)
 			req := client.R()
-
 			req.SetHeader("User-Agent", reqUA)
-			// req.SetHeader("Accept-Encoding", req.Header.Get("Accept-Encoding"))
-
 			resp, err := req.Get(addr)
 			if err != nil {
 				m.logger.Error("SSRMidleware", zap.Error(err))
@@ -573,10 +586,14 @@ func (m *DBModel) SSRMidleware(c *gin.Context) {
 				return
 			}
 			defer resp.RawResponse.Body.Close()
+			body := resp.Body()
+			if resp.StatusCode() == http.StatusOK {
+				m.saveSSRCache(c.Request.RequestURI, body)
+			}
 
 			// 响应 resp 的内容
 			c.Writer.WriteHeader(resp.StatusCode())
-			c.Writer.Write(resp.Body())
+			c.Writer.Write(body)
 			c.Abort()
 			return
 		}
@@ -584,11 +601,127 @@ func (m *DBModel) SSRMidleware(c *gin.Context) {
 	c.Next()
 }
 
+func (m *DBModel) saveSSRCache(reqURL string, body []byte) {
+	cacheFile := m._genSSRCacheFile(reqURL)
+
+	// 对body进行gzip压缩
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+	if _, err := gz.Write(body); err != nil {
+		m.logger.Error("saveSSRCache", zap.Error(err))
+		return
+	}
+	if err := gz.Close(); err != nil {
+		m.logger.Error("saveSSRCache", zap.Error(err))
+		return
+	}
+
+	// 保存到文件
+	if err := os.WriteFile(cacheFile, buf.Bytes(), os.ModePerm); err != nil {
+		m.logger.Error("saveSSRCache", zap.Error(err))
+		return
+	}
+
+	m.logger.Debug("saveSSRCache", zap.String("cacheFile", cacheFile))
+}
+
+func (m *DBModel) _genSSRCacheFile(reqURL string) (cacheFile string) {
+	basePath := strings.Split(strings.TrimLeft(strings.Split(reqURL, "?")[0], "./"), "/")[0]
+	if basePath == "" {
+		basePath = "index"
+	}
+	md5str := util.CalcMD5([]byte(reqURL))
+	cacheFile = filepath.Join(cacheSSR, basePath, strings.Join(strings.Split(md5str, "")[:5], "/"), md5str+".html.zip")
+	os.MkdirAll(filepath.Dir(cacheFile), os.ModePerm)
+	return
+}
+
+func (m *DBModel) _readSSRCacheFile(reqURL string) (body []byte, err error) {
+	cacheFile := m._genSSRCacheFile(reqURL)
+	if _, err = os.Stat(cacheFile); err != nil {
+		m.logger.Debug("_readSSRCacheFile", zap.Error(err))
+		return
+	}
+
+	// 从gzip文件中读取
+	bs, err := os.ReadFile(cacheFile)
+	if err != nil {
+		m.logger.Error("_readSSRCacheFile", zap.Error(err))
+		return
+	}
+
+	gz, err := gzip.NewReader(bytes.NewReader(bs))
+	if err != nil {
+		m.logger.Error("_readSSRCacheFile", zap.Error(err))
+		return
+	}
+
+	defer gz.Close()
+	body, err = io.ReadAll(gz)
+	if err != nil {
+		m.logger.Error("_readSSRCacheFile", zap.Error(err))
+		return
+	}
+
+	return
+}
+
 func (m *DBModel) checkAndStartSSR() {
 	var (
 		gPid    = 0
 		timeout = 10 * 365 * 24 * time.Hour
 	)
+
+	// 清理少时缓存
+	go func() {
+		for {
+			cfg := m.GetConfigOfSSRByCache()
+			filepath.WalkDir(cacheSSR, func(path string, d os.DirEntry, err error) error {
+				if err == nil {
+					if d.IsDir() {
+						return nil
+					}
+					m.logger.Debug("clear ssr cache file", zap.String("path", path))
+					if info, e := d.Info(); e == nil {
+						prefix := strings.Split(strings.TrimLeft(strings.TrimPrefix(path, cacheSSR), "/"), "/")[0]
+						switch prefix {
+						case "index":
+							if info.ModTime().Before(time.Now().Add(-time.Duration(cfg.CacheHome) * time.Hour * 24)) {
+								os.Remove(path)
+							}
+						case "document":
+							if info.ModTime().Before(time.Now().Add(-time.Duration(cfg.CacheDocument) * time.Hour * 24)) {
+								os.Remove(path)
+							}
+						case "category":
+							if info.ModTime().Before(time.Now().Add(-time.Duration(cfg.CacheCategory) * time.Hour * 24)) {
+								os.Remove(path)
+							}
+						case "user":
+							if info.ModTime().Before(time.Now().Add(-time.Duration(cfg.CacheUser) * time.Hour * 24)) {
+								os.Remove(path)
+							}
+						case "article":
+							if info.ModTime().Before(time.Now().Add(-time.Duration(cfg.CacheArticle) * time.Hour * 24)) {
+								os.Remove(path)
+							}
+						case "search":
+							if info.ModTime().Before(time.Now().Add(-time.Duration(cfg.CacheSearch) * time.Hour * 24)) {
+								os.Remove(path)
+							}
+						default:
+							if info.ModTime().Before(time.Now().Add(-24 * time.Hour)) {
+								os.Remove(path)
+							}
+						}
+					}
+				}
+				return err
+			})
+			time.Sleep(1 * time.Minute)
+		}
+	}()
+
 	for {
 		cfg := m.GetConfigOfSSRByCache()
 		m.logger.Debug("checkAndStartSSR", zap.Any("config", cfg))
