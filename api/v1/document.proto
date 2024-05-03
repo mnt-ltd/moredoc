@@ -55,6 +55,7 @@ message Document {
   string convert_error = 33;          // 转换错误信息
   string preview_ext = 34;            // 预览文件扩展名
   string language = 35;               // 文档语言
+  string content = 36;                // 文档内容
 }
 
 // 删除文档，放入回收站

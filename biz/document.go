@@ -292,9 +292,10 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 		pbDoc.FavoriteCount = 0
 	}
 
+	pbDoc.Content = pbDoc.Description
 	if pbDoc.Attachment.Hash != "" {
 		if ac, _ := s.dbModel.GetAttachmentContent(attchment.Hash); ac != nil {
-			pbDoc.Description = util.Substr(ac.Content, 2048*3)
+			pbDoc.Content = util.Substr(ac.Content, 2048*4)
 		}
 	}
 
