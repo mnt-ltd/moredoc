@@ -31,6 +31,7 @@ message Config {
       [ (gogoproto.stdtime) = true ]; // 创建时间
   google.protobuf.Timestamp updated_at = 11
       [ (gogoproto.stdtime) = true ]; // 更新时间
+  int32 col_num = 12;                 // 配置项占据的列数
 }
 
 // 查询配置项请求
