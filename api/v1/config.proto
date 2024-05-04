@@ -94,6 +94,7 @@ message ConfigDisplay {
   string wechat_qrcode = 14;                // 微信公众号链接二维码
   string contact_tip = 15;                  // 联系我们提示文案
   string contact_link = 16;                 // 联系我们跳转地址
+  string index_document_style = 17;         // 首页文档样式
 }
 
 // 安全配置
