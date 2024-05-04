@@ -381,6 +381,9 @@ func (m *DBModel) initDatabase() (err error) {
 		m.logger.Error("initLanguage", zap.Error(err))
 	}
 
+	// 初始化导航栏
+	m.initNavigation()
+
 	// 初始化静态页面SEO
 	m.InitSEO()
 	return

@@ -150,7 +150,17 @@ func (m *DBModel) InitSEO() {
 		}
 
 		path = filepath.ToSlash(path)
-		if filepath.Ext(path) == ".html" {
+		ext := filepath.Ext(path)
+
+		// e.settings.system.sitename||"魔豆文库"
+		if ext == ".js" {
+			// 处理js文件
+			if bs, e := os.ReadFile(path); e == nil {
+				content := string(bs)
+				content = strings.ReplaceAll(content, "e.settings.system.sitename||\"魔豆文库\"", "\""+cfg.Sitename+"\"")
+				os.WriteFile(path, []byte(content), os.ModePerm)
+			}
+		} else if ext == ".html" {
 			name := strings.TrimPrefix(path, dist+"/")
 			defaultTitle, ok := pages[name]
 			if !ok && strings.HasPrefix(path, dist+"/admin") {

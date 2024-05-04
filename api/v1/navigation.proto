@@ -24,6 +24,7 @@ message Navigation {
   string description = 9;
   google.protobuf.Timestamp created_at = 10 [ (gogoproto.stdtime) = true ];
   google.protobuf.Timestamp updated_at = 11 [ (gogoproto.stdtime) = true ];
+  bool fixed = 12;
 }
 
 message DeleteNavigationRequest { repeated int64 id = 1; }

@@ -19,6 +19,7 @@ type Navigation struct {
 	Description string     `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(1024);size:1024;comment:描述;"`
 	CreatedAt   *time.Time `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt   *time.Time `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
+	Fixed       bool       `form:"fixed" json:"fixed,omitempty" gorm:"column:fixed;type:tinyint(1);size:1;default:0;comment:是否固定;"`
 }
 
 func (Navigation) TableName() string {
@@ -27,6 +28,7 @@ func (Navigation) TableName() string {
 
 // CreateNavigation 创建Navigation
 func (m *DBModel) CreateNavigation(navigation *Navigation) (err error) {
+	navigation.Fixed = false
 	err = m.db.Create(navigation).Error
 	if err != nil {
 		m.logger.Error("CreateNavigation", zap.Error(err))
@@ -51,7 +53,7 @@ func (m *DBModel) UpdateNavigation(navigation *Navigation, updateFields ...strin
 		navigation.ParentId = 0
 	}
 
-	err = db.Where("id = ?", navigation.Id).Updates(navigation).Error
+	err = db.Omit("fixed").Where("id = ?", navigation.Id).Updates(navigation).Error
 	if err != nil {
 		m.logger.Error("UpdateNavigation", zap.Error(err))
 	}
@@ -125,7 +127,7 @@ func (m *DBModel) GetNavigationList(opt *OptionGetNavigationList) (navigationLis
 // DeleteNavigation 删除数据
 // 连同子数据一起删除
 func (m *DBModel) DeleteNavigation(ids []int64) (err error) {
-	err = m.db.Where("id in (?)", ids).Delete(&Navigation{}).Error
+	err = m.db.Where("id in (?) and fixed = ?", ids, false).Delete(&Navigation{}).Error
 	if err != nil {
 		m.logger.Error("DeleteNavigation", zap.Error(err))
 		return
@@ -145,4 +147,23 @@ func (m *DBModel) DeleteNavigation(ids []int64) (err error) {
 		}
 	}
 	return
+}
+
+func (m *DBModel) initNavigation() {
+	enable := true
+	navs := []Navigation{
+		{Title: "首页", Href: "/", Target: "_self", Color: "", Sort: 102400, Enable: &enable, Fixed: true},
+		{Title: "文库资料", Href: "/category", Target: "_self", Sort: 102300, Enable: &enable, Fixed: true},
+		{Title: "文章资讯", Href: "/article", Target: "_self", Sort: 102200, Enable: &enable, Fixed: true},
+	}
+	for _, nav := range navs {
+		exist := &Navigation{}
+		m.db.Model(&Navigation{}).Where("href = ?", nav.Href).First(exist)
+		if exist.Id == 0 {
+			err := m.db.Create(&nav).Error
+			if err != nil {
+				m.logger.Error("initNavigation", zap.Error(err))
+			}
+		}
+	}
 }
