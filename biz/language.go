@@ -74,11 +74,8 @@ func (s *LanguageAPIService) UpdateLanguage(ctx context.Context, req *pb.Languag
 }
 
 func (s *LanguageAPIService) ListLanguage(ctx context.Context, req *pb.ListLanguageRequest) (*pb.ListLanguageReply, error) {
-	var userId int64
+	// 未登录用户，智能查看启用的语言
 	userClaims, _ := s.checkPermission(ctx)
-	if userClaims != nil {
-		userId = userClaims.UserId
-	}
 	opt := &model.OptionGetLanguageList{
 		WithCount:    true,
 		QueryIn:      map[string][]interface{}{},
@@ -94,7 +91,7 @@ func (s *LanguageAPIService) ListLanguage(ctx context.Context, req *pb.ListLangu
 		opt.Size = 10
 	}
 
-	if s.dbModel.IsAdmin(userId) {
+	if userClaims != nil && userClaims.HaveAccess {
 		if len(req.Enable) > 0 {
 			opt.QueryIn["enable"] = util.Slice2Interface(req.Enable)
 		}

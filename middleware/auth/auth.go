@@ -18,8 +18,9 @@ type Auth struct {
 }
 
 type UserClaims struct {
-	UserId int64
-	UUID   string
+	UserId     int64
+	UUID       string
+	HaveAccess bool
 	jwt.StandardClaims
 }
 

@@ -110,16 +110,14 @@ func (s *CommentAPIService) UpdateComment(ctx context.Context, req *pb.Comment) 
 // 登录的用户，可删除自己的评论
 // 管理员，可删除任意评论
 func (s *CommentAPIService) DeleteComment(ctx context.Context, req *pb.DeleteCommentRequest) (*emptypb.Empty, error) {
-	var userIds []int64
 	userClaims, err := s.checkPermission(ctx)
-	if err != nil && userClaims == nil {
+	if userClaims == nil {
 		// 未登录用户
 		return nil, err
 	}
-	// 已登录用户，判断有管理员权限
-	isAdmin := userClaims.UserId > 0 && err == nil
-	if !isAdmin {
-		// 非管理员，限定只能删除自己的评论
+
+	var userIds []int64
+	if !userClaims.HaveAccess { // 非管理员，限定只能删除自己的评论
 		userIds = append(userIds, userClaims.UserId)
 	}
 
@@ -151,21 +149,9 @@ func (s *CommentAPIService) GetComment(ctx context.Context, req *pb.GetCommentRe
 }
 
 func (s *CommentAPIService) ListComment(ctx context.Context, req *pb.ListCommentRequest) (*pb.ListCommentReply, error) {
-	var (
-		isLogin bool
-		isAdmin bool
-	)
-
-	userClaims, err := s.checkPermission(ctx)
-	if err != nil && userClaims == nil {
-		// 未登录用户
-		isLogin = false
-	} else {
-		// 已登录用户，判断有管理员权限
-		isLogin = true
-		isAdmin = userClaims.UserId > 0 && err == nil
-	}
-
+	userClaims, _ := s.checkPermission(ctx)
+	isLogin := userClaims != nil
+	haveAccess := userClaims != nil && userClaims.HaveAccess
 	opt := &model.OptionGetCommentList{
 		Page:      int(req.Page),
 		Size:      int(req.Size_),
@@ -192,11 +178,11 @@ func (s *CommentAPIService) ListComment(ctx context.Context, req *pb.ListComment
 		opt.QueryIn["parent_id"] = util.Slice2Interface(req.ParentId)
 	}
 
-	if isAdmin && req.Wd != "" {
+	if haveAccess && req.Wd != "" {
 		opt.QueryLike["content"] = []interface{}{req.Wd}
 	}
 
-	if (isLogin && req.UserId == userClaims.UserId) || isAdmin {
+	if (isLogin && req.UserId == userClaims.UserId) || haveAccess {
 		delete(opt.QueryIn, "status")
 		if len(req.Status) > 0 {
 			opt.QueryIn["status"] = util.Slice2Interface(req.Status)

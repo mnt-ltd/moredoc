@@ -59,6 +59,7 @@ func checkGRPCPermission(dbModel *model.DBModel, ctx context.Context) (userClaim
 		}
 		return userClaims, fmt.Errorf(errorMessagePermissionDeniedFormat, item)
 	}
+	userClaims.HaveAccess = true
 	return
 }
 

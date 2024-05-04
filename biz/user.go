@@ -272,11 +272,10 @@ func (s *UserAPIService) SetUser(ctx context.Context, req *pb.SetUserRequest) (*
 func (s *UserAPIService) UpdateUserProfile(ctx context.Context, req *pb.User) (*emptypb.Empty, error) {
 	userClaims, err := s.checkPermission(ctx)
 	if userClaims == nil {
-		// 未登录
 		return nil, err
 	}
-	isAdmin := err == nil // 管理权限
-	if !isAdmin && userClaims.UserId != req.Id {
+
+	if !userClaims.HaveAccess && userClaims.UserId != req.Id {
 		return nil, status.Errorf(codes.PermissionDenied, "您没有权限更改他人信息")
 	}
 
@@ -289,7 +288,7 @@ func (s *UserAPIService) UpdateUserProfile(ctx context.Context, req *pb.User) (*
 		Id: req.Id, Remark: req.Remark,
 	}
 
-	if isAdmin {
+	if userClaims.HaveAccess {
 		fields = append(fields, "remark")
 	} else {
 		user.Id = userClaims.UserId // 用户更改自身信息

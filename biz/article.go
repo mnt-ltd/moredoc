@@ -46,12 +46,11 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 		return nil, err
 	}
 
-	isAdmin := err == nil // err为nil表示管理员，否则为普通用户
-	if !(isAdmin || s.dbModel.CanIAccessPublishArticle(userClaims.UserId)) {
+	if !(userClaims.HaveAccess || s.dbModel.CanIAccessPublishArticle(userClaims.UserId)) {
 		return nil, status.Errorf(codes.PermissionDenied, "您没有权限发布文章")
 	}
 
-	if !isAdmin && req.Identifier != "" { // 只有管理员才可以设置uuid
+	if !userClaims.HaveAccess && req.Identifier != "" { // 只有管理员才可以设置uuid
 		req.Identifier = ""
 	}
 
@@ -72,13 +71,13 @@ func (s *ArticleAPIService) CreateArticle(ctx context.Context, req *pb.Article) 
 	}
 
 	// 管理员在创建文章的时候，可以直接设置为推荐文章
-	if isAdmin && req.IsRecommend && req.RecommendAt == nil {
+	if userClaims.HaveAccess && req.IsRecommend && req.RecommendAt == nil {
 		now := time.Now()
 		article.RecommendAt = &now
 	}
 
 	article.UserId = userClaims.UserId
-	if isAdmin {
+	if userClaims.HaveAccess {
 		article.Status = model.ArticleStatusPass
 	} else {
 		article.Status = s.dbModel.GetDefaultArticleStatus(userClaims.UserId)
@@ -108,7 +107,6 @@ func (s *ArticleAPIService) UpdateArticle(ctx context.Context, req *pb.Article) 
 	if userClaims == nil {
 		return nil, err
 	}
-	isAdmin := err == nil
 	article := &model.Article{}
 	err = util.CopyStruct(req, article)
 	if err != nil {
@@ -117,12 +115,12 @@ func (s *ArticleAPIService) UpdateArticle(ctx context.Context, req *pb.Article) 
 	}
 
 	existArticle, _ := s.dbModel.GetArticle(article.Id)
-	if !isAdmin && existArticle.UserId != userClaims.UserId {
+	if !userClaims.HaveAccess && existArticle.UserId != userClaims.UserId {
 		return nil, status.Errorf(codes.PermissionDenied, "您没有权限修改此文章")
 	}
 
 	article.RecommendAt = existArticle.RecommendAt
-	if isAdmin {
+	if userClaims.HaveAccess {
 		if req.IsRecommend && existArticle.RecommendAt == nil {
 			now := time.Now()
 			article.RecommendAt = &now
@@ -161,13 +159,12 @@ func (s *ArticleAPIService) DeleteArticle(ctx context.Context, req *pb.DeleteArt
 		return nil, err
 	}
 
-	isAdmin := err == nil
 	ids := req.Id
 	if len(ids) == 0 {
 		return &emptypb.Empty{}, nil
 	}
 
-	if !isAdmin { // 非管理员，只能删除自己的文章
+	if !userClaims.HaveAccess { // 非管理员，只能删除自己的文章
 		articles, _, _ := s.dbModel.GetArticleList(&model.OptionGetArticleList{
 			Ids:          util.Slice2Interface(req.Id),
 			WithCount:    false,
@@ -222,9 +219,12 @@ func (s *ArticleAPIService) GetArticle(ctx context.Context, req *pb.GetArticleRe
 
 	userClaims, err := s.checkPermission(ctx)
 	s.logger.Debug("GetArticle", zap.Any("userClaims", userClaims), zap.Any("article", article))
-	isAdmin := err == nil
+	if userClaims == nil {
+		return nil, err
+	}
+
 	// 管理员或者是作者，可以查看未通过的文章
-	if article.Status != model.ArticleStatusPass && !(isAdmin || userClaims.UserId == article.UserId) {
+	if article.Status != model.ArticleStatusPass && !(userClaims.HaveAccess || userClaims.UserId == article.UserId) {
 		err = errors.New("文章不存在")
 		return nil, err
 	}
@@ -254,8 +254,11 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 	}
 
 	userClaims, err := s.checkPermission(ctx)
-	isAdmin := err == nil
-	if isAdmin || (userClaims != nil && len(req.UserId) > 0 && userClaims.UserId == req.UserId[0]) {
+	if userClaims == nil {
+		return nil, err
+	}
+
+	if userClaims.HaveAccess || (userClaims != nil && len(req.UserId) > 0 && userClaims.UserId == req.UserId[0]) {
 		// 管理员或者是作者，可以查询相关状态的文档
 		if req.Wd != "" {
 			opt.QueryLike["title"] = []interface{}{req.Wd}
