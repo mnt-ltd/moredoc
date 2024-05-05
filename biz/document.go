@@ -133,6 +133,7 @@ func (s *DocumentAPIService) UpdateDocument(ctx context.Context, req *pb.Documen
 		return nil, err
 	}
 
+	req.Content = strings.TrimSpace(req.Content)
 	fields := []string{"id", "title", "keywords", "description", "price", "language"}
 	doc := &model.Document{}
 	util.CopyStruct(req, doc)
@@ -148,7 +149,16 @@ func (s *DocumentAPIService) UpdateDocument(ctx context.Context, req *pb.Documen
 
 	err = s.dbModel.UpdateDocument(doc, req.CategoryId, fields...)
 	if err != nil {
+		s.logger.Error("UpdateDocument", zap.Error(err))
 		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	if req.Content != "" {
+		err = s.dbModel.SetAttachmentContentByType(model.AttachmentTypeDocument, req.Id, []byte(req.Content))
+		if err != nil {
+			s.logger.Error("SetAttachmentContent", zap.Error(err))
+			return nil, status.Error(codes.Internal, err.Error())
+		}
 	}
 
 	return &emptypb.Empty{}, nil
@@ -295,7 +305,11 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 	pbDoc.Content = pbDoc.Description
 	if pbDoc.Attachment.Hash != "" {
 		if ac, _ := s.dbModel.GetAttachmentContent(attchment.Hash); ac != nil {
-			pbDoc.Content = util.Substr(ac.Content, 2048*4)
+			if req.WithAllContent {
+				pbDoc.Content = ac.Content
+			} else {
+				pbDoc.Content = util.Substr(ac.Content, 2048*4)
+			}
 		}
 	}
 

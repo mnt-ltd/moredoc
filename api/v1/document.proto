@@ -71,9 +71,10 @@ message RecoverRecycleDocumentRequest { repeated int64 id = 1; }
 
 // 查询文档
 message GetDocumentRequest {
-  int64 id = 1;         // 文档ID
-  bool with_author = 2; // 是否查询作者信息
-  string uuid = 3;      // 文档UUID
+  int64 id = 1;              // 文档ID
+  bool with_author = 2;      // 是否查询作者信息
+  string uuid = 3;           // 文档UUID
+  bool with_all_content = 4; // 是否查询所有文本内容
 }
 
 message SetDocumentsCategoryRequest {
