@@ -626,6 +626,9 @@ func (m *DBModel) ConvertDocument() (err error) {
 	defer func() {
 		m.SetDocumentConvertError(document.Id, err)
 	}()
+
+	document.Description = strings.TrimSpace(document.Description)
+
 	// 文档转为PDF
 	cfg := m.GetConfigOfConverter()
 	m.SetDocumentStatus([]int64{document.Id}, DocumentStatusConverting)
@@ -652,6 +655,9 @@ func (m *DBModel) ConvertDocument() (err error) {
 			sql := " UPDATE `%s` SET `description`= ? , `enable_gzip` = ?, `width` = ?, `height`= ?, `preview`= ?, `pages` = ?, `status` = ? WHERE status in ? and id in (select type_id from `%s` where `hash` = ? and `type` = ?)"
 			sql = fmt.Sprintf(sql, Document{}.TableName(), Attachment{}.TableName())
 			for hash, doc := range hashMapDocs {
+				if document.Description != "" {
+					doc.Description = document.Description
+				}
 				err = m.db.Exec(sql,
 					doc.Description, doc.EnableGZIP, doc.Width, doc.Height, doc.Preview, doc.Pages, DocumentStatusConverted, []int{DocumentStatusPending, DocumentStatusConverting, DocumentStatusFailed}, hash, AttachmentTypeDocument,
 				).Error
@@ -748,15 +754,17 @@ func (m *DBModel) ConvertDocument() (err error) {
 		m.logger.Error("ConvertPDFToTxt", zap.Error(errPdf2text))
 	}
 
-	// 读取文本内容，以提取关键字和摘要
-	if content, errRead := os.ReadFile(textFile); errRead == nil {
-		contentStr := string(content)
-		replacer := strings.NewReplacer("\r", " ", "\n", " ", "\t", " ")
-		contentStr = strings.TrimSpace(replacer.Replace(contentStr))
-		if errContent := m.SetAttachmentContentByType(AttachmentTypeDocument, document.Id, []byte(contentStr)); errContent != nil {
-			m.logger.Error("SetAttachmentContentByType", zap.Error(errContent))
+	if document.Description == "" {
+		// 读取文本内容，以提取关键字和摘要
+		if content, errRead := os.ReadFile(textFile); errRead == nil {
+			contentStr := string(content)
+			replacer := strings.NewReplacer("\r", " ", "\n", " ", "\t", " ")
+			contentStr = strings.TrimSpace(replacer.Replace(contentStr))
+			if errContent := m.SetAttachmentContentByType(AttachmentTypeDocument, document.Id, []byte(contentStr)); errContent != nil {
+				m.logger.Error("SetAttachmentContentByType", zap.Error(errContent))
+			}
+			document.Description = util.Substr(contentStr, 255)
 		}
-		document.Description = util.Substr(contentStr, 255)
 	}
 
 	document.Status = DocumentStatusConverted
