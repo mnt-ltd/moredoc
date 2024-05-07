@@ -195,5 +195,9 @@ func runServer() {
 		fmt.Println("exit.")
 		os.Exit(0)
 	}()
+
+	if cfg.JWT.Secret == "" || cfg.JWT.Secret == "moredoc" {
+		logger.Fatal("JWT.Secret", zap.String("安全风险提示", "JWT.Secret不能为空也不能为moredoc，请修改以保证安全性！！！"))
+	}
 	service.Run(cfg, logger)
 }
