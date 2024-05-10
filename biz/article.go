@@ -217,16 +217,18 @@ func (s *ArticleAPIService) GetArticle(ctx context.Context, req *pb.GetArticleRe
 		return nil, status.Errorf(codes.NotFound, "文章不存在")
 	}
 
-	userClaims, err := s.checkPermission(ctx)
+	userClaims, _ := s.checkPermission(ctx)
 	s.logger.Debug("GetArticle", zap.Any("userClaims", userClaims), zap.Any("article", article))
-	if userClaims == nil {
-		return nil, err
-	}
-
 	// 管理员或者是作者，可以查看未通过的文章
-	if article.Status != model.ArticleStatusPass && !(userClaims.HaveAccess || userClaims.UserId == article.UserId) {
-		err = errors.New("文章不存在")
-		return nil, err
+	if article.Status != model.ArticleStatusPass {
+		if userClaims == nil {
+			return nil, errors.New("文章不存在或没有权限查看")
+		}
+
+		if !(userClaims.HaveAccess || userClaims.UserId == article.UserId) {
+			err = errors.New("文章不存在或没有权限查看")
+			return nil, err
+		}
 	}
 
 	s.dbModel.UpdateArticleViewCount(article.Id, article.ViewCount)
@@ -253,12 +255,10 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 		IsRecommend: req.IsRecommend,
 	}
 
-	userClaims, err := s.checkPermission(ctx)
+	userClaims, _ := s.checkPermission(ctx)
 	if userClaims == nil {
-		return nil, err
-	}
-
-	if userClaims.HaveAccess || (userClaims != nil && len(req.UserId) > 0 && userClaims.UserId == req.UserId[0]) {
+		opt.QueryLike["status"] = []interface{}{1}
+	} else if userClaims.HaveAccess || (len(req.UserId) > 0 && req.UserId[0] == userClaims.UserId) {
 		// 管理员或者是作者，可以查询相关状态的文档
 		if req.Wd != "" {
 			opt.QueryLike["title"] = []interface{}{req.Wd}
@@ -268,8 +268,6 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 		if len(req.Status) > 0 {
 			opt.QueryIn["status"] = util.Slice2Interface(req.Status)
 		}
-	} else {
-		opt.QueryLike["status"] = []interface{}{1}
 	}
 
 	if len(req.CategoryId) > 0 {
