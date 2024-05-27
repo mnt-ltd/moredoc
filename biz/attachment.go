@@ -365,11 +365,15 @@ func (s *AttachmentAPIService) UploadCategory(ctx *gin.Context) {
 func (s *AttachmentAPIService) uploadImage(ctx *gin.Context, attachmentType int) {
 	name := "file"
 	userClaims, statusCodes, err := s.checkGinPermission(ctx)
-	if err != nil {
-		if !(userClaims != nil && attachmentType == model.AttachmentTypeAvatar) {
-			ctx.JSON(statusCodes, ginResponse{Code: statusCodes, Message: err.Error(), Error: err.Error()})
-			return
-		}
+	if userClaims == nil { // 需要登录才能上传
+		ctx.JSON(statusCodes, ginResponse{Code: statusCodes, Message: err.Error(), Error: err.Error()})
+		return
+	}
+
+	// 如果不是上传头像，需要验证用户是否有权限上传
+	if attachmentType != model.AttachmentTypeAvatar && err != nil {
+		ctx.JSON(statusCodes, ginResponse{Code: statusCodes, Message: err.Error(), Error: err.Error()})
+		return
 	}
 
 	// 验证文件是否是图片
