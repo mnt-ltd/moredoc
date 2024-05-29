@@ -81,6 +81,8 @@ func (c *Converter) ConvertToPDF(src string) (dst string, err error) {
 		return c.ConvertTXTToPDF(src)
 	case ".mobi":
 		return c.ConvertMOBIToPDF(src)
+	case ".azw", ".azw3", ".azw4":
+		return c.ConvertAZWToPDF(src)
 	case ".chm":
 		return c.ConvertCHMToPDF(src)
 	case ".pdf":
@@ -117,6 +119,10 @@ func (c *Converter) ConvertTXTToPDF(src string) (dst string, err error) {
 
 // ConvertMOBIToPDF 将 mobi 转为PDF
 func (c *Converter) ConvertMOBIToPDF(src string) (dst string, err error) {
+	return c.convertToPDFByCalibre(src)
+}
+
+func (c *Converter) ConvertAZWToPDF(src string) (dst string, err error) {
 	return c.convertToPDFByCalibre(src)
 }
 

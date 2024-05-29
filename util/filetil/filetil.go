@@ -29,7 +29,7 @@ var documentExtMap = map[string][]string{
 	"ppt":   {".ppt", ".pptx", ".pps", ".ppsx", ".dps", ".odp", ".pot"},
 	"xls":   {".xls", ".xlsx", ".et", ".ods", ".csv", ".tsv"},
 	"txt":   {".txt"},
-	"other": {".epub", ".mobi", ".chm", ".umd"},
+	"other": {".epub", ".mobi", ".chm", ".umd", ".azw", ".azw3", ".azw4"},
 }
 
 var documentExt = make(map[string]struct{})
