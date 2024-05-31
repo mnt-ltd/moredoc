@@ -32,7 +32,7 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 	size := 100 * 1024 * 1024 // 100MB
 	dialOpts := []grpc.DialOption{
 		grpc.WithInsecure(),
-		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(size)),
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(size), grpc.MaxCallSendMsgSize(size)),
 		grpc.WithDefaultCallOptions(grpc.UseCompressor("gzip")),
 	}
 
