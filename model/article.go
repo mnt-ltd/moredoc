@@ -438,6 +438,8 @@ func (m *DBModel) DeleteArticle(ids []int64, deepDelete ...bool) (err error) {
 	}
 
 	if !deep {
+		var articles []Article
+		tx.Select("id", "user_id").Where("id in (?)", ids).Find(&articles)
 		// 软删除：删除文章、文章关联分类数量-1
 		err = tx.Where("id in (?)", ids).Delete(&Article{}).Error
 		if err != nil {
@@ -458,6 +460,15 @@ func (m *DBModel) DeleteArticle(ids []int64, deepDelete ...bool) (err error) {
 
 		for _, cateIds := range articleIdMapCategories {
 			err = tx.Model(&Category{}).Where("id in (?)", cateIds).Update("doc_count", gorm.Expr("doc_count - 1")).Error
+			if err != nil {
+				m.logger.Error("DeleteArticle", zap.Error(err))
+				return
+			}
+		}
+
+		// 作者文章数-1
+		for _, article := range articles {
+			err = tx.Model(&User{}).Where("id = ?", article.UserId).Update("article_count", gorm.Expr("article_count - 1")).Error
 			if err != nil {
 				m.logger.Error("DeleteArticle", zap.Error(err))
 				return
@@ -606,8 +617,10 @@ func (m *DBModel) RestoreArticle(ids []int64) (err error) {
 	var (
 		articleCategories      []ArticleCategory
 		articleIdMapCategories = make(map[int64][]int64)
+		articles               []Article
 	)
 
+	tx.Select("id", "user_id").Where("id in (?)", ids).Find(&articles)
 	tx.Where("article_id in (?)", ids).Find(&articleCategories)
 	for _, cate := range articleCategories {
 		articleIdMapCategories[cate.ArticleId] = append(articleIdMapCategories[cate.ArticleId], cate.CategoryId)
@@ -615,6 +628,15 @@ func (m *DBModel) RestoreArticle(ids []int64) (err error) {
 
 	for _, cateIds := range articleIdMapCategories {
 		err = tx.Model(&Category{}).Where("id in (?)", cateIds).Update("doc_count", gorm.Expr("doc_count + 1")).Error
+		if err != nil {
+			m.logger.Error("RestoreArticle", zap.Error(err))
+			return
+		}
+	}
+
+	// 作者文章数+1
+	for _, article := range articles {
+		err = tx.Model(&User{}).Where("id = ?", article.UserId).Update("article_count", gorm.Expr("article_count + 1")).Error
 		if err != nil {
 			m.logger.Error("RestoreArticle", zap.Error(err))
 			return
