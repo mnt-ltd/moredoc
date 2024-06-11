@@ -94,7 +94,9 @@ func initConfig() {
 		viper.SetConfigName("app")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
+	viper.SetEnvPrefix("MOREDOC")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	viper.AutomaticEnv()
 
 	// If a config file is found, read it in.
 	err := viper.ReadInConfig()
@@ -107,11 +109,70 @@ func initConfig() {
 		fmt.Println("viper.Unmarshal", err, viper.ConfigFileUsed())
 	}
 
+	overwriteConfig(cfg)
+
 	initLogger(cfg.Level, cfg.LogEncoding, cfg.Logger)
 
 	cfg.Database.Prefix = "mnt_"
 
-	logger.Debug("config", zap.String("Using config file:", viper.ConfigFileUsed()), zap.Any("config", cfg))
+	logger.Info("config", zap.String("Using config file:", viper.ConfigFileUsed()), zap.Any("config", cfg))
+}
+
+func getEnvDefaultString(key string, df1 string, df2 ...string) string {
+	val := viper.GetString(key)
+	if val == "" {
+		val = df1
+	}
+	if val == "" && len(df2) > 0 {
+		val = df2[0]
+	}
+	return val
+}
+
+func getEnvDefaultBool(key string, df1 bool) bool {
+	val := viper.GetString(key)
+	if val != "" {
+		return strings.ToUpper(val) == "TRUE"
+	}
+	return df1
+}
+
+func getEnvDefaultInt64(key string, df1 int64, df2 ...int64) int64 {
+	v := viper.GetInt64(key)
+	if v > 0 {
+		return v
+	}
+	if df1 > 0 {
+		return df1
+	}
+	if len(df2) > 0 {
+		return df2[0]
+	}
+	return 0
+}
+
+func overwriteConfig(cfg *conf.Config) {
+	// 基础配置
+	cfg.Level = getEnvDefaultString("LEVEL", cfg.Level, "info")
+	cfg.LogEncoding = getEnvDefaultString("LOG_ENCODING", cfg.LogEncoding, "console")
+	cfg.Port = int(getEnvDefaultInt64("PORT", int64(cfg.Port), 8880))
+
+	// JWT
+	cfg.JWT.Secret = getEnvDefaultString("JWT_SECRET", cfg.JWT.Secret)
+	cfg.JWT.ExpireDays = getEnvDefaultInt64("JWT_EXPIRE_DAYS", cfg.JWT.ExpireDays, 365)
+
+	// database
+	cfg.Database.DSN = getEnvDefaultString("DATABASE_DSN", cfg.Database.DSN)
+	cfg.Database.ShowSQL = getEnvDefaultBool("DATABASE_SHOW_SQL", cfg.Database.ShowSQL)
+	cfg.Database.MaxOpen = int(getEnvDefaultInt64("DATABASE_MAX_OPEN", int64(cfg.Database.MaxOpen), 10))
+	cfg.Database.MaxIdle = int(getEnvDefaultInt64("DATABASE_MAX_IDLE", int64(cfg.Database.MaxIdle), 10))
+
+	// 日志配置
+	cfg.Logger.Filename = getEnvDefaultString("LOGGER_FILENAME", cfg.Logger.Filename)
+	cfg.Logger.Compress = getEnvDefaultBool("LOGGER_COMPRESS", cfg.Logger.Compress)
+	cfg.Logger.MaxSizeMB = int(getEnvDefaultInt64("LOGGER_MAX_SIZE_MB", int64(cfg.Logger.MaxSizeMB), 10))
+	cfg.Logger.MaxBackups = int(getEnvDefaultInt64("LOGGER_MAX_BACKUPS", int64(cfg.Logger.MaxBackups), 10))
+	cfg.Logger.MaxDays = int(getEnvDefaultInt64("LOGGER_MAX_DAYS", int64(cfg.Logger.MaxDays), 30))
 }
 
 func initLogger(level, LogEncoding string, logCfg ...conf.LoggerConfig) {

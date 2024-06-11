@@ -11,8 +11,10 @@ services:
     container_name: moredoc-mysql
     environment:
       - MYSQL_ROOT_PASSWORD=moredoc
+      - TZ=Asia/Shanghai
     volumes:
-      - ./database:/var/lib/mysql
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/my.cnf:/etc/mysql/my.cnf
     networks: 
       - moredoc-network
     restart: always

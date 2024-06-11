@@ -1,5 +1,6 @@
 *.toml
 !app.example.toml
+!app.docker.toml
 *.exe
 *.exe~
 ginrpc*
@@ -22,3 +23,4 @@ license.cert
 /web
 .DS_Store
 /moredoc
+/dictionary/custom.txt

@@ -30,5 +30,5 @@ expireDays = 365
 filename = ""
 maxSizeMB = 10
 maxBackups = 10
-maxAgeDays = 30
+maxDays = 30
 compress = true
