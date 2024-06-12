@@ -496,9 +496,13 @@ func (m *DBModel) generateQueryLike(db *gorm.DB, tableName string, queryLike map
 				continue
 			}
 			for _, value := range values {
-				valueStr := fmt.Sprintf("%v", value)
+				valueStr := strings.TrimSpace(fmt.Sprintf("%v", value))
+				if !strings.Contains(valueStr, "%") {
+					valueStr = "%" + valueStr + "%"
+				}
+				valueStr = strings.ReplaceAll(valueStr, " ", "%")
 				likeQuery = append(likeQuery, fmt.Sprintf("%s%s like ?", alias, field))
-				likeValues = append(likeValues, "%"+valueStr+"%")
+				likeValues = append(likeValues, valueStr)
 			}
 		}
 		if len(likeQuery) > 0 {
