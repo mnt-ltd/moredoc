@@ -75,9 +75,9 @@ builddockeramd:
 	GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/dockeramd/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/dockeramd
 	cp -r dictionary release/${VERSION}/dockeramd
-	cp -r app.example.toml release/${VERSION}/dockeramd/app.toml
-	cp docker/dockerfile release/${VERSION}/dockeramd/Dockerfile
+	cp docker/dockerfile release/${VERSION}/dockeramd/dockerfile
 	cp docker/docker-compose.yml release/${VERSION}/dockeramd/docker-compose.yml
+	cp -r docker/mysql release/${VERSION}/dockerarm/mysql
 	rm -rf release/${VERSION}/dockeramd/dist/_nuxt/icons
 	rm -rf release/${VERSION}/dockeramd/dist/_nuxt/manifest*
 	cd release/${VERSION}/dockeramd/ && tar -zcvf ../moredoc_ce_${VERSION}_docker_amd64.tar.gz ./* && cd ../../
@@ -88,9 +88,9 @@ builddockerarm:
 	GOOS=linux GOARCH=arm64 go build -v -o release/${VERSION}/dockerarm/server/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${VERSION}/dockerarm/server
 	cp -r dictionary release/${VERSION}/dockerarm/server
-	cp -r app.example.toml release/${VERSION}/dockerarm/server/app.toml
 	cp docker/dockerfile release/${VERSION}/dockerarm/dockerfile
 	cp docker/docker-compose.yml release/${VERSION}/dockerarm/docker-compose.yml
+	cp -r docker/mysql release/${VERSION}/dockerarm/mysql
 	rm -rf release/${VERSION}/dockerarm/dist/_nuxt/icons
 	rm -rf release/${VERSION}/dockerarm/dist/_nuxt/manifest*
 	cd release/${VERSION}/dockerarm/ && tar -zcvf ../moredoc_ce_${VERSION}_docker_arm64.tar.gz ./* && cd ../../

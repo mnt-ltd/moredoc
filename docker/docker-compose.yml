@@ -14,7 +14,7 @@ services:
       - TZ=Asia/Shanghai
     volumes:
       - ./mysql/data:/var/lib/mysql
-      - ./mysql/my.cnf:/etc/mysql/my.cnf
+      - ./mysql/conf/my.cnf:/etc/mysql/my.cnf
     networks: 
       - moredoc-network
     restart: always
@@ -24,6 +24,10 @@ services:
   moredoc-server:
     build: .
     container_name: moredoc-server
+    environment:
+      - MOREDOC_DATABASE_DSN=root:moredoc@tcp(moredoc-mysql:3306)/moredoc?charset=utf8mb4&loc=Local&parseTime=true
+      # 【改】请务必更换为自己的JWT_SECRET，建议使用随机字符串
+      - MOREDOC_JWT_SECRET=""
     depends_on: 
       - moredoc-mysql
     networks: 
