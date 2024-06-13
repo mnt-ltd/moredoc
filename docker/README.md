@@ -1,8 +1,6 @@
 # docker部署魔豆文库
 
-- docker compose 部署魔豆文库，见[docker-compose-README.md](docker-compose-README.md)
-- dockerfile 部署魔豆文库，见 [dockerfile-README.md](dockerfile-README.md)
-
+Docker 部署使用详见： https://www.bookstack.cn/read/moredoc/install-docker.md
 
 ## docker 相关教程
 

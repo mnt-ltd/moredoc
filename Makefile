@@ -77,6 +77,7 @@ builddockeramd:
 	cp -r dictionary release/${VERSION}/dockeramd
 	cp docker/dockerfile release/${VERSION}/dockeramd/dockerfile
 	cp docker/docker-compose.yml release/${VERSION}/dockeramd/docker-compose.yml
+	cp docker/README.md release/${VERSION}/dockeramd/部署教程.md
 	cp -r docker/mysql release/${VERSION}/dockerarm/mysql
 	rm -rf release/${VERSION}/dockeramd/dist/_nuxt/icons
 	rm -rf release/${VERSION}/dockeramd/dist/_nuxt/manifest*
@@ -90,6 +91,7 @@ builddockerarm:
 	cp -r dictionary release/${VERSION}/dockerarm/server
 	cp docker/dockerfile release/${VERSION}/dockerarm/dockerfile
 	cp docker/docker-compose.yml release/${VERSION}/dockerarm/docker-compose.yml
+	cp docker/README.md release/${VERSION}/dockerarm/部署教程.md
 	cp -r docker/mysql release/${VERSION}/dockerarm/mysql
 	rm -rf release/${VERSION}/dockerarm/dist/_nuxt/icons
 	rm -rf release/${VERSION}/dockerarm/dist/_nuxt/manifest*
