@@ -129,7 +129,7 @@ buildwinarm:
 	cd release/${VERSION}/windows-arm/ && tar -zcvf ../moredoc_ce_${VERSION}_windows_arm64.tar.gz ./* && cd ../../
 
 # 一键编译所有平台
-buildall: builddarwin buildlinux buildwin buildlinuxarm buildwinarm
+buildall: builddarwin buildlinux buildwin buildlinuxarm buildwinarm builddockerarm builddockeramd
 
 # show help
 help:
