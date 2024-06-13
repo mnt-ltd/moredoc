@@ -60,6 +60,16 @@ builddarwin:
 	rm -rf release/${VERSION}/darwin/dist/_nuxt/manifest*
 	cd release/${VERSION}/darwin/ && tar -zcvf ../moredoc_ce_${VERSION}_darwin_amd64.tar.gz ./* && cd ../../
 
+builddarwinarm:
+	rm -rf release/${VERSION}/darwin-arm
+	GOOS=darwin GOARCH=arm64 go build -v -o release/${VERSION}/darwin-arm/moredoc -ldflags ${LDFLAGS}
+	cp -r dist release/${VERSION}/darwin-arm
+	cp -r dictionary release/${VERSION}/darwin-arm
+	cp -r app.example.toml release/${VERSION}/darwin-arm
+	rm -rf release/${VERSION}/darwin-arm/dist/_nuxt/icons
+	rm -rf release/${VERSION}/darwin-arm/dist/_nuxt/manifest*
+	cd release/${VERSION}/darwin-arm/ && tar -zcvf ../moredoc_ce_${VERSION}_darwin_arm64.tar.gz ./* && cd ../../
+
 buildlinux:
 	rm -rf release/${VERSION}/linux
 	GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
@@ -129,7 +139,7 @@ buildwinarm:
 	cd release/${VERSION}/windows-arm/ && tar -zcvf ../moredoc_ce_${VERSION}_windows_arm64.tar.gz ./* && cd ../../
 
 # 一键编译所有平台
-buildall: builddarwin buildlinux buildwin buildlinuxarm buildwinarm builddockerarm builddockeramd
+buildall: builddarwin builddarwinarm buildlinux buildwin buildlinuxarm buildwinarm builddockerarm builddockeramd
 
 # show help
 help:
