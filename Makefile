@@ -72,13 +72,13 @@ buildlinux:
 
 builddockeramd:
 	rm -rf release/${VERSION}/dockeramd
-	GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/dockeramd/moredoc -ldflags ${LDFLAGS}
-	cp -r dist release/${VERSION}/dockeramd
-	cp -r dictionary release/${VERSION}/dockeramd
+	GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/dockeramd/server/moredoc -ldflags ${LDFLAGS}
+	cp -r dist release/${VERSION}/dockeramd/server
+	cp -r dictionary release/${VERSION}/dockeramd/server
 	cp docker/dockerfile release/${VERSION}/dockeramd/dockerfile
 	cp docker/docker-compose.yml release/${VERSION}/dockeramd/docker-compose.yml
 	cp docker/README.md release/${VERSION}/dockeramd/部署教程.md
-	cp -r docker/mysql release/${VERSION}/dockerarm/mysql
+	cp -r docker/mysql release/${VERSION}/dockeramd/mysql
 	rm -rf release/${VERSION}/dockeramd/dist/_nuxt/icons
 	rm -rf release/${VERSION}/dockeramd/dist/_nuxt/manifest*
 	cd release/${VERSION}/dockeramd/ && tar -zcvf ../moredoc_ce_${VERSION}_docker_amd64.tar.gz ./* && cd ../../
