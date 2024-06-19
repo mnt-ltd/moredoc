@@ -753,16 +753,16 @@ func (m *DBModel) ConvertDocument() (err error) {
 		// 只记录错误。不影响文档转换
 		m.logger.Error("ConvertPDFToTxt", zap.Error(errPdf2text))
 	}
-
-	if document.Description == "" {
-		// 读取文本内容，以提取关键字和摘要
-		if content, errRead := os.ReadFile(textFile); errRead == nil {
-			contentStr := string(content)
-			replacer := strings.NewReplacer("\r", " ", "\n", " ", "\t", " ")
-			contentStr = strings.TrimSpace(replacer.Replace(contentStr))
-			if errContent := m.SetAttachmentContentByType(AttachmentTypeDocument, document.Id, []byte(contentStr)); errContent != nil {
-				m.logger.Error("SetAttachmentContentByType", zap.Error(errContent))
-			}
+	// 读取文本内容，以提取关键字和摘要
+	content, errRead := os.ReadFile(textFile)
+	if errRead == nil {
+		contentStr := string(content)
+		replacer := strings.NewReplacer("\r", " ", "\n", " ", "\t", " ")
+		contentStr = strings.TrimSpace(replacer.Replace(contentStr))
+		if errContent := m.SetAttachmentContentByType(AttachmentTypeDocument, document.Id, []byte(contentStr)); errContent != nil {
+			m.logger.Error("SetAttachmentContentByType", zap.Error(errContent))
+		}
+		if document.Description == "" {
 			document.Description = util.Substr(contentStr, 255)
 		}
 	}
