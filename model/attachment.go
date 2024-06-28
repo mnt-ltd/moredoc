@@ -12,14 +12,14 @@ import (
 // TODO: 附件管理，需要有一个定时任务，定时根据type和type_id清理无效的附件数据，同时删除无效的文件
 
 const (
-	AttachmentTypeUnknown       = iota // 未知
-	AttachmentTypeAvatar               // 用户头像
-	AttachmentTypeDocument             // 文档
-	AttachmentTypeArticle              // 文章
-	AttachmentTypeComment              // 评论
-	AttachmentTypeBanner               // 轮播图
-	AttachmentTypeCategoryCover        // 分类封面
-	AttachmentTypeConfig               // 配置
+	AttachmentTypeUnknown       = 0 // 未知
+	AttachmentTypeAvatar        = 1 // 用户头像
+	AttachmentTypeDocument      = 2 // 文档
+	AttachmentTypeArticle       = 3 // 文章
+	AttachmentTypeComment       = 4 // 评论
+	AttachmentTypeBanner        = 5 // 轮播图
+	AttachmentTypeCategoryCover = 6 // 分类封面
+	AttachmentTypeConfig        = 7 // 配置
 )
 
 var attachmentTypeName = map[int]string{
