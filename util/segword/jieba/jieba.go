@@ -24,10 +24,12 @@ var (
 )
 
 func init() {
-	err := loadDictionary()
-	if err != nil {
-		fmt.Println("load dictionary failed:", err)
-	}
+	go func() {
+		err := loadDictionary()
+		if err != nil {
+			fmt.Println("load dictionary failed:", err)
+		}
+	}()
 }
 
 func loadDictionary(dict ...string) error {
