@@ -7,6 +7,7 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "api/v1/permission.proto";
 import "api/v1/download.proto";
+import "api/v1/group.proto";
 
 package api.v1;
 
@@ -114,6 +115,8 @@ message ListUserReply {
   int64 total = 1;        // 总数
   repeated User user = 2; // 用户列表
 }
+
+message ListUserGroupReply { repeated Group group = 1; }
 
 // 验证码响应
 message GetUserCaptchaReply {
@@ -330,6 +333,12 @@ service UserAPI {
       returns (ListUserDownloadReply) {
     option (google.api.http) = {
       get : '/api/v1/user/download',
+    };
+  }
+
+  rpc ListUserGroup(google.protobuf.Empty) returns (ListUserGroupReply) {
+    option (google.api.http) = {
+      get : '/api/v1/user/group',
     };
   }
 

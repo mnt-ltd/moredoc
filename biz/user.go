@@ -868,3 +868,19 @@ func (s *UserAPIService) SendEmailCode(ctx context.Context, req *v1.SendEmailCod
 	}
 	return &emptypb.Empty{}, nil
 }
+
+func (s *UserAPIService) ListUserGroup(ctx context.Context, req *emptypb.Empty) (res *v1.ListUserGroupReply, err error) {
+	userClaims, err := checkGRPCLogin(s.dbModel, ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	groups, err := s.dbModel.GetUserGroups(userClaims.UserId)
+	if err != nil && err != gorm.ErrRecordNotFound {
+		return nil, status.Errorf(codes.Internal, err.Error())
+	}
+
+	res = &v1.ListUserGroupReply{}
+	util.CopyStruct(&groups, &res.Group)
+	return
+}
