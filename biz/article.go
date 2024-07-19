@@ -257,7 +257,7 @@ func (s *ArticleAPIService) ListArticle(ctx context.Context, req *pb.ListArticle
 
 	userClaims, _ := s.checkPermission(ctx)
 	if userClaims == nil {
-		opt.QueryLike["status"] = []interface{}{1}
+		opt.QueryIn["status"] = []interface{}{1}
 	} else if userClaims.HaveAccess || (len(req.UserId) > 0 && req.UserId[0] == userClaims.UserId) {
 		// 管理员或者是作者，可以查询相关状态的文档
 		if req.Wd != "" {
