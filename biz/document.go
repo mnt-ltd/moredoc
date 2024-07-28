@@ -246,6 +246,17 @@ func (s *DocumentAPIService) GetDocument(ctx context.Context, req *pb.GetDocumen
 		pbDoc.CategoryId = append(pbDoc.CategoryId, dc.CategoryId)
 	}
 
+	if len(pbDoc.CategoryId) > 0 {
+		categories, _, _ := s.dbModel.GetCategoryList(&model.OptionGetCategoryList{
+			WithCount: false,
+			QueryIn:   map[string][]interface{}{"id": util.Slice2Interface(pbDoc.CategoryId)},
+			SelectFields: []string{
+				"id", "title", "parent_id",
+			},
+		})
+		util.CopyStruct(&categories, &pbDoc.Category)
+	}
+
 	if req.WithAuthor {
 		user, _ := s.dbModel.GetUser(doc.UserId, model.UserPublicFields...)
 		pbDoc.User = &pb.User{}

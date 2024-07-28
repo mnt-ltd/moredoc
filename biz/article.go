@@ -239,6 +239,18 @@ func (s *ArticleAPIService) GetArticle(ctx context.Context, req *pb.GetArticleRe
 		pbArticle.User = &pb.User{}
 		util.CopyStruct(&user, pbArticle.User)
 	}
+
+	if len(pbArticle.CategoryId) > 0 {
+		categories, _, _ := s.dbModel.GetCategoryList(&model.OptionGetCategoryList{
+			WithCount: false,
+			QueryIn:   map[string][]interface{}{"id": util.Slice2Interface(pbArticle.CategoryId)},
+			SelectFields: []string{
+				"id", "title", "parent_id",
+			},
+		})
+		util.CopyStruct(&categories, &pbArticle.Category)
+	}
+
 	return pbArticle, nil
 }
 

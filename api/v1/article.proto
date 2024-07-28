@@ -6,6 +6,7 @@ import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "api/v1/user.proto";
+import "api/v1/category.proto";
 
 package api.v1;
 
@@ -39,6 +40,7 @@ message Article {
   User user = 18;                     // 文章作者
   int32 status = 19;                  // 文章状态
   string reject_reason = 20;          // 文章拒绝原因
+  repeated Category category = 21;    // 文章分类
 }
 
 // 删除文章请求，传入单个或者多个文章ID
