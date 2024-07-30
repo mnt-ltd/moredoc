@@ -518,6 +518,10 @@ func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList, ctx 
 		s.logger.Error("CopyStruct failed", zap.Error(err))
 	}
 
+	if len(pbDocs) == 0 {
+		return &pb.ListDocumentReply{Total: total}, nil
+	}
+
 	var (
 		docCates            []model.DocumentCategory
 		docUsers            []model.User
@@ -526,6 +530,7 @@ func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList, ctx 
 		deletedUserIndexMap = make(map[int64][]int)
 		docIds              []int64
 		userIds             []int64
+		categoryIds         []int64
 		display             model.ConfigDisplay
 		userId              int64
 	)
@@ -540,6 +545,7 @@ func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList, ctx 
 		model.ConfigDisplayShowDocumentViewCount,
 		model.ConfigDisplayShowDocumentFavoriteCount,
 	)
+
 	for i, doc := range pbDocs {
 		docIndexMap[doc.Id] = i
 		userIndexesMap[doc.UserId] = append(userIndexesMap[doc.UserId], i)
@@ -564,54 +570,81 @@ func (s *DocumentAPIService) listDocument(opt *model.OptionGetDocumentList, ctx 
 		pbDocs[i] = doc
 	}
 
-	if len(pbDocs) > 0 {
-		docCates, _, _ = s.dbModel.GetDocumentCategoryList(&model.OptionGetDocumentCategoryList{
-			WithCount:    false,
-			SelectFields: []string{"document_id", "category_id"},
-			QueryIn:      map[string][]interface{}{"document_id": util.Slice2Interface(docIds)},
-		})
-		for _, docCate := range docCates {
-			pbDocs[docIndexMap[docCate.DocumentId]].CategoryId = append(pbDocs[docIndexMap[docCate.DocumentId]].CategoryId, docCate.CategoryId)
+	docCates, _, _ = s.dbModel.GetDocumentCategoryList(&model.OptionGetDocumentCategoryList{
+		WithCount:    false,
+		SelectFields: []string{"document_id", "category_id"},
+		QueryIn:      map[string][]interface{}{"document_id": util.Slice2Interface(docIds)},
+	})
+	for _, docCate := range docCates {
+		pbDocs[docIndexMap[docCate.DocumentId]].CategoryId = append(pbDocs[docIndexMap[docCate.DocumentId]].CategoryId, docCate.CategoryId)
+		categoryIds = append(categoryIds, docCate.CategoryId)
+	}
+
+	docUsers, _, _ = s.dbModel.GetUserList(&model.OptionGetUserList{
+		WithCount:    false,
+		SelectFields: []string{"id", "username"},
+		QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(userIds)},
+	})
+
+	// 查找文档相关联的附件。对于列表，只返回hash和id，不返回其他字段
+	attachments, _, _ := s.dbModel.GetAttachmentList(&model.OptionGetAttachmentList{
+		WithCount:    false,
+		SelectFields: []string{"hash", "id", "type_id"},
+		QueryIn: map[string][]interface{}{
+			"type_id": util.Slice2Interface(docIds),
+			"type":    {model.AttachmentTypeDocument},
+		},
+	})
+
+	for _, attachment := range attachments {
+		index := docIndexMap[attachment.TypeId]
+		pbDocs[index].Attachment = &pb.Attachment{
+			Hash: attachment.Hash,
+		}
+	}
+
+	for docId, errStr := range s.dbModel.GetConvertError(docIds...) {
+		index := docIndexMap[docId]
+		pbDocs[index].ConvertError = errStr
+	}
+
+	for _, docUser := range docUsers {
+		indexes := userIndexesMap[docUser.Id]
+		for _, index := range indexes {
+			pbDocs[index].Username = docUser.Username
 		}
 
-		docUsers, _, _ = s.dbModel.GetUserList(&model.OptionGetUserList{
-			WithCount:    false,
-			SelectFields: []string{"id", "username"},
-			QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(userIds)},
-		})
+		indexes = deletedUserIndexMap[docUser.Id]
+		for _, index := range indexes {
+			pbDocs[index].DeletedUsername = docUser.Username
+		}
+	}
 
-		// 查找文档相关联的附件。对于列表，只返回hash和id，不返回其他字段
-		attachments, _, _ := s.dbModel.GetAttachmentList(&model.OptionGetAttachmentList{
+	if len(categoryIds) > 0 {
+		categories, _, _ := s.dbModel.GetCategoryList(&model.OptionGetCategoryList{
 			WithCount:    false,
-			SelectFields: []string{"hash", "id", "type_id"},
-			QueryIn: map[string][]interface{}{
-				"type_id": util.Slice2Interface(docIds),
-				"type":    {model.AttachmentTypeDocument},
-			},
+			SelectFields: []string{"id", "title", "parent_id"},
+			QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(categoryIds)},
 		})
-
-		for _, attachment := range attachments {
-			index := docIndexMap[attachment.TypeId]
-			pbDocs[index].Attachment = &pb.Attachment{
-				Hash: attachment.Hash,
+		categoryMap := make(map[int64]*pb.Category)
+		for _, category := range categories {
+			categoryMap[category.Id] = &pb.Category{
+				Id:       category.Id,
+				Title:    category.Title,
+				ParentId: category.ParentId,
 			}
 		}
 
-		for docId, errStr := range s.dbModel.GetConvertError(docIds...) {
-			index := docIndexMap[docId]
-			pbDocs[index].ConvertError = errStr
-		}
-
-		for _, docUser := range docUsers {
-			indexes := userIndexesMap[docUser.Id]
-			for _, index := range indexes {
-				pbDocs[index].Username = docUser.Username
+		for _, pbDoc := range pbDocs {
+			categories := make([]*pb.Category, 0)
+			for _, categoryId := range pbDoc.CategoryId {
+				if category, ok := categoryMap[categoryId]; ok {
+					categories = append(categories, category)
+				}
 			}
 
-			indexes = deletedUserIndexMap[docUser.Id]
-			for _, index := range indexes {
-				pbDocs[index].DeletedUsername = docUser.Username
-			}
+			// 根据分类id转换为分类名称
+			pbDoc.Category = util.SortCatesByParentId(categories)
 		}
 	}
 

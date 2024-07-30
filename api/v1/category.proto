@@ -14,8 +14,8 @@ option java_package = "api.v1";
 
 // 文档分类
 message Category {
-  int32 id = 1;        // 分类ID
-  int32 parent_id = 2; // 父分类ID
+  int64 id = 1;        // 分类ID
+  int64 parent_id = 2; // 父分类ID
   string title = 3
       [ (gogoproto.moretags) = "validate:\"required\"" ]; // 分类标题
   int32 doc_count = 4;                                    // 文档数量

@@ -15,6 +15,8 @@ import (
 	"runtime"
 	"strings"
 
+	pb "moredoc/api/v1"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/alexandrevicenzi/unchained"
 	"github.com/disintegration/imaging"
@@ -296,4 +298,26 @@ func CalcMD5(data []byte) string {
 	h := md5.New()
 	h.Write(data)
 	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+// 根据parent_it进行上下级排序分类
+func SortCatesByParentId(categories []*pb.Category) (cates []*pb.Category) {
+	if len(categories) == 0 {
+		return
+	}
+
+	categoryMap := make(map[int64]*pb.Category)
+	for _, category := range categories {
+		categoryMap[category.ParentId] = category
+	}
+
+	var parentId int64
+	for {
+		if child, ok := categoryMap[parentId]; ok {
+			cates = append(cates, child)
+			parentId = child.Id
+		} else {
+			return cates
+		}
+	}
 }
