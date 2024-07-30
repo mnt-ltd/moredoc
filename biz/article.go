@@ -411,6 +411,39 @@ func (s *ArticleAPIService) ListRecycleArticle(ctx context.Context, req *pb.List
 		return nil, status.Errorf(codes.Internal, "获取文章列表失败"+err.Error())
 	}
 
+	var categoryIds []int64
+	for _, article := range articles {
+		categoryIds = append(categoryIds, article.CategoryId...)
+	}
+
+	if len(categoryIds) > 0 {
+		categories, _, _ := s.dbModel.GetCategoryList(&model.OptionGetCategoryList{
+			WithCount:    false,
+			SelectFields: []string{"id", "title", "parent_id"},
+			QueryIn:      map[string][]interface{}{"id": util.Slice2Interface(categoryIds)},
+		})
+		categoryMap := make(map[int64]*pb.Category)
+		for _, category := range categories {
+			categoryMap[category.Id] = &pb.Category{
+				Id:       category.Id,
+				Title:    category.Title,
+				ParentId: category.ParentId,
+			}
+		}
+
+		for _, article := range pbArticle {
+			categories := make([]*pb.Category, 0)
+			for _, categoryId := range article.CategoryId {
+				if category, ok := categoryMap[categoryId]; ok {
+					categories = append(categories, category)
+				}
+			}
+
+			// 根据分类id转换为分类名称
+			article.Category = util.SortCatesByParentId(categories)
+		}
+	}
+
 	return &pb.ListArticleReply{
 		Total:   total,
 		Article: pbArticle,
