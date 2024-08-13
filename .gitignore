@@ -24,3 +24,4 @@ license.cert
 .DS_Store
 /moredoc
 /dictionary/custom.txt
+/util/oauth/wework/wechat
