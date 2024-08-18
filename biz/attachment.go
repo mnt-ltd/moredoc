@@ -284,17 +284,27 @@ func (s *AttachmentAPIService) DownloadDocument(ctx *gin.Context) {
 	claims := &jwt.StandardClaims{}
 	token := ctx.Param("jwt")
 	cfg := s.dbModel.GetConfigOfDownload(model.ConfigDownloadSecretKey)
+	documentId, _ := ctx.GetQuery("document_id")
+	userId, _ := ctx.GetQuery("user_id")
+
 	// 验证JWT是否合法
 	jwtToken, err := jwt.ParseWithClaims(token, claims, func(t *jwt.Token) (interface{}, error) {
 		return []byte(cfg.SecretKey), nil
 	})
-	if err != nil || !jwtToken.Valid || len(claims.Id) != 32 {
+
+	if err != nil || !jwtToken.Valid {
 		ctx.String(http.StatusBadRequest, "下载链接已失效")
 		return
 	}
 
+	claimsId := strings.Split(claims.Id, ".") // claims.id 由 userId.hash.documentId 组成
+	if len(claimsId) != 3 || claimsId[0] != userId || claimsId[2] != documentId {
+		ctx.String(http.StatusBadRequest, "下载链接已失效")
+	}
+
+	hash := claimsId[1]
 	filename := ctx.Query("filename")
-	file := fmt.Sprintf("documents/%s/%s%s", strings.Join(strings.Split(claims.Id, "")[:5], "/"), claims.Id, filepath.Ext(filename))
+	file := fmt.Sprintf("documents/%s/%s%s", strings.Join(strings.Split(hash, "")[:5], "/"), hash, filepath.Ext(filename))
 	ctx.FileAttachment(file, filename)
 }
 

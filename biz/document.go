@@ -943,7 +943,7 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 		Content: fmt.Sprintf(`下载了文档《<a href="/document/%s">%s</a>》`, doc.UUID, html.EscapeString(doc.Title)),
 	})
 
-	link, err := s.generateDownloadURL(doc, cfg, attachment.Hash)
+	link, err := s.generateDownloadURL(doc, cfg, attachment.Hash, doc.Id, userId)
 	if err != nil {
 		return res, status.Errorf(codes.Internal, "生成下载地址失败：%s", err.Error())
 	}
@@ -954,18 +954,18 @@ func (s *DocumentAPIService) DownloadDocument(ctx context.Context, req *pb.Docum
 }
 
 // 通过JWT生成下载文档的URL
-func (s *DocumentAPIService) generateDownloadURL(document model.Document, cfg model.ConfigDownload, hash string) (link string, err error) {
+func (s *DocumentAPIService) generateDownloadURL(document model.Document, cfg model.ConfigDownload, hash string, documentId int64, userId int64) (link string, err error) {
 	expiredAt := time.Now().Add(time.Second * time.Duration(cfg.UrlDuration)).Unix()
 	claims := jwt.StandardClaims{
 		ExpiresAt: expiredAt,
-		Id:        hash,
+		Id:        fmt.Sprintf("%d.%s.%d", userId, hash, documentId), // 用户ID.附件hash.文档ID
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(cfg.SecretKey))
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("/download/%s?filename=%s", tokenString, url.QueryEscape(document.Title+document.Ext)), nil
+	return fmt.Sprintf("/download/%s?user_id=%d&document_id=%d&filename=%s", tokenString, userId, documentId, url.QueryEscape(document.Title+document.Ext)), nil
 }
 
 func (s *DocumentAPIService) GetRelatedDocuments(ctx context.Context, req *pb.Document) (res *pb.ListDocumentReply, err error) {
@@ -1147,7 +1147,7 @@ func (s *DocumentAPIService) DownloadDocumentToBeReviewed(ctx context.Context, r
 	}
 
 	cfgDown := s.dbModel.GetConfigOfDownload()
-	link, err := s.generateDownloadURL(doc, cfgDown, attachment.Hash)
+	link, err := s.generateDownloadURL(doc, cfgDown, attachment.Hash, doc.Id, userClaims.UserId)
 	if err != nil {
 		return res, status.Errorf(codes.Internal, "生成下载地址失败：%s", err.Error())
 	}
