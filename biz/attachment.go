@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"mime/multipart"
 	"net/http"
@@ -84,17 +85,18 @@ func (s *AttachmentAPIService) UpdateAttachment(ctx context.Context, req *pb.Att
 }
 
 func (s *AttachmentAPIService) DeleteAttachment(ctx context.Context, req *pb.DeleteAttachmentRequest) (*emptypb.Empty, error) {
-	_, err := s.checkPermission(ctx)
-	if err != nil {
-		return nil, err
-	}
+	return nil, errors.New("附件不允许直接删除。附件由系统直接管理，会随着相应数据的删除而自动删除。")
+	// _, err := s.checkPermission(ctx)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	err = s.dbModel.DeleteAttachment(req.Id)
-	if err != nil {
-		return nil, status.Error(codes.Internal, err.Error())
-	}
+	// err = s.dbModel.DeleteAttachment(req.Id)
+	// if err != nil {
+	// 	return nil, status.Error(codes.Internal, err.Error())
+	// }
 
-	return &emptypb.Empty{}, nil
+	// return &emptypb.Empty{}, nil
 }
 
 // GetAttachment 查询单个附件信息
@@ -450,6 +452,12 @@ func (s *AttachmentAPIService) saveFile(ctx *gin.Context, fileHeader *multipart.
 	md5hash, errHash := filetil.GetFileMD5(cachePath)
 	if errHash != nil {
 		err = errHash
+		return
+	}
+
+	// 根据md5hash值，判断文件是否被标注为非法。
+	if s.dbModel.IsDisabledAttachment(md5hash) {
+		err = errors.New("文件已被标记为非法文件，禁止上传")
 		return
 	}
 

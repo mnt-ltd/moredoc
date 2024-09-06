@@ -79,14 +79,11 @@ func (m *DBModel) CreateAttachment(attachment *Attachment) (err error) {
 	return
 }
 
-// CreateAttachment 创建Attachment
-func (m *DBModel) CreateAttachments(attachments []*Attachment) (err error) {
-	err = m.db.Create(attachments).Error
-	if err != nil {
-		m.logger.Error("CreateAttachment", zap.Error(err))
-		return
-	}
-	return
+// 附件是否被标注为非法
+func (m *DBModel) IsDisabledAttachment(hash string) bool {
+	var existAttachment Attachment
+	m.db.Model(&Attachment{}).Where("hash = ? and enable = ?", hash, false).Find(&existAttachment)
+	return existAttachment.Id > 0
 }
 
 // GetAttachmentTypeName 获取附件类型名称
