@@ -455,6 +455,18 @@ func (m *DBModel) initGroupAndPermission() (err error) {
 			}
 		}
 	}
+
+	// 废弃了的API权限，需要删除
+	deprecatedPermissions := []string{
+		"/api.v1.AttachmentAPI/DeleteAttachment",
+	}
+	for _, path := range deprecatedPermissions {
+		err = sess.Where("path = ?", path).Delete(&Permission{}).Error
+		if err != nil {
+			m.logger.Error("initPermission", zap.Error(err))
+			return
+		}
+	}
 	return
 }
 
