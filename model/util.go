@@ -336,7 +336,7 @@ func (m *DBModel) loopCovertDocument() {
 	os.RemoveAll("cache/convert")
 	convertDocumentRunning = true
 	sleep := 10 * time.Second
-	m.db.Model(&Document{}).Where("status = ?", DocumentStatusConverting).Update("status", DocumentStatusPending)
+	m.db.Model(&Document{}).Where("status in ?", []int{DocumentStatusConverting, DocumentStatusRePending}).Update("status", DocumentStatusPending)
 	for {
 		now := time.Now()
 		m.logger.Debug("loopCovertDocument，start...")

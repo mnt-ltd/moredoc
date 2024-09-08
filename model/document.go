@@ -29,7 +29,7 @@ const (
 	DocumentStatusDisabled             // 已禁用
 	DocumentStatusRePending            // 重新等待转换
 	DocumentStatusPendingReview        // 待审核
-	DocumentStatusReviewReject
+	DocumentStatusReviewReject         // 审核拒绝
 )
 
 var DocumentStatusMap = map[int]struct{}{
@@ -779,7 +779,17 @@ func (m *DBModel) ConvertDocument() (err error) {
 }
 
 func (m *DBModel) SetDocumentStatus(documentIds []int64, status int) (err error) {
-	err = m.db.Model(&Document{}).Where("id in (?)", documentIds).Update("status", status).Error
+	// 文档已转换的情况
+	if status == DocumentStatusConverted {
+		err = m.db.Model(&Document{}).Where("id in (?) and pages > 0", documentIds).Update("status", status).Error
+		if err == nil {
+			// 更新为待转换状态
+			err = m.db.Model(&Document{}).Where("id in (?) and pages = 0", documentIds).Update("status", DocumentStatusPending).Error
+		}
+	} else {
+		err = m.db.Model(&Document{}).Where("id in (?)", documentIds).Update("status", status).Error
+	}
+
 	if err != nil {
 		m.logger.Error("SetDocumentStatus", zap.Error(err))
 	}
