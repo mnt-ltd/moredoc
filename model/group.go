@@ -164,8 +164,8 @@ func (m *DBModel) GetUserGroups(userId int64) (groupList []Group, err error) {
 	tableName := Group{}.TableName() + " g"
 	tableUserGroup := UserGroup{}.TableName() + " ug"
 	db := m.DB().Table(tableName).Joins(
-		"left join "+tableUserGroup+" on g.id = ug.group_id and ug.user_id = ?", userId,
-	)
+		"left join "+tableUserGroup+" on g.id = ug.group_id",
+	).Where("ug.user_id = ?", userId)
 	db = db.Select(m.GetTableFields(tableName))
 	err = db.Find(&groupList).Error
 	if err != nil && err != gorm.ErrRecordNotFound {
