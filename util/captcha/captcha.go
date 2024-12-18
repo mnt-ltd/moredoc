@@ -5,8 +5,7 @@ import (
 )
 
 var (
-	store = base64Captcha.DefaultMemStore
-	// sourceChinese      = strings.Join(strings.Split("欢迎使用由深圳市摩枫网络科技有限公司基于阿帕奇开源协议的魔豆文库系统", ""), ",")
+	store              = base64Captcha.DefaultMemStore
 	sourceString       = "1234567890qwertyuioplkjhgfdsazxcvbnm"
 	CaptchaTypeOptions = "string:字符串\nmath:算术\ndigit:数字\naudio:语音"
 )
@@ -36,11 +35,10 @@ func GenerateCaptcha(captchaType string, length, width, height int) (id, b64s st
 		}
 	case "string":
 		driver = &base64Captcha.DriverString{
-			Height:          height,
-			Width:           width,
-			Source:          sourceString,
-			ShowLineOptions: base64Captcha.OptionShowHollowLine | base64Captcha.OptionShowSlimeLine | base64Captcha.OptionShowSineLine,
-			Length:          length,
+			Height: height,
+			Width:  width,
+			Source: sourceString,
+			Length: length,
 		}
 	case "math":
 		driver = &base64Captcha.DriverMath{
@@ -48,24 +46,12 @@ func GenerateCaptcha(captchaType string, length, width, height int) (id, b64s st
 			Width:      width,
 			NoiseCount: 0,
 		}
-	// case "chinese":
-	// 	driver = base64Captcha.NewDriverChinese(
-	// 		height,
-	// 		width,
-	// 		0,
-	// 		0,
-	// 		4,
-	// 		sourceChinese,
-	// 		nil,
-	// 		nil,
-	// 		[]string{"wqy-microhei.ttc"},
-	// 	).ConvertFonts()
 	default:
 		driver = &base64Captcha.DriverDigit{
 			Height:   height,
 			Width:    width,
-			DotCount: 80,
-			MaxSkew:  1,
+			DotCount: 30,
+			MaxSkew:  0,
 			Length:   length,
 		}
 	}
