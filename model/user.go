@@ -277,19 +277,43 @@ func (m *DBModel) GetUserList(opt *OptionGetUserList) (userList []User, total in
 // TODO: 删除数据之后，存在 user_id 的关联表，需要删除对应数据，同时相关表的统计数值，也要随着减少
 // TODO: 删除关联表数据，以及关联表的关联表数据，同时相关文件也一并删除掉
 func (m *DBModel) DeleteUser(ids []int64) (err error) {
-	sess := m.db.Begin()
+	// 查询是否存在文章、文档数量大于0的用户，如果存在，则不允许删除
+	var userIds []int64
+	m.db.Model(&User{}).Where("id in (?) and (doc_count > 0 or article_count > 0)", ids).Pluck("id", &userIds)
+	if len(userIds) > 0 {
+		err = fmt.Errorf("用户存在文档或文章，不允许删除")
+		m.logger.Error("DeleteUser", zap.Error(err))
+		return
+	}
+
+	tx := m.db.Begin()
 	defer func() {
 		if err != nil {
-			sess.Rollback()
+			tx.Rollback()
 		} else {
-			sess.Commit()
+			tx.Commit()
 		}
 	}()
 
 	// id==1的用户不允许删除
-	err = sess.Where("id in (?) and id != ?", ids, 1).Delete(&User{}).Error
+	err = tx.Where("id in (?) and id != ?", ids, 1).Delete(&User{}).Error
 	if err != nil {
 		m.logger.Error("DeleteUser", zap.Error(err))
+	}
+
+	tables, _ := m.ShowTables()
+	for _, table := range tables {
+		fields := m.GetTableFields(table)
+		for _, field := range fields {
+			// 存在user_id字段的相关表，都要把对应的数据删除掉
+			if field == "user_id" {
+				err = tx.Table(table).Where("user_id in (?)", ids).Delete(table).Error
+				if err != nil {
+					m.logger.Error("DeleteUser", zap.Error(err))
+				}
+				break
+			}
+		}
 	}
 	return
 }

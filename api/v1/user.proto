@@ -83,7 +83,10 @@ message LoginReply {
 }
 
 // 删除用户
-message DeleteUserRequest { repeated int64 id = 1; }
+message DeleteUserRequest {
+  repeated int64 id = 1;
+  string password = 2; // 管理员删除用户时需要验证密码
+}
 
 // 获取用户信息
 message GetUserRequest { int64 id = 1; }

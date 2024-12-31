@@ -352,9 +352,18 @@ func (s *UserAPIService) UpdateUserPassword(ctx context.Context, req *pb.UpdateU
 }
 
 func (s *UserAPIService) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*emptypb.Empty, error) {
-	_, err := s.checkPermission(ctx)
+	userClaims, err := s.checkPermission(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	user, _ := s.dbModel.GetUser(userClaims.UserId, "id", "password")
+	if user.Id == 0 {
+		return nil, status.Errorf(codes.Unauthenticated, ErrorMessageUserNotExists)
+	}
+
+	if yes, err := unchained.CheckPassword(req.Password, user.Password); !yes || err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "密码错误")
 	}
 
 	err = s.dbModel.DeleteUser(req.Id)
