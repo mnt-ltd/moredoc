@@ -27,7 +27,7 @@ type Article struct {
 	CommentCount  int            `form:"comment_count" json:"comment_count,omitempty" gorm:"column:comment_count;type:int(11);size:11;default:0;comment:评论;"`
 	Title         string         `form:"title" json:"title,omitempty" gorm:"column:title;type:varchar(255);size:255;comment:文章标题;"`
 	Keywords      string         `form:"keywords" json:"keywords,omitempty" gorm:"column:keywords;type:varchar(255);size:255;comment:关键字;"`
-	Description   string         `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(255);size:255;comment:摘要;"`
+	Description   string         `form:"description" json:"description,omitempty" gorm:"column:description;type:varchar(1024);size:1024;comment:摘要;"`
 	Content       string         `form:"content" json:"content,omitempty" gorm:"column:content;type:longtext;comment:内容;"`
 	CreatedAt     time.Time      `form:"created_at" json:"created_at,omitempty" gorm:"column:created_at;type:datetime;comment:创建时间;"`
 	UpdatedAt     time.Time      `form:"updated_at" json:"updated_at,omitempty" gorm:"column:updated_at;type:datetime;comment:更新时间;"`
