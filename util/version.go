@@ -41,9 +41,6 @@ func getLatestVersion(url string) (release *Release, err error) {
 	if err != nil {
 		return nil, err
 	}
-	if resp.IsError() {
-		return nil, resp.Error().(error)
-	}
 	release = &Release{}
 	err = json.Unmarshal(resp.Body(), release)
 	if err != nil {
