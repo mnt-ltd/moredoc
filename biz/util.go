@@ -10,24 +10,30 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hashicorp/golang-lru/v2/expirable"
+	"github.com/patrickmn/go-cache"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 var (
 	errorMessagePermissionDeniedFormat = "您没有权限访问【%s】"
-	// userClaimsLRU 是存储 userClaims 的 LRU 缓存。它用于减少数据库查询的次数。key 是 userClaims.UserId，value 是 userClaims。
-	userClaimsLRU = expirable.NewLRU[int64, *auth.UserClaims](256, nil, time.Second*5)
+	userClaimsCache                    = cache.New(10*time.Second, 20*time.Second)
+	userClaimsCacheDuration            = 10 * time.Second
 )
+
+func _getUserClaimsFromCacheKey(userId int64, method, path string) (key string) {
+	return fmt.Sprintf("%d-%s-%s", userId, method, path)
+}
 
 func checkGinPermission(dbModel *model.DBModel, ctx *gin.Context) (userClaims *auth.UserClaims, statusCode int, err error) {
 	userClaims, statusCode, err = checkGinLogin(dbModel, ctx)
 	if err != nil {
 		return
 	}
-	if v, ok := userClaimsLRU.Get(userClaims.UserId); ok {
-		return v, http.StatusOK, nil
+	cacheKey := _getUserClaimsFromCacheKey(userClaims.UserId, ctx.Request.Method, ctx.Request.URL.Path)
+	if v, ok := userClaimsCache.Get(cacheKey); ok {
+		userClaims = v.(*auth.UserClaims)
+		return userClaims, http.StatusOK, nil
 	}
 	if permission, yes := dbModel.CheckPermissionByUserId(userClaims.UserId, ctx.Request.URL.Path, ctx.Request.Method); !yes {
 		statusCode = http.StatusForbidden
@@ -38,7 +44,7 @@ func checkGinPermission(dbModel *model.DBModel, ctx *gin.Context) (userClaims *a
 		return userClaims, statusCode, fmt.Errorf(errorMessagePermissionDeniedFormat, item)
 	}
 	userClaims.HaveAccess = true
-	userClaimsLRU.Add(userClaims.UserId, userClaims)
+	userClaimsCache.Add(cacheKey, userClaims, userClaimsCacheDuration)
 	return
 }
 
@@ -60,8 +66,10 @@ func checkGRPCPermission(dbModel *model.DBModel, ctx context.Context) (userClaim
 	if err != nil {
 		return
 	}
-	if v, ok := userClaimsLRU.Get(userClaims.UserId); ok {
-		return v, nil
+	cacheKey := _getUserClaimsFromCacheKey(userClaims.UserId, ctx.Value(auth.CtxKeyFullMethod).(string), "")
+	if v, ok := userClaimsCache.Get(cacheKey); ok {
+		userClaims = v.(*auth.UserClaims)
+		return userClaims, nil
 	}
 
 	fullMethod, _ := ctx.Value(auth.CtxKeyFullMethod).(string)
@@ -73,7 +81,7 @@ func checkGRPCPermission(dbModel *model.DBModel, ctx context.Context) (userClaim
 		return userClaims, fmt.Errorf(errorMessagePermissionDeniedFormat, item)
 	}
 	userClaims.HaveAccess = true
-	userClaimsLRU.Add(userClaims.UserId, userClaims)
+	userClaimsCache.Add(cacheKey, userClaims, userClaimsCacheDuration)
 	return
 }
 

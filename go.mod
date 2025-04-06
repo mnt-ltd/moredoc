@@ -17,6 +17,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mnt-ltd/command v0.0.0-20240428110414-02dd86325b6e
 	github.com/mnt-ltd/daemore v0.0.0-20240227053424-d57afb9f5e67
+	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.1
 	go.uber.org/zap v1.27.0
@@ -35,7 +36,6 @@ require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
 	github.com/goccy/go-json v0.9.7 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
-	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/lufia/plan9stats v0.0.0-20211012122336-39d0f177ccd0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.1 // indirect
 	github.com/power-devops/perfstat v0.0.0-20210106213030-5aafc221ea8c // indirect
