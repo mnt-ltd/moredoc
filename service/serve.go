@@ -108,6 +108,12 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 		})
 	}
 
+	if cfg.StaticCDNAddr != "" {
+		app.GET("/static/*filepath", func(c *gin.Context) {
+			c.Redirect(http.StatusFound, cfg.StaticCDNAddr+c.Request.URL.Path)
+		})
+	}
+
 	// 根目录访问静态文件，要放在 grpc 服务的前面
 	// 可以在 dist 目录下创建一个 index.html 文件并添加内容，然后访问 http://ip:port
 	app.Use(static.Serve("/uploads", static.LocalFile("./uploads", true)))

@@ -10,13 +10,14 @@ type LoggerConfig struct {
 
 // Config app config
 type Config struct {
-	Level       string //
-	LogEncoding string // log encoding, json or console
-	Logger      LoggerConfig
-	Port        int // listent port
-	Database    Database
-	JWT         JWT
-	NuxtCDNAddr string // nuxt cdn address
+	Level         string //
+	LogEncoding   string // log encoding, json or console
+	Logger        LoggerConfig
+	Port          int // listent port
+	Database      Database
+	JWT           JWT
+	NuxtCDNAddr   string // nuxt cdn address
+	StaticCDNAddr string // static cdn address
 }
 
 type Database struct {
