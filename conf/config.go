@@ -16,6 +16,7 @@ type Config struct {
 	Port        int // listent port
 	Database    Database
 	JWT         JWT
+	NuxtCDNAddr string // nuxt cdn address
 }
 
 type Database struct {
