@@ -71,6 +71,7 @@ func getPermissions() (permissions []Permission) {
 		{Title: "编辑导航", Description: "", Method: "GRPC", Path: "/api.v1.NavigationAPI/UpdateNavigation"},
 		{Title: "新增导航", Description: "", Method: "GRPC", Path: "/api.v1.NavigationAPI/CreateNavigation"},
 		{Title: "删除导航", Description: "", Method: "GRPC", Path: "/api.v1.NavigationAPI/DeleteNavigation"},
+		{Title: "查看导航列表", Description: "", Method: "GRPC", Path: "/api.v1.NavigationAPI/ListNavigation"},
 		{Title: "获取用户处罚列表", Description: "", Method: "GRPC", Path: "/api.v1.PunishmentAPI/ListPunishment"},
 		{Title: "获取单个处罚信息", Description: "", Method: "GRPC", Path: "/api.v1.PunishmentAPI/GetPunishment"},
 		{Title: "取消用户处罚", Description: "", Method: "GRPC", Path: "/api.v1.PunishmentAPI/CancelPunishment"},

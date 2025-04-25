@@ -118,6 +118,7 @@ func (s *NavigationAPIService) GetNavigation(ctx context.Context, req *pb.GetNav
 }
 
 func (s *NavigationAPIService) ListNavigation(ctx context.Context, req *pb.ListNavigationRequest) (*pb.ListNavigationReply, error) {
+
 	opt := &model.OptionGetNavigationList{
 		Page:         int(req.Page),
 		Size:         int(req.Size_),
@@ -129,11 +130,14 @@ func (s *NavigationAPIService) ListNavigation(ctx context.Context, req *pb.ListN
 		opt.Sort = strings.Split(req.Order, ",")
 	}
 
-	if req.Wd != "" {
-		opt.QueryLike = map[string][]interface{}{
-			"title":       {req.Wd},
-			"description": {req.Wd},
-			"href":        {req.Wd},
+	userClaims, _ := s.checkPermission(ctx)
+	if userClaims != nil && userClaims.HaveAccess {
+		if req.Wd != "" {
+			opt.QueryLike = map[string][]interface{}{
+				"title":       {req.Wd},
+				"description": {req.Wd},
+				"href":        {req.Wd},
+			}
 		}
 	}
 
