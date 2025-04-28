@@ -204,7 +204,14 @@ func (m *DBModel) SyncDB() (err error) {
 }
 
 func (m *DBModel) RunTasks() {
-	go m.loopCovertDocument()
+	time.AfterFunc(2*time.Minute, func() {
+		// 程序启动两分钟之后再去转换文档，
+		// 避免超大文档在程序启动之后就开始转换，
+		// 导致libreoffice等工具占用服务器内存过高
+		// 造成程序崩溃
+		// 留足窗口期，给用户去删除相应文档
+		go m.loopCovertDocument()
+	})
 	go m.cronUpdateSitemap()
 	go m.cronMarkAttachmentDeleted()
 	go m.cronCleanInvalidAttachment()
