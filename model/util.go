@@ -328,7 +328,7 @@ func (m *DBModel) cronMarkAttachmentDeleted() {
 	}
 }
 
-func (m *DBModel) loopCovertDocument() {
+func (m *DBModel) loopConvertDocument() {
 	if convertDocumentRunning {
 		return
 	}
@@ -339,12 +339,12 @@ func (m *DBModel) loopCovertDocument() {
 	m.db.Model(&Document{}).Where("status in ?", []int{DocumentStatusConverting, DocumentStatusRePending}).Update("status", DocumentStatusPending)
 	for {
 		now := time.Now()
-		m.logger.Debug("loopCovertDocument，start...")
+		m.logger.Debug("loopConvertDocument，start...")
 		err := m.ConvertDocument()
 		if err != nil && err != gorm.ErrRecordNotFound {
-			m.logger.Error("loopCovertDocument", zap.Error(err))
+			m.logger.Error("loopConvertDocument", zap.Error(err))
 		}
-		m.logger.Debug("loopCovertDocument，end...", zap.String("cost", time.Since(now).String()))
+		m.logger.Debug("loopConvertDocument，end...", zap.String("cost", time.Since(now).String()))
 		if err == gorm.ErrRecordNotFound {
 			time.Sleep(sleep)
 		}

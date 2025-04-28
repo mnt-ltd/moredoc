@@ -210,7 +210,7 @@ func (m *DBModel) RunTasks() {
 		// 导致libreoffice等工具占用服务器内存过高
 		// 造成程序崩溃
 		// 留足窗口期，给用户去删除相应文档
-		go m.loopCovertDocument()
+		go m.loopConvertDocument()
 	})
 	go m.cronUpdateSitemap()
 	go m.cronMarkAttachmentDeleted()
