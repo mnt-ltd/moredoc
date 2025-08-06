@@ -64,7 +64,6 @@ builddarwin:
 	GOOS=darwin GOARCH=amd64 go build -v -o release/${BRANCH}/${VERSION}/darwin/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/darwin
 	cp -r dictionary release/${BRANCH}/${VERSION}/darwin
-	cp -r data release/${BRANCH}/${VERSION}/darwin
 	cp -r app.example.toml release/${BRANCH}/${VERSION}/darwin
 	rm -rf release/${BRANCH}/${VERSION}/darwin/dist/_nuxt/icons
 	rm -rf release/${BRANCH}/${VERSION}/darwin/dist/_nuxt/manifest*
@@ -75,7 +74,6 @@ builddarwinarm:
 	GOOS=darwin GOARCH=arm64 go build -v -o release/${BRANCH}/${VERSION}/darwin-arm/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/darwin-arm
 	cp -r dictionary release/${BRANCH}/${VERSION}/darwin-arm
-	cp -r data release/${BRANCH}/${VERSION}/darwin-arm
 	cp -r app.example.toml release/${BRANCH}/${VERSION}/darwin-arm
 	rm -rf release/${BRANCH}/${VERSION}/darwin-arm/dist/_nuxt/icons
 	rm -rf release/${BRANCH}/${VERSION}/darwin-arm/dist/_nuxt/manifest*
@@ -86,7 +84,6 @@ buildlinux:
 	GOOS=linux GOARCH=amd64 go build -v -o release/${BRANCH}/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/linux
 	cp -r dictionary release/${BRANCH}/${VERSION}/linux
-	cp -r data release/${BRANCH}/${VERSION}/linux
 	cp -r app.example.toml release/${BRANCH}/${VERSION}/linux
 	rm -rf release/${BRANCH}/${VERSION}/linux/dist/_nuxt/icons
 	rm -rf release/${BRANCH}/${VERSION}/linux/dist/_nuxt/manifest*
@@ -96,10 +93,8 @@ builddockeramd:
 	rm -rf release/${BRANCH}/${VERSION}/dockeramd
 	GOOS=linux GOARCH=amd64 go build -v -o release/${BRANCH}/${VERSION}/dockeramd/server/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/dockeramd/server
-	cp -r data release/${BRANCH}/${VERSION}/dockeramd/server
 	cp -r dictionary release/${BRANCH}/${VERSION}/dockeramd/server
 	cp docker/dockerfile release/${BRANCH}/${VERSION}/dockeramd/dockerfile
-	cp docker/es-dockerfile release/${BRANCH}/${VERSION}/dockeramd/es-dockerfile
 	cp docker/docker-compose.yml release/${BRANCH}/${VERSION}/dockeramd/docker-compose.yml
 	cp docker/README.md release/${BRANCH}/${VERSION}/dockeramd/部署教程.md
 	cp -r docker/mysql release/${BRANCH}/${VERSION}/dockeramd/mysql
@@ -113,9 +108,7 @@ builddockerarm:
 	GOOS=linux GOARCH=arm64 go build -v -o release/${BRANCH}/${VERSION}/dockerarm/server/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/dockerarm/server
 	cp -r dictionary release/${BRANCH}/${VERSION}/dockerarm/server
-	cp -r data release/${BRANCH}/${VERSION}/dockerarm/server
 	cp docker/dockerfile release/${BRANCH}/${VERSION}/dockerarm/dockerfile
-	cp docker/es-dockerfile release/${BRANCH}/${VERSION}/dockerarm/es-dockerfile
 	cp docker/docker-compose.yml release/${BRANCH}/${VERSION}/dockerarm/docker-compose.yml
 	cp docker/README.md release/${BRANCH}/${VERSION}/dockerarm/部署教程.md
 	cp -r docker/mysql release/${BRANCH}/${VERSION}/dockerarm/mysql
@@ -129,7 +122,6 @@ buildwin:
 	GOOS=windows GOARCH=amd64 go build -v -o release/${BRANCH}/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/windows
 	cp -r dictionary release/${BRANCH}/${VERSION}/windows
-	cp -r data release/${BRANCH}/${VERSION}/windows
 	cp -r app.example.toml release/${BRANCH}/${VERSION}/windows
 	rm -rf release/${BRANCH}/${VERSION}/windows/dist/_nuxt/icons
 	rm -rf release/${BRANCH}/${VERSION}/windows/dist/_nuxt/manifest*
@@ -140,7 +132,6 @@ buildlinuxarm:
 	GOOS=linux GOARCH=arm64 go build -v -o release/${BRANCH}/${VERSION}/linux-arm/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/linux-arm
 	cp -r dictionary release/${BRANCH}/${VERSION}/linux-arm
-	cp -r data release/${BRANCH}/${VERSION}/linux-arm
 	cp -r app.example.toml release/${BRANCH}/${VERSION}/linux-arm
 	rm -rf release/${BRANCH}/${VERSION}/linux-arm/dist/_nuxt/icons
 	rm -rf release/${BRANCH}/${VERSION}/linux-arm/dist/_nuxt/manifest*
@@ -151,7 +142,6 @@ buildwinarm:
 	GOOS=windows GOARCH=arm64 go build -v -o release/${BRANCH}/${VERSION}/windows-arm/moredoc.exe -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/windows-arm
 	cp -r dictionary release/${BRANCH}/${VERSION}/windows-arm
-	cp -r data release/${BRANCH}/${VERSION}/windows-arm
 	cp -r app.example.toml release/${BRANCH}/${VERSION}/windows-arm
 	rm -rf release/${BRANCH}/${VERSION}/windows-arm/dist/_nuxt/icons
 	rm -rf release/${BRANCH}/${VERSION}/windows-arm/dist/_nuxt/manifest*
