@@ -1,5 +1,6 @@
 GOPATH:=$(shell go env GOPATH)
-VERSION=$(shell git describe --tags --always)
+BRANCH=$(shell git rev-parse --abbrev-ref HEAD 2>/dev/null)
+VERSION=$(shell git tag --sort=-v:refname | grep ${BRANCH}- | head -n 1 | sed 's/${BRANCH}-//')
 GITHASH=$(shell git rev-parse HEAD 2>/dev/null)
 BUILDAT=$(shell date +%FT%T%z)
 API_PROTO_FILES=$(shell find api/* -name *.proto)
@@ -45,98 +46,116 @@ doc:
 		--openapi_out==paths=source_relative:docs \
 		$(API_PROTO_FILES)
 
+# 生成openapi
+openapi:
+	protoc --proto_path=. \
+		--proto_path=./third_party \
+		--proto_path=./api \
+		--openapiv2_out ./docs \
+		$(API_PROTO_FILES)
+
 .PHONY: clean-api-go
 # clean api go file
 clean-api-go:
 	rm -rf api/*/*.go
 
 builddarwin:
-	rm -rf release/${VERSION}/darwin
-	GOOS=darwin GOARCH=amd64 go build -v -o release/${VERSION}/darwin/moredoc -ldflags ${LDFLAGS}
-	cp -r dist release/${VERSION}/darwin
-	cp -r dictionary release/${VERSION}/darwin
-	cp -r app.example.toml release/${VERSION}/darwin
-	rm -rf release/${VERSION}/darwin/dist/_nuxt/icons
-	rm -rf release/${VERSION}/darwin/dist/_nuxt/manifest*
-	cd release/${VERSION}/darwin/ && tar -zcvf ../moredoc_ce_${VERSION}_darwin_amd64.tar.gz ./* && cd ../../
+	rm -rf release/${BRANCH}/${VERSION}/darwin
+	GOOS=darwin GOARCH=amd64 go build -v -o release/${BRANCH}/${VERSION}/darwin/moredoc -ldflags ${LDFLAGS}
+	cp -r dist release/${BRANCH}/${VERSION}/darwin
+	cp -r dictionary release/${BRANCH}/${VERSION}/darwin
+	cp -r data release/${BRANCH}/${VERSION}/darwin
+	cp -r app.example.toml release/${BRANCH}/${VERSION}/darwin
+	rm -rf release/${BRANCH}/${VERSION}/darwin/dist/_nuxt/icons
+	rm -rf release/${BRANCH}/${VERSION}/darwin/dist/_nuxt/manifest*
+	cd release/${BRANCH}/${VERSION}/darwin/ && tar -zcvf ../moredoc_cics_${VERSION}_darwin_amd64.tar.gz ./* && cd ../../
 
 builddarwinarm:
-	rm -rf release/${VERSION}/darwin-arm
-	GOOS=darwin GOARCH=arm64 go build -v -o release/${VERSION}/darwin-arm/moredoc -ldflags ${LDFLAGS}
-	cp -r dist release/${VERSION}/darwin-arm
-	cp -r dictionary release/${VERSION}/darwin-arm
-	cp -r app.example.toml release/${VERSION}/darwin-arm
-	rm -rf release/${VERSION}/darwin-arm/dist/_nuxt/icons
-	rm -rf release/${VERSION}/darwin-arm/dist/_nuxt/manifest*
-	cd release/${VERSION}/darwin-arm/ && tar -zcvf ../moredoc_ce_${VERSION}_darwin_arm64.tar.gz ./* && cd ../../
+	rm -rf release/${BRANCH}/${VERSION}/darwin-arm
+	GOOS=darwin GOARCH=arm64 go build -v -o release/${BRANCH}/${VERSION}/darwin-arm/moredoc -ldflags ${LDFLAGS}
+	cp -r dist release/${BRANCH}/${VERSION}/darwin-arm
+	cp -r dictionary release/${BRANCH}/${VERSION}/darwin-arm
+	cp -r data release/${BRANCH}/${VERSION}/darwin-arm
+	cp -r app.example.toml release/${BRANCH}/${VERSION}/darwin-arm
+	rm -rf release/${BRANCH}/${VERSION}/darwin-arm/dist/_nuxt/icons
+	rm -rf release/${BRANCH}/${VERSION}/darwin-arm/dist/_nuxt/manifest*
+	cd release/${BRANCH}/${VERSION}/darwin-arm/ && tar -zcvf ../moredoc_pro_${VERSION}_darwin_arm64.tar.gz ./* && cd ../../
 
 buildlinux:
-	rm -rf release/${VERSION}/linux
-	GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
-	cp -r dist release/${VERSION}/linux
-	cp -r dictionary release/${VERSION}/linux
-	cp -r app.example.toml release/${VERSION}/linux
-	rm -rf release/${VERSION}/linux/dist/_nuxt/icons
-	rm -rf release/${VERSION}/linux/dist/_nuxt/manifest*
-	cd release/${VERSION}/linux/ && tar -zcvf ../moredoc_ce_${VERSION}_linux_amd64.tar.gz ./* && cd ../../
+	rm -rf release/${BRANCH}/${VERSION}/linux
+	GOOS=linux GOARCH=amd64 go build -v -o release/${BRANCH}/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
+	cp -r dist release/${BRANCH}/${VERSION}/linux
+	cp -r dictionary release/${BRANCH}/${VERSION}/linux
+	cp -r data release/${BRANCH}/${VERSION}/linux
+	cp -r app.example.toml release/${BRANCH}/${VERSION}/linux
+	rm -rf release/${BRANCH}/${VERSION}/linux/dist/_nuxt/icons
+	rm -rf release/${BRANCH}/${VERSION}/linux/dist/_nuxt/manifest*
+	cd release/${BRANCH}/${VERSION}/linux/ && tar -zcvf ../moredoc_cics_${VERSION}_linux_amd64.tar.gz ./* && cd ../../
 
 builddockeramd:
-	rm -rf release/${VERSION}/dockeramd
-	GOOS=linux GOARCH=amd64 go build -v -o release/${VERSION}/dockeramd/server/moredoc -ldflags ${LDFLAGS}
-	cp -r dist release/${VERSION}/dockeramd/server
-	cp -r dictionary release/${VERSION}/dockeramd/server
-	cp docker/dockerfile release/${VERSION}/dockeramd/dockerfile
-	cp docker/docker-compose.yml release/${VERSION}/dockeramd/docker-compose.yml
-	cp docker/README.md release/${VERSION}/dockeramd/部署教程.md
-	cp -r docker/mysql release/${VERSION}/dockeramd/mysql
-	rm -rf release/${VERSION}/dockeramd/dist/_nuxt/icons
-	rm -rf release/${VERSION}/dockeramd/dist/_nuxt/manifest*
-	cd release/${VERSION}/dockeramd/ && tar -zcvf ../moredoc_ce_${VERSION}_docker_amd64.tar.gz ./* && cd ../../
+	rm -rf release/${BRANCH}/${VERSION}/dockeramd
+	GOOS=linux GOARCH=amd64 go build -v -o release/${BRANCH}/${VERSION}/dockeramd/server/moredoc -ldflags ${LDFLAGS}
+	cp -r dist release/${BRANCH}/${VERSION}/dockeramd/server
+	cp -r data release/${BRANCH}/${VERSION}/dockeramd/server
+	cp -r dictionary release/${BRANCH}/${VERSION}/dockeramd/server
+	cp docker/dockerfile release/${BRANCH}/${VERSION}/dockeramd/dockerfile
+	cp docker/es-dockerfile release/${BRANCH}/${VERSION}/dockeramd/es-dockerfile
+	cp docker/docker-compose.yml release/${BRANCH}/${VERSION}/dockeramd/docker-compose.yml
+	cp docker/README.md release/${BRANCH}/${VERSION}/dockeramd/部署教程.md
+	cp -r docker/mysql release/${BRANCH}/${VERSION}/dockeramd/mysql
+	rm -rf release/${BRANCH}/${VERSION}/dockeramd/dist/_nuxt/icons
+	rm -rf release/${BRANCH}/${VERSION}/dockeramd/dist/_nuxt/manifest*
+	cd release/${BRANCH}/${VERSION}/dockeramd/ && tar -zcvf ../moredoc_pro_${VERSION}_docker_amd64.tar.gz ./* && cd ../../
 
 
 builddockerarm:
-	rm -rf release/${VERSION}/dockerarm
-	GOOS=linux GOARCH=arm64 go build -v -o release/${VERSION}/dockerarm/server/moredoc -ldflags ${LDFLAGS}
-	cp -r dist release/${VERSION}/dockerarm/server
-	cp -r dictionary release/${VERSION}/dockerarm/server
-	cp docker/dockerfile release/${VERSION}/dockerarm/dockerfile
-	cp docker/docker-compose.yml release/${VERSION}/dockerarm/docker-compose.yml
-	cp docker/README.md release/${VERSION}/dockerarm/部署教程.md
-	cp -r docker/mysql release/${VERSION}/dockerarm/mysql
-	rm -rf release/${VERSION}/dockerarm/dist/_nuxt/icons
-	rm -rf release/${VERSION}/dockerarm/dist/_nuxt/manifest*
-	cd release/${VERSION}/dockerarm/ && tar -zcvf ../moredoc_ce_${VERSION}_docker_arm64.tar.gz ./* && cd ../../
+	rm -rf release/${BRANCH}/${VERSION}/dockerarm
+	GOOS=linux GOARCH=arm64 go build -v -o release/${BRANCH}/${VERSION}/dockerarm/server/moredoc -ldflags ${LDFLAGS}
+	cp -r dist release/${BRANCH}/${VERSION}/dockerarm/server
+	cp -r dictionary release/${BRANCH}/${VERSION}/dockerarm/server
+	cp -r data release/${BRANCH}/${VERSION}/dockerarm/server
+	cp docker/dockerfile release/${BRANCH}/${VERSION}/dockerarm/dockerfile
+	cp docker/es-dockerfile release/${BRANCH}/${VERSION}/dockerarm/es-dockerfile
+	cp docker/docker-compose.yml release/${BRANCH}/${VERSION}/dockerarm/docker-compose.yml
+	cp docker/README.md release/${BRANCH}/${VERSION}/dockerarm/部署教程.md
+	cp -r docker/mysql release/${BRANCH}/${VERSION}/dockerarm/mysql
+	rm -rf release/${BRANCH}/${VERSION}/dockerarm/dist/_nuxt/icons
+	rm -rf release/${BRANCH}/${VERSION}/dockerarm/dist/_nuxt/manifest*
+	cd release/${BRANCH}/${VERSION}/dockerarm/ && tar -zcvf ../moredoc_pro_${VERSION}_docker_arm64.tar.gz ./* && cd ../../
 
 
 buildwin:
-	rm -rf release/${VERSION}/windows
-	GOOS=windows GOARCH=amd64 go build -v -o release/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
-	cp -r dist release/${VERSION}/windows
-	cp -r dictionary release/${VERSION}/windows
-	cp -r app.example.toml release/${VERSION}/windows
-	rm -rf release/${VERSION}/windows/dist/_nuxt/icons
-	rm -rf release/${VERSION}/windows/dist/_nuxt/manifest*
-	cd release/${VERSION}/windows/ && tar -zcvf ../moredoc_ce_${VERSION}_windows_amd64.tar.gz ./* && cd ../../
+	rm -rf release/${BRANCH}/${VERSION}/windows
+	GOOS=windows GOARCH=amd64 go build -v -o release/${BRANCH}/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
+	cp -r dist release/${BRANCH}/${VERSION}/windows
+	cp -r dictionary release/${BRANCH}/${VERSION}/windows
+	cp -r data release/${BRANCH}/${VERSION}/windows
+	cp -r app.example.toml release/${BRANCH}/${VERSION}/windows
+	rm -rf release/${BRANCH}/${VERSION}/windows/dist/_nuxt/icons
+	rm -rf release/${BRANCH}/${VERSION}/windows/dist/_nuxt/manifest*
+	cd release/${BRANCH}/${VERSION}/windows/ && tar -zcvf ../moredoc_cics_${VERSION}_windows_amd64.tar.gz ./* && cd ../../
 
 buildlinuxarm:
-	rm -rf release/${VERSION}/linux-arm
-	GOOS=linux GOARCH=arm64 go build -v -o release/${VERSION}/linux-arm/moredoc -ldflags ${LDFLAGS}
-	cp -r dist release/${VERSION}/linux-arm
-	cp -r dictionary release/${VERSION}/linux-arm
-	cp -r app.example.toml release/${VERSION}/linux-arm
-	rm -rf release/${VERSION}/linux-arm/dist/_nuxt/icons
-	rm -rf release/${VERSION}/linux-arm/dist/_nuxt/manifest*
-	cd release/${VERSION}/linux-arm/ && tar -zcvf ../moredoc_ce_${VERSION}_linux_arm64.tar.gz ./* && cd ../../
+	rm -rf release/${BRANCH}/${VERSION}/linux-arm
+	GOOS=linux GOARCH=arm64 go build -v -o release/${BRANCH}/${VERSION}/linux-arm/moredoc -ldflags ${LDFLAGS}
+	cp -r dist release/${BRANCH}/${VERSION}/linux-arm
+	cp -r dictionary release/${BRANCH}/${VERSION}/linux-arm
+	cp -r data release/${BRANCH}/${VERSION}/linux-arm
+	cp -r app.example.toml release/${BRANCH}/${VERSION}/linux-arm
+	rm -rf release/${BRANCH}/${VERSION}/linux-arm/dist/_nuxt/icons
+	rm -rf release/${BRANCH}/${VERSION}/linux-arm/dist/_nuxt/manifest*
+	cd release/${BRANCH}/${VERSION}/linux-arm/ && tar -zcvf ../moredoc_cics_${VERSION}_linux_arm64.tar.gz ./* && cd ../../
 
 buildwinarm:
-	rm -rf release/${VERSION}/windows-arm
-	GOOS=windows GOARCH=arm64 go build -v -o release/${VERSION}/windows-arm/moredoc.exe -ldflags ${LDFLAGS}
-	cp -r dist release/${VERSION}/windows-arm
-	cp -r dictionary release/${VERSION}/windows-arm
-	cp -r app.example.toml release/${VERSION}/windows-arm
-	rm -rf release/${VERSION}/windows-arm/dist/_nuxt/icons
-	rm -rf release/${VERSION}/windows-arm/dist/_nuxt/manifest*
-	cd release/${VERSION}/windows-arm/ && tar -zcvf ../moredoc_ce_${VERSION}_windows_arm64.tar.gz ./* && cd ../../
+	rm -rf release/${BRANCH}/${VERSION}/windows-arm
+	GOOS=windows GOARCH=arm64 go build -v -o release/${BRANCH}/${VERSION}/windows-arm/moredoc.exe -ldflags ${LDFLAGS}
+	cp -r dist release/${BRANCH}/${VERSION}/windows-arm
+	cp -r dictionary release/${BRANCH}/${VERSION}/windows-arm
+	cp -r data release/${BRANCH}/${VERSION}/windows-arm
+	cp -r app.example.toml release/${BRANCH}/${VERSION}/windows-arm
+	rm -rf release/${BRANCH}/${VERSION}/windows-arm/dist/_nuxt/icons
+	rm -rf release/${BRANCH}/${VERSION}/windows-arm/dist/_nuxt/manifest*
+	cd release/${BRANCH}/${VERSION}/windows-arm/ && tar -zcvf ../moredoc_cics_${VERSION}_windows_arm64.tar.gz ./* && cd ../../
 
 # 一键编译所有平台
 buildall: builddarwin builddarwinarm buildlinux buildwin buildlinuxarm buildwinarm builddockerarm builddockeramd
