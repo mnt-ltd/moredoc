@@ -84,23 +84,33 @@ func (s *DocumentAPIService) CreateDocument(ctx context.Context, req *pb.CreateD
 	)
 
 	documentStatus := s.dbModel.GetDefaultDocumentStatus(userClaims.UserId)
-	for idx, doc := range req.Document {
-		attachment, ok := attachmentMap[doc.AttachmentId]
+	for idx, item := range req.Document {
+		attachment, ok := attachmentMap[item.AttachmentId]
 		if !ok {
 			continue
 		}
 
 		doc := model.Document{
-			Title:    doc.Title,
-			Keywords: strings.Join(jieba.SegWords(doc.Title), ","),
+			Title:    item.Title,
 			UserId:   userClaims.UserId,
-			UUID:     util.GenDocumentMD5UUID(),
 			Score:    300,
-			Price:    int(doc.Price),
+			Price:    int(item.Price),
 			Size:     attachment.Size,
 			Ext:      attachment.Ext,
 			Status:   documentStatus,
-			Language: doc.Language,
+			UUID:     util.GenDocumentMD5UUID(),
+			Language: item.Language,
+		}
+		item.Keywords = strings.TrimSpace(item.Keywords)
+		item.Description = strings.TrimSpace(item.Description)
+		if item.Keywords != "" { // 关键字
+			doc.Keywords = item.Keywords
+		} else {
+			doc.Keywords = strings.Join(jieba.SegWords(doc.Title), ",")
+		}
+		doc.Keywords = strings.ReplaceAll(doc.Keywords, "，", ", ")
+		if item.Description != "" {
+			doc.Description = util.Substr(item.Description, 512)
 		}
 		docMapAttachment[idx] = attachment.Id
 		documents = append(documents, doc)

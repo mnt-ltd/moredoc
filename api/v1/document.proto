@@ -119,6 +119,8 @@ message CreateDocumentItem {
   int64 attachment_id = 2; // 文档附件ID
   int32 price = 3;         // 文档价格
   string language = 4;     // 文档语言
+  string keywords = 5;     // 文档关键字
+  string description = 6;  // 文档描述
 }
 
 // 创建文档
