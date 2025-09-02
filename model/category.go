@@ -1,6 +1,7 @@
 package model
 
 import (
+	"moredoc/util"
 	"time"
 
 	"go.uber.org/zap"
@@ -82,9 +83,12 @@ func (m *DBModel) UpdateCategory(category *Category, updateFields ...string) (er
 			newParentIds = append(newParentIds, m.GetCategoryParentIds(category.ParentId)...)
 		}
 
+		// 对 newParentIds 进行去重
+		newParentIds = util.RemoveDuplicate(newParentIds)
+
 		// 获取需要更新的文档ID
 		for {
-			m.db.Model(modelDocCate).Select("document_id", "category_id").Where("category_id = ?", existCategory.Id).Limit(limit).Offset((page - 1) * limit).Find(&docCates)
+			tx.Model(modelDocCate).Select("document_id", "category_id").Where("category_id = ?", existCategory.Id).Limit(limit).Offset((page - 1) * limit).Find(&docCates)
 			if len(docCates) == 0 {
 				break
 			}

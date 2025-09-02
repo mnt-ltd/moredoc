@@ -321,3 +321,16 @@ func SortCatesByParentId(categories []*pb.Category) (cates []*pb.Category) {
 		}
 	}
 }
+
+// 使用泛型，对数据进行去重，支持str、int、int64等类型
+func RemoveDuplicate[T comparable](slice []T) []T {
+	unique := make(map[T]struct{})
+	for _, item := range slice {
+		unique[item] = struct{}{}
+	}
+	result := make([]T, 0, len(unique))
+	for item := range unique {
+		result = append(result, item)
+	}
+	return result
+}
