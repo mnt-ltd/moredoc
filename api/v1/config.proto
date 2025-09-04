@@ -95,6 +95,7 @@ message ConfigDisplay {
   string contact_tip = 15;                  // 联系我们提示文案
   string contact_link = 16;                 // 联系我们跳转地址
   string index_document_style = 17;         // 首页文档样式
+  string home_version = 18;
 }
 
 // 安全配置
