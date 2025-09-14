@@ -361,10 +361,6 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 		opt.QueryIn["category_id"] = util.Slice2Interface(req.CategoryId)
 	}
 
-	if len(req.UserId) > 0 {
-		opt.QueryIn["user_id"] = []interface{}{req.UserId[0]}
-	}
-
 	if len(req.Language) > 0 {
 		var languages []interface{}
 		for _, lang := range req.Language {
@@ -391,8 +387,16 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 		opt.QueryRange["created_at"] = [2]interface{}{start, end}
 	}
 
-	_, err := s.checkPermission(ctx)
-	if err == nil { // 有权限，则不限页数
+	if len(req.UserId) > 0 {
+		opt.QueryIn["user_id"] = []interface{}{req.UserId[0]}
+	}
+	currentUserId := int64(0)
+	userClaims, err := s.checkPermission(ctx)
+	if userClaims != nil {
+		currentUserId = userClaims.UserId
+	}
+	if err == nil || (len(req.UserId) > 0 && req.UserId[0] == currentUserId) {
+		// 管理员，或者查询自己的文档，可以查询所有状态的文档
 		if req.Wd != "" {
 			opt.QueryLike["title"] = []interface{}{req.Wd}
 			opt.QueryLike["keywords"] = []interface{}{req.Wd}
@@ -404,15 +408,13 @@ func (s *DocumentAPIService) ListDocument(ctx context.Context, req *pb.ListDocum
 		}
 	} else {
 		opt.Size = util.LimitRange(opt.Size, 1, 24)
-		if len(req.Status) == 1 && req.Status[0] == model.DocumentStatusConverted {
-			opt.QueryIn["status"] = []interface{}{
-				model.DocumentStatusConverted,
-			}
-		} else {
-			opt.QueryIn["status"] = []interface{}{
-				model.DocumentStatusPending, model.DocumentStatusConverting,
-				model.DocumentStatusConverted, model.DocumentStatusFailed,
-			}
+		allowStatus := []int{
+			model.DocumentStatusPending, model.DocumentStatusConverting,
+			model.DocumentStatusConverted, model.DocumentStatusFailed,
+		}
+		opt.QueryIn["status"] = util.Slice2Interface(allowStatus)
+		if len(req.Status) == 1 && util.InSlice(allowStatus, int(req.Status[0])) {
+			opt.QueryIn["status"] = []interface{}{req.Status[0]}
 		}
 	}
 
