@@ -152,8 +152,14 @@ buildwinarm:
 	rm -rf release/${BRANCH}/${VERSION}/windows-arm/dist/_nuxt/manifest*
 	cd release/${BRANCH}/${VERSION}/windows-arm/ && tar -zcvf ../moredoc_cics_${VERSION}_windows_arm64.tar.gz ./* && cd ../../
 
+# 一键编译所有平台，包含web前端
+buildwebserver:
+	node -v
+	cd ../moredoc-web && git checkout ${BRANCH} && npm install && npm run generate
+	cd ../moredoc-web && git checkout ${BRANCH}-ssr && npm install && npm run pack
+
 # 一键编译所有平台
-buildall: builddarwin builddarwinarm buildlinux buildwin buildlinuxarm buildwinarm builddockerarm builddockeramd
+buildall: buildwebserver  builddarwin builddarwinarm buildlinux buildwin buildlinuxarm buildwinarm builddockerarm builddockeramd
 
 # show help
 help:
