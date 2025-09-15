@@ -89,8 +89,6 @@ func Run(cfg *conf.Config, logger *zap.Logger) {
 			AllowCredentials: false,
 			MaxAge:           12 * time.Hour,
 		}),
-		// 写一个中间件，如果是user-agent是百度的，就返回一个sitemap.xml
-		dbModel.SSRMidleware,
 	)
 
 	endpoint := fmt.Sprintf("localhost:%v", cfg.Port)

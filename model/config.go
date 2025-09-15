@@ -6,7 +6,6 @@ import (
 	"moredoc/util"
 	"moredoc/util/captcha"
 	"moredoc/util/filetil"
-	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -42,9 +41,6 @@ const (
 	ConfigCategoryDisplay = "display"
 	// 版本发布信息
 	ConfigCategoryRelease = "release"
-
-	// SSR
-	ConfigCategorySSR = "ssr"
 )
 
 const (
@@ -462,32 +458,6 @@ type ConfigRelease struct {
 	Ignore    string `json:"ignore"`
 }
 
-const (
-	ConfigSSREnable        = "enable"
-	ConfigSSRAddr          = "addr" // SSR 服务地址
-	ConfigSSRUseragent     = "useragent"
-	ConfigSSRFolder        = "folder"         // SSR项目文件夹，用于使用魔豆文库替代pm2等进程管理工具来启动SSR服务
-	ConfigSSRCacheHome     = "cache_home"     // 首页缓存时间
-	ConfigSSRCacheCategory = "cache_category" // 分类页缓存时间
-	ConfigSSRCacheDocument = "cache_document" // 文档页缓存时间
-	ConfigSSRCacheSearch   = "cache_search"   // 搜索页缓存时间
-	ConfigSSRCacheUser     = "cache_user"     // 标签页缓存时间
-	ConfigSSRCacheArticle  = "cache_article"  // 标签页缓存时间
-)
-
-type ConfigSSR struct {
-	Enable        bool   `json:"enable"`
-	Addr          string `json:"addr"`
-	Useragent     string `json:"useragent"`
-	Folder        string `json:"folder"`
-	CacheHome     int    `json:"cache_home"`
-	CacheCategory int    `json:"cache_category"`
-	CacheDocument int    `json:"cache_document"`
-	CacheSearch   int    `json:"cache_search"`
-	CacheUser     int    `json:"cache_user"`
-	CacheArticle  int    `json:"cache_article"`
-}
-
 func (m *DBModel) GetConfigOfDisplay(name ...string) (config ConfigDisplay) {
 	var configs []Config
 
@@ -523,36 +493,6 @@ func (m *DBModel) GetConfigOfRelease(name ...string) (release ConfigRelease) {
 	bytes, _ := json.Marshal(data)
 	json.Unmarshal(bytes, &release)
 
-	return
-}
-
-func (m *DBModel) GetConfigOfSSR(name ...string) (ssr ConfigSSR) {
-	var configs []Config
-	db := m.db.Where("category = ?", ConfigCategorySSR)
-	if len(name) > 0 {
-		db = db.Where("name in (?)", name)
-	}
-	err := db.Find(&configs).Error
-	if err != nil && err != gorm.ErrRecordNotFound {
-		m.logger.Error("GetConfigOfSSR", zap.Error(err))
-	}
-
-	data := m.convertConfig2Map(configs)
-	bytes, _ := json.Marshal(data)
-	json.Unmarshal(bytes, &ssr)
-	return
-}
-
-func (m *DBModel) GetConfigOfSSRByCache() (ssr ConfigSSR) {
-	ssrcfg := "cache/ssr.json"
-	if info, e := os.Stat(ssrcfg); e == nil && info.ModTime().Add(5*time.Second).After(time.Now()) {
-		bytes, _ := os.ReadFile(ssrcfg)
-		json.Unmarshal(bytes, &ssr)
-	} else {
-		ssr = m.GetConfigOfSSR()
-		bytes, _ := json.Marshal(ssr)
-		os.WriteFile(ssrcfg, bytes, os.ModePerm)
-	}
 	return
 }
 
@@ -972,18 +912,6 @@ func (m *DBModel) initConfig() (err error) {
 		{Category: ConfigCategoryRelease, Name: ConfigReleaseName, Label: "版本发布名称", Value: "", InputType: InputTypeText, Sort: 30, Options: ""},
 		{Category: ConfigCategoryRelease, Name: ConfigReleaseBody, Label: "版本发布说明", Value: "", InputType: InputTypeTextarea, Sort: 40, Options: ""},
 		{Category: ConfigCategoryRelease, Name: ConfigReleaseIgnore, Label: "忽略版本提示", Value: "", InputType: InputTypeText, Sort: 50, Options: ""},
-
-		// SSR
-		{Category: ConfigCategorySSR, Name: ConfigSSREnable, Label: "是否启用SSR", Value: "false", Placeholder: "是否启用SSR服务", InputType: InputTypeSwitch, Sort: 10, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRAddr, Label: "SSR服务地址", Value: "", Placeholder: "如：http://127.0.0.1:6060", InputType: InputTypeText, Sort: 20, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRUseragent, Label: "针对哪些客户端有效", Value: "googlebot\nbaiduspider\nbingbot", Placeholder: "请输入客户端关键字，多个请换行输入。（建议按默认的即可）", InputType: InputTypeTextarea, Sort: 30, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRFolder, Label: "SSR项目路径", Value: "", Placeholder: "如果您未使用pm2等来自行启动SSR项目，则在此次配置项目路径，以便文库程序调用指令启动，否则请留空", InputType: InputTypeText, Sort: 50, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRCacheHome, ColNum: 12, Label: "首页缓存时间", Value: "1", Placeholder: "首页SSR缓存时间，单位为天，默认为1天。0表示不启动首页SSR", InputType: InputTypeNumber, Sort: 60, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRCacheArticle, ColNum: 12, Label: "文章缓存时间", Value: "2", Placeholder: "文章SSR缓存时间，单位为天，默认为2天。0表示不启动文章页面SSR", InputType: InputTypeNumber, Sort: 70, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRCacheDocument, ColNum: 12, Label: "文档缓存时间", Value: "2", Placeholder: "文档SSR缓存时间，单位为天，默认为2天。0表示不启动文档页面SSR", InputType: InputTypeNumber, Sort: 80, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRCacheCategory, ColNum: 12, Label: "分类缓存时间", Value: "5", Placeholder: "分类SSR缓存时间，单位为天，默认为5天。0表示不启动分类页面SSR", InputType: InputTypeNumber, Sort: 90, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRCacheUser, ColNum: 12, Label: "用户主页缓存时间", Value: "5", Placeholder: "用户主页缓存时间，单位为天，默认为5天。0表示不启动用户页面SSR", InputType: InputTypeNumber, Sort: 100, Options: ""},
-		{Category: ConfigCategorySSR, Name: ConfigSSRCacheSearch, ColNum: 12, Label: "搜索结果缓存时间", Value: "7", Placeholder: "搜索结果缓存时间，单位为天，默认为7天。0表示不启动搜索结果页面SSR", InputType: InputTypeNumber, Sort: 110, Options: ""},
 	}
 
 	for _, cfg := range cfgs {
