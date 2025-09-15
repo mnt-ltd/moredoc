@@ -63,6 +63,7 @@ builddarwin:
 	rm -rf release/${BRANCH}/${VERSION}/darwin
 	GOOS=darwin GOARCH=amd64 go build -v -o release/${BRANCH}/${VERSION}/darwin/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/darwin
+	cp -r webserver release/${BRANCH}/${VERSION}/darwin
 	cp -r dictionary release/${BRANCH}/${VERSION}/darwin
 	cp -r app.example.toml release/${BRANCH}/${VERSION}/darwin
 	rm -rf release/${BRANCH}/${VERSION}/darwin/dist/_nuxt/icons
@@ -73,6 +74,7 @@ builddarwinarm:
 	rm -rf release/${BRANCH}/${VERSION}/darwin-arm
 	GOOS=darwin GOARCH=arm64 go build -v -o release/${BRANCH}/${VERSION}/darwin-arm/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/darwin-arm
+	cp -r webserver release/${BRANCH}/${VERSION}/darwin-arm
 	cp -r dictionary release/${BRANCH}/${VERSION}/darwin-arm
 	cp -r app.example.toml release/${BRANCH}/${VERSION}/darwin-arm
 	rm -rf release/${BRANCH}/${VERSION}/darwin-arm/dist/_nuxt/icons
@@ -83,6 +85,7 @@ buildlinux:
 	rm -rf release/${BRANCH}/${VERSION}/linux
 	GOOS=linux GOARCH=amd64 go build -v -o release/${BRANCH}/${VERSION}/linux/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/linux
+	cp -r webserver release/${BRANCH}/${VERSION}/linux
 	cp -r dictionary release/${BRANCH}/${VERSION}/linux
 	cp -r app.example.toml release/${BRANCH}/${VERSION}/linux
 	rm -rf release/${BRANCH}/${VERSION}/linux/dist/_nuxt/icons
@@ -121,6 +124,7 @@ buildwin:
 	rm -rf release/${BRANCH}/${VERSION}/windows
 	GOOS=windows GOARCH=amd64 go build -v -o release/${BRANCH}/${VERSION}/windows/moredoc.exe -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/windows
+	cp -r webserver release/${BRANCH}/${VERSION}/windows
 	cp -r dictionary release/${BRANCH}/${VERSION}/windows
 	cp -r app.example.toml release/${BRANCH}/${VERSION}/windows
 	rm -rf release/${BRANCH}/${VERSION}/windows/dist/_nuxt/icons
@@ -131,6 +135,7 @@ buildlinuxarm:
 	rm -rf release/${BRANCH}/${VERSION}/linux-arm
 	GOOS=linux GOARCH=arm64 go build -v -o release/${BRANCH}/${VERSION}/linux-arm/moredoc -ldflags ${LDFLAGS}
 	cp -r dist release/${BRANCH}/${VERSION}/linux-arm
+	cp -r webserver release/${BRANCH}/${VERSION}/linux-arm
 	cp -r dictionary release/${BRANCH}/${VERSION}/linux-arm
 	cp -r app.example.toml release/${BRANCH}/${VERSION}/linux-arm
 	rm -rf release/${BRANCH}/${VERSION}/linux-arm/dist/_nuxt/icons
